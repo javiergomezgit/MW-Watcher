@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="MWWCustomCell" rowHeight="152" id="KGk-i7-Jjw" customClass="MWWCell" customModule="MW_Watcher" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="158"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="158"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ma2-6E-taX">
+                        <rect key="frame" x="0.0" y="23" width="112" height="112"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="Ma2-6E-taX" secondAttribute="height" multiplier="1:1" id="f5V-MG-GjC"/>
+                        </constraints>
+                    </imageView>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="FrameFeedImage" translatesAutoresizingMaskIntoConstraints="NO" id="wWm-R4-ilp">
+                        <rect key="frame" x="0.0" y="23" width="112" height="112"/>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="H4I-FZ-mhb">
+                        <rect key="frame" x="122" y="0.0" width="193" height="126.5"/>
+                        <string key="text">My mom added me to her bank accounts before she died. Am I legally or morally obliged to disclose these accounts to my siblings?</string>
+                        <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="16"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6PI-7c-Pnu">
+                        <rect key="frame" x="122" y="0.0" width="193" height="126.5"/>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="U.S. Stock" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gvi-gE-H0b">
+                        <rect key="frame" x="122" y="134.5" width="96.5" height="23.5"/>
+                        <fontDescription key="fontDescription" name="KohinoorGujarati-Bold" family="Kohinoor Gujarati" pointSize="13"/>
+                        <color key="textColor" systemColor="systemPurpleColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oDu-vy-zcv">
+                        <rect key="frame" x="122" y="134.5" width="96.5" height="31.5"/>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="topRight" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="20 aprl 2021 20:00pm" textAlignment="right" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VTf-Az-TUh">
+                        <rect key="frame" x="223.5" y="126" width="96.5" height="31.5"/>
+                        <fontDescription key="fontDescription" name="KohinoorGujarati-Regular" family="Kohinoor Gujarati" pointSize="10"/>
+                        <color key="textColor" systemColor="systemGrayColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="height" secondItem="H4I-FZ-mhb" secondAttribute="height" id="1P9-RW-Gov"/>
+                    <constraint firstItem="oDu-vy-zcv" firstAttribute="height" secondItem="gvi-gE-H0b" secondAttribute="height" multiplier="1.34043" id="3Er-VJ-Qdy"/>
+                    <constraint firstItem="VTf-Az-TUh" firstAttribute="top" secondItem="H4I-FZ-mhb" secondAttribute="bottom" constant="-0.5" id="FTO-Pb-oYe"/>
+                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Ioc-n7-UP1"/>
+                    <constraint firstItem="gvi-gE-H0b" firstAttribute="leading" secondItem="H4I-FZ-mhb" secondAttribute="leading" id="K67-Cd-t5R"/>
+                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="leading" secondItem="H4I-FZ-mhb" secondAttribute="leading" id="KEf-Y8-z49"/>
+                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.8" id="MZX-45-qy7"/>
+                    <constraint firstItem="oDu-vy-zcv" firstAttribute="width" secondItem="gvi-gE-H0b" secondAttribute="width" id="NMZ-aH-g1W"/>
+                    <constraint firstItem="VTf-Az-TUh" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" multiplier="0.5" id="POk-oI-MKU"/>
+                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="leading" secondItem="Ma2-6E-taX" secondAttribute="trailing" constant="10" id="ZP1-1x-c0z"/>
+                    <constraint firstAttribute="trailing" secondItem="H4I-FZ-mhb" secondAttribute="trailing" constant="5" id="aM4-Lq-w7d"/>
+                    <constraint firstItem="Ma2-6E-taX" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" multiplier="0.35" id="adB-G9-dfj"/>
+                    <constraint firstAttribute="bottom" secondItem="gvi-gE-H0b" secondAttribute="bottom" id="bwj-F4-oMz"/>
+                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="top" secondItem="H4I-FZ-mhb" secondAttribute="top" id="dqz-aj-NP0"/>
+                    <constraint firstItem="wWm-R4-ilp" firstAttribute="leading" secondItem="Ma2-6E-taX" secondAttribute="leading" id="eL9-DW-QU6"/>
+                    <constraint firstItem="oDu-vy-zcv" firstAttribute="top" secondItem="gvi-gE-H0b" secondAttribute="top" id="gV1-MB-MCs"/>
+                    <constraint firstItem="wWm-R4-ilp" firstAttribute="width" secondItem="Ma2-6E-taX" secondAttribute="width" id="gVx-Lg-sk7"/>
+                    <constraint firstItem="VTf-Az-TUh" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.2" id="icS-AS-eBH"/>
+                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" id="lpI-3k-Ok4"/>
+                    <constraint firstItem="oDu-vy-zcv" firstAttribute="leading" secondItem="gvi-gE-H0b" secondAttribute="leading" id="nas-z0-1OO"/>
+                    <constraint firstItem="Ma2-6E-taX" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="ohH-Cy-kZv"/>
+                    <constraint firstItem="Ma2-6E-taX" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="qZ4-09-4Zi"/>
+                    <constraint firstAttribute="trailing" secondItem="VTf-Az-TUh" secondAttribute="trailing" id="v9j-qn-bT9"/>
+                    <constraint firstItem="wWm-R4-ilp" firstAttribute="height" secondItem="Ma2-6E-taX" secondAttribute="height" id="vXS-eD-feG"/>
+                    <constraint firstItem="gvi-gE-H0b" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" multiplier="0.5" id="w4m-TX-IZx"/>
+                    <constraint firstItem="wWm-R4-ilp" firstAttribute="top" secondItem="Ma2-6E-taX" secondAttribute="top" id="yUm-9K-LXm"/>
+                    <constraint firstItem="gvi-gE-H0b" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.15" id="yw5-7y-TVK"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="imageViewFeed" destination="Ma2-6E-taX" id="Rzi-Td-Gdi"/>
+                <outlet property="linkButton" destination="6PI-7c-Pnu" id="p3f-FB-hJW"/>
+                <outlet property="linkTickerButton" destination="oDu-vy-zcv" id="eah-no-A8d"/>
+                <outlet property="pubdateLabel" destination="VTf-Az-TUh" id="cEq-zW-yLu"/>
+                <outlet property="tickerLabel" destination="gvi-gE-H0b" id="9QG-9L-0tG"/>
+                <outlet property="titleLabel" destination="H4I-FZ-mhb" id="6ln-Fq-np9"/>
+            </connections>
+            <point key="canvasLocation" x="137.68115942028987" y="170.75892857142856"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="FrameFeedImage" width="1500" height="1500"/>
+        <systemColor name="systemGrayColor">
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemPurpleColor">
+            <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
