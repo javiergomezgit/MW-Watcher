@@ -65,6 +65,8 @@ class FeedParser: NSObject, XMLParserDelegate {
 
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
         
+        print ("attributes elements")
+
         currentElement = elementName
         
         if currentElement == "enclosure" {
@@ -83,6 +85,8 @@ class FeedParser: NSObject, XMLParserDelegate {
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
         
+        print ("switch elements")
+
         //second,  when found characters
         switch currentElement {
         case "title":
@@ -100,6 +104,7 @@ class FeedParser: NSObject, XMLParserDelegate {
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
  
+        print ("parser elements")
         if countFeeds <= 20 {
             if elementName == "item" {
                 let tickerValues = cleanTickerHTML(description: currentTicker)
@@ -132,21 +137,9 @@ class FeedParser: NSObject, XMLParserDelegate {
         return urlString[0]
     }
     
-    
-    //not used anymore
-    func cleanDate(date: String) -> String {
-        
-        print (date)
-        
-        var cleanDate = ""
-        if date != "" {
-            let dateString = date.components(separatedBy: " -")
-            cleanDate = dateString[0]
-        }
-        return cleanDate
-    }
-    
     func cleanTickerHTML(description: String) -> [String] {
+        
+        print ("clean ticker")
         
         var values = ["", ""]
         let data = Data(description.utf8)
@@ -173,11 +166,17 @@ class FeedParser: NSObject, XMLParserDelegate {
     }
     
     func newTime(timeString: String) -> String {
+        
+        print (timeString)
+        
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
-        let date = dateFormatter.date(from:timeString)?.addingTimeInterval(-7*60*60)
         dateFormatter.dateStyle = .full
         dateFormatter.timeStyle = .medium
+        dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
+      
+        let date = dateFormatter.date(from:timeString)
+        
         return dateFormatter.string(from: date!)
     }
 }
+

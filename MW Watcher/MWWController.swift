@@ -21,6 +21,11 @@ class MWWController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         
+        NotificationCenter.default.addObserver(self,
+                                                  selector: #selector(handleAppDidBecomeActiveNotification(notification:)),
+                                                  name: UIApplication.didBecomeActiveNotification,
+                                                  object: nil)
+        
         fetchMW()
         
         refreshControl.addTarget(self, action: #selector(reloadTable), for: .valueChanged)
@@ -29,16 +34,13 @@ class MWWController: UIViewController {
         tableView.refreshControl = refreshControl
     }
     
+    @objc func handleAppDidBecomeActiveNotification(notification: Notification) {
+        fetchMW()
+    }
+    
     @objc func reloadTable() {
-        //refreshControl.beginRefreshing()
-        OperationQueue.main.addOperation {
-            
-            self.fetchMW()
-            
-            self.tableView.reloadSections(IndexSet(integer: 0), with: .left)
-            self.tableView.reloadData()
-        }
-        
+        refreshControl.beginRefreshing()
+        fetchMW()
         refreshControl.endRefreshing()
         print ("reloaded")
     }
@@ -51,19 +53,22 @@ class MWWController: UIViewController {
         //let mwURLString = "https://politepol.com/fd/bXcf1FENvIgK"
         let mwURLString = "https://politepol.com/fd/MiMDjbYvoJdo" //Feed with images
 
+        print ("fetch")
         
         let feedParser = FeedParser()
         feedParser.parseFeed(url: mwURLString) { (rssItems) in
             self.rssItems = rssItems
 
-            OperationQueue.main.addOperation {
+            DispatchQueue.main.async {
                 self.tableView.reloadSections(IndexSet(integer: 0), with: .left)
                 self.tableView.reloadData()
+                print ("reload data unique")
             }
         }
     }
 }
 
+let imageCache = NSCache<NSString, UIImage>()
 
 extension MWWController: UITableViewDelegate, UITableViewDataSource {
     
@@ -73,11 +78,15 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
+        print ("cell view")
+
         let cell = tableView.dequeueReusableCell(withIdentifier: MWWCell.identifier, for: indexPath) as! MWWCell
         let rssItem = rssItems[indexPath.row]
-        
-        let downloadedImage = downloadImageFeed(URLImage: rssItem.enclosure)
-        
+
+        var downloadedImage = UIImage()
+
+        downloadedImage = self.downloadImageFeed(URLImage: rssItem.enclosure)
+                
         cell.setRSSValues(title: rssItem.title, description: rssItem.ticker, link: rssItem.link, pubdate: rssItem.pubDate, linkTicker: rssItem.linkTicker, imageFeed: downloadedImage)
         
         if rssItem.linkTicker == "" {
@@ -91,8 +100,11 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         
         return cell
     }
-    
+        
     func downloadImageFeed(URLImage: String) -> UIImage {
+        
+        print ("download image")
+
         var image = UIImage()
         
         if URLImage == "" {
@@ -101,13 +113,15 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
             let url = URL(string: URLImage)
             do {
                 let data = try Data(contentsOf: url!)
-                image = UIImage(data: data)!
+                
+                let imageToCache = UIImage(data: data)!
+                //image = UIImage(data: data)!
+                
+                imageCache.setObject(imageToCache, forKey: URLImage as NSString)
+                image = imageToCache
             } catch {
                 image = UIImage(named: "mw-logo")!
             }
-            //let data = try? Data(contentsOf: url!) //make sure your image in this url does exist, otherwise unwrap in a if let check / try-catch
-            //let img = UIImage(data: data!)
-            //image = img!
         }
         return image
     }
