@@ -1,0 +1,627 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		027C678E73AFFD7C192353D02EF69612 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */; };
+		2BEA1AF8B2EBFFA95AC81AF3E6EF5F6C /* Pods-MW Watcher-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FD6555C8BEB377B2233BDCE7AB1FE5F /* Pods-MW Watcher-dummy.m */; };
+		3E0FFFEA9C512B9A80E21FDB7B6ECD9E /* WavesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA34FB1C18849511898899E96AD180FF /* WavesView.swift */; };
+		8DECFDBA3BF12612A99CE653DDE2E81D /* PulseAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552DA040C5B320AC4A1E18BB5ED91245 /* PulseAnimationView.swift */; };
+		92C5ADFC1C5D4C116DF33C63734AABBF /* Pods-MW Watcher-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 565B7544F2F5ACDD72716BE85A3AAFB4 /* Pods-MW Watcher-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9684BEA0F757B2AD3DBDF9642BC9B1A3 /* SpinnerAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EDF265695B6C934A5577CD6B4DECD03 /* SpinnerAnimationView.swift */; };
+		A6EFBC569D9EC1EDCE17A0A72A5EFF70 /* SSCustomPullToRefresh-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B7B7EF6082632357647F23B897FABC3 /* SSCustomPullToRefresh-dummy.m */; };
+		ACD089F8B7FF5DD506CDB8D83EBADFCF /* SSCustomPullToRefresh-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 39C9D1768A9E4568FE219E94F523F8FE /* SSCustomPullToRefresh-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B2983A876F7FF184ECEA3734DA1FA2B3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */; };
+		CF81A11FBE5450ECC5DC3CE1A1643FEC /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C898C398043E8255DB12CA2C27F59ECC /* UIImage+Extension.swift */; };
+		EA8E60514BE8BCF4788F7B5CAE0C06E4 /* RefreshDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEA1A1C9196B298C8570422EBFA2899 /* RefreshDelegate.swift */; };
+		F0A9E2C6B1C267B18BA950AB451D47DF /* SineWaveAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38C2A48E9919A0A734751D0C13233C06 /* SineWaveAnimationView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A7D7EE71A2870D0F2F95FF5BE604AA27 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 91DAC9EE02C2F041A075160849DACDBC;
+			remoteInfo = SSCustomPullToRefresh;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		047AF00CEA80F06CC62034FCAD141D47 /* SSCustomPullToRefresh.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SSCustomPullToRefresh.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0EDF265695B6C934A5577CD6B4DECD03 /* SpinnerAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpinnerAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/SpinnerAnimationView.swift; sourceTree = "<group>"; };
+		0FD6555C8BEB377B2233BDCE7AB1FE5F /* Pods-MW Watcher-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MW Watcher-dummy.m"; sourceTree = "<group>"; };
+		2DFAB68F3AD22538E2196E830D15BC67 /* Pods-MW Watcher-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MW Watcher-acknowledgements.plist"; sourceTree = "<group>"; };
+		347167DAF95354E4ED2AB81A771C433A /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
+		38C2A48E9919A0A734751D0C13233C06 /* SineWaveAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SineWaveAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/SineWaveAnimationView.swift; sourceTree = "<group>"; };
+		39C9D1768A9E4568FE219E94F523F8FE /* SSCustomPullToRefresh-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SSCustomPullToRefresh-umbrella.h"; sourceTree = "<group>"; };
+		3DEA1A1C9196B298C8570422EBFA2899 /* RefreshDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RefreshDelegate.swift; path = Sources/SSCustomPullToRefresh/Views/RefreshDelegate.swift; sourceTree = "<group>"; };
+		46A84BA5056358989409BE5485E9ABF9 /* SSCustomPullToRefresh.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SSCustomPullToRefresh.debug.xcconfig; sourceTree = "<group>"; };
+		552DA040C5B320AC4A1E18BB5ED91245 /* PulseAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PulseAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/PulseAnimationView.swift; sourceTree = "<group>"; };
+		565B7544F2F5ACDD72716BE85A3AAFB4 /* Pods-MW Watcher-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-MW Watcher-umbrella.h"; sourceTree = "<group>"; };
+		594D37F68C6D94DF8F334B4CFADEED77 /* Pods-MW Watcher-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MW Watcher-acknowledgements.markdown"; sourceTree = "<group>"; };
+		5B41BB88E38670F6953DD63E58D5ACF3 /* Pods-MW Watcher.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-MW Watcher.modulemap"; sourceTree = "<group>"; };
+		5B7B7EF6082632357647F23B897FABC3 /* SSCustomPullToRefresh-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SSCustomPullToRefresh-dummy.m"; sourceTree = "<group>"; };
+		73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		7CC1852BE5446635A27D9EB149EFE4A6 /* SSCustomPullToRefresh.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SSCustomPullToRefresh.release.xcconfig; sourceTree = "<group>"; };
+		7DDFCC2B4661902992B04F8CA7C9E337 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		841B4F13CBD73B273B11E1606F2CE120 /* Pods-MW Watcher-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MW Watcher-Info.plist"; sourceTree = "<group>"; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		AC9A9158E2B3056C4DEE85D7EA36A314 /* SSCustomPullToRefresh-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SSCustomPullToRefresh-prefix.pch"; sourceTree = "<group>"; };
+		BA34FB1C18849511898899E96AD180FF /* WavesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WavesView.swift; path = Sources/SSCustomPullToRefresh/Views/WavesView.swift; sourceTree = "<group>"; };
+		C898C398043E8255DB12CA2C27F59ECC /* UIImage+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIImage+Extension.swift"; path = "Sources/SSCustomPullToRefresh/Extension/UIImage+Extension.swift"; sourceTree = "<group>"; };
+		D8EB6A15D32D09DFE85C409DD3084255 /* SSCustomPullToRefresh-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "SSCustomPullToRefresh-Info.plist"; sourceTree = "<group>"; };
+		EB7B646D330E49F9AAAADC9F2821E802 /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
+		F4B94A66705206820E33B6C142536A97 /* Pods-MW Watcher-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-MW Watcher-frameworks.sh"; sourceTree = "<group>"; };
+		F72507174626736103A4F3CB4FBDC121 /* SSCustomPullToRefresh.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SSCustomPullToRefresh.modulemap; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3E67059FA1FB45CAD0F64C2C1BF06652 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				027C678E73AFFD7C192353D02EF69612 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		42249943A4AE2FCE5C9EFB6E79299FA1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2983A876F7FF184ECEA3734DA1FA2B3 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		26FA0DD609A3C9890652F047264DD3FC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				30942ECD38B35F1D273715756D24017A /* SSCustomPullToRefresh */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		30942ECD38B35F1D273715756D24017A /* SSCustomPullToRefresh */ = {
+			isa = PBXGroup;
+			children = (
+				552DA040C5B320AC4A1E18BB5ED91245 /* PulseAnimationView.swift */,
+				3DEA1A1C9196B298C8570422EBFA2899 /* RefreshDelegate.swift */,
+				38C2A48E9919A0A734751D0C13233C06 /* SineWaveAnimationView.swift */,
+				0EDF265695B6C934A5577CD6B4DECD03 /* SpinnerAnimationView.swift */,
+				C898C398043E8255DB12CA2C27F59ECC /* UIImage+Extension.swift */,
+				BA34FB1C18849511898899E96AD180FF /* WavesView.swift */,
+				965D62BA153B82CD872CC135D53D17E0 /* Support Files */,
+			);
+			path = SSCustomPullToRefresh;
+			sourceTree = "<group>";
+		};
+		578452D2E740E91742655AC8F1636D1F /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		965D62BA153B82CD872CC135D53D17E0 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				F72507174626736103A4F3CB4FBDC121 /* SSCustomPullToRefresh.modulemap */,
+				5B7B7EF6082632357647F23B897FABC3 /* SSCustomPullToRefresh-dummy.m */,
+				D8EB6A15D32D09DFE85C409DD3084255 /* SSCustomPullToRefresh-Info.plist */,
+				AC9A9158E2B3056C4DEE85D7EA36A314 /* SSCustomPullToRefresh-prefix.pch */,
+				39C9D1768A9E4568FE219E94F523F8FE /* SSCustomPullToRefresh-umbrella.h */,
+				46A84BA5056358989409BE5485E9ABF9 /* SSCustomPullToRefresh.debug.xcconfig */,
+				7CC1852BE5446635A27D9EB149EFE4A6 /* SSCustomPullToRefresh.release.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/SSCustomPullToRefresh";
+			sourceTree = "<group>";
+		};
+		A082D199E02C34B234EDFD0C6DCF896F /* Pods-MW Watcher */ = {
+			isa = PBXGroup;
+			children = (
+				5B41BB88E38670F6953DD63E58D5ACF3 /* Pods-MW Watcher.modulemap */,
+				594D37F68C6D94DF8F334B4CFADEED77 /* Pods-MW Watcher-acknowledgements.markdown */,
+				2DFAB68F3AD22538E2196E830D15BC67 /* Pods-MW Watcher-acknowledgements.plist */,
+				0FD6555C8BEB377B2233BDCE7AB1FE5F /* Pods-MW Watcher-dummy.m */,
+				F4B94A66705206820E33B6C142536A97 /* Pods-MW Watcher-frameworks.sh */,
+				841B4F13CBD73B273B11E1606F2CE120 /* Pods-MW Watcher-Info.plist */,
+				565B7544F2F5ACDD72716BE85A3AAFB4 /* Pods-MW Watcher-umbrella.h */,
+				EB7B646D330E49F9AAAADC9F2821E802 /* Pods-MW Watcher.debug.xcconfig */,
+				347167DAF95354E4ED2AB81A771C433A /* Pods-MW Watcher.release.xcconfig */,
+			);
+			name = "Pods-MW Watcher";
+			path = "Target Support Files/Pods-MW Watcher";
+			sourceTree = "<group>";
+		};
+		CF1408CF629C7361332E53B88F7BD30C = {
+			isa = PBXGroup;
+			children = (
+				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
+				D210D550F4EA176C3123ED886F8F87F5 /* Frameworks */,
+				26FA0DD609A3C9890652F047264DD3FC /* Pods */,
+				E22654F9A7B5A11EA8F92919BE48CDDA /* Products */,
+				EC3C3ED55A714D0E5BBB592F76EFA80A /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		D210D550F4EA176C3123ED886F8F87F5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				578452D2E740E91742655AC8F1636D1F /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E22654F9A7B5A11EA8F92919BE48CDDA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7DDFCC2B4661902992B04F8CA7C9E337 /* Pods_MW_Watcher.framework */,
+				047AF00CEA80F06CC62034FCAD141D47 /* SSCustomPullToRefresh.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EC3C3ED55A714D0E5BBB592F76EFA80A /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				A082D199E02C34B234EDFD0C6DCF896F /* Pods-MW Watcher */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		F574257EBB0966A7A975366EF95358D2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92C5ADFC1C5D4C116DF33C63734AABBF /* Pods-MW Watcher-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA31E8B89A9B007E7F95F28827F47D6F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ACD089F8B7FF5DD506CDB8D83EBADFCF /* SSCustomPullToRefresh-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		91DAC9EE02C2F041A075160849DACDBC /* SSCustomPullToRefresh */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A957D3B03DDC9E18F73879D76FFEA288 /* Build configuration list for PBXNativeTarget "SSCustomPullToRefresh" */;
+			buildPhases = (
+				FA31E8B89A9B007E7F95F28827F47D6F /* Headers */,
+				84BD696163CD81BED11A39DA4B5BE5C5 /* Sources */,
+				42249943A4AE2FCE5C9EFB6E79299FA1 /* Frameworks */,
+				D2507E8ADE71FD38703A0C2082615B95 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SSCustomPullToRefresh;
+			productName = SSCustomPullToRefresh;
+			productReference = 047AF00CEA80F06CC62034FCAD141D47 /* SSCustomPullToRefresh.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		E5547CA0A8A1651FD4BED32E674D91F7 /* Pods-MW Watcher */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E1711C160ED2B753ABCB83A2E64AFCD6 /* Build configuration list for PBXNativeTarget "Pods-MW Watcher" */;
+			buildPhases = (
+				F574257EBB0966A7A975366EF95358D2 /* Headers */,
+				3C6E760D5CB6B9615F9B89DBCF75DC6A /* Sources */,
+				3E67059FA1FB45CAD0F64C2C1BF06652 /* Frameworks */,
+				5B38566E6598265AA4095923BCD35219 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F2113D2C9999A9B830FD04F3FE68F02D /* PBXTargetDependency */,
+			);
+			name = "Pods-MW Watcher";
+			productName = "Pods-MW Watcher";
+			productReference = 7DDFCC2B4661902992B04F8CA7C9E337 /* Pods_MW_Watcher.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BFDFE7DC352907FC980B868725387E98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1100;
+				LastUpgradeCheck = 1250;
+			};
+			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 10.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
+			productRefGroup = E22654F9A7B5A11EA8F92919BE48CDDA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E5547CA0A8A1651FD4BED32E674D91F7 /* Pods-MW Watcher */,
+				91DAC9EE02C2F041A075160849DACDBC /* SSCustomPullToRefresh */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5B38566E6598265AA4095923BCD35219 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D2507E8ADE71FD38703A0C2082615B95 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3C6E760D5CB6B9615F9B89DBCF75DC6A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2BEA1AF8B2EBFFA95AC81AF3E6EF5F6C /* Pods-MW Watcher-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		84BD696163CD81BED11A39DA4B5BE5C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8DECFDBA3BF12612A99CE653DDE2E81D /* PulseAnimationView.swift in Sources */,
+				EA8E60514BE8BCF4788F7B5CAE0C06E4 /* RefreshDelegate.swift in Sources */,
+				F0A9E2C6B1C267B18BA950AB451D47DF /* SineWaveAnimationView.swift in Sources */,
+				9684BEA0F757B2AD3DBDF9642BC9B1A3 /* SpinnerAnimationView.swift in Sources */,
+				A6EFBC569D9EC1EDCE17A0A72A5EFF70 /* SSCustomPullToRefresh-dummy.m in Sources */,
+				CF81A11FBE5450ECC5DC3CE1A1643FEC /* UIImage+Extension.swift in Sources */,
+				3E0FFFEA9C512B9A80E21FDB7B6ECD9E /* WavesView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F2113D2C9999A9B830FD04F3FE68F02D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SSCustomPullToRefresh;
+			target = 91DAC9EE02C2F041A075160849DACDBC /* SSCustomPullToRefresh */;
+			targetProxy = A7D7EE71A2870D0F2F95FF5BE604AA27 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		21BAAF41AAC616058188867814B2DD8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 46A84BA5056358989409BE5485E9ABF9 /* SSCustomPullToRefresh.debug.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap";
+				PRODUCT_MODULE_NAME = SSCustomPullToRefresh;
+				PRODUCT_NAME = SSCustomPullToRefresh;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		5DD309F5A61A44D3BD783D8C2C6BEA51 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 347167DAF95354E4ED2AB81A771C433A /* Pods-MW Watcher.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A0812915BBBB08DAD8D594068C8682EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EB7B646D330E49F9AAAADC9F2821E802 /* Pods-MW Watcher.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		BC01E0B73776AF6B58DC318A9BE988D7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		C605C363CC9F26F9FF97DBB1D5C6E25C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Release;
+		};
+		F370D96FD8CCD5B341AA3E78A81A3D16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7CC1852BE5446635A27D9EB149EFE4A6 /* SSCustomPullToRefresh.release.xcconfig */;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MODULEMAP_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap";
+				PRODUCT_MODULE_NAME = SSCustomPullToRefresh;
+				PRODUCT_NAME = SSCustomPullToRefresh;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC01E0B73776AF6B58DC318A9BE988D7 /* Debug */,
+				C605C363CC9F26F9FF97DBB1D5C6E25C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A957D3B03DDC9E18F73879D76FFEA288 /* Build configuration list for PBXNativeTarget "SSCustomPullToRefresh" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21BAAF41AAC616058188867814B2DD8E /* Debug */,
+				F370D96FD8CCD5B341AA3E78A81A3D16 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1711C160ED2B753ABCB83A2E64AFCD6 /* Build configuration list for PBXNativeTarget "Pods-MW Watcher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0812915BBBB08DAD8D594068C8682EE /* Debug */,
+				5DD309F5A61A44D3BD783D8C2C6BEA51 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+}

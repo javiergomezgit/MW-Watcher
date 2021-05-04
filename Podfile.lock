@@ -1,0 +1,16 @@
+PODS:
+  - SSCustomPullToRefresh (1.0.1)
+
+DEPENDENCIES:
+  - SSCustomPullToRefresh
+
+SPEC REPOS:
+  trunk:
+    - SSCustomPullToRefresh
+
+SPEC CHECKSUMS:
+  SSCustomPullToRefresh: 9e8fdb0028f5659b3715191c0d06faebcd360c1e
+
+PODFILE CHECKSUM: 156c69512687002c7c0244bc3f213c0c27e61c87
+
+COCOAPODS: 1.10.1

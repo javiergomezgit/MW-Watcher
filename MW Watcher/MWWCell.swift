@@ -28,9 +28,22 @@ class MWWCell: UITableViewCell {
         linkButton.titleLabel?.text = link
         linkTickerButton.titleLabel?.text = linkTicker
         pubdateLabel.text = pubdate
-        tickerLabel.text = description
         imageViewFeed.image = imageFeed
+
+        isTickerPositive(tickerValue: description)
     }
+    
+    func isTickerPositive(tickerValue: String){
+        tickerLabel.text = tickerValue
+        if !tickerValue.isEmpty {
+            if tickerValue.contains("-") {
+                tickerLabel.textColor = UIColor.red
+            } else {
+                tickerLabel.textColor = UIColor.blue
+            }
+        }
+    }
+    
     
     override func awakeFromNib() {
         super.awakeFromNib()

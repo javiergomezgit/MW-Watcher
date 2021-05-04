@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SSCustomPullToRefresh
 
 class MWWController: UIViewController {
     
@@ -15,6 +16,8 @@ class MWWController: UIViewController {
     var refreshControl = UIRefreshControl()
     var tickerExists = false
     
+    var spinnerAnnimation: SpinnerAnimationView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(MWWCell.nib(), forCellReuseIdentifier: MWWCell.identifier)
@@ -26,15 +29,31 @@ class MWWController: UIViewController {
                                                   name: UIApplication.didBecomeActiveNotification,
                                                   object: nil)
         
-        fetchMW()
+        //fetchMW()
         
-        refreshControl.addTarget(self, action: #selector(reloadTable), for: .valueChanged)
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-
-        tableView.refreshControl = refreshControl
+        setUpPulseAnimation()
+        
+//        refreshControl.addTarget(self, action: #selector(reloadTable), for: .valueChanged)
+//        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+//        tableView.refreshControl = refreshControl
     }
     
+    func setUpPulseAnimation() {
+
+        if self.traitCollection.userInterfaceStyle == .dark {
+            spinnerAnnimation = SpinnerAnimationView(image: UIImage(named: "spinner")!, backgroundColor: .black)
+        } else {
+            spinnerAnnimation = SpinnerAnimationView(image: UIImage(named: "spinner")!, backgroundColor: .white)
+        }
+        spinnerAnnimation.delegate = self
+        spinnerAnnimation.parentView = self.tableView
+        spinnerAnnimation.setupRefreshControl()
+    }
+    
+    
     @objc func handleAppDidBecomeActiveNotification(notification: Notification) {
+        print ("got notification")
+        setUpPulseAnimation()
         fetchMW()
     }
     
@@ -78,8 +97,6 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        print ("cell view")
-
         let cell = tableView.dequeueReusableCell(withIdentifier: MWWCell.identifier, for: indexPath) as! MWWCell
         let rssItem = rssItems[indexPath.row]
 
@@ -139,8 +156,26 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
 //        if tickerExists {
 //            return 90
 //        }
-        return 158
+        return 160
     }
     
     
   }
+
+
+// MARK: - AnimationDelegate
+extension MWWController: RefreshDelegate {
+ 
+    func startRefresh() {
+        print("start refreshing")
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            self.spinnerAnnimation.endRefreshing()
+        }
+    }
+    
+    func endRefresh() {
+        print("End Refreshing")
+    }
+    
+}

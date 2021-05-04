@@ -65,8 +65,6 @@ class FeedParser: NSObject, XMLParserDelegate {
 
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
         
-        print ("attributes elements")
-
         currentElement = elementName
         
         if currentElement == "enclosure" {
@@ -85,8 +83,6 @@ class FeedParser: NSObject, XMLParserDelegate {
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
         
-        print ("switch elements")
-
         //second,  when found characters
         switch currentElement {
         case "title":
@@ -104,8 +100,7 @@ class FeedParser: NSObject, XMLParserDelegate {
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
  
-        print ("parser elements")
-        if countFeeds <= 20 {
+        if countFeeds <= 9 {
             if elementName == "item" {
                 let tickerValues = cleanTickerHTML(description: currentTicker)
                 let reducedTime = newTime(timeString: currentPubdate)
@@ -138,9 +133,7 @@ class FeedParser: NSObject, XMLParserDelegate {
     }
     
     func cleanTickerHTML(description: String) -> [String] {
-        
-        print ("clean ticker")
-        
+                
         var values = ["", ""]
         let data = Data(description.utf8)
         
@@ -166,9 +159,7 @@ class FeedParser: NSObject, XMLParserDelegate {
     }
     
     func newTime(timeString: String) -> String {
-        
-        print (timeString)
-        
+                
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .full
         dateFormatter.timeStyle = .medium

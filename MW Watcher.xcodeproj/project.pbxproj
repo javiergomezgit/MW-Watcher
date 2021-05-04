@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,6 +17,8 @@
 		221236BF263DA98E007EA092 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BE263DA98E007EA092 /* FeedParser.swift */; };
 		221236C2263DAA32007EA092 /* MWWCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236C0263DAA32007EA092 /* MWWCell.swift */; };
 		221236C3263DAA32007EA092 /* MWWCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 221236C1263DAA32007EA092 /* MWWCell.xib */; };
+		2245E3712640C01D00D340DE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2245E3702640C01D00D340DE /* Podfile */; };
+		E3E5F5CE428C406F9CA6F18C /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,10 @@
 		221236BE263DA98E007EA092 /* FeedParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedParser.swift; sourceTree = "<group>"; };
 		221236C0263DAA32007EA092 /* MWWCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MWWCell.swift; sourceTree = "<group>"; };
 		221236C1263DAA32007EA092 /* MWWCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MWWCell.xib; sourceTree = "<group>"; };
+		2245E3702640C01D00D340DE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
+		D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,17 +45,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3E5F5CE428C406F9CA6F18C /* Pods_MW_Watcher.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1D8F698238A814FDA53540B3 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2212369B263DA728007EA092 = {
 			isa = PBXGroup;
 			children = (
 				221236A6263DA728007EA092 /* MW Watcher */,
+				2245E3702640C01D00D340DE /* Podfile */,
 				221236A5263DA728007EA092 /* Products */,
+				C658810D9F34D18312E4133B /* Pods */,
+				1D8F698238A814FDA53540B3 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -111,6 +129,15 @@
 			name = Support;
 			sourceTree = "<group>";
 		};
+		C658810D9F34D18312E4133B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */,
+				6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -118,9 +145,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 221236B8263DA72A007EA092 /* Build configuration list for PBXNativeTarget "MW Watcher" */;
 			buildPhases = (
+				B8129759751E525FEC4279C1 /* [CP] Check Pods Manifest.lock */,
 				221236A0263DA728007EA092 /* Sources */,
 				221236A1263DA728007EA092 /* Frameworks */,
 				221236A2263DA728007EA092 /* Resources */,
+				97E3D289B29AE546DD46ADEC /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -168,6 +197,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2245E3712640C01D00D340DE /* Podfile in Resources */,
 				221236B4263DA72A007EA092 /* LaunchScreen.storyboard in Resources */,
 				221236B1263DA72A007EA092 /* Assets.xcassets in Resources */,
 				221236AF263DA728007EA092 /* Main.storyboard in Resources */,
@@ -176,6 +206,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		97E3D289B29AE546DD46ADEC /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B8129759751E525FEC4279C1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MW Watcher-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		221236A0263DA728007EA092 /* Sources */ = {
@@ -331,9 +403,11 @@
 		};
 		221236B9263DA72A007EA092 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				INFOPLIST_FILE = "MW Watcher/Info.plist";
@@ -344,6 +418,7 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -351,9 +426,11 @@
 		};
 		221236BA263DA72A007EA092 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				INFOPLIST_FILE = "MW Watcher/Info.plist";
@@ -364,6 +441,7 @@
 				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
