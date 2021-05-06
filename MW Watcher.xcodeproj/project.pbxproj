@@ -18,8 +18,41 @@
 		221236C2263DAA32007EA092 /* MWWCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236C0263DAA32007EA092 /* MWWCell.swift */; };
 		221236C3263DAA32007EA092 /* MWWCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 221236C1263DAA32007EA092 /* MWWCell.xib */; };
 		2245E3712640C01D00D340DE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2245E3702640C01D00D340DE /* Podfile */; };
+		225CF9A6264216A400D19929 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 225CF9A5264216A400D19929 /* WidgetKit.framework */; };
+		225CF9A8264216A400D19929 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 225CF9A7264216A400D19929 /* SwiftUI.framework */; };
+		225CF9AB264216A400D19929 /* MWWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AA264216A400D19929 /* MWWidget.swift */; };
+		225CF9AE264216A600D19929 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 225CF9AD264216A600D19929 /* Assets.xcassets */; };
+		225CF9B0264216A600D19929 /* MWWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AC264216A400D19929 /* MWWidget.intentdefinition */; };
+		225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AC264216A400D19929 /* MWWidget.intentdefinition */; };
+		225CF9B4264216A600D19929 /* WidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 225CF9A4264216A400D19929 /* WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		22FA6AF62642E08500E841A9 /* RSSItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BC263DA96A007EA092 /* RSSItem.swift */; };
+		22FA6AF72642E6FF00E841A9 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BE263DA98E007EA092 /* FeedParser.swift */; };
 		E3E5F5CE428C406F9CA6F18C /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		225CF9B2264216A600D19929 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2212369C263DA728007EA092 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 225CF9A3264216A400D19929;
+			remoteInfo = WidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		225CF9B5264216A600D19929 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				225CF9B4264216A600D19929 /* WidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		221236A4263DA728007EA092 /* MW Watcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MW Watcher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -35,6 +68,13 @@
 		221236C0263DAA32007EA092 /* MWWCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MWWCell.swift; sourceTree = "<group>"; };
 		221236C1263DAA32007EA092 /* MWWCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MWWCell.xib; sourceTree = "<group>"; };
 		2245E3702640C01D00D340DE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		225CF9A4264216A400D19929 /* WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		225CF9A5264216A400D19929 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		225CF9A7264216A400D19929 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		225CF9AA264216A400D19929 /* MWWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MWWidget.swift; sourceTree = "<group>"; };
+		225CF9AC264216A400D19929 /* MWWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = MWWidget.intentdefinition; sourceTree = "<group>"; };
+		225CF9AD264216A600D19929 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		225CF9AF264216A600D19929 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
 		D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
@@ -49,6 +89,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		225CF9A1264216A400D19929 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				225CF9A8264216A400D19929 /* SwiftUI.framework in Frameworks */,
+				225CF9A6264216A400D19929 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -56,6 +105,8 @@
 			isa = PBXGroup;
 			children = (
 				68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */,
+				225CF9A5264216A400D19929 /* WidgetKit.framework */,
+				225CF9A7264216A400D19929 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -65,6 +116,7 @@
 			children = (
 				221236A6263DA728007EA092 /* MW Watcher */,
 				2245E3702640C01D00D340DE /* Podfile */,
+				225CF9A9264216A400D19929 /* Widget */,
 				221236A5263DA728007EA092 /* Products */,
 				C658810D9F34D18312E4133B /* Pods */,
 				1D8F698238A814FDA53540B3 /* Frameworks */,
@@ -75,6 +127,7 @@
 			isa = PBXGroup;
 			children = (
 				221236A4263DA728007EA092 /* MW Watcher.app */,
+				225CF9A4264216A400D19929 /* WidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -129,6 +182,17 @@
 			name = Support;
 			sourceTree = "<group>";
 		};
+		225CF9A9264216A400D19929 /* Widget */ = {
+			isa = PBXGroup;
+			children = (
+				225CF9AA264216A400D19929 /* MWWidget.swift */,
+				225CF9AC264216A400D19929 /* MWWidget.intentdefinition */,
+				225CF9AD264216A600D19929 /* Assets.xcassets */,
+				225CF9AF264216A600D19929 /* Info.plist */,
+			);
+			path = Widget;
+			sourceTree = "<group>";
+		};
 		C658810D9F34D18312E4133B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -150,15 +214,34 @@
 				221236A1263DA728007EA092 /* Frameworks */,
 				221236A2263DA728007EA092 /* Resources */,
 				97E3D289B29AE546DD46ADEC /* [CP] Embed Pods Frameworks */,
+				225CF9B5264216A600D19929 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				225CF9B3264216A600D19929 /* PBXTargetDependency */,
 			);
 			name = "MW Watcher";
 			productName = "MW Watcher";
 			productReference = 221236A4263DA728007EA092 /* MW Watcher.app */;
 			productType = "com.apple.product-type.application";
+		};
+		225CF9A3264216A400D19929 /* WidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 225CF9B8264216A600D19929 /* Build configuration list for PBXNativeTarget "WidgetExtension" */;
+			buildPhases = (
+				225CF9A0264216A400D19929 /* Sources */,
+				225CF9A1264216A400D19929 /* Frameworks */,
+				225CF9A2264216A400D19929 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WidgetExtension;
+			productName = WidgetExtension;
+			productReference = 225CF9A4264216A400D19929 /* WidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -170,6 +253,9 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					221236A3263DA728007EA092 = {
+						CreatedOnToolsVersion = 12.5;
+					};
+					225CF9A3264216A400D19929 = {
 						CreatedOnToolsVersion = 12.5;
 					};
 				};
@@ -188,6 +274,7 @@
 			projectRoot = "";
 			targets = (
 				221236A3263DA728007EA092 /* MW Watcher */,
+				225CF9A3264216A400D19929 /* WidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -202,6 +289,14 @@
 				221236B1263DA72A007EA092 /* Assets.xcassets in Resources */,
 				221236AF263DA728007EA092 /* Main.storyboard in Resources */,
 				221236C3263DAA32007EA092 /* MWWCell.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		225CF9A2264216A400D19929 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				225CF9AE264216A600D19929 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,6 +351,7 @@
 			files = (
 				221236AC263DA728007EA092 /* MWWController.swift in Sources */,
 				221236A8263DA728007EA092 /* AppDelegate.swift in Sources */,
+				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
 				221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */,
 				221236BD263DA96A007EA092 /* RSSItem.swift in Sources */,
 				221236BF263DA98E007EA092 /* FeedParser.swift in Sources */,
@@ -263,7 +359,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		225CF9A0264216A400D19929 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				22FA6AF72642E6FF00E841A9 /* FeedParser.swift in Sources */,
+				22FA6AF62642E08500E841A9 /* RSSItem.swift in Sources */,
+				225CF9B0264216A600D19929 /* MWWidget.intentdefinition in Sources */,
+				225CF9AB264216A400D19929 /* MWWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		225CF9B3264216A600D19929 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 225CF9A3264216A400D19929 /* WidgetExtension */;
+			targetProxy = 225CF9B2264216A600D19929 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		221236AD263DA728007EA092 /* Main.storyboard */ = {
@@ -405,6 +520,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -428,6 +544,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -444,6 +561,52 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		225CF9B6264216A600D19929 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SJK4QJY486;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		225CF9B7264216A600D19929 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SJK4QJY486;
+				INFOPLIST_FILE = Widget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -464,6 +627,15 @@
 			buildConfigurations = (
 				221236B9263DA72A007EA092 /* Debug */,
 				221236BA263DA72A007EA092 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		225CF9B8264216A600D19929 /* Build configuration list for PBXNativeTarget "WidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				225CF9B6264216A600D19929 /* Debug */,
+				225CF9B7264216A600D19929 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
