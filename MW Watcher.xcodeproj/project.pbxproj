@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		153594D8F53D57DD6AF5DD52 /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0930F1154CA3FEAC5EFBE237 /* Pods_MW_Watcher.framework */; };
 		221236A8263DA728007EA092 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236A7263DA728007EA092 /* AppDelegate.swift */; };
 		221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236A9263DA728007EA092 /* SceneDelegate.swift */; };
 		221236AC263DA728007EA092 /* MWWController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236AB263DA728007EA092 /* MWWController.swift */; };
@@ -27,7 +28,6 @@
 		225CF9B4264216A600D19929 /* WidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 225CF9A4264216A400D19929 /* WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		22FA6AF62642E08500E841A9 /* RSSItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BC263DA96A007EA092 /* RSSItem.swift */; };
 		22FA6AF72642E6FF00E841A9 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BE263DA98E007EA092 /* FeedParser.swift */; };
-		E3E5F5CE428C406F9CA6F18C /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +55,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0930F1154CA3FEAC5EFBE237 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		221236A4263DA728007EA092 /* MW Watcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MW Watcher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		221236A7263DA728007EA092 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		221236A9263DA728007EA092 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -75,9 +76,8 @@
 		225CF9AC264216A400D19929 /* MWWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = MWWidget.intentdefinition; sourceTree = "<group>"; };
 		225CF9AD264216A600D19929 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		225CF9AF264216A600D19929 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
-		D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
+		712C039B14F4A0D8C7C2069F /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
+		B63424A2C0158ACCAFC7FEDC /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E3E5F5CE428C406F9CA6F18C /* Pods_MW_Watcher.framework in Frameworks */,
+				153594D8F53D57DD6AF5DD52 /* Pods_MW_Watcher.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,9 +104,9 @@
 		1D8F698238A814FDA53540B3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				68754C7A31CA40EEA299B132 /* Pods_MW_Watcher.framework */,
 				225CF9A5264216A400D19929 /* WidgetKit.framework */,
 				225CF9A7264216A400D19929 /* SwiftUI.framework */,
+				0930F1154CA3FEAC5EFBE237 /* Pods_MW_Watcher.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -196,8 +196,8 @@
 		C658810D9F34D18312E4133B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */,
-				6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */,
+				712C039B14F4A0D8C7C2069F /* Pods-MW Watcher.debug.xcconfig */,
+				B63424A2C0158ACCAFC7FEDC /* Pods-MW Watcher.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -209,12 +209,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 221236B8263DA72A007EA092 /* Build configuration list for PBXNativeTarget "MW Watcher" */;
 			buildPhases = (
-				B8129759751E525FEC4279C1 /* [CP] Check Pods Manifest.lock */,
+				7E090F617B53117FCA7FA74E /* [CP] Check Pods Manifest.lock */,
 				221236A0263DA728007EA092 /* Sources */,
 				221236A1263DA728007EA092 /* Frameworks */,
 				221236A2263DA728007EA092 /* Resources */,
-				97E3D289B29AE546DD46ADEC /* [CP] Embed Pods Frameworks */,
 				225CF9B5264216A600D19929 /* Embed App Extensions */,
+				8EE2AEC1C881D9C197BBA7E1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -303,24 +303,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		97E3D289B29AE546DD46ADEC /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B8129759751E525FEC4279C1 /* [CP] Check Pods Manifest.lock */ = {
+		7E090F617B53117FCA7FA74E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -340,6 +323,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8EE2AEC1C881D9C197BBA7E1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -518,7 +518,7 @@
 		};
 		221236B9263DA72A007EA092 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D9995196C450EBCDE0F44D6D /* Pods-MW Watcher.debug.xcconfig */;
+			baseConfigurationReference = 712C039B14F4A0D8C7C2069F /* Pods-MW Watcher.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -542,7 +542,7 @@
 		};
 		221236BA263DA72A007EA092 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6E8FFCEB75D4EBC1667DFCC4 /* Pods-MW Watcher.release.xcconfig */;
+			baseConfigurationReference = B63424A2C0158ACCAFC7FEDC /* Pods-MW Watcher.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;

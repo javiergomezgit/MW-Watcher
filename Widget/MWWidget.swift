@@ -19,6 +19,15 @@ struct Provider: IntentTimelineProvider {
     func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
         // preview when installing/adding widget
         let entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
+
+        
+        //        var entry : SimpleEntry
+//
+//        if context.family == .systemMedium {
+//            entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
+//        } else {
+//            let entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
+//        }
         
 //        if context.isPreview {
 //                entry = MyTimelineEntry(date: date, title: "—", content: "-")
@@ -68,6 +77,12 @@ struct Provider: IntentTimelineProvider {
             var entry: SimpleEntry
             var policy: TimelineReloadPolicy
             
+            //var rssItemsWithImages : RSSItem
+            
+            for rssitem in rssItems {
+                print ("enter for")
+            }
+            
             entry = SimpleEntry(date: Date(), mwfeed: rssItems)
             
             policy = .after(Calendar.current.date(byAdding: .minute, value: 1, to: Date())!)
@@ -111,16 +126,29 @@ struct Provider: IntentTimelineProvider {
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let mwfeed: [RSSItem]
+
+    static let previewRSSItem = [
+        RSSItem.init(title: "Paramount+ making‘massive’ in June and averaging a new original movie every week in 2022", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "ROKU-6.57%", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Roku stock gains after earnings, outlook top expectations", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "VIAC-2.43", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Square Stock Is Down. Earnings Were Strong, but Expenses Will Rise.", link: "No link", pubDate: "Thu, 06 May 2021 15:32:27 -0700", ticker: "SQ-3.41%", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Square crushes earnings expectations amid continued growth of Cash App", link: "No link", pubDate: "Thu, 06 May 2021 14:52:56 -0700", ticker: "BKNG-2.51%", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Making‘massive’ push in movies, adding 1,000 in June and averaging a new original movie every week in 2022", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "ROKU-6.57%", linkTicker: "link", enclosure: ""),
+        RSSItem.init(title: "Roku stock gains after earnings, outlook top expectations", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "VIAC-2.43", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Square Stock Is Down. Earnings Were Strong, but Expenses Will Rise.", link: "No link", pubDate: "Thu, 06 May 2021 15:32:27 -0700", ticker: "SQ-3.41%", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Square crushes earnings expectations amid continued growth of Cash App", link: "No link", pubDate: "Thu, 06 May 2021 14:52:56 -0700", ticker: "BKNG-2.51%", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Square Stock Is Down. Earnings Were Strong, but Expenses Will Rise.", link: "No link", pubDate: "Thu, 06 May 2021 15:32:27 -0700", ticker: "SQ-3.41%", linkTicker: "No link", enclosure: ""),
+        RSSItem.init(title: "Square crushes earnings expectations amid continued growth of Cash App", link: "No link", pubDate: "Thu, 06 May 2021 14:52:56 -0700", ticker: "BKNG-2.51%", linkTicker: "No link", enclosure: "")
+    ]
     
-    static let previewRSSItem = [RSSItem.init(title: "test title", link: "test link", pubDate: "test date", ticker: "test ticker", linkTicker: "test link ti", enclosure: "test enclosure")]
     
-    static let testRSSItem = [RSSItem.init(title: "morooo test title", link: "test link", pubDate: "test date", ticker: "test ticker", linkTicker: "test link ti", enclosure: "test enclosure")]
+//    static let previewRSSItem = [RSSItem.init(title: "Paramount+ making‘massive’ in June and averaging a new original movie every week in 2022", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "ROKU-6.57%", linkTicker: "No link", enclosure: "")]
 }
+
 
 struct WidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
-    
+           
     var body: some View {
         ZStack{
             VStack() {
@@ -169,7 +197,7 @@ struct WidgetEntryView : View {
                     .fontWeight(.semibold)
                     .padding(.bottom, 1)
                     .padding(.top, 15)
-
+                Spacer()
             }
         }
     }
@@ -180,14 +208,24 @@ struct WidgetEntryView : View {
                 if family == .systemLarge {
                     ForEach(0..<entry.mwfeed.count - 4) { index in
                         HStack {
-                            Image("mw-logo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                //.padding(EdgeInsets(top: 5, leading: 6, bottom: 5, trailing: 4))
-                                .frame(width: 45, height: 45)
-                                .foregroundColor(.white)
-                                //.clipShape(Circle())
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            
+                            if entry.mwfeed[index].enclosure == "" {
+                                Image("mw-logo")
+                                      .resizable()
+                                      .aspectRatio(contentMode: .fill)
+                                      .frame(width: 40, height: 40)
+                                      .foregroundColor(.white)
+                                      .clipShape(RoundedRectangle(cornerRadius: 7))
+                            } else {
+                                Image(systemName: "folder.circle")
+                                    .data(url: URL(string: entry.mwfeed[index].enclosure)!)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    //.padding(EdgeInsets(top: 5, leading: 6, bottom: 5, trailing: 4))
+                                    .frame(width: 42, height: 42)
+                                    .foregroundColor(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
                             VStack {
                                 Text(entry.mwfeed[index].title)
                                     .font(Font.system(size: 12, weight: .semibold,  design: .default))
@@ -206,14 +244,22 @@ struct WidgetEntryView : View {
                 } else {
                     ForEach(0..<entry.mwfeed.count - 7) { index in
                         HStack {
-                            Image("mw-logo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                //.padding(EdgeInsets(top: 5, leading: 6, bottom: 5, trailing: 4))
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 7))
-//                                .clipShape(Circle())
+                            
+                            if entry.mwfeed[index].enclosure == "" {
+                                Image("mw-logo")
+                                      .resizable()
+                                      .aspectRatio(contentMode: .fill)
+                                      .frame(width: 30, height: 30)
+                                      .foregroundColor(.white)
+                                      .clipShape(RoundedRectangle(cornerRadius: 7))
+                            } else {
+                                Image(systemName: "folder.circle")
+                                    .data(url: URL(string: entry.mwfeed[index].enclosure)!)
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 35, height: 35)
+                                    .foregroundColor(.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 7))
+                            }
                             VStack {
                                 Text(entry.mwfeed[index].title)
                                     .font(Font.system(size: 12, weight: .semibold,  design: .default))
@@ -235,6 +281,20 @@ struct WidgetEntryView : View {
         }
     }
 }
+
+extension Image {
+    func data(url:URL) -> Self {
+        if let data = try? Data(contentsOf: url) {
+            return Image(uiImage: UIImage(data: data)!)
+                .resizable()
+        } else {
+            return Image(uiImage: UIImage(named: "mw-logo")!)
+        }
+        return self
+            .resizable()
+    }
+}
+
 
 @main
 struct MWWidget: Widget {
