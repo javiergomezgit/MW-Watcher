@@ -18,88 +18,41 @@ struct Provider: IntentTimelineProvider {
 
     func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
         // preview when installing/adding widget
-        let entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
+        //let entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
 
         
-        //        var entry : SimpleEntry
-//
-//        if context.family == .systemMedium {
-//            entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
-//        } else {
-//            let entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
-//        }
+        var entry : SimpleEntry
+
         
-//        if context.isPreview {
-//                entry = MyTimelineEntry(date: date, title: "—", content: "-")
-//            } else {
-//                entry = MyTimelineEntry(date: date, title: snapshotTitle, content: snapshotContent)
-//            }
+        if context.isPreview {
+                entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
+            } else {
+                entry = SimpleEntry(date: Date(), mwfeed: SimpleEntry.previewRSSItem)
+            }
         
         
         completion(entry)
     }
 
     func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
-        //real action
-        
-//        var entries: [SimpleEntry] = []
-//
-//        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-//        let currentDate = Date()
-//        for hourOffset in 0 ..< 5 {
-//
-//            fetch()
-//
-//            let entryDate = Calendar.current.date(byAdding: .minute, value: hourOffset, to: currentDate)!
-//            let entry = SimpleEntry(date: entryDate, mwfeed: rssItemsGlobal)
-//            entries.append(entry)
-//        }
-//
-//        let timeline = Timeline(entries: entries, policy: .atEnd)
-//        completion(timeline)
-        
-
-        
-        
-        
+     
         let mwURLString = "https://politepol.com/fd/MiMDjbYvoJdo" //Feed with images
         let feedParser = FeedParser()
-        let currentDate = Date()
-        
-        print ("enter timeline")
-        
-        
+
         feedParser.parseFeed(url: mwURLString) { (rssItems) in
-            
-            print ("enter completion")
-            
+
             var entries: [SimpleEntry] = []
             var entry: SimpleEntry
             var policy: TimelineReloadPolicy
-            
-            //var rssItemsWithImages : RSSItem
-            
-            for rssitem in rssItems {
-                print ("enter for")
-            }
-            
+
             entry = SimpleEntry(date: Date(), mwfeed: rssItems)
-            
             policy = .after(Calendar.current.date(byAdding: .minute, value: 1, to: Date())!)
-            
-            
             entries.append(entry)
-            
+    
             let timeline = Timeline(entries: entries, policy: policy)
-            
             completion(timeline)
         }
-        
-        
-        
-
-        
-        
+                
     }
     
     
@@ -116,9 +69,7 @@ struct Provider: IntentTimelineProvider {
                 print ("reload")
             }
         }
-        
-        
-        
+            
         
     }
 }
@@ -139,68 +90,55 @@ struct SimpleEntry: TimelineEntry {
         RSSItem.init(title: "Square Stock Is Down. Earnings Were Strong, but Expenses Will Rise.", link: "No link", pubDate: "Thu, 06 May 2021 15:32:27 -0700", ticker: "SQ-3.41%", linkTicker: "No link", enclosure: ""),
         RSSItem.init(title: "Square crushes earnings expectations amid continued growth of Cash App", link: "No link", pubDate: "Thu, 06 May 2021 14:52:56 -0700", ticker: "BKNG-2.51%", linkTicker: "No link", enclosure: "")
     ]
-    
-    
-//    static let previewRSSItem = [RSSItem.init(title: "Paramount+ making‘massive’ in June and averaging a new original movie every week in 2022", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "ROKU-6.57%", linkTicker: "No link", enclosure: "")]
 }
 
 
 struct WidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
-           
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
+
     var body: some View {
         ZStack{
-            VStack() {
-                if family == .systemLarge {
-                    header
-                    news
-                    Text("Source: www.marketwatch.com")
-                        .font(Font.system(size: 10, weight: .light,  design: .default))
-                        .foregroundColor(Color(UIColor.systemBlue))
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.bottom, -7)
-                } else {
-                    headermedium
-                    news
-                    Text("Source: www.marketwatch.com")
-                        .font(Font.system(size: 10, weight: .light,  design: .default))
-                        .foregroundColor(Color(UIColor.systemBlue))
-                        .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.bottom, 15)
-                }
+            if colorScheme == .light {
+                Color.white
+                    .ignoresSafeArea(.all)
+            } else if colorScheme == .dark {
+                Color("customBackgroundColor")
+                    .ignoresSafeArea(.all)
             }
-            .padding(.all, 10)
+            VStack(alignment: .leading) {
+                header
+                news
+            }
+            .padding(EdgeInsets(top: 7, leading: 15, bottom: 10, trailing: 15))
         }
         
     }
     
     var header: some View {
         Group {
-            ZStack (alignment: .center) {
-                Text("Market News")
-                    .font(.system(size: 16))
-                    .foregroundColor(Color(UIColor.systemBlue))
-                    .fontWeight(.semibold)
-                    .opacity(0.7)
-                Spacer()
+            ZStack (alignment: .leading) {
+                if family == .systemLarge {
+                    Text("Market Watcher")
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("titlesColor"))
+                } else {
+                    Text("Market Watcher")
+                        .font(.footnote)
+                        .foregroundColor(Color("titlesColor"))
+                        .fontWeight(.bold)
+                        .padding(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
+                }
+                    //.opacity(0.7)
+                    //Spacer()
+                    //.padding(.bottom, 1)
+                    //.padding(.top, 15)
             }
         }
     }
-    
-    var headermedium: some View {
-        Group {
-            VStack (alignment: .center) {
-                Text("Market News")
-                    .font(.system(size: 12))
-                    .foregroundColor(Color(UIColor.systemBlue))
-                    .fontWeight(.semibold)
-                    .padding(.bottom, 1)
-                    .padding(.top, 15)
-                Spacer()
-            }
-        }
-    }
+
         
     var news: some View {
         Group {
@@ -208,7 +146,6 @@ struct WidgetEntryView : View {
                 if family == .systemLarge {
                     ForEach(0..<entry.mwfeed.count - 4) { index in
                         HStack {
-                            
                             if entry.mwfeed[index].enclosure == "" {
                                 Image("mw-logo")
                                       .resizable()
@@ -228,50 +165,52 @@ struct WidgetEntryView : View {
                             }
                             VStack {
                                 Text(entry.mwfeed[index].title)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineLimit(2)
                                     .font(Font.system(size: 12, weight: .semibold,  design: .default))
                                     .foregroundColor(Color(UIColor.systemBackground))
                                     .colorInvert()
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(entry.mwfeed[index].pubDate)
-                                .font(Font.system(size: 9, weight: .light,  design: .default))
-                                .foregroundColor(Color(UIColor.systemBackground))
-                                .opacity(0.7)
-                                .colorInvert()
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(entry.mwfeed[index].pubDate)
+                                    .font(Font.system(size: 9, weight: .light,  design: .default))
+                                    //.foregroundColor(/*@START_MENU_TOKEN@*/.gray/*@END_MENU_TOKEN@*/)
+                                    .foregroundColor(Color(UIColor.systemBackground))
+                                    .colorInvert()
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
                             }
                         }
                     }
                 } else {
-                    ForEach(0..<entry.mwfeed.count - 7) { index in
+                    ForEach(0..<entry.mwfeed.count - 8) { index in
                         HStack {
-                            
                             if entry.mwfeed[index].enclosure == "" {
                                 Image("mw-logo")
                                       .resizable()
                                       .aspectRatio(contentMode: .fill)
-                                      .frame(width: 30, height: 30)
+                                      .frame(width: 40, height: 40)
                                       .foregroundColor(.white)
                                       .clipShape(RoundedRectangle(cornerRadius: 7))
                             } else {
                                 Image(systemName: "folder.circle")
                                     .data(url: URL(string: entry.mwfeed[index].enclosure)!)
                                     .aspectRatio(contentMode: .fill)
-                                    .frame(width: 35, height: 35)
+                                    .frame(width: 40, height: 40)
                                     .foregroundColor(.white)
                                     .clipShape(RoundedRectangle(cornerRadius: 7))
                             }
                             VStack {
                                 Text(entry.mwfeed[index].title)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .lineLimit(2)
                                     .font(Font.system(size: 12, weight: .semibold,  design: .default))
                                     .foregroundColor(Color(UIColor.systemBackground))
                                     .colorInvert()
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                            Text(entry.mwfeed[index].pubDate)
-                                .font(Font.system(size: 9, weight: .light,  design: .default))
-                                .foregroundColor(Color(UIColor.systemBackground))
-                                .opacity(0.7)
-                                .colorInvert()
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(entry.mwfeed[index].pubDate)
+                                    .font(Font.system(size: 9, weight: .light,  design: .default))
+                                    .foregroundColor(Color(UIColor.systemBackground))
+                                    .colorInvert()
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
                             }
                         }
                     }
@@ -290,8 +229,6 @@ extension Image {
         } else {
             return Image(uiImage: UIImage(named: "mw-logo")!)
         }
-        return self
-            .resizable()
     }
 }
 
