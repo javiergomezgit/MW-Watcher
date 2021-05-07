@@ -103,10 +103,10 @@ class FeedParser: NSObject, XMLParserDelegate {
         if countFeeds <= 9 {
             if elementName == "item" {
                 let tickerValues = cleanTickerHTML(description: currentTicker)
-                let reducedTime = newTime(timeString: currentPubdate)
+                let calculatedTime = newTime(timeString: currentPubdate)
                 let cleanURLImage = cleanURLImage(imgURL: currentEnclosure)
                 
-                let rssItem = RSSItem(title: currentTitle, link: currentLink, pubDate: reducedTime, ticker: tickerValues[0], linkTicker: tickerValues[1], enclosure: cleanURLImage)
+                let rssItem = RSSItem(title: currentTitle, link: currentLink, pubDate: calculatedTime, ticker: tickerValues[0], linkTicker: tickerValues[1], enclosure: cleanURLImage)
                 self.rssItems.append(rssItem)
                 countFeeds += 1
             }
@@ -166,8 +166,11 @@ class FeedParser: NSObject, XMLParserDelegate {
         dateFormatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
       
         let date = dateFormatter.date(from:timeString)
+        let newDate = dateFormatter.string(from: date!)
         
-        return dateFormatter.string(from: date!)
+        let cleanString = newDate.components(separatedBy: " -")
+                
+        return cleanString[0]
     }
 }
 

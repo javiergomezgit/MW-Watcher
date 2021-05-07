@@ -52,27 +52,9 @@ struct Provider: IntentTimelineProvider {
             let timeline = Timeline(entries: entries, policy: policy)
             completion(timeline)
         }
-                
-    }
-    
-    
-    func fetch() {
-        let mwURLString = "https://politepol.com/fd/MiMDjbYvoJdo" //Feed with images
-        let feedParser = FeedParser()
-        
-        print ("enter fetch")
-        feedParser.parseFeed(url: mwURLString) { (rssItems) in
-            rssItemsGlobal = rssItems
-            print ("load rss")
-            DispatchQueue.main.async {
-                WidgetCenter.shared.reloadAllTimelines()
-                print ("reload")
-            }
-        }
-            
-        
     }
 }
+
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
