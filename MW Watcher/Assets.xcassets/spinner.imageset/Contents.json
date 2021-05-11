@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "spinnerTwo.png",
+      "filename" : "spinnerTwoLight.png",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "spinnerTwoDark.png",
       "idiom" : "universal"
     }
   ],

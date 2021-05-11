@@ -50,7 +50,7 @@ public class SpinnerAnimationView: UIView , UIScrollViewDelegate {
         self.backgroundColorView.alpha = 0.70
 
         // Create the graphic image views
-        spinnerImageResize = spinnerImage.resizeImage(targetSize: CGSize(width: 60.0, height: 60.0))
+        spinnerImageResize = spinnerImage.resizeImage(targetSize: CGSize(width: 50.0, height: 50.0))
         imgSpinnerView = UIImageView(image: spinnerImageResize)
         
         // Add the graphics to the base view
@@ -89,7 +89,7 @@ public class SpinnerAnimationView: UIView , UIScrollViewDelegate {
         self.isRefreshAnimating = true;
         
         UIView.animate(
-            withDuration: Double(0.3),
+            withDuration: Double(0.1),
             delay: Double(0.0),
             options: UIView.AnimationOptions.curveEaseInOut,
             animations: {

@@ -17,9 +17,21 @@ class MWWController: UIViewController {
     var tickerExists = false
     
     var spinnerAnnimation: SpinnerAnimationView!
+    
+    //test overlay
+    var overlayView : UIView!
+    var overlay : UIView!
+    var alert : UIAlertController!
+    var activityIndicator : UIActivityIndicatorView!
 
+    var loadedTimes = 0
+    
     override func viewDidLoad() {
-        super.viewDidLoad()
+        super.viewDidLoad() //FIRST
+        
+        //showLoadingAlert()
+
+        
         tableView.register(MWWCell.nib(), forCellReuseIdentifier: MWWCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
@@ -29,17 +41,78 @@ class MWWController: UIViewController {
                                                   name: UIApplication.didBecomeActiveNotification,
                                                   object: nil)
         
-        //fetchMW()
-        
         setUpPulseAnimation()
         
-//        refreshControl.addTarget(self, action: #selector(reloadTable), for: .valueChanged)
-//        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-//        tableView.refreshControl = refreshControl
+        
     }
     
-    func setUpPulseAnimation() {
+    override func viewDidAppear(_ animated: Bool) {
+        showLoadingAlert()
+    }
+    
+    
+    
+    override func viewWillLayoutSubviews() {
+        //showLoadingAlert() //SIX
+    }
+    
+    override func viewDidLayoutSubviews() {
+        //showLoadingAlert()
+    }
+    
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        //showLoadingAlert()
+    }
+    
+    
 
+    func showLoadingAlert() {
+        
+//        self.overlayView = UIView()
+//        self.activityIndicator = UIActivityIndicatorView()
+//
+//        overlayView.frame = CGRect(x: 0, y: 0, width: 80, height: 80)
+//        overlayView.backgroundColor = UIColor(white: 0, alpha: 0.7)
+//        overlayView.clipsToBounds = true
+//        overlayView.layer.cornerRadius = 10
+//        overlayView.layer.zPosition = 1
+//
+//        activityIndicator.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+//        activityIndicator.center = CGPoint(x: overlayView.bounds.width / 2, y: overlayView.bounds.height / 2)
+//        activityIndicator.style = .large
+//        overlayView.addSubview(activityIndicator)
+//
+//        overlayView.center = view.center
+//                view.addSubview(overlayView)
+//                activityIndicator.startAnimating()
+        
+        
+        overlay = UIView(frame: view.frame)
+        overlay!.backgroundColor = UIColor.systemBlue
+        overlay!.alpha = 0.6
+        
+
+        view.addSubview(overlay!)
+
+
+        alert = UIAlertController(title: nil, message: "Please wait, download news... ", preferredStyle: .alert)
+        
+        
+        activityIndicator = UIActivityIndicatorView(frame: CGRect(x: (self.view.frame.width / 2)-100, y: 50, width: 100, height: 100))
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = UIColor.cyan
+        activityIndicator.style = UIActivityIndicatorView.Style.large
+        activityIndicator.startAnimating();
+
+        alert.view.addSubview(activityIndicator)
+        present(alert, animated: true, completion: nil)
+    }
+    
+    
+    func setUpPulseAnimation() {
+//SECOND
         if self.traitCollection.userInterfaceStyle == .dark {
             spinnerAnnimation = SpinnerAnimationView(image: UIImage(named: "spinner")!, backgroundColor: .black)
         } else {
@@ -52,8 +125,7 @@ class MWWController: UIViewController {
     
     
     @objc func handleAppDidBecomeActiveNotification(notification: Notification) {
-        print ("got notification")
-        setUpPulseAnimation()
+//FOUR        setUpPulseAnimation()
         fetchMW()
     }
     
@@ -61,7 +133,6 @@ class MWWController: UIViewController {
         refreshControl.beginRefreshing()
         fetchMW()
         refreshControl.endRefreshing()
-        print ("reloaded")
     }
    
     func fetchMW(){
@@ -71,10 +142,8 @@ class MWWController: UIViewController {
         //let mwURLString = "https://rss.app/feeds/9QXMh4Scbqf6dINi.xml"
         //let mwURLString = "https://politepol.com/fd/bXcf1FENvIgK"
         let mwURLString = "https://politepol.com/fd/MiMDjbYvoJdo" //Feed with images
-
-        print ("fetch")
         
-        let feedParser = FeedParser()
+        let feedParser = FeedParser() //FIVE
         feedParser.parseFeed(url: mwURLString) { (rssItems) in
             self.rssItems = rssItems
 
@@ -92,7 +161,7 @@ let imageCache = NSCache<NSString, UIImage>()
 extension MWWController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return rssItems.count
+       return rssItems.count //THIRD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -132,7 +201,6 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
                 let data = try Data(contentsOf: url!)
                 
                 let imageToCache = UIImage(data: data)!
-                //image = UIImage(data: data)!
                 
                 imageCache.setObject(imageToCache, forKey: URLImage as NSString)
                 image = imageToCache
@@ -140,6 +208,16 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
                 image = UIImage(named: "mw-logo")!
             }
         }
+        loadedTimes += 1
+        
+        if loadedTimes == rssItems.count {
+
+            activityIndicator.stopAnimating()
+            overlay.removeFromSuperview()
+            alert.dismiss(animated: true, completion: nil)
+            
+        }
+        
         return image
     }
     
@@ -152,7 +230,6 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-
 //        if tickerExists {
 //            return 90
 //        }

@@ -3,26 +3,24 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 50;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		027C678E73AFFD7C192353D02EF69612 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */; };
-		2BEA1AF8B2EBFFA95AC81AF3E6EF5F6C /* Pods-MW Watcher-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FD6555C8BEB377B2233BDCE7AB1FE5F /* Pods-MW Watcher-dummy.m */; };
-		3E0FFFEA9C512B9A80E21FDB7B6ECD9E /* WavesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA34FB1C18849511898899E96AD180FF /* WavesView.swift */; };
-		8DECFDBA3BF12612A99CE653DDE2E81D /* PulseAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 552DA040C5B320AC4A1E18BB5ED91245 /* PulseAnimationView.swift */; };
-		92C5ADFC1C5D4C116DF33C63734AABBF /* Pods-MW Watcher-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 565B7544F2F5ACDD72716BE85A3AAFB4 /* Pods-MW Watcher-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9684BEA0F757B2AD3DBDF9642BC9B1A3 /* SpinnerAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EDF265695B6C934A5577CD6B4DECD03 /* SpinnerAnimationView.swift */; };
-		A6EFBC569D9EC1EDCE17A0A72A5EFF70 /* SSCustomPullToRefresh-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 5B7B7EF6082632357647F23B897FABC3 /* SSCustomPullToRefresh-dummy.m */; };
-		ACD089F8B7FF5DD506CDB8D83EBADFCF /* SSCustomPullToRefresh-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 39C9D1768A9E4568FE219E94F523F8FE /* SSCustomPullToRefresh-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		B2983A876F7FF184ECEA3734DA1FA2B3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */; };
-		CF81A11FBE5450ECC5DC3CE1A1643FEC /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C898C398043E8255DB12CA2C27F59ECC /* UIImage+Extension.swift */; };
-		EA8E60514BE8BCF4788F7B5CAE0C06E4 /* RefreshDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEA1A1C9196B298C8570422EBFA2899 /* RefreshDelegate.swift */; };
-		F0A9E2C6B1C267B18BA950AB451D47DF /* SineWaveAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38C2A48E9919A0A734751D0C13233C06 /* SineWaveAnimationView.swift */; };
+		1407633183567BD6CCD2AFEDAD733220 /* SineWaveAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57F866950804392375253993610B205F /* SineWaveAnimationView.swift */; };
+		401873437C4C88900266AEAB38996C97 /* SSCustomPullToRefresh-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 56AAA817D04322210C4DB704C082B985 /* SSCustomPullToRefresh-umbrella.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		516683BFA443616CD503FB903FB52B01 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACE63377A1DFBE1294E895887548E140 /* UIImage+Extension.swift */; };
+		55E817D1BB9CA80F823A232526C863B9 /* WavesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E159D10A552090C561B9EE25ED4678 /* WavesView.swift */; };
+		58EDCB3C606A3966BDB786AF69164663 /* RefreshDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0282FD6823F96DC487FD21AA24ECCB79 /* RefreshDelegate.swift */; };
+		63CB40314E8C75E293C6586817261288 /* Pods-MW Watcher-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A12B0C8C17E8104923714AD9D48BB802 /* Pods-MW Watcher-dummy.m */; };
+		94D33C8EFA0F30621D021B21E9972522 /* SSCustomPullToRefresh-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 790DB61E95FC69BF3ECDAEB592993754 /* SSCustomPullToRefresh-dummy.m */; };
+		B0158FF5CE6E7FE48D6BCFD709A9D4C0 /* Pods-MW Watcher-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = ECDE359003E206A8262CE0298AA1424B /* Pods-MW Watcher-umbrella.h */; settings = {ATTRIBUTES = (Project, ); }; };
+		C70A5D0C10CD4E8BE6DA80D92E3D778B /* PulseAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BE7303F499A3A6FD3A8F7E005B97050 /* PulseAnimationView.swift */; };
+		FB230AADB56CE1256CBD2D3FDCB14D46 /* SpinnerAnimationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984553C3159D1CA7AEF7038B6ED7AA67 /* SpinnerAnimationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A7D7EE71A2870D0F2F95FF5BE604AA27 /* PBXContainerItemProxy */ = {
+		F18DE4407BE367E3E2BA0202EC25CC6B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
 			proxyType = 1;
@@ -32,168 +30,150 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		047AF00CEA80F06CC62034FCAD141D47 /* SSCustomPullToRefresh.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SSCustomPullToRefresh.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		0EDF265695B6C934A5577CD6B4DECD03 /* SpinnerAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpinnerAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/SpinnerAnimationView.swift; sourceTree = "<group>"; };
-		0FD6555C8BEB377B2233BDCE7AB1FE5F /* Pods-MW Watcher-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MW Watcher-dummy.m"; sourceTree = "<group>"; };
-		2DFAB68F3AD22538E2196E830D15BC67 /* Pods-MW Watcher-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MW Watcher-acknowledgements.plist"; sourceTree = "<group>"; };
-		347167DAF95354E4ED2AB81A771C433A /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
-		38C2A48E9919A0A734751D0C13233C06 /* SineWaveAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SineWaveAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/SineWaveAnimationView.swift; sourceTree = "<group>"; };
-		39C9D1768A9E4568FE219E94F523F8FE /* SSCustomPullToRefresh-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SSCustomPullToRefresh-umbrella.h"; sourceTree = "<group>"; };
-		3DEA1A1C9196B298C8570422EBFA2899 /* RefreshDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RefreshDelegate.swift; path = Sources/SSCustomPullToRefresh/Views/RefreshDelegate.swift; sourceTree = "<group>"; };
-		46A84BA5056358989409BE5485E9ABF9 /* SSCustomPullToRefresh.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SSCustomPullToRefresh.debug.xcconfig; sourceTree = "<group>"; };
-		552DA040C5B320AC4A1E18BB5ED91245 /* PulseAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PulseAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/PulseAnimationView.swift; sourceTree = "<group>"; };
-		565B7544F2F5ACDD72716BE85A3AAFB4 /* Pods-MW Watcher-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-MW Watcher-umbrella.h"; sourceTree = "<group>"; };
-		594D37F68C6D94DF8F334B4CFADEED77 /* Pods-MW Watcher-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MW Watcher-acknowledgements.markdown"; sourceTree = "<group>"; };
-		5B41BB88E38670F6953DD63E58D5ACF3 /* Pods-MW Watcher.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-MW Watcher.modulemap"; sourceTree = "<group>"; };
-		5B7B7EF6082632357647F23B897FABC3 /* SSCustomPullToRefresh-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SSCustomPullToRefresh-dummy.m"; sourceTree = "<group>"; };
-		73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		7CC1852BE5446635A27D9EB149EFE4A6 /* SSCustomPullToRefresh.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SSCustomPullToRefresh.release.xcconfig; sourceTree = "<group>"; };
-		7DDFCC2B4661902992B04F8CA7C9E337 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		841B4F13CBD73B273B11E1606F2CE120 /* Pods-MW Watcher-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MW Watcher-Info.plist"; sourceTree = "<group>"; };
+		0282FD6823F96DC487FD21AA24ECCB79 /* RefreshDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = RefreshDelegate.swift; path = Sources/SSCustomPullToRefresh/Views/RefreshDelegate.swift; sourceTree = "<group>"; };
+		047AF00CEA80F06CC62034FCAD141D47 /* libSSCustomPullToRefresh.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSSCustomPullToRefresh.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		27AEA2F58DB0DC3BF7FFB19CE844CBF4 /* SSCustomPullToRefresh.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SSCustomPullToRefresh.debug.xcconfig; sourceTree = "<group>"; };
+		49E159D10A552090C561B9EE25ED4678 /* WavesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WavesView.swift; path = Sources/SSCustomPullToRefresh/Views/WavesView.swift; sourceTree = "<group>"; };
+		56AAA817D04322210C4DB704C082B985 /* SSCustomPullToRefresh-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SSCustomPullToRefresh-umbrella.h"; sourceTree = "<group>"; };
+		57F866950804392375253993610B205F /* SineWaveAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SineWaveAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/SineWaveAnimationView.swift; sourceTree = "<group>"; };
+		790DB61E95FC69BF3ECDAEB592993754 /* SSCustomPullToRefresh-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "SSCustomPullToRefresh-dummy.m"; sourceTree = "<group>"; };
+		7DDFCC2B4661902992B04F8CA7C9E337 /* libPods-MW Watcher.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MW Watcher.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		8337278B7062C1E3A1502CF0E94F8104 /* SSCustomPullToRefresh.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SSCustomPullToRefresh.modulemap; sourceTree = "<group>"; };
+		984553C3159D1CA7AEF7038B6ED7AA67 /* SpinnerAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpinnerAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/SpinnerAnimationView.swift; sourceTree = "<group>"; };
+		9BE7303F499A3A6FD3A8F7E005B97050 /* PulseAnimationView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PulseAnimationView.swift; path = Sources/SSCustomPullToRefresh/Views/PulseAnimationView.swift; sourceTree = "<group>"; };
 		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		AC9A9158E2B3056C4DEE85D7EA36A314 /* SSCustomPullToRefresh-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SSCustomPullToRefresh-prefix.pch"; sourceTree = "<group>"; };
-		BA34FB1C18849511898899E96AD180FF /* WavesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WavesView.swift; path = Sources/SSCustomPullToRefresh/Views/WavesView.swift; sourceTree = "<group>"; };
-		C898C398043E8255DB12CA2C27F59ECC /* UIImage+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIImage+Extension.swift"; path = "Sources/SSCustomPullToRefresh/Extension/UIImage+Extension.swift"; sourceTree = "<group>"; };
-		D8EB6A15D32D09DFE85C409DD3084255 /* SSCustomPullToRefresh-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "SSCustomPullToRefresh-Info.plist"; sourceTree = "<group>"; };
-		EB7B646D330E49F9AAAADC9F2821E802 /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
-		F4B94A66705206820E33B6C142536A97 /* Pods-MW Watcher-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-MW Watcher-frameworks.sh"; sourceTree = "<group>"; };
-		F72507174626736103A4F3CB4FBDC121 /* SSCustomPullToRefresh.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = SSCustomPullToRefresh.modulemap; sourceTree = "<group>"; };
+		A12B0C8C17E8104923714AD9D48BB802 /* Pods-MW Watcher-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-MW Watcher-dummy.m"; sourceTree = "<group>"; };
+		A81F89F17A542AA5BC7EB2E26D5BD973 /* SSCustomPullToRefresh-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SSCustomPullToRefresh-prefix.pch"; sourceTree = "<group>"; };
+		ACE63377A1DFBE1294E895887548E140 /* UIImage+Extension.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIImage+Extension.swift"; path = "Sources/SSCustomPullToRefresh/Extension/UIImage+Extension.swift"; sourceTree = "<group>"; };
+		B01D6CD84565ACE24A702EE2C21832B8 /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
+		C4E53E4754884BDB4EBAC9143ABE033C /* Pods-MW Watcher-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-MW Watcher-acknowledgements.plist"; sourceTree = "<group>"; };
+		C57DA99357AA41C3261BB3D0D8C89C02 /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
+		D0C0BB880D40685AFA6338D2F69132D8 /* Pods-MW Watcher.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-MW Watcher.modulemap"; sourceTree = "<group>"; };
+		DDEDFF87364413D15DE98B5839A5ACCD /* Pods-MW Watcher-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-MW Watcher-acknowledgements.markdown"; sourceTree = "<group>"; };
+		ECDE359003E206A8262CE0298AA1424B /* Pods-MW Watcher-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-MW Watcher-umbrella.h"; sourceTree = "<group>"; };
+		F1A08068D14200A8D226413B9A6B11E8 /* SSCustomPullToRefresh.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SSCustomPullToRefresh.release.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		3E67059FA1FB45CAD0F64C2C1BF06652 /* Frameworks */ = {
+		2645F48378C7C9AC0597B1AB5C4CE132 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				027C678E73AFFD7C192353D02EF69612 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		42249943A4AE2FCE5C9EFB6E79299FA1 /* Frameworks */ = {
+		4A98395280F60C9E403106C1B4D8E5B3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B2983A876F7FF184ECEA3734DA1FA2B3 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		26FA0DD609A3C9890652F047264DD3FC /* Pods */ = {
+		110C6D6201F5E292B8D2B9B506B34835 /* Support Files */ = {
 			isa = PBXGroup;
 			children = (
-				30942ECD38B35F1D273715756D24017A /* SSCustomPullToRefresh */,
-			);
-			name = Pods;
-			sourceTree = "<group>";
-		};
-		30942ECD38B35F1D273715756D24017A /* SSCustomPullToRefresh */ = {
-			isa = PBXGroup;
-			children = (
-				552DA040C5B320AC4A1E18BB5ED91245 /* PulseAnimationView.swift */,
-				3DEA1A1C9196B298C8570422EBFA2899 /* RefreshDelegate.swift */,
-				38C2A48E9919A0A734751D0C13233C06 /* SineWaveAnimationView.swift */,
-				0EDF265695B6C934A5577CD6B4DECD03 /* SpinnerAnimationView.swift */,
-				C898C398043E8255DB12CA2C27F59ECC /* UIImage+Extension.swift */,
-				BA34FB1C18849511898899E96AD180FF /* WavesView.swift */,
-				965D62BA153B82CD872CC135D53D17E0 /* Support Files */,
-			);
-			path = SSCustomPullToRefresh;
-			sourceTree = "<group>";
-		};
-		578452D2E740E91742655AC8F1636D1F /* iOS */ = {
-			isa = PBXGroup;
-			children = (
-				73010CC983E3809BECEE5348DA1BB8C6 /* Foundation.framework */,
-			);
-			name = iOS;
-			sourceTree = "<group>";
-		};
-		965D62BA153B82CD872CC135D53D17E0 /* Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				F72507174626736103A4F3CB4FBDC121 /* SSCustomPullToRefresh.modulemap */,
-				5B7B7EF6082632357647F23B897FABC3 /* SSCustomPullToRefresh-dummy.m */,
-				D8EB6A15D32D09DFE85C409DD3084255 /* SSCustomPullToRefresh-Info.plist */,
-				AC9A9158E2B3056C4DEE85D7EA36A314 /* SSCustomPullToRefresh-prefix.pch */,
-				39C9D1768A9E4568FE219E94F523F8FE /* SSCustomPullToRefresh-umbrella.h */,
-				46A84BA5056358989409BE5485E9ABF9 /* SSCustomPullToRefresh.debug.xcconfig */,
-				7CC1852BE5446635A27D9EB149EFE4A6 /* SSCustomPullToRefresh.release.xcconfig */,
+				8337278B7062C1E3A1502CF0E94F8104 /* SSCustomPullToRefresh.modulemap */,
+				790DB61E95FC69BF3ECDAEB592993754 /* SSCustomPullToRefresh-dummy.m */,
+				A81F89F17A542AA5BC7EB2E26D5BD973 /* SSCustomPullToRefresh-prefix.pch */,
+				56AAA817D04322210C4DB704C082B985 /* SSCustomPullToRefresh-umbrella.h */,
+				27AEA2F58DB0DC3BF7FFB19CE844CBF4 /* SSCustomPullToRefresh.debug.xcconfig */,
+				F1A08068D14200A8D226413B9A6B11E8 /* SSCustomPullToRefresh.release.xcconfig */,
 			);
 			name = "Support Files";
 			path = "../Target Support Files/SSCustomPullToRefresh";
 			sourceTree = "<group>";
 		};
-		A082D199E02C34B234EDFD0C6DCF896F /* Pods-MW Watcher */ = {
+		1CDDC8D4CE8CD41D0E56FD20B66259C8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5B41BB88E38670F6953DD63E58D5ACF3 /* Pods-MW Watcher.modulemap */,
-				594D37F68C6D94DF8F334B4CFADEED77 /* Pods-MW Watcher-acknowledgements.markdown */,
-				2DFAB68F3AD22538E2196E830D15BC67 /* Pods-MW Watcher-acknowledgements.plist */,
-				0FD6555C8BEB377B2233BDCE7AB1FE5F /* Pods-MW Watcher-dummy.m */,
-				F4B94A66705206820E33B6C142536A97 /* Pods-MW Watcher-frameworks.sh */,
-				841B4F13CBD73B273B11E1606F2CE120 /* Pods-MW Watcher-Info.plist */,
-				565B7544F2F5ACDD72716BE85A3AAFB4 /* Pods-MW Watcher-umbrella.h */,
-				EB7B646D330E49F9AAAADC9F2821E802 /* Pods-MW Watcher.debug.xcconfig */,
-				347167DAF95354E4ED2AB81A771C433A /* Pods-MW Watcher.release.xcconfig */,
+				7DDFCC2B4661902992B04F8CA7C9E337 /* libPods-MW Watcher.a */,
+				047AF00CEA80F06CC62034FCAD141D47 /* libSSCustomPullToRefresh.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		26FA0DD609A3C9890652F047264DD3FC /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				37E058F5F05DC55F45FD95F913E97BD7 /* SSCustomPullToRefresh */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		37E058F5F05DC55F45FD95F913E97BD7 /* SSCustomPullToRefresh */ = {
+			isa = PBXGroup;
+			children = (
+				9BE7303F499A3A6FD3A8F7E005B97050 /* PulseAnimationView.swift */,
+				0282FD6823F96DC487FD21AA24ECCB79 /* RefreshDelegate.swift */,
+				57F866950804392375253993610B205F /* SineWaveAnimationView.swift */,
+				984553C3159D1CA7AEF7038B6ED7AA67 /* SpinnerAnimationView.swift */,
+				ACE63377A1DFBE1294E895887548E140 /* UIImage+Extension.swift */,
+				49E159D10A552090C561B9EE25ED4678 /* WavesView.swift */,
+				110C6D6201F5E292B8D2B9B506B34835 /* Support Files */,
+			);
+			path = SSCustomPullToRefresh;
+			sourceTree = "<group>";
+		};
+		39113BBA5A99A887E9926561A07DC182 /* Pods-MW Watcher */ = {
+			isa = PBXGroup;
+			children = (
+				D0C0BB880D40685AFA6338D2F69132D8 /* Pods-MW Watcher.modulemap */,
+				DDEDFF87364413D15DE98B5839A5ACCD /* Pods-MW Watcher-acknowledgements.markdown */,
+				C4E53E4754884BDB4EBAC9143ABE033C /* Pods-MW Watcher-acknowledgements.plist */,
+				A12B0C8C17E8104923714AD9D48BB802 /* Pods-MW Watcher-dummy.m */,
+				ECDE359003E206A8262CE0298AA1424B /* Pods-MW Watcher-umbrella.h */,
+				C57DA99357AA41C3261BB3D0D8C89C02 /* Pods-MW Watcher.debug.xcconfig */,
+				B01D6CD84565ACE24A702EE2C21832B8 /* Pods-MW Watcher.release.xcconfig */,
 			);
 			name = "Pods-MW Watcher";
 			path = "Target Support Files/Pods-MW Watcher";
+			sourceTree = "<group>";
+		};
+		78F3855226BCD3E9912B4074E02DAC0E /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				39113BBA5A99A887E9926561A07DC182 /* Pods-MW Watcher */,
+			);
+			name = "Targets Support Files";
 			sourceTree = "<group>";
 		};
 		CF1408CF629C7361332E53B88F7BD30C = {
 			isa = PBXGroup;
 			children = (
 				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
-				D210D550F4EA176C3123ED886F8F87F5 /* Frameworks */,
+				D89477F20FB1DE18A04690586D7808C4 /* Frameworks */,
 				26FA0DD609A3C9890652F047264DD3FC /* Pods */,
-				E22654F9A7B5A11EA8F92919BE48CDDA /* Products */,
-				EC3C3ED55A714D0E5BBB592F76EFA80A /* Targets Support Files */,
+				1CDDC8D4CE8CD41D0E56FD20B66259C8 /* Products */,
+				78F3855226BCD3E9912B4074E02DAC0E /* Targets Support Files */,
 			);
 			sourceTree = "<group>";
 		};
-		D210D550F4EA176C3123ED886F8F87F5 /* Frameworks */ = {
+		D89477F20FB1DE18A04690586D7808C4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				578452D2E740E91742655AC8F1636D1F /* iOS */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		E22654F9A7B5A11EA8F92919BE48CDDA /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				7DDFCC2B4661902992B04F8CA7C9E337 /* Pods_MW_Watcher.framework */,
-				047AF00CEA80F06CC62034FCAD141D47 /* SSCustomPullToRefresh.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		EC3C3ED55A714D0E5BBB592F76EFA80A /* Targets Support Files */ = {
-			isa = PBXGroup;
-			children = (
-				A082D199E02C34B234EDFD0C6DCF896F /* Pods-MW Watcher */,
-			);
-			name = "Targets Support Files";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		F574257EBB0966A7A975366EF95358D2 /* Headers */ = {
+		110D3285C1B3E2A15B7040E2D1B76FB4 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				92C5ADFC1C5D4C116DF33C63734AABBF /* Pods-MW Watcher-umbrella.h in Headers */,
+				B0158FF5CE6E7FE48D6BCFD709A9D4C0 /* Pods-MW Watcher-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		FA31E8B89A9B007E7F95F28827F47D6F /* Headers */ = {
+		819717C8DBBA227E238DC05527C9AA8E /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ACD089F8B7FF5DD506CDB8D83EBADFCF /* SSCustomPullToRefresh-umbrella.h in Headers */,
+				401873437C4C88900266AEAB38996C97 /* SSCustomPullToRefresh-umbrella.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,12 +182,12 @@
 /* Begin PBXNativeTarget section */
 		91DAC9EE02C2F041A075160849DACDBC /* SSCustomPullToRefresh */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A957D3B03DDC9E18F73879D76FFEA288 /* Build configuration list for PBXNativeTarget "SSCustomPullToRefresh" */;
+			buildConfigurationList = 3EB70AE07AD075AF844736495615742F /* Build configuration list for PBXNativeTarget "SSCustomPullToRefresh" */;
 			buildPhases = (
-				FA31E8B89A9B007E7F95F28827F47D6F /* Headers */,
-				84BD696163CD81BED11A39DA4B5BE5C5 /* Sources */,
-				42249943A4AE2FCE5C9EFB6E79299FA1 /* Frameworks */,
-				D2507E8ADE71FD38703A0C2082615B95 /* Resources */,
+				819717C8DBBA227E238DC05527C9AA8E /* Headers */,
+				D0180F5CFDEBFECA98C677B05C58A79A /* Sources */,
+				2645F48378C7C9AC0597B1AB5C4CE132 /* Frameworks */,
+				29B963ACDDC0A1785B2BE1A859BFDB5A /* Copy generated compatibility header */,
 			);
 			buildRules = (
 			);
@@ -215,27 +195,26 @@
 			);
 			name = SSCustomPullToRefresh;
 			productName = SSCustomPullToRefresh;
-			productReference = 047AF00CEA80F06CC62034FCAD141D47 /* SSCustomPullToRefresh.framework */;
-			productType = "com.apple.product-type.framework";
+			productReference = 047AF00CEA80F06CC62034FCAD141D47 /* libSSCustomPullToRefresh.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		E5547CA0A8A1651FD4BED32E674D91F7 /* Pods-MW Watcher */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E1711C160ED2B753ABCB83A2E64AFCD6 /* Build configuration list for PBXNativeTarget "Pods-MW Watcher" */;
+			buildConfigurationList = 2FF6D6B15A2E257DFA01DD60D3B0CD6A /* Build configuration list for PBXNativeTarget "Pods-MW Watcher" */;
 			buildPhases = (
-				F574257EBB0966A7A975366EF95358D2 /* Headers */,
-				3C6E760D5CB6B9615F9B89DBCF75DC6A /* Sources */,
-				3E67059FA1FB45CAD0F64C2C1BF06652 /* Frameworks */,
-				5B38566E6598265AA4095923BCD35219 /* Resources */,
+				110D3285C1B3E2A15B7040E2D1B76FB4 /* Headers */,
+				2A92D47A273AC0068CFFB58B440F5AFE /* Sources */,
+				4A98395280F60C9E403106C1B4D8E5B3 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				F2113D2C9999A9B830FD04F3FE68F02D /* PBXTargetDependency */,
+				B0B39CF330A536E7A3793B09E90FD060 /* PBXTargetDependency */,
 			);
 			name = "Pods-MW Watcher";
 			productName = "Pods-MW Watcher";
-			productReference = 7DDFCC2B4661902992B04F8CA7C9E337 /* Pods_MW_Watcher.framework */;
-			productType = "com.apple.product-type.framework";
+			productReference = 7DDFCC2B4661902992B04F8CA7C9E337 /* libPods-MW Watcher.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
 
@@ -247,7 +226,7 @@
 				LastUpgradeCheck = 1250;
 			};
 			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
-			compatibilityVersion = "Xcode 10.0";
+			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -255,7 +234,7 @@
 				Base,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
-			productRefGroup = E22654F9A7B5A11EA8F92919BE48CDDA /* Products */;
+			productRefGroup = 1CDDC8D4CE8CD41D0E56FD20B66259C8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -265,165 +244,135 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXResourcesBuildPhase section */
-		5B38566E6598265AA4095923BCD35219 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
+/* Begin PBXShellScriptBuildPhase section */
+		29B963ACDDC0A1785B2BE1A859BFDB5A /* Copy generated compatibility header */ = {
+			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D2507E8ADE71FD38703A0C2082615B95 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DERIVED_SOURCES_DIR}/${PRODUCT_MODULE_NAME}-Swift.h",
+				"${PODS_ROOT}/Headers/Public/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap",
+				"${PODS_ROOT}/Headers/Public/SSCustomPullToRefresh/SSCustomPullToRefresh-umbrella.h",
+			);
+			name = "Copy generated compatibility header";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${BUILT_PRODUCTS_DIR}/${PRODUCT_MODULE_NAME}.modulemap",
+				"${BUILT_PRODUCTS_DIR}/SSCustomPullToRefresh-umbrella.h",
+				"${BUILT_PRODUCTS_DIR}/Swift Compatibility Header/${PRODUCT_MODULE_NAME}-Swift.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "COMPATIBILITY_HEADER_PATH=\"${BUILT_PRODUCTS_DIR}/Swift Compatibility Header/${PRODUCT_MODULE_NAME}-Swift.h\"\nMODULE_MAP_PATH=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_MODULE_NAME}.modulemap\"\n\nditto \"${DERIVED_SOURCES_DIR}/${PRODUCT_MODULE_NAME}-Swift.h\" \"${COMPATIBILITY_HEADER_PATH}\"\nditto \"${PODS_ROOT}/Headers/Public/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap\" \"${MODULE_MAP_PATH}\"\nditto \"${PODS_ROOT}/Headers/Public/SSCustomPullToRefresh/SSCustomPullToRefresh-umbrella.h\" \"${BUILT_PRODUCTS_DIR}\"\nprintf \"\\n\\nmodule ${PRODUCT_MODULE_NAME}.Swift {\\n  header \\\"${COMPATIBILITY_HEADER_PATH}\\\"\\n  requires objc\\n}\\n\" >> \"${MODULE_MAP_PATH}\"\n";
 		};
-/* End PBXResourcesBuildPhase section */
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		3C6E760D5CB6B9615F9B89DBCF75DC6A /* Sources */ = {
+		2A92D47A273AC0068CFFB58B440F5AFE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BEA1AF8B2EBFFA95AC81AF3E6EF5F6C /* Pods-MW Watcher-dummy.m in Sources */,
+				63CB40314E8C75E293C6586817261288 /* Pods-MW Watcher-dummy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		84BD696163CD81BED11A39DA4B5BE5C5 /* Sources */ = {
+		D0180F5CFDEBFECA98C677B05C58A79A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DECFDBA3BF12612A99CE653DDE2E81D /* PulseAnimationView.swift in Sources */,
-				EA8E60514BE8BCF4788F7B5CAE0C06E4 /* RefreshDelegate.swift in Sources */,
-				F0A9E2C6B1C267B18BA950AB451D47DF /* SineWaveAnimationView.swift in Sources */,
-				9684BEA0F757B2AD3DBDF9642BC9B1A3 /* SpinnerAnimationView.swift in Sources */,
-				A6EFBC569D9EC1EDCE17A0A72A5EFF70 /* SSCustomPullToRefresh-dummy.m in Sources */,
-				CF81A11FBE5450ECC5DC3CE1A1643FEC /* UIImage+Extension.swift in Sources */,
-				3E0FFFEA9C512B9A80E21FDB7B6ECD9E /* WavesView.swift in Sources */,
+				C70A5D0C10CD4E8BE6DA80D92E3D778B /* PulseAnimationView.swift in Sources */,
+				58EDCB3C606A3966BDB786AF69164663 /* RefreshDelegate.swift in Sources */,
+				1407633183567BD6CCD2AFEDAD733220 /* SineWaveAnimationView.swift in Sources */,
+				FB230AADB56CE1256CBD2D3FDCB14D46 /* SpinnerAnimationView.swift in Sources */,
+				94D33C8EFA0F30621D021B21E9972522 /* SSCustomPullToRefresh-dummy.m in Sources */,
+				516683BFA443616CD503FB903FB52B01 /* UIImage+Extension.swift in Sources */,
+				55E817D1BB9CA80F823A232526C863B9 /* WavesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		F2113D2C9999A9B830FD04F3FE68F02D /* PBXTargetDependency */ = {
+		B0B39CF330A536E7A3793B09E90FD060 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = SSCustomPullToRefresh;
 			target = 91DAC9EE02C2F041A075160849DACDBC /* SSCustomPullToRefresh */;
-			targetProxy = A7D7EE71A2870D0F2F95FF5BE604AA27 /* PBXContainerItemProxy */;
+			targetProxy = F18DE4407BE367E3E2BA0202EC25CC6B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		21BAAF41AAC616058188867814B2DD8E /* Debug */ = {
+		33B2E1EC191AD4212FF17D8AC73D7E56 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 46A84BA5056358989409BE5485E9ABF9 /* SSCustomPullToRefresh.debug.xcconfig */;
+			baseConfigurationReference = 27AEA2F58DB0DC3BF7FFB19CE844CBF4 /* SSCustomPullToRefresh.debug.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREFIX_HEADER = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap";
+				MODULEMAP_FILE = Headers/Public/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_MODULE_NAME = SSCustomPullToRefresh;
 				PRODUCT_NAME = SSCustomPullToRefresh;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
 		};
-		5DD309F5A61A44D3BD783D8C2C6BEA51 /* Release */ = {
+		7FADC93E670D73FD1104CB2B7A138F22 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 347167DAF95354E4ED2AB81A771C433A /* Pods-MW Watcher.release.xcconfig */;
+			baseConfigurationReference = B01D6CD84565ACE24A702EE2C21832B8 /* Pods-MW Watcher.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
 				MACH_O_TYPE = staticlib;
 				MODULEMAP_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.modulemap";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PODS_ROOT = "$(SRCROOT)";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
-		A0812915BBBB08DAD8D594068C8682EE /* Debug */ = {
+		97CFAE036952A00FF8733D004D032D2A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EB7B646D330E49F9AAAADC9F2821E802 /* Pods-MW Watcher.debug.xcconfig */;
+			baseConfigurationReference = C57DA99357AA41C3261BB3D0D8C89C02 /* Pods-MW Watcher.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
 				MACH_O_TYPE = staticlib;
 				MODULEMAP_FILE = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.modulemap";
 				OTHER_LDFLAGS = "";
 				OTHER_LIBTOOLFLAGS = "";
 				PODS_ROOT = "$(SRCROOT)";
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Debug;
 		};
@@ -555,68 +504,58 @@
 			};
 			name = Release;
 		};
-		F370D96FD8CCD5B341AA3E78A81A3D16 /* Release */ = {
+		FD2ECA0F3D8BE42035E622016BDAB88F /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7CC1852BE5446635A27D9EB149EFE4A6 /* SSCustomPullToRefresh.release.xcconfig */;
+			baseConfigurationReference = F1A08068D14200A8D226413B9A6B11E8 /* SSCustomPullToRefresh.release.xcconfig */;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
-				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREFIX_HEADER = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-prefix.pch";
-				INFOPLIST_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh-Info.plist";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULEMAP_FILE = "Target Support Files/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap";
+				MODULEMAP_FILE = Headers/Public/SSCustomPullToRefresh/SSCustomPullToRefresh.modulemap;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PRIVATE_HEADERS_FOLDER_PATH = "";
 				PRODUCT_MODULE_NAME = SSCustomPullToRefresh;
 				PRODUCT_NAME = SSCustomPullToRefresh;
+				PUBLIC_HEADERS_FOLDER_PATH = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-				VERSIONING_SYSTEM = "apple-generic";
-				VERSION_INFO_PREFIX = "";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2FF6D6B15A2E257DFA01DD60D3B0CD6A /* Build configuration list for PBXNativeTarget "Pods-MW Watcher" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97CFAE036952A00FF8733D004D032D2A /* Debug */,
+				7FADC93E670D73FD1104CB2B7A138F22 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3EB70AE07AD075AF844736495615742F /* Build configuration list for PBXNativeTarget "SSCustomPullToRefresh" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33B2E1EC191AD4212FF17D8AC73D7E56 /* Debug */,
+				FD2ECA0F3D8BE42035E622016BDAB88F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BC01E0B73776AF6B58DC318A9BE988D7 /* Debug */,
 				C605C363CC9F26F9FF97DBB1D5C6E25C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		A957D3B03DDC9E18F73879D76FFEA288 /* Build configuration list for PBXNativeTarget "SSCustomPullToRefresh" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				21BAAF41AAC616058188867814B2DD8E /* Debug */,
-				F370D96FD8CCD5B341AA3E78A81A3D16 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E1711C160ED2B753ABCB83A2E64AFCD6 /* Build configuration list for PBXNativeTarget "Pods-MW Watcher" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A0812915BBBB08DAD8D594068C8682EE /* Debug */,
-				5DD309F5A61A44D3BD783D8C2C6BEA51 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

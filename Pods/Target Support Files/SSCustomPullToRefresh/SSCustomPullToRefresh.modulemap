@@ -1,4 +1,4 @@
-framework module SSCustomPullToRefresh {
+module SSCustomPullToRefresh {
   umbrella header "SSCustomPullToRefresh-umbrella.h"
 
   export *

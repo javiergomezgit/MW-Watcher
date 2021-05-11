@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "91DAC9EE02C2F041A075160849DACDBC"
-               BuildableName = "SSCustomPullToRefresh.framework"
+               BuildableName = "libSSCustomPullToRefresh.a"
                BlueprintName = "SSCustomPullToRefresh"
                ReferencedContainer = "container:Pods.xcodeproj">
             </BuildableReference>
