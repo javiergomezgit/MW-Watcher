@@ -55,17 +55,17 @@ class FeedParser: NSObject, XMLParserDelegate {
                 return
             }
             
-            //parse xml data
             let parser = XMLParser(data: data)
             parser.delegate = self
             parser.parse()
         }
         task.resume()
     }
-
+    
     func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
         
         currentElement = elementName
+        print (elementName)
         
         if currentElement == "enclosure" {
             currentEnclosure = attributeDict["url"]!
@@ -83,7 +83,6 @@ class FeedParser: NSObject, XMLParserDelegate {
     
     func parser(_ parser: XMLParser, foundCharacters string: String) {
         
-        //second,  when found characters
         switch currentElement {
         case "title":
             currentTitle += string
@@ -114,6 +113,7 @@ class FeedParser: NSObject, XMLParserDelegate {
     }
     
     func parserDidEndDocument(_ parser: XMLParser) {
+        print (rssItems)
         parserCompletionHandler?(rssItems)
     }
     
@@ -123,12 +123,10 @@ class FeedParser: NSObject, XMLParserDelegate {
     
     
     func cleanURLImage(imgURL: String) -> String {
-        
         var urlString = [""]
         if imgURL != "" {
             urlString = imgURL.components(separatedBy: ",")
         }
-        
         return urlString[0]
     }
     
@@ -136,7 +134,6 @@ class FeedParser: NSObject, XMLParserDelegate {
                 
         var values = ["", ""]
         let data = Data(description.utf8)
-        
         if description != "" {
             if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
 
@@ -154,7 +151,6 @@ class FeedParser: NSObject, XMLParserDelegate {
                 }
             }
         }
-        
         return values
     }
     
@@ -172,5 +168,10 @@ class FeedParser: NSObject, XMLParserDelegate {
                 
         return cleanString[0]
     }
+    
+    
+    
+    
+    
 }
 

@@ -34,7 +34,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6PI-7c-Pnu">
-                        <rect key="frame" x="162" y="0.0" width="242" height="128"/>
+                        <rect key="frame" x="5" y="0.0" width="393.5" height="128"/>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="U.S. Stock" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gvi-gE-H0b">
                         <rect key="frame" x="162" y="136" width="121" height="24"/>
@@ -55,10 +55,11 @@
                 <constraints>
                     <constraint firstItem="6PI-7c-Pnu" firstAttribute="height" secondItem="H4I-FZ-mhb" secondAttribute="height" id="1P9-RW-Gov"/>
                     <constraint firstItem="oDu-vy-zcv" firstAttribute="height" secondItem="gvi-gE-H0b" secondAttribute="height" multiplier="1.34043" id="3Er-VJ-Qdy"/>
+                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="5m5-dC-Ips"/>
+                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" multiplier="0.95" id="8xv-2n-9JX"/>
                     <constraint firstItem="VTf-Az-TUh" firstAttribute="top" secondItem="H4I-FZ-mhb" secondAttribute="bottom" id="FTO-Pb-oYe"/>
                     <constraint firstItem="H4I-FZ-mhb" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Ioc-n7-UP1"/>
                     <constraint firstItem="gvi-gE-H0b" firstAttribute="leading" secondItem="H4I-FZ-mhb" secondAttribute="leading" id="K67-Cd-t5R"/>
-                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="leading" secondItem="H4I-FZ-mhb" secondAttribute="leading" id="KEf-Y8-z49"/>
                     <constraint firstItem="H4I-FZ-mhb" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.8" id="MZX-45-qy7"/>
                     <constraint firstItem="oDu-vy-zcv" firstAttribute="width" secondItem="gvi-gE-H0b" secondAttribute="width" id="NMZ-aH-g1W"/>
                     <constraint firstItem="VTf-Az-TUh" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" multiplier="0.5" id="POk-oI-MKU"/>
@@ -71,7 +72,6 @@
                     <constraint firstItem="oDu-vy-zcv" firstAttribute="top" secondItem="gvi-gE-H0b" secondAttribute="top" id="gV1-MB-MCs"/>
                     <constraint firstItem="wWm-R4-ilp" firstAttribute="width" secondItem="Ma2-6E-taX" secondAttribute="width" id="gVx-Lg-sk7"/>
                     <constraint firstItem="VTf-Az-TUh" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.2" id="icS-AS-eBH"/>
-                    <constraint firstItem="6PI-7c-Pnu" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" id="lpI-3k-Ok4"/>
                     <constraint firstItem="oDu-vy-zcv" firstAttribute="leading" secondItem="gvi-gE-H0b" secondAttribute="leading" id="nas-z0-1OO"/>
                     <constraint firstItem="Ma2-6E-taX" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="ohH-Cy-kZv"/>
                     <constraint firstItem="Ma2-6E-taX" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="qZ4-09-4Zi"/>
