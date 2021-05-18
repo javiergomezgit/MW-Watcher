@@ -30,11 +30,15 @@ struct Provider: TimelineProvider {
         completion(entry)
     }
     
+    let saveFeeds = SaveFeedsWidget()
     func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> ()) {
      
         let mwURLString = "https://politepol.com/fd/MiMDjbYvoJdo" //Feed with images
         //let mwURLString = "http://feeds.marketwatch.com/marketwatch/realtimeheadlines/"
         let feedParser = FeedParser()
+        
+        saveFeeds.loadContainers()
+
 
         feedParser.parseFeed(url: mwURLString) { (rssItems) in
 

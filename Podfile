@@ -7,6 +7,7 @@ target 'MW Watcher' do
 
   # Pods for MW Watcher
   pod 'SSCustomPullToRefresh'
+  pod 'SwiftSoup'
 end
 
 #target 'WidgetExtension' do

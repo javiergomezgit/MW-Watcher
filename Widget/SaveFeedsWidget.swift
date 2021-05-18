@@ -4,7 +4,7 @@
 //
 //  Created by Javier Gomez on 5/13/21.
 //
-/*
+
 import SwiftUI
 import WidgetKit
 import CoreData
@@ -204,6 +204,5 @@ struct SaveFeedsWidget {
 
 
 
-saveFeeds.loadContainers()
 
-*/
+

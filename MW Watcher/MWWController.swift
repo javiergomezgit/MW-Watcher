@@ -13,7 +13,6 @@ class MWWController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    //var rssItems: [RSSItem] = []
     var rssItemsImages: [RSSItemWithImages] = []
     let savedFeeds = SaveFeeds()
 
@@ -38,15 +37,10 @@ class MWWController: UIViewController {
             object: nil)
         
         setUpPulseAnimation()
-        
-        fetchMW()
-        //reloadTable()
+        //showLoadingAlert()
+        loadFeeds()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        showLoadingAlert()
-    }
-
     func showLoadingAlert() {
      
         overlay = UIView(frame: view.frame)
@@ -62,6 +56,12 @@ class MWWController: UIViewController {
         activityIndicator.startAnimating();
         alert.view.addSubview(activityIndicator)
         present(alert, animated: true, completion: nil)
+        
+        /* Stop animation
+         activityIndicator.stopAnimating()
+         overlay.removeFromSuperview()
+         alert.dismiss(animated: true, completion: nil)
+         */
     }
     
     func setUpPulseAnimation() {
@@ -77,59 +77,42 @@ class MWWController: UIViewController {
     
     
     @objc func handleAppDidBecomeActiveNotification(notification: Notification) {
-        //fetchMW()
-//        put off line then run, then put online and has to refresh
-//        spinner is not refreshing
-         
+        //loadFeeds()
     }
-    
-    @objc func reloadTable() {
-        refreshControl.beginRefreshing()
-        fetchMW()
-        refreshControl.endRefreshing()
-    }
-   
-    func fetchMW(){
-        let feedParser = FeedParser()
-        let mwURLString = "https://politepol.com/fd/MiMDjbYvoJdo"
-        //let mwURLString = "https://www.marketwatch.com/latest-news"
 
-            feedParser.parseFeed(url: mwURLString) { [self] (rssItems) in
-                print (rssItems)
-
-            if rssItems.count < 10 {
-                DispatchQueue.main.async {
-                    self.rssItemsImages = self.savedFeeds.loadFeeds()
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.savedFeeds.deleteFeeds()
-                }
+    func loadFeeds() {
+        
+        let mwURLString = "https://www.marketwatch.com/latest-news"
+        let parsingHTML = HTMLParser()
+        let rssItems = parsingHTML.loadHTML(urlString: mwURLString, amountOfFeeds: 10)
+        
+        if rssItems.count < 10 {
+            DispatchQueue.main.async {
+                self.rssItemsImages = self.savedFeeds.loadFeeds()
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.savedFeeds.deleteFeeds()
+            }
+            
+            for rssItem in rssItems {
+                let downloadedImage = self.downloadImageFeed(URLImage: rssItem.enclosure)
                 
-                for rssItem in rssItems {
-                    let downloadedImage = self.downloadImageFeed(URLImage: rssItem.enclosure)
-                    
-                    DispatchQueue.main.async {
-                        self.savedFeeds.saveRSS(
-                            title: rssItem.title, link: rssItem.link, pubDate: rssItem.pubDate, ticker: rssItem.ticker, linkTicker: rssItem.linkTicker, image: downloadedImage
-                        )
-                    }
-                    
-                    self.rssItemsImages.append(
-                        RSSItemWithImages(
-                            title: rssItem.title, link: rssItem.link, pubDate: rssItem.pubDate, ticker: rssItem.ticker, linkTicker: rssItem.linkTicker, rssImage: downloadedImage
-                        )
+                DispatchQueue.main.async {
+                    self.savedFeeds.saveRSS(
+                        title: rssItem.title, link: rssItem.link, pubDate: rssItem.pubDate, ticker: rssItem.ticker, linkTicker: rssItem.linkTicker, image: downloadedImage
                     )
                 }
-            }
-
-            DispatchQueue.main.async {
-                self.tableView.reloadSections(IndexSet(integer: 0), with: .left)
-                self.tableView.reloadData()
-                print ("reload data unique")
+                
+                self.rssItemsImages.append(
+                    RSSItemWithImages(
+                        title: rssItem.title, link: rssItem.link, pubDate: rssItem.pubDate, ticker: rssItem.ticker, linkTicker: rssItem.linkTicker, rssImage: downloadedImage
+                    )
+                )
             }
         }
     }
+   
     
     let imageCache = NSCache<NSString, UIImage>()
     func downloadImageFeed(URLImage: String) -> UIImage {
@@ -169,13 +152,6 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         cell.linkTickerButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
-        loadedTimes += 1
-        if loadedTimes == rssItemsImages.count {
-            activityIndicator.stopAnimating()
-            overlay.removeFromSuperview()
-            alert.dismiss(animated: true, completion: nil)
-        }
-        
         return cell
     }
     
@@ -186,7 +162,6 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
               UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
     }
-    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 160
     }
@@ -198,8 +173,7 @@ extension MWWController: RefreshDelegate {
  
     func startRefresh() {
         print("start refreshing")
-        fetchMW()
-        
+        loadFeeds()
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             self.spinnerAnnimation.endRefreshing()
         }

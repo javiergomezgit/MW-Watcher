@@ -26,27 +26,27 @@
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="FrameFeedImage" translatesAutoresizingMaskIntoConstraints="NO" id="wWm-R4-ilp">
                         <rect key="frame" x="10" y="7.5" width="145" height="145"/>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="H4I-FZ-mhb">
-                        <rect key="frame" x="162" y="0.0" width="242" height="128"/>
-                        <string key="text">My mom added me to her bank accounts before she died. Am I legally or morally obliged to disclose these accounts to my siblings?</string>
-                        <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="16"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" minimumFontSize="16" translatesAutoresizingMaskIntoConstraints="NO" id="H4I-FZ-mhb">
+                        <rect key="frame" x="165" y="2" width="236" height="126.5"/>
+                        <string key="text">My mom added me to her bank legally accounts before she died. Am I legally  legally  legally  legally legally or morally obliged to disclose these accounts to my siblings?</string>
+                        <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6PI-7c-Pnu">
-                        <rect key="frame" x="5" y="0.0" width="393.5" height="128"/>
+                        <rect key="frame" x="5" y="2" width="393.5" height="126.5"/>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="U.S. Stock" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gvi-gE-H0b">
-                        <rect key="frame" x="162" y="136" width="121" height="24"/>
+                        <rect key="frame" x="165" y="136" width="118" height="24"/>
                         <fontDescription key="fontDescription" name="KohinoorGujarati-Bold" family="Kohinoor Gujarati" pointSize="13"/>
                         <color key="textColor" systemColor="systemPurpleColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oDu-vy-zcv">
-                        <rect key="frame" x="162" y="136" width="121" height="32"/>
+                        <rect key="frame" x="165" y="136" width="118" height="32"/>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="topRight" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="20 aprl 2021 20:00pm" textAlignment="right" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VTf-Az-TUh">
-                        <rect key="frame" x="282" y="128" width="121" height="32"/>
+                        <rect key="frame" x="285" y="128.5" width="118" height="32"/>
                         <fontDescription key="fontDescription" name="KohinoorGujarati-Bold" family="Kohinoor Gujarati" pointSize="10"/>
                         <color key="textColor" systemColor="systemTealColor"/>
                         <nil key="highlightedColor"/>
@@ -58,13 +58,13 @@
                     <constraint firstItem="6PI-7c-Pnu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="5" id="5m5-dC-Ips"/>
                     <constraint firstItem="6PI-7c-Pnu" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" multiplier="0.95" id="8xv-2n-9JX"/>
                     <constraint firstItem="VTf-Az-TUh" firstAttribute="top" secondItem="H4I-FZ-mhb" secondAttribute="bottom" id="FTO-Pb-oYe"/>
-                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Ioc-n7-UP1"/>
+                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="2" id="Ioc-n7-UP1"/>
                     <constraint firstItem="gvi-gE-H0b" firstAttribute="leading" secondItem="H4I-FZ-mhb" secondAttribute="leading" id="K67-Cd-t5R"/>
-                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.8" id="MZX-45-qy7"/>
+                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.79" id="MZX-45-qy7"/>
                     <constraint firstItem="oDu-vy-zcv" firstAttribute="width" secondItem="gvi-gE-H0b" secondAttribute="width" id="NMZ-aH-g1W"/>
                     <constraint firstItem="VTf-Az-TUh" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" multiplier="0.5" id="POk-oI-MKU"/>
-                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="leading" secondItem="Ma2-6E-taX" secondAttribute="trailing" constant="7" id="ZP1-1x-c0z"/>
-                    <constraint firstAttribute="trailing" secondItem="H4I-FZ-mhb" secondAttribute="trailing" constant="10" id="aM4-Lq-w7d"/>
+                    <constraint firstItem="H4I-FZ-mhb" firstAttribute="leading" secondItem="Ma2-6E-taX" secondAttribute="trailing" constant="10" id="ZP1-1x-c0z"/>
+                    <constraint firstAttribute="trailing" secondItem="H4I-FZ-mhb" secondAttribute="trailing" constant="13" id="aM4-Lq-w7d"/>
                     <constraint firstItem="Ma2-6E-taX" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" multiplier="0.35" id="adB-G9-dfj"/>
                     <constraint firstAttribute="bottom" secondItem="gvi-gE-H0b" secondAttribute="bottom" id="bwj-F4-oMz"/>
                     <constraint firstItem="6PI-7c-Pnu" firstAttribute="top" secondItem="H4I-FZ-mhb" secondAttribute="top" id="dqz-aj-NP0"/>
