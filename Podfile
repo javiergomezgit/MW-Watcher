@@ -10,10 +10,10 @@ target 'MW Watcher' do
   pod 'SwiftSoup'
 end
 
-#target 'WidgetExtension' do
+target 'WidgetExtension' do
   # Comment the next line if you don't want to use dynamic frameworks
   #use_frameworks!
 
-  # Pods for WidgetExtension
+ pod 'SwiftSoup'
 
-#end
+end

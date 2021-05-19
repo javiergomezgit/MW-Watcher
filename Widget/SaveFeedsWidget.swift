@@ -25,8 +25,6 @@ var feedsManagedObject: [NSManagedObject] = []
 
 struct SaveFeedsWidget {
 
-
-    
     func loadContainers() {
         //let storeURL = AppGroup.facts.containerURL.appendingPathComponent("SavingFeeds.xcdatamodeld")
         let storeURL = AppGroup.facts.containerURL.appendingPathComponent("SavingFeeds.sqlite")
