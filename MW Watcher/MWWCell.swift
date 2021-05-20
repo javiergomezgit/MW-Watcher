@@ -15,6 +15,7 @@ class MWWCell: UITableViewCell {
     @IBOutlet weak var linkButton: UIButton!
     @IBOutlet weak var linkTickerButton: UIButton!
     @IBOutlet var imageViewFeed: UIImageView!
+    @IBOutlet weak var backgroundCell: UIView!
     
     static let identifier = "MWWCustomCell"
     
@@ -38,8 +39,11 @@ class MWWCell: UITableViewCell {
         if !tickerValue.isEmpty {
             if tickerValue.contains("-") {
                 tickerLabel.textColor = UIColor.red
+                backgroundCell.backgroundColor = UIColor.red.withAlphaComponent(0.02)
             } else {
                 tickerLabel.textColor = UIColor.blue
+                backgroundCell.backgroundColor = UIColor.blue.withAlphaComponent(0.02)
+
             }
         }
     }

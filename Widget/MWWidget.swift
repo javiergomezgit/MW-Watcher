@@ -11,7 +11,7 @@ import SwiftUI
 @main
 struct MWWidget: Widget {
     let kind: String = "Market Watch Widget"
-
+    
     var body: some WidgetConfiguration {
         StaticConfiguration(
             kind: kind,

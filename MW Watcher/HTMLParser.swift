@@ -75,7 +75,7 @@ class HTMLParser {
                     }
                 }
             }
-            print (rssItems)
+            //print (rssItems)
         } catch {
             print (error)
         }

@@ -17,6 +17,10 @@
                 <rect key="frame" x="0.0" y="0.0" width="414" height="160"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8Ds-sL-9Gg">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="160"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ma2-6E-taX">
                         <rect key="frame" x="10" y="7.5" width="145" height="145"/>
                         <constraints>
@@ -63,6 +67,8 @@
                     <constraint firstItem="H4I-FZ-mhb" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.79" id="MZX-45-qy7"/>
                     <constraint firstItem="oDu-vy-zcv" firstAttribute="width" secondItem="gvi-gE-H0b" secondAttribute="width" id="NMZ-aH-g1W"/>
                     <constraint firstItem="VTf-Az-TUh" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" multiplier="0.5" id="POk-oI-MKU"/>
+                    <constraint firstAttribute="trailing" secondItem="8Ds-sL-9Gg" secondAttribute="trailing" id="SBv-I4-31i"/>
+                    <constraint firstAttribute="bottom" secondItem="8Ds-sL-9Gg" secondAttribute="bottom" id="ToK-Cc-lu3"/>
                     <constraint firstItem="H4I-FZ-mhb" firstAttribute="leading" secondItem="Ma2-6E-taX" secondAttribute="trailing" constant="10" id="ZP1-1x-c0z"/>
                     <constraint firstAttribute="trailing" secondItem="H4I-FZ-mhb" secondAttribute="trailing" constant="13" id="aM4-Lq-w7d"/>
                     <constraint firstItem="Ma2-6E-taX" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" multiplier="0.35" id="adB-G9-dfj"/>
@@ -78,12 +84,15 @@
                     <constraint firstAttribute="trailing" secondItem="VTf-Az-TUh" secondAttribute="trailing" constant="11" id="v9j-qn-bT9"/>
                     <constraint firstItem="wWm-R4-ilp" firstAttribute="height" secondItem="Ma2-6E-taX" secondAttribute="height" id="vXS-eD-feG"/>
                     <constraint firstItem="gvi-gE-H0b" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" multiplier="0.5" id="w4m-TX-IZx"/>
+                    <constraint firstItem="8Ds-sL-9Gg" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="y9Y-X4-Saa"/>
                     <constraint firstItem="wWm-R4-ilp" firstAttribute="top" secondItem="Ma2-6E-taX" secondAttribute="top" id="yUm-9K-LXm"/>
                     <constraint firstItem="gvi-gE-H0b" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.15" id="yw5-7y-TVK"/>
+                    <constraint firstItem="8Ds-sL-9Gg" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="zlh-cO-VJY"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
+                <outlet property="backgroundCell" destination="8Ds-sL-9Gg" id="ebl-dF-rWk"/>
                 <outlet property="imageViewFeed" destination="Ma2-6E-taX" id="Rzi-Td-Gdi"/>
                 <outlet property="linkButton" destination="6PI-7c-Pnu" id="p3f-FB-hJW"/>
                 <outlet property="linkTickerButton" destination="oDu-vy-zcv" id="eah-no-A8d"/>
@@ -96,6 +105,9 @@
     </objects>
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemPurpleColor">
             <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

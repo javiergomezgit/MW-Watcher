@@ -59,7 +59,7 @@ struct WidgetEntryView : View {
         Group {
             if entry.mwfeed.count > 1 {
                 if family == .systemLarge {
-                    ForEach(0..<entry.mwfeed.count - 4) { index in
+                    ForEach(0..<entry.mwfeed.count) { index in
                         HStack {
                             if entry.mwfeed[index].enclosure == "" {
                                 Image("mw-logo")
@@ -96,7 +96,7 @@ struct WidgetEntryView : View {
                         }
                     }
                 } else {
-                    ForEach(0..<entry.mwfeed.count - 8) { index in
+                    ForEach(0..<entry.mwfeed.count - 4) { index in
                         HStack {
                             if entry.mwfeed[index].enclosure == "" {
                                 Image("mw-logo")

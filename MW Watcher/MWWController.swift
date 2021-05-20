@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 import SSCustomPullToRefresh
+import SafariServices
 
 class MWWController: UIViewController {
     
@@ -26,6 +27,13 @@ class MWWController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.title = "Market Watcher"
+
+        //self.navigationController!.navigationBar.barStyle = UIBarStyle.black
+        self.navigationController!.navigationBar.isTranslucent = true
+        //self.navigationController?.navigationBar.prefersLargeTitles = true
+        self.navigationController!.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+
         tableView.register(MWWCell.nib(), forCellReuseIdentifier: MWWCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
@@ -86,9 +94,10 @@ class MWWController: UIViewController {
         let parsingHTML = HTMLParser()
         let rssItems = parsingHTML.loadHTML(urlString: mwURLString, amountOfFeeds: 10)
         
-        if rssItems.count < 10 {
+        if rssItems.isEmpty {
             DispatchQueue.main.async {
                 self.rssItemsImages = self.savedFeeds.loadFeeds()
+                self.tableView.reloadData()
             }
         } else {
             DispatchQueue.main.async {
@@ -98,17 +107,22 @@ class MWWController: UIViewController {
             for rssItem in rssItems {
                 let downloadedImage = self.downloadImageFeed(URLImage: rssItem.enclosure)
                 
+                self.rssItemsImages.append(
+                    RSSItemWithImages(
+                        title: rssItem.title,
+                        link: rssItem.link,
+                        pubDate: rssItem.pubDate,
+                        ticker: rssItem.ticker,
+                        linkTicker: rssItem.linkTicker,
+                        rssImage: downloadedImage
+                    )
+                )
+                
                 DispatchQueue.main.async {
                     self.savedFeeds.saveRSS(
                         title: rssItem.title, link: rssItem.link, pubDate: rssItem.pubDate, ticker: rssItem.ticker, linkTicker: rssItem.linkTicker, image: downloadedImage
                     )
                 }
-                
-                self.rssItemsImages.append(
-                    RSSItemWithImages(
-                        title: rssItem.title, link: rssItem.link, pubDate: rssItem.pubDate, ticker: rssItem.ticker, linkTicker: rssItem.linkTicker, rssImage: downloadedImage
-                    )
-                )
             }
         }
     }
@@ -155,13 +169,15 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    
     @objc func connected(sender: UIButton){
-        guard let url = sender.titleLabel?.text else { return }
-        
-        if let url = URL(string: url) {
-              UIApplication.shared.open(url, options: [:], completionHandler: nil)
-        }
+        guard let urlString = sender.titleLabel?.text else { return }
+        guard let url = URL(string: urlString) else { return }
+
+        let vc = SFSafariViewController(url: url)
+        present(vc, animated: true)
     }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 160
     }
