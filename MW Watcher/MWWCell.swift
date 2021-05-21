@@ -25,14 +25,26 @@ class MWWCell: UITableViewCell {
     
     public func setRSSValues(title: String, description: String, link: String, pubdate: String, linkTicker: String, imageFeed: UIImage) {
         
+        let linkTitle = loadLinkQuery(linkString: title)
+        
         titleLabel.text = title
-        linkButton.titleLabel?.text = link
+        linkButton.titleLabel?.text = linkTitle //link
         linkTickerButton.titleLabel?.text = linkTicker
         pubdateLabel.text = pubdate
         imageViewFeed.image = imageFeed
 
         isTickerPositive(tickerValue: description)
     }
+    
+    func loadLinkQuery(linkString: String) -> String {
+        let limitString = linkString.maxLength(length: 50)
+        let cleanString = limitString.convertedToSlug()!
+        print (cleanString)
+        let newString = "http://www.google.com/search?q=\(cleanString)"
+        print (newString)
+        return newString
+    }
+    
     
     func isTickerPositive(tickerValue: String){
         tickerLabel.text = tickerValue
@@ -57,4 +69,36 @@ class MWWCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
     }
     
+}
+
+extension String {
+    private static let slugSafeCharacters = CharacterSet(charactersIn: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-")
+
+    public func convertedToSlug() -> String? {
+        if let latin = self.applyingTransform(StringTransform("Any-Latin; Latin-ASCII; Lower;"), reverse: false) {
+            let urlComponents = latin.components(separatedBy: String.slugSafeCharacters.inverted)
+            let result = urlComponents.filter { $0 != "" }.joined(separator: "%20")
+
+            if result.count > 0 {
+                return result
+            }
+        }
+
+        return nil
+    }
+}
+
+extension String {
+   func maxLength(length: Int) -> String {
+       var str = self
+       let nsString = str as NSString
+       if nsString.length >= length {
+           str = nsString.substring(with:
+               NSRange(
+                location: 0,
+                length: nsString.length > length ? length : nsString.length)
+           )
+       }
+       return  str
+   }
 }

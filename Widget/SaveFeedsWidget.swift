@@ -22,12 +22,11 @@ public enum AppGroup: String {
 }
 
 var feedsManagedObject: [NSManagedObject] = []
+let entityName = "RSS"
 
 struct SaveFeedsWidget {
-
-    func loadSavedFeeds() -> [RSSItem] {
-
-
+    
+    func setUpStoring() -> NSManagedObjectContext {
         let storeURL = AppGroup.facts.containerURL.appendingPathComponent("SavingFeeds.sqlite")
         let description = NSPersistentStoreDescription(url: storeURL)
         
@@ -38,11 +37,16 @@ struct SaveFeedsWidget {
         }
         let managedContext = container.viewContext
         
+        return managedContext
+    }
+
+    func loadSavedFeeds() -> [RSSItem] {
+                
         var feedItems : [RSSItem] = []
-        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "RSS")
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
 
         do {
-            feedsManagedObject = try managedContext.fetch(fetchRequest)
+            feedsManagedObject = try setUpStoring().fetch(fetchRequest)
             print (feedsManagedObject.count)
 
             for feed in feedsManagedObject {
@@ -65,24 +69,13 @@ struct SaveFeedsWidget {
 
     
     func deleteSavedFeeds() {
-        let storeURL = AppGroup.facts.containerURL.appendingPathComponent("SavingFeeds.sqlite")
-        let description = NSPersistentStoreDescription(url: storeURL)
-        
-        let container = NSPersistentContainer(name: "SavingFeeds")
-        container.persistentStoreDescriptions = [description]
-        container.loadPersistentStores { storeDescription, Error in
-            print (Error as Any)
-        }
-        let managedContext = container.viewContext
-        
-        
-        
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "RSS")
+
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         
         do {
-            try managedContext.execute(deleteRequest)
-            try managedContext.save()
+            try setUpStoring().execute(deleteRequest)
+            try setUpStoring().save()
         } catch {
             print (error)
         }
@@ -90,19 +83,8 @@ struct SaveFeedsWidget {
     }
     func saveOnlineFeeds(title: String, link: String, pubDate: String, ticker: String, linkTicker: String, enclosure: String) {
         
-        let storeURL = AppGroup.facts.containerURL.appendingPathComponent("SavingFeeds.sqlite")
-        let description = NSPersistentStoreDescription(url: storeURL)
-        
-        let container = NSPersistentContainer(name: "SavingFeeds")
-        container.persistentStoreDescriptions = [description]
-        container.loadPersistentStores { storeDescription, Error in
-            print (Error as Any)
-        }
-        let managedContext = container.viewContext
-        
-        
-        let entity = NSEntityDescription.entity(forEntityName: "RSS", in: managedContext)
-        let feed = NSManagedObject(entity: entity!, insertInto: managedContext)
+        let entity = NSEntityDescription.entity(forEntityName: entityName, in: setUpStoring())
+        let feed = NSManagedObject(entity: entity!, insertInto: setUpStoring())
         
         feed.setValue(title, forKeyPath: "title")
         feed.setValue(link, forKey: "link")
@@ -112,7 +94,7 @@ struct SaveFeedsWidget {
         feed.setValue(enclosure, forKey: "enclosure")
         
         do {
-            try managedContext.save()
+            try setUpStoring().save()
             feedsManagedObject.append(feed)
         }catch let error as NSError {
             print (error.userInfo)

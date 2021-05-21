@@ -46,10 +46,6 @@ struct WidgetEntryView : View {
                         .fontWeight(.bold)
                         .padding(EdgeInsets(top: 5, leading: 0, bottom: 5, trailing: 0))
                 }
-                    //.opacity(0.7)
-                    //Spacer()
-                    //.padding(.bottom, 1)
-                    //.padding(.top, 15)
             }
         }
     }

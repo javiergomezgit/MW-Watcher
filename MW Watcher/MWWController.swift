@@ -27,7 +27,7 @@ class MWWController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.title = "Market Watcher"
+        navigationItem.title = "Market News Watcher"
 
         //self.navigationController!.navigationBar.barStyle = UIBarStyle.black
         self.navigationController!.navigationBar.isTranslucent = true
@@ -45,7 +45,6 @@ class MWWController: UIViewController {
             object: nil)
         
         setUpPulseAnimation()
-        //showLoadingAlert()
         loadFeeds()
     }
     
@@ -169,17 +168,12 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
-    
     @objc func connected(sender: UIButton){
         guard let urlString = sender.titleLabel?.text else { return }
         guard let url = URL(string: urlString) else { return }
 
         let vc = SFSafariViewController(url: url)
         present(vc, animated: true)
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 160
     }
 }
 
