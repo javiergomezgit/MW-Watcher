@@ -16,6 +16,10 @@ class MWWCell: UITableViewCell {
     @IBOutlet weak var linkTickerButton: UIButton!
     @IBOutlet var imageViewFeed: UIImageView!
     @IBOutlet weak var backgroundCell: UIView!
+    @IBOutlet weak var shareButton: UIButton!
+    @IBOutlet weak var saveButton: UIButton!
+    
+    
     
     static let identifier = "MWWCustomCell"
     
@@ -35,6 +39,7 @@ class MWWCell: UITableViewCell {
 
         isTickerPositive(tickerValue: description)
     }
+  
     
     func loadLinkQuery(linkString: String) -> String {
         let limitString = linkString.maxLength(length: 50)
@@ -51,10 +56,10 @@ class MWWCell: UITableViewCell {
         if !tickerValue.isEmpty {
             if tickerValue.contains("-") {
                 tickerLabel.textColor = UIColor.red
-                backgroundCell.backgroundColor = UIColor.red.withAlphaComponent(0.02)
+                backgroundCell.backgroundColor = UIColor.red.withAlphaComponent(0.05)
             } else {
                 tickerLabel.textColor = UIColor.blue
-                backgroundCell.backgroundColor = UIColor.blue.withAlphaComponent(0.02)
+                backgroundCell.backgroundColor = UIColor.blue.withAlphaComponent(0.05)
 
             }
         }
@@ -70,6 +75,8 @@ class MWWCell: UITableViewCell {
     }
     
 }
+
+
 
 extension String {
     private static let slugSafeCharacters = CharacterSet(charactersIn: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-")
@@ -102,3 +109,4 @@ extension String {
        return  str
    }
 }
+

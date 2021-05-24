@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="7F6-7S-7JL">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -8,20 +8,20 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Controller-->
+        <!--Market News Watcher-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="MWWController" customModule="MW_Watcher" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Market News Watcher" id="BYZ-38-t0r" customClass="MWWController" customModule="MW_Watcher" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="KVT-8j-9Qf">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="841"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelectionDuringEditing="YES" rowHeight="120" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="KVT-8j-9Qf">
+                                <rect key="frame" x="10" y="0.0" width="370" height="789"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </tableView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Headlines and Images provided by: www.marketwatch.com" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HRI-XW-AwE">
-                                <rect key="frame" x="83" y="837" width="248" height="59"/>
+                                <rect key="frame" x="84" y="785" width="222" height="59"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                 <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -34,44 +34,75 @@
                             <constraint firstAttribute="bottom" secondItem="KVT-8j-9Qf" secondAttribute="bottom" constant="55" id="Bus-MM-1F2"/>
                             <constraint firstItem="KVT-8j-9Qf" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Fdl-Px-NV9"/>
                             <constraint firstItem="HRI-XW-AwE" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Rxf-Cs-wjK"/>
-                            <constraint firstAttribute="trailing" secondItem="KVT-8j-9Qf" secondAttribute="trailing" id="kT9-6b-VTN"/>
+                            <constraint firstAttribute="trailing" secondItem="KVT-8j-9Qf" secondAttribute="trailing" constant="10" id="kT9-6b-VTN"/>
                             <constraint firstItem="HRI-XW-AwE" firstAttribute="top" secondItem="KVT-8j-9Qf" secondAttribute="bottom" constant="-4" id="pIS-jE-eSj"/>
                             <constraint firstAttribute="bottom" secondItem="HRI-XW-AwE" secondAttribute="bottom" id="usb-al-ZMP"/>
-                            <constraint firstItem="KVT-8j-9Qf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="v3d-Jc-1p6"/>
+                            <constraint firstItem="KVT-8j-9Qf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="v3d-Jc-1p6"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" id="sPz-6J-vWC"/>
+                    <tabBarItem key="tabBarItem" title="News Watcher" image="paperplane" catalog="system" id="xT7-AX-Gax"/>
+                    <navigationItem key="navigationItem" title="Market News Watcher" largeTitleDisplayMode="always" id="sPz-6J-vWC"/>
                     <connections>
                         <outlet property="tableView" destination="KVT-8j-9Qf" id="EK1-re-gif"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="970" y="119"/>
+            <point key="canvasLocation" x="970" y="867"/>
         </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="hVY-Rf-Vda">
+        <!--Markets Watcher-->
+        <scene sceneID="AIg-6K-PpP">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="7F6-7S-7JL" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="UUF-fc-AhT">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="S5a-cd-FJr">
-                        <autoresizingMask key="autoresizingMask"/>
-                    </toolbar>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="Qoc-2K-Se1"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="NTD-XB-GZp" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <viewController title="Markets Watcher" id="FAU-XL-brR" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="IbG-Xt-vcV">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="VLy-KU-n69"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Markets" image="exclamationmark.arrow.triangle.2.circlepath" catalog="system" id="PVH-Tc-PVr"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="poO-hK-K8R" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="137.68115942028987" y="118.52678571428571"/>
+            <point key="canvasLocation" x="1875" y="867"/>
+        </scene>
+        <!--My Tickers-->
+        <scene sceneID="sJU-ra-YyN">
+            <objects>
+                <viewController title="My Tickers" id="XUc-yS-XyG" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="XVS-3Y-GMj">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="xWF-Hr-Zv1"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="My Tickers" image="tray.circle" catalog="system" id="xMR-YG-PI2"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qQ1-Yp-sjy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="51" y="867"/>
+        </scene>
+        <!--Market Watcher-->
+        <scene sceneID="pb0-gL-1pV">
+            <objects>
+                <tabBarController title="Market Watcher" automaticallyAdjustsScrollViewInsets="NO" id="xSP-pN-JiN" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" prompted="NO"/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Z0T-88-AHu">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </tabBar>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="w45-sS-oei" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="969.56521739130437" y="118.52678571428571"/>
         </scene>
     </scenes>
     <resources>
+        <image name="exclamationmark.arrow.triangle.2.circlepath" catalog="system" width="128" height="101"/>
+        <image name="paperplane" catalog="system" width="128" height="118"/>
+        <image name="tray.circle" catalog="system" width="128" height="121"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

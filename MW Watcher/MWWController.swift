@@ -16,6 +16,7 @@ class MWWController: UIViewController {
     
     var rssItemsImages: [RSSItemWithImages] = []
     let savedFeeds = SaveFeeds()
+    let saveHeadlines = SaveHeadlines()
 
     var refreshControl = UIRefreshControl()
     var spinnerAnnimation: SpinnerAnimationView!
@@ -30,9 +31,9 @@ class MWWController: UIViewController {
         navigationItem.title = "Market News Watcher"
 
         //self.navigationController!.navigationBar.barStyle = UIBarStyle.black
-        self.navigationController!.navigationBar.isTranslucent = true
+        //self.navigationController!.navigationBar.isTranslucent = true
         //self.navigationController?.navigationBar.prefersLargeTitles = true
-        self.navigationController!.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
+        //self.navigationController!.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
 
         tableView.register(MWWCell.nib(), forCellReuseIdentifier: MWWCell.identifier)
         tableView.delegate = self
@@ -165,7 +166,39 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         cell.linkTickerButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
+        cell.shareButton.tag = indexPath.row
+        cell.shareButton.addTarget(self, action: #selector(shareTitle(sender:)), for: .touchUpInside)
+        cell.saveButton.addTarget(self, action: #selector(saveTitle(sender:)), for: .touchUpInside)
+        
         return cell
+    }
+    
+    @objc func saveTitle(sender: UIButton) {
+        sender.animateButton(sender: sender, duration: 0.1)
+        let title = self.rssItemsImages[sender.tag].title
+        let netChange = self.rssItemsImages[sender.tag].ticker
+        let headline = "\(netChange) | \(title)"
+        let dateOfNew = self.rssItemsImages[sender.tag].pubDate
+
+        if saveHeadlines.saveHeadlines(headline: headline, date: dateOfNew) {
+            let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
+            let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
+            
+            sender.setImage(boldSearch, for: .normal)
+            sender.tintColor = .red
+            print ("saved article")
+        }
+    }
+    
+    @objc func shareTitle(sender: UIButton){
+        sender.animateButton(sender: sender, duration: 0.1)
+        let index = sender.tag
+        let title = self.rssItemsImages[index].title
+        let netChange = self.rssItemsImages[index].ticker
+        
+        let objectsToShare = [netChange, " | ", title] as [Any]
+        let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
+        self.present(activityVC, animated: true, completion: nil)
     }
     
     @objc func connected(sender: UIButton){
@@ -175,12 +208,20 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         let vc = SFSafariViewController(url: url)
         present(vc, animated: true)
     }
+    
+//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//
+//        return 300
+//    }
+//
+//    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+//        return 250
+//    }
 }
 
 
 // MARK: - AnimationDelegate
 extension MWWController: RefreshDelegate {
- 
     func startRefresh() {
         print("start refreshing")
         loadFeeds()
@@ -188,9 +229,22 @@ extension MWWController: RefreshDelegate {
             self.spinnerAnnimation.endRefreshing()
         }
     }
-    
     func endRefresh() {
         print("End Refreshing")
     }
 }
 
+extension UIButton {
+    func animateButton(sender: UIButton, duration: Double) {
+        UIButton.animate(withDuration: duration,
+                         animations: {
+                            sender.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+                            },
+                         completion: { finish in
+                            UIButton.animate(withDuration: duration, animations: {
+                                sender.transform = CGAffineTransform.identity
+                            })
+                         }
+        )
+   }
+}

@@ -35,6 +35,8 @@
 		22AD1A45264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
 		22AD1A47264B381C001A5362 /* SaveFeeds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A46264B381C001A5362 /* SaveFeeds.swift */; };
 		22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D6354F2653778F00EAD8ED /* HTMLParser.swift */; };
+		22F8F32F265C5FC50084C98F /* SaveHeadlines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F32E265C5FC50084C98F /* SaveHeadlines.swift */; };
+		22F8F331265C60EC0084C98F /* HeadlineItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F330265C60EC0084C98F /* HeadlineItem.swift */; };
 		22FA6AF62642E08500E841A9 /* RSSItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BC263DA96A007EA092 /* RSSItem.swift */; };
 		22FA6AF72642E6FF00E841A9 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BE263DA98E007EA092 /* FeedParser.swift */; };
 		3B462C85BEA278D5FB845004 /* libPods-WidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D4EF3915925563BEA3B5F0 /* libPods-WidgetExtension.a */; };
@@ -94,6 +96,8 @@
 		22AD1A43264B36FA001A5362 /* SavingFeeds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SavingFeeds.xcdatamodel; sourceTree = "<group>"; };
 		22AD1A46264B381C001A5362 /* SaveFeeds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveFeeds.swift; sourceTree = "<group>"; };
 		22D6354F2653778F00EAD8ED /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
+		22F8F32E265C5FC50084C98F /* SaveHeadlines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveHeadlines.swift; sourceTree = "<group>"; };
+		22F8F330265C60EC0084C98F /* HeadlineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineItem.swift; sourceTree = "<group>"; };
 		32D4EF3915925563BEA3B5F0 /* libPods-WidgetExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WidgetExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		56E2EB45AB5D9B37AFCEBAE3 /* Pods-WidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
 		79E36B431C232AB42B23A1AB /* Pods-WidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -173,9 +177,11 @@
 			isa = PBXGroup;
 			children = (
 				221236BC263DA96A007EA092 /* RSSItem.swift */,
+				22F8F330265C60EC0084C98F /* HeadlineItem.swift */,
 				221236BE263DA98E007EA092 /* FeedParser.swift */,
 				22D6354F2653778F00EAD8ED /* HTMLParser.swift */,
 				22AD1A46264B381C001A5362 /* SaveFeeds.swift */,
+				22F8F32E265C5FC50084C98F /* SaveHeadlines.swift */,
 				22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */,
 			);
 			name = Model;
@@ -419,10 +425,12 @@
 				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
 				221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */,
 				221236BD263DA96A007EA092 /* RSSItem.swift in Sources */,
+				22F8F331265C60EC0084C98F /* HeadlineItem.swift in Sources */,
 				221236BF263DA98E007EA092 /* FeedParser.swift in Sources */,
 				221236C2263DAA32007EA092 /* MWWCell.swift in Sources */,
 				22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
 				22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */,
+				22F8F32F265C5FC50084C98F /* SaveHeadlines.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

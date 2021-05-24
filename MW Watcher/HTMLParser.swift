@@ -47,8 +47,8 @@ class HTMLParser {
                         let link: String = try linkArticle.attr("href")
                         //print (link)
                         
-                        let headline: Elements = try article.select("h3")
-                        let headlineString = try headline.first()!.text()
+                        let worddline: Elements = try article.select("h3")
+                        let worddlineString = try worddline.first()!.text()
                         
                         let imageArticle: Elements = try linkArticle.first()!.select("img")
                         let imageSources = try imageArticle.first()?.attr("data-srcset")
@@ -67,8 +67,9 @@ class HTMLParser {
                         symbol = symbol + " " + symbolPercentage
                         
                         let newTime = newLocalTime(timeString: timeExists)
+                        let filteredHeadline = cleanHeadline(title: worddlineString)
 
-                        let rssitem = RSSItem.init(title: headlineString, link: link, pubDate: newTime, ticker: symbol, linkTicker: symbolLink, enclosure: imageLink)
+                        let rssitem = RSSItem.init(title: filteredHeadline, link: link, pubDate: newTime, ticker: symbol, linkTicker: symbolLink, enclosure: imageLink)
                         rssItems.append(rssitem)
                         
                         countingFeeds += 1
@@ -80,6 +81,42 @@ class HTMLParser {
             print (error)
         }
         
+    }
+    
+    func cleanHeadline(title: String) -> String {
+        var cleanArray = ""
+        let words = title.uppercased().wordList
+    
+        for word in words {
+            if word != "OF" &&
+                word != "A" &&
+                word != "AN" &&
+                word != "SO" &&
+                word != "AND" &&
+                word != "THE" &&
+                word != "AND" &&
+                word != "OR" &&
+                word != "FOR" &&
+                word != "TO" &&
+                word != "FROM" &&
+                word != "ON" &&
+                word != "IT'S" &&
+                word != "IT" &&
+                word != "TOO" &&
+                word != "HE" &&
+                word != "IN" &&
+                word != "OF" &&
+                word != "IS"  {
+                
+                if !cleanArray.isEmpty {
+                    cleanArray = cleanArray + " " + word
+                } else {
+                    cleanArray = word
+                }
+            }
+        }
+        
+        return cleanArray
     }
     
     func newLocalTime(timeString: String) -> String {
@@ -101,5 +138,11 @@ class HTMLParser {
         return String(local)
     }
     
+}
+
+extension String {
+    var wordList: [String] {
+        return components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }
+    }
 }
 

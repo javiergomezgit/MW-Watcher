@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20E241" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="RSS" representedClassName="RSS" syncable="YES" codeGenerationType="class">
+    <entity name="News" representedClassName="News" syncable="YES" codeGenerationType="class">
+        <attribute name="date" optional="YES" attributeType="String"/>
+        <attribute name="headline" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="RSS" representedClassName="RSS" isAbstract="YES" syncable="YES" codeGenerationType="class">
         <attribute name="enclosure" optional="YES" attributeType="String"/>
         <attribute name="image" optional="YES" attributeType="Binary"/>
         <attribute name="link" optional="YES" attributeType="String"/>
@@ -10,6 +14,7 @@
         <attribute name="title" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="RSS" positionX="-45" positionY="0" width="128" height="148"/>
+        <element name="RSS" positionX="-45" positionY="0" width="128" height="134"/>
+        <element name="News" positionX="-45" positionY="63" width="128" height="59"/>
     </elements>
 </model>
