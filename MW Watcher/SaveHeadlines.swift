@@ -32,18 +32,37 @@ class SaveHeadlines {
         }
     }
     
-    func deleteHeadlines() {
+    func deleteHeadlines(headline: String, date: String, deleteAll: Bool) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        
+        if deleteAll {
+            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            do {
+                try managedContext.execute(deleteRequest)
+                try managedContext.save()
+            } catch {
+                print ("there is an error")
+            }
+        } else {
+            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+            do {
+                headlinesManagedObject = try managedContext.fetch(fetchRequest)
 
-        do {
-            try managedContext.execute(deleteRequest)
-            try managedContext.save()
-        } catch {
-            print ("there is an error")
+                for headlineManagedObject in headlinesManagedObject {
+                    let localHeadline = headlineManagedObject.value(forKey: "headline") as! String
+                    let date = headlineManagedObject.value(forKey: "date") as! String
+                    if localHeadline == headline {
+                        managedContext.delete(headlineManagedObject)
+                        try managedContext.save()
+                    }
+                }
+            } catch let error as NSError {
+                print("Could not fetch. \(error), \(error.userInfo)")
+            }
         }
+
     }
     
     func loadHeadlines() -> [HeadlineItem] {

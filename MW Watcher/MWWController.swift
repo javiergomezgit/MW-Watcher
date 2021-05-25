@@ -168,6 +168,8 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         
         cell.shareButton.tag = indexPath.row
         cell.shareButton.addTarget(self, action: #selector(shareTitle(sender:)), for: .touchUpInside)
+        
+        cell.saveButton.tag = indexPath.row
         cell.saveButton.addTarget(self, action: #selector(saveTitle(sender:)), for: .touchUpInside)
         
         return cell
@@ -179,6 +181,9 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         let netChange = self.rssItemsImages[sender.tag].ticker
         let headline = "\(netChange) | \(title)"
         let dateOfNew = self.rssItemsImages[sender.tag].pubDate
+        
+        print (sender.tag)
+        print (headline)
 
         if saveHeadlines.saveHeadlines(headline: headline, date: dateOfNew) {
             let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
@@ -186,7 +191,7 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
             
             sender.setImage(boldSearch, for: .normal)
             sender.tintColor = .red
-            print ("saved article")
+            print ("\(headline) saved article")
         }
     }
     

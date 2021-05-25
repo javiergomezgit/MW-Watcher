@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		065B3CEB109F25F157FE2A80 /* libPods-MW Watcher.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 998E19611DFFDC348D1ACF66 /* libPods-MW Watcher.a */; };
+		220F4EA1265D314200106325 /* MyTickersController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA0265D314200106325 /* MyTickersController.swift */; };
+		220F4EA3265D318D00106325 /* MarketsWatcherController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA2265D318D00106325 /* MarketsWatcherController.swift */; };
+		220F4EA5265D324800106325 /* HeadlineViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA4265D324800106325 /* HeadlineViewCell.swift */; };
 		221236A8263DA728007EA092 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236A7263DA728007EA092 /* AppDelegate.swift */; };
 		221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236A9263DA728007EA092 /* SceneDelegate.swift */; };
 		221236AC263DA728007EA092 /* MWWController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236AB263DA728007EA092 /* MWWController.swift */; };
@@ -37,6 +40,7 @@
 		22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D6354F2653778F00EAD8ED /* HTMLParser.swift */; };
 		22F8F32F265C5FC50084C98F /* SaveHeadlines.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F32E265C5FC50084C98F /* SaveHeadlines.swift */; };
 		22F8F331265C60EC0084C98F /* HeadlineItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F330265C60EC0084C98F /* HeadlineItem.swift */; };
+		22F8F333265C6C240084C98F /* SavedHeadlinesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F332265C6C240084C98F /* SavedHeadlinesController.swift */; };
 		22FA6AF62642E08500E841A9 /* RSSItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BC263DA96A007EA092 /* RSSItem.swift */; };
 		22FA6AF72642E6FF00E841A9 /* FeedParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236BE263DA98E007EA092 /* FeedParser.swift */; };
 		3B462C85BEA278D5FB845004 /* libPods-WidgetExtension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D4EF3915925563BEA3B5F0 /* libPods-WidgetExtension.a */; };
@@ -67,6 +71,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		220F4EA0265D314200106325 /* MyTickersController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTickersController.swift; sourceTree = "<group>"; };
+		220F4EA2265D318D00106325 /* MarketsWatcherController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsWatcherController.swift; sourceTree = "<group>"; };
+		220F4EA4265D324800106325 /* HeadlineViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineViewCell.swift; sourceTree = "<group>"; };
 		221236A4263DA728007EA092 /* MW Watcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MW Watcher.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		221236A7263DA728007EA092 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		221236A9263DA728007EA092 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -98,6 +105,7 @@
 		22D6354F2653778F00EAD8ED /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
 		22F8F32E265C5FC50084C98F /* SaveHeadlines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveHeadlines.swift; sourceTree = "<group>"; };
 		22F8F330265C60EC0084C98F /* HeadlineItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineItem.swift; sourceTree = "<group>"; };
+		22F8F332265C6C240084C98F /* SavedHeadlinesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedHeadlinesController.swift; sourceTree = "<group>"; };
 		32D4EF3915925563BEA3B5F0 /* libPods-WidgetExtension.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WidgetExtension.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		56E2EB45AB5D9B37AFCEBAE3 /* Pods-WidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
 		79E36B431C232AB42B23A1AB /* Pods-WidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -191,6 +199,7 @@
 			isa = PBXGroup;
 			children = (
 				221236AD263DA728007EA092 /* Main.storyboard */,
+				220F4EA4265D324800106325 /* HeadlineViewCell.swift */,
 				221236C0263DAA32007EA092 /* MWWCell.swift */,
 				221236C1263DAA32007EA092 /* MWWCell.xib */,
 			);
@@ -200,7 +209,10 @@
 		221236C9263DAA85007EA092 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				220F4EA0265D314200106325 /* MyTickersController.swift */,
+				220F4EA2265D318D00106325 /* MarketsWatcherController.swift */,
 				221236AB263DA728007EA092 /* MWWController.swift */,
+				22F8F332265C6C240084C98F /* SavedHeadlinesController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -421,12 +433,16 @@
 			files = (
 				221236AC263DA728007EA092 /* MWWController.swift in Sources */,
 				221236A8263DA728007EA092 /* AppDelegate.swift in Sources */,
+				22F8F333265C6C240084C98F /* SavedHeadlinesController.swift in Sources */,
 				22AD1A47264B381C001A5362 /* SaveFeeds.swift in Sources */,
 				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
 				221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */,
+				220F4EA5265D324800106325 /* HeadlineViewCell.swift in Sources */,
 				221236BD263DA96A007EA092 /* RSSItem.swift in Sources */,
+				220F4EA3265D318D00106325 /* MarketsWatcherController.swift in Sources */,
 				22F8F331265C60EC0084C98F /* HeadlineItem.swift in Sources */,
 				221236BF263DA98E007EA092 /* FeedParser.swift in Sources */,
+				220F4EA1265D314200106325 /* MyTickersController.swift in Sources */,
 				221236C2263DAA32007EA092 /* MWWCell.swift in Sources */,
 				22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
 				22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */,
