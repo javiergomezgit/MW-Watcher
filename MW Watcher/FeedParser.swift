@@ -9,7 +9,7 @@ import Foundation
 
 class FeedParser: NSObject, XMLParserDelegate {
   
-    private var rssItems: [RSSItem] = []
+  /*  private var rssItems: [RSSItem] = []
     private var parserCompletionHandler: (([RSSItem]) -> Void)?
     private var currentElement = ""
     private var countFeeds = 0
@@ -171,7 +171,7 @@ class FeedParser: NSObject, XMLParserDelegate {
     
     
     
-    
+    */
     
 }
 

@@ -54,14 +54,12 @@ extension SavedHeadlinesController: UITableViewDelegate, UITableViewDataSource {
         }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-            if editingStyle == .delete{
-                let headline = headlines[indexPath.row].headline
-                let date = headlines[indexPath.row].date
-                savedHeadlines.deleteHeadlines(headline: headline, date: date, deleteAll: false)
-                headlines.remove(at: indexPath.row)
-                tableView.deleteRows(at: [indexPath], with: .left)
-            }
+        if editingStyle == .delete{
+            let headline = headlines[indexPath.row].headline
+            let date = headlines[indexPath.row].date
+            savedHeadlines.deleteHeadlines(headline: headline, date: date, deleteAll: false)
+            headlines.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .left)
         }
-    
-    
+    }
 }

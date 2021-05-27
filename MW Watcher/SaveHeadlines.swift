@@ -52,7 +52,7 @@ class SaveHeadlines {
 
                 for headlineManagedObject in headlinesManagedObject {
                     let localHeadline = headlineManagedObject.value(forKey: "headline") as! String
-                    let date = headlineManagedObject.value(forKey: "date") as! String
+                    //let date = headlineManagedObject.value(forKey: "date") as! String
                     if localHeadline == headline {
                         managedContext.delete(headlineManagedObject)
                         try managedContext.save()

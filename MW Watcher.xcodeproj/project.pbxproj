@@ -22,6 +22,8 @@
 		221236C2263DAA32007EA092 /* MWWCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221236C0263DAA32007EA092 /* MWWCell.swift */; };
 		221236C3263DAA32007EA092 /* MWWCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 221236C1263DAA32007EA092 /* MWWCell.xib */; };
 		223A03E226548926005BE1D8 /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D6354F2653778F00EAD8ED /* HTMLParser.swift */; };
+		223EF570265D858700160C8D /* MyTickersViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223EF56F265D858700160C8D /* MyTickersViewCell.swift */; };
+		223EF572265D867100160C8D /* SaveMyTickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223EF571265D867100160C8D /* SaveMyTickers.swift */; };
 		2245E3712640C01D00D340DE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2245E3702640C01D00D340DE /* Podfile */; };
 		224FC168264DCB570014867C /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224FC167264DCB570014867C /* WidgetEntryView.swift */; };
 		224FC16B264DCBBA0014867C /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224FC16A264DCBBA0014867C /* Provider.swift */; };
@@ -86,6 +88,8 @@
 		221236BE263DA98E007EA092 /* FeedParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedParser.swift; sourceTree = "<group>"; };
 		221236C0263DAA32007EA092 /* MWWCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MWWCell.swift; sourceTree = "<group>"; };
 		221236C1263DAA32007EA092 /* MWWCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MWWCell.xib; sourceTree = "<group>"; };
+		223EF56F265D858700160C8D /* MyTickersViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTickersViewCell.swift; sourceTree = "<group>"; };
+		223EF571265D867100160C8D /* SaveMyTickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveMyTickers.swift; sourceTree = "<group>"; };
 		2245E3702640C01D00D340DE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		224FC167264DCB570014867C /* WidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetEntryView.swift; sourceTree = "<group>"; };
 		224FC16A264DCBBA0014867C /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
@@ -190,6 +194,7 @@
 				22D6354F2653778F00EAD8ED /* HTMLParser.swift */,
 				22AD1A46264B381C001A5362 /* SaveFeeds.swift */,
 				22F8F32E265C5FC50084C98F /* SaveHeadlines.swift */,
+				223EF571265D867100160C8D /* SaveMyTickers.swift */,
 				22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */,
 			);
 			name = Model;
@@ -200,6 +205,7 @@
 			children = (
 				221236AD263DA728007EA092 /* Main.storyboard */,
 				220F4EA4265D324800106325 /* HeadlineViewCell.swift */,
+				223EF56F265D858700160C8D /* MyTickersViewCell.swift */,
 				221236C0263DAA32007EA092 /* MWWCell.swift */,
 				221236C1263DAA32007EA092 /* MWWCell.xib */,
 			);
@@ -431,11 +437,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				223EF572265D867100160C8D /* SaveMyTickers.swift in Sources */,
 				221236AC263DA728007EA092 /* MWWController.swift in Sources */,
 				221236A8263DA728007EA092 /* AppDelegate.swift in Sources */,
 				22F8F333265C6C240084C98F /* SavedHeadlinesController.swift in Sources */,
 				22AD1A47264B381C001A5362 /* SaveFeeds.swift in Sources */,
 				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
+				223EF570265D858700160C8D /* MyTickersViewCell.swift in Sources */,
 				221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */,
 				220F4EA5265D324800106325 /* HeadlineViewCell.swift in Sources */,
 				221236BD263DA96A007EA092 /* RSSItem.swift in Sources */,

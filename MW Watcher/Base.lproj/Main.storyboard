@@ -25,6 +25,9 @@
                                     <segment title="Week"/>
                                     <segment title="Month"/>
                                 </segments>
+                                <connections>
+                                    <action selector="chosingTime:" destination="a6H-wW-AWp" eventType="valueChanged" id="Zf8-ms-Vec"/>
+                                </connections>
                             </segmentedControl>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Add" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TsP-dG-he0">
                                 <rect key="frame" x="16" y="94" width="31" height="21"/>
@@ -37,23 +40,99 @@
                                 <rect key="frame" x="70" y="87" width="229" height="34"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="allCharacters" autocorrectionType="no" spellCheckingType="no" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dzb-Y8-pqi">
                                 <rect key="frame" x="307" y="87" width="46" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
                                 <state key="normal" title="Save"/>
+                                <connections>
+                                    <action selector="addingTicker:" destination="a6H-wW-AWp" eventType="touchUpInside" id="nZZ-Y4-eFQ"/>
+                                </connections>
                             </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="xpE-vS-nB9">
                                 <rect key="frame" x="24" y="160" width="343" height="614"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="myTickersCell" rowHeight="130" id="8mn-2a-bvy" customClass="MyTickersViewCell" customModule="MW_Watcher" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="24.333333969116211" width="343" height="130"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="8mn-2a-bvy" id="V88-Z2-oSX">
+                                            <rect key="frame" x="0.0" y="0.0" width="343" height="130"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPLASDE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O19-uM-WAO">
+                                                    <rect key="frame" x="0.0" y="15" width="188.66666666666666" height="65"/>
+                                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="38"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+ 100.22 %" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="C5a-Th-JRe">
+                                                    <rect key="frame" x="188.66666666666663" y="10" width="154.33333333333337" height="65"/>
+                                                    <fontDescription key="fontDescription" name="DINCondensed-Bold" family="DIN Condensed" pointSize="43"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$ 20.34" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V3L-mm-5zq">
+                                                    <rect key="frame" x="0.0" y="80" width="150" height="40"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="150" id="5Kh-I7-Xl9"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Previous $20.34" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nsp-M7-cSR">
+                                                    <rect key="frame" x="193" y="80" width="150" height="40"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="150" id="7tL-Co-M7A"/>
+                                                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="120" id="OrQ-4Y-aup"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="leading" secondItem="O19-uM-WAO" secondAttribute="trailing" id="1ay-gs-v12"/>
+                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="top" secondItem="O19-uM-WAO" secondAttribute="bottom" id="6sq-Fq-GiE"/>
+                                                <constraint firstAttribute="bottom" secondItem="V3L-mm-5zq" secondAttribute="bottom" constant="10" id="7Ko-Wa-mQD"/>
+                                                <constraint firstAttribute="trailing" secondItem="C5a-Th-JRe" secondAttribute="trailing" id="8UU-Pp-6ag"/>
+                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" constant="10" id="H4X-b8-Oqi"/>
+                                                <constraint firstItem="O19-uM-WAO" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="NtS-cs-XP3"/>
+                                                <constraint firstItem="O19-uM-WAO" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" constant="15" id="Qv9-In-oUg"/>
+                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="S0B-6D-o3a"/>
+                                                <constraint firstItem="O19-uM-WAO" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.5" id="VEN-tm-Hr3"/>
+                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="top" secondItem="O19-uM-WAO" secondAttribute="bottom" id="YJ5-gJ-g3W"/>
+                                                <constraint firstItem="O19-uM-WAO" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.55" id="fKp-kr-wWd"/>
+                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="height" secondItem="O19-uM-WAO" secondAttribute="height" id="g6U-Fa-rlC"/>
+                                                <constraint firstAttribute="bottom" secondItem="nsp-M7-cSR" secondAttribute="bottom" constant="10" id="nUk-jF-cFQ"/>
+                                                <constraint firstAttribute="trailing" secondItem="nsp-M7-cSR" secondAttribute="trailing" id="wax-gJ-RSa"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="changeLabel" destination="C5a-Th-JRe" id="6op-OJ-5Pi"/>
+                                            <outlet property="currentPriceLabel" destination="V3L-mm-5zq" id="FWa-C9-v5g"/>
+                                            <outlet property="previousPriceLabel" destination="nsp-M7-cSR" id="xiz-li-jE0"/>
+                                            <outlet property="tickerLabel" destination="O19-uM-WAO" id="VI7-Rp-d7l"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                                <connections>
+                                    <outlet property="dataSource" destination="a6H-wW-AWp" id="aEi-La-6Rx"/>
+                                    <outlet property="delegate" destination="a6H-wW-AWp" id="1ll-vi-Gl0"/>
+                                </connections>
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ct6-hU-zsk"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
+                    <connections>
+                        <outlet property="tableView" destination="xpE-vS-nB9" id="cZN-eB-XgD"/>
+                        <outlet property="tickerToAddText" destination="RGR-tK-FVV" id="3sa-Tx-F9a"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aZT-l8-gZF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
