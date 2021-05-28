@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		065B3CEB109F25F157FE2A80 /* libPods-MW Watcher.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 998E19611DFFDC348D1ACF66 /* libPods-MW Watcher.a */; };
+		220300BC265FDF7E008BAB70 /* MarketsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */; };
 		220F4EA1265D314200106325 /* MyTickersController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA0265D314200106325 /* MyTickersController.swift */; };
 		220F4EA3265D318D00106325 /* MarketsWatcherController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA2265D318D00106325 /* MarketsWatcherController.swift */; };
 		220F4EA5265D324800106325 /* HeadlineViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA4265D324800106325 /* HeadlineViewCell.swift */; };
@@ -73,6 +74,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsViewCell.swift; sourceTree = "<group>"; };
 		220F4EA0265D314200106325 /* MyTickersController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTickersController.swift; sourceTree = "<group>"; };
 		220F4EA2265D318D00106325 /* MarketsWatcherController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsWatcherController.swift; sourceTree = "<group>"; };
 		220F4EA4265D324800106325 /* HeadlineViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineViewCell.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				221236AD263DA728007EA092 /* Main.storyboard */,
+				220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */,
 				220F4EA4265D324800106325 /* HeadlineViewCell.swift */,
 				223EF56F265D858700160C8D /* MyTickersViewCell.swift */,
 				221236C0263DAA32007EA092 /* MWWCell.swift */,
@@ -448,6 +451,7 @@
 				220F4EA5265D324800106325 /* HeadlineViewCell.swift in Sources */,
 				221236BD263DA96A007EA092 /* RSSItem.swift in Sources */,
 				220F4EA3265D318D00106325 /* MarketsWatcherController.swift in Sources */,
+				220300BC265FDF7E008BAB70 /* MarketsViewCell.swift in Sources */,
 				22F8F331265C60EC0084C98F /* HeadlineItem.swift in Sources */,
 				221236BF263DA98E007EA092 /* FeedParser.swift in Sources */,
 				220F4EA1265D314200106325 /* MyTickersController.swift in Sources */,
