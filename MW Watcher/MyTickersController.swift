@@ -90,16 +90,16 @@ class MyTickersController: UIViewController {
                 } else {
                     //MULTIPLE TICKER
                     if loadMultiple != nil {
-                        for tickFound in json! {
-                            print (tickFound.value) //json
-                            print (tickFound.key) //ticker
+                        for tickerJSON in json! {
+                            print (tickerJSON.value) //json
+                            print (tickerJSON.key) //ticker
                             
-                            let tickerDictionary = tickFound.value as? [String: Any]
+                            let tickerDictionary = tickerJSON.value as? [String: Any]
                             let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
                             let closePriceArray = tickerDictionary!["close"] as? [Any]
                             let closePrice = closePriceArray![0] as! Double
                             
-                            self.tickers.append(Tickers(ticker: tickFound.key, marketPrice: closePrice, previousPrice: previousClose))
+                            self.tickers.append(Tickers(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose))
                         }
                         print (self.tickers)
                         DispatchQueue.main.async {
@@ -154,20 +154,20 @@ extension MyTickersController: UITableViewDelegate, UITableViewDataSource {
         if percentageChange < 100 {
             var percentageRounded = 100 - percentageChange
             percentageRounded = Double(round(100*percentageRounded)/100)
-            cell.changeLabel.text = "- " + String(percentageRounded) + " %"
+            cell.changeLabel.text = "- " + String(percentageRounded) + "%"
             cell.changeLabel.textColor = UIColor.red
             
             let previousPrice = Double(round(100*tickers[indexPath.row].previousPrice)/100)
-            cell.previousPriceLabel.text = "Previous $" + String(previousPrice)
+            cell.previousPriceLabel.text = "PREV. $" + String(previousPrice)
             cell.previousPriceLabel.textColor = UIColor.red
         } else {
             var percentageRounded = percentageChange - 100
             percentageRounded = Double(round(100*percentageRounded)/100)
-            cell.changeLabel.text = "+ " + String(percentageRounded) + " %"
+            cell.changeLabel.text = "+ " + String(percentageRounded) + "%"
             cell.changeLabel.textColor = UIColor.blue
             
             let previousPrice = Double(round(100*tickers[indexPath.row].previousPrice)/100)
-            cell.previousPriceLabel.text = "Previous $" + String(previousPrice)
+            cell.previousPriceLabel.text = "PREV. $" + String(previousPrice)
             cell.previousPriceLabel.textColor = UIColor.blue
         }
         

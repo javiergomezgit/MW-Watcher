@@ -11,24 +11,22 @@ class MarketsWatcherController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
 
-    
     var marketsPrices = [
-        "^DJI" : ["Dow Jones Industrial Average", 34464.64, 141.59],
-        "^GSPC" : ["S&P 500", 4200.88, 4.89],
-        "NDAQ" : ["Nasdaq, Inc.", 34207.8, 1.0],
-        "^W5000" : ["Wilshire 5000 Total Market Index", 19.0, -333.0],
-        "^RUA" : ["Russell 3000", 100.34, -3.0],
-        "^SP400" : ["S&P 400", 4200.5, 1.0],
-        "^RUT" : ["Russell 2000", 1.90, -333.0],
-        "BTC-USD" : ["Bitcoin USD", 10.40, -3.0],
-        "^VIX" : ["CBOE Volatility Index", -420.50, 1.0]
+        "^DJI" : ["Dow Jones Industrial Average", 0.0, 0.0],
+        "^GSPC" : ["S&P 500", 0.0, 0.0],
+        "NDAQ" : ["Nasdaq, Inc.", 0.0, 0.0],
+        "^W5000" : ["Wilshire 5000 Total Market Index", 0.0, 0.0],
+        "^RUA" : ["Russell 3000", 0.0, 0.0],
+        "^SP400" : ["S&P 400", 0.0, 0.0],
+        "^RUT" : ["Russell 2000", 0.0, 0.0],
+        "BTC-USD" : ["Bitcoin USD", 0.0, 0.0],
+        "^VIX" : ["CBOE Volatility Index", 0.0, 0.0]
     ]
     
     var marketNames = ["^DJI","^GSPC","NDAQ","^W5000","^RUA","^SP400","^RUT","BTC-USD","^VIX"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
         loadCurrentPrices()
     }
     
@@ -54,34 +52,28 @@ class MarketsWatcherController: UIViewController {
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
                 print (json)
                 
-                for tickFound in json! {
-                    print (tickFound.value) //json values prices etc
-                    print (tickFound.key) //ticker
+                for tickerJSON in json! {
+                    print (tickerJSON.value) //json values prices etc
+                    print (tickerJSON.key) //ticker
                     
-                    let tickerDictionary = tickFound.value as? [String: Any]
-                    print (tickerDictionary)
-
+                    let tickerDictionary = tickerJSON.value as? [String: Any]
                     
                     let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
-                    print (previousClose)
                     
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
-                    print (closePriceArray)
                     
                     let currentPrice = closePriceArray!.first as! Double
-                    print (currentPrice)
                     
-                    let marketsNameValues = self.marketsPrices[tickFound.key]
+                    let marketsNameValues = self.marketsPrices[tickerJSON.key]
                     let nameOfMarket = marketsNameValues![0]
                     
-                    self.marketsPrices[tickFound.key] = [nameOfMarket, currentPrice, previousClose]
+                    self.marketsPrices[tickerJSON.key] = [nameOfMarket, currentPrice, previousClose]
                 }
                 print (self.marketsPrices)
                 
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
-                
             }
         })
 
@@ -100,8 +92,6 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MarketCell", for: indexPath) as! MarketsViewCell
         
         let ticker = marketNames[indexPath.row]
-        print (ticker)
-        
         if let tickerInfo = marketsPrices[ticker] {
             print (tickerInfo)
             cell.tickerLabel.text = ticker
@@ -131,14 +121,8 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
                 cell.currentPriceLabel.textColor = UIColor.blue
             }
-            
-            
-            
-            
-
         }
         return cell
     }
-    
     
 }
