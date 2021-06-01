@@ -9,6 +9,7 @@ import UIKit
 
 class MarketsWatcherController: UIViewController {
 
+    let refreshControl = UIRefreshControl()
     @IBOutlet weak var collectionView: UICollectionView!
 
     var marketsPrices = [
@@ -28,7 +29,17 @@ class MarketsWatcherController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCurrentPrices()
+        
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        collectionView.addSubview(refreshControl) // not required when using UITableViewController
     }
+    
+    @objc func refresh(_ sender: AnyObject) {
+        loadCurrentPrices()
+        //tableView.reloadData()
+    }
+    
     
     func loadCurrentPrices() {
         let headers = [
@@ -45,12 +56,13 @@ class MarketsWatcherController: UIViewController {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
-                print(error)
+                print(error!)
             } else {
                 let httpResponse = response as? HTTPURLResponse
+                print (httpResponse!)
                 
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                print (json)
+                print (json!)
                 
                 for tickerJSON in json! {
                     print (tickerJSON.value) //json values prices etc
@@ -72,6 +84,7 @@ class MarketsWatcherController: UIViewController {
                 print (self.marketsPrices)
                 
                 DispatchQueue.main.async {
+                    self.refreshControl.endRefreshing()
                     self.collectionView.reloadData()
                 }
             }
@@ -105,21 +118,21 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
                 var percentageRounded = 100 - changePercentage
                 percentageRounded = round(100*percentageRounded)/100
                 cell.changeLabel.text = String(percentageRounded) + "%"
-                cell.changeLabel.textColor = UIColor.red
+                cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
                 
                 currentPrice = round(100*currentPrice)/100
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
-                cell.currentPriceLabel.textColor = UIColor.red
+                cell.currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             } else {
                 //positive day for market
                 var percentageRounded = changePercentage - 100
                 percentageRounded = round(100*percentageRounded)/100
                 cell.changeLabel.text = String(percentageRounded) + "%"
-                cell.changeLabel.textColor = UIColor.blue
+                cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
                 
                 currentPrice = round(100*currentPrice)/100
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
-                cell.currentPriceLabel.textColor = UIColor.blue
+                cell.currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             }
         }
         return cell

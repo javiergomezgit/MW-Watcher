@@ -1,8 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "spinnerTwoLight.png",
-      "idiom" : "universal"
+      "filename" : "IMG_5503.jpeg",
+      "idiom" : "iphone"
     },
     {
       "appearances" : [
@@ -11,8 +11,8 @@
           "value" : "dark"
         }
       ],
-      "filename" : "spinnerTwoDark.png",
-      "idiom" : "universal"
+      "filename" : "logo-wording-dark.jpg",
+      "idiom" : "iphone"
     }
   ],
   "info" : {

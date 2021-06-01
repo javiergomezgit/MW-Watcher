@@ -7,7 +7,6 @@
 
 import UIKit
 import CoreData
-import SSCustomPullToRefresh
 import SafariServices
 
 class MWWController: UIViewController {
@@ -17,9 +16,7 @@ class MWWController: UIViewController {
     var rssItemsImages: [RSSItemWithImages] = []
     let savedFeeds = SaveFeeds()
     let saveHeadlines = SaveHeadlines()
-
     var refreshControl = UIRefreshControl()
-    var spinnerAnnimation: SpinnerAnimationView!
     var overlay : UIView!
     var alert : UIAlertController!
     var activityIndicator : UIActivityIndicatorView!
@@ -27,67 +24,25 @@ class MWWController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        navigationItem.title = "Market News Watcher"
-
-        //self.navigationController!.navigationBar.barStyle = UIBarStyle.black
-        //self.navigationController!.navigationBar.isTranslucent = true
-        //self.navigationController?.navigationBar.prefersLargeTitles = true
-        //self.navigationController!.navigationBar.titleTextAttributes = [.foregroundColor: UIColor.black]
 
         tableView.register(MWWCell.nib(), forCellReuseIdentifier: MWWCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
         
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleAppDidBecomeActiveNotification(notification:)),
-            name: UIApplication.didBecomeActiveNotification,
-            object: nil)
-        
-        setUpPulseAnimation()
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        tableView.addSubview(refreshControl) // not required when using UITableViewController
+
         loadFeeds()
-    }
-    
-    func showLoadingAlert() {
-     
-        overlay = UIView(frame: view.frame)
-        overlay!.backgroundColor = UIColor.systemBlue
-        overlay!.alpha = 0.6
-        view.addSubview(overlay!)
-
-        alert = UIAlertController(title: nil, message: "Please wait, downloading news... ", preferredStyle: .alert)
-        activityIndicator = UIActivityIndicatorView(frame: CGRect(x: (self.view.frame.width / 2)-100, y: 50, width: 100, height: 100))
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.color = UIColor.cyan
-        activityIndicator.style = UIActivityIndicatorView.Style.large
-        activityIndicator.startAnimating();
-        alert.view.addSubview(activityIndicator)
-        present(alert, animated: true, completion: nil)
         
-        /* Stop animation
-         activityIndicator.stopAnimating()
-         overlay.removeFromSuperview()
-         alert.dismiss(animated: true, completion: nil)
-         */
     }
     
-    func setUpPulseAnimation() {
-        if self.traitCollection.userInterfaceStyle == .dark {
-            spinnerAnnimation = SpinnerAnimationView(image: UIImage(named: "spinner")!, backgroundColor: .black)
-        } else {
-            spinnerAnnimation = SpinnerAnimationView(image: UIImage(named: "spinner")!, backgroundColor: .white)
-        }
-        spinnerAnnimation.delegate = self
-        spinnerAnnimation.parentView = self.tableView
-        spinnerAnnimation.setupRefreshControl()
+    @objc func refresh(_ sender: AnyObject) {
+        loadFeeds()
+        //tableView.reloadData()
     }
     
     
-    @objc func handleAppDidBecomeActiveNotification(notification: Notification) {
-        //loadFeeds()
-    }
-
     func loadFeeds() {
         
         let mwURLString = "https://www.marketwatch.com/latest-news"
@@ -98,11 +53,13 @@ class MWWController: UIViewController {
             DispatchQueue.main.async {
                 self.rssItemsImages = self.savedFeeds.loadFeeds()
                 self.tableView.reloadData()
+                self.refreshControl.endRefreshing()
             }
         } else {
             DispatchQueue.main.async {
                 self.savedFeeds.deleteFeeds()
             }
+            self.rssItemsImages.removeAll()
             
             for rssItem in rssItems {
                 let downloadedImage = self.downloadImageFeed(URLImage: rssItem.enclosure)
@@ -124,6 +81,8 @@ class MWWController: UIViewController {
                     )
                 }
             }
+            self.refreshControl.endRefreshing()
+            self.tableView.reloadData()
         }
     }
    
@@ -213,32 +172,10 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
         let vc = SFSafariViewController(url: url)
         present(vc, animated: true)
     }
-    
-//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-//
-//        return 300
-//    }
-//
-//    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-//        return 250
-//    }
 }
 
 
-// MARK: - AnimationDelegate
-extension MWWController: RefreshDelegate {
-    func startRefresh() {
-        print("start refreshing")
-        loadFeeds()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            self.spinnerAnnimation.endRefreshing()
-        }
-    }
-    func endRefresh() {
-        print("End Refreshing")
-    }
-}
-
+//MARK: - Button delegate
 extension UIButton {
     func animateButton(sender: UIButton, duration: Double) {
         UIButton.animate(withDuration: duration,

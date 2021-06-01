@@ -55,11 +55,11 @@ class MWWCell: UITableViewCell {
         tickerLabel.text = tickerValue
         if !tickerValue.isEmpty {
             if tickerValue.contains("-") {
-                tickerLabel.textColor = UIColor.red
-                backgroundCell.backgroundColor = UIColor.red.withAlphaComponent(0.05)
+                tickerLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                //backgroundCell.backgroundColor = UIColor.red.withAlphaComponent(0.05)
             } else {
-                tickerLabel.textColor = UIColor.blue
-                backgroundCell.backgroundColor = UIColor.blue.withAlphaComponent(0.05)
+                tickerLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                //backgroundCell.backgroundColor = UIColor.blue.withAlphaComponent(0.05)
 
             }
         }

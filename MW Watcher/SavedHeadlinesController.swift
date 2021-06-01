@@ -10,7 +10,7 @@ import UIKit
 class SavedHeadlinesController: UIViewController {
 
     @IBOutlet var tableView: UITableView!
-    
+
     let savedHeadlines = SaveHeadlines()
     var headlines: [HeadlineItem] = []
 
@@ -27,6 +27,18 @@ class SavedHeadlinesController: UIViewController {
         savedHeadlines.deleteHeadlines(headline: "", date: "", deleteAll: true)
         headlines.removeAll()
         tableView.reloadData()
+    }
+    
+    @IBAction func shareHeadline(_ sender: UIButton) {
+
+        sender.animateButton(sender: sender, duration: 0.1)
+        let index = sender.tag
+        let title = headlines[index].headline
+        let date = headlines[index].date
+        
+        let objectToShare = [title, " | ", date] as [Any]
+        let activityVC = UIActivityViewController(activityItems: objectToShare, applicationActivities: nil)
+        self.present(activityVC, animated: true, completion: nil)
     }
     
 
