@@ -18,13 +18,10 @@ class HTMLParser {
         do {
             let contents = try String(contentsOf: url)
             let document: Document = try SwiftSoup.parse(contents)
-            
             parseHTML(document: document, amountOfFeeds: amountOfFeeds - 1)
-                        
         } catch {
             print (error)
         }
-        
         return rssItems
     }
     
@@ -45,7 +42,6 @@ class HTMLParser {
                     if countingFeeds <= amountOfFeeds {
                         let linkArticle: Elements = try article.select("a")
                         let link: String = try linkArticle.attr("href")
-                        //print (link)
                         
                         let worddline: Elements = try article.select("h3")
                         let worddlineString = try worddline.first()!.text()
@@ -76,12 +72,11 @@ class HTMLParser {
                     }
                 }
             }
-            //print (rssItems)
         } catch {
             print (error)
         }
-        
     }
+    
     
     func cleanHeadline(title: String) -> String {
         var cleanArray = ""

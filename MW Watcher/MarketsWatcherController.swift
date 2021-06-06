@@ -11,6 +11,7 @@ class MarketsWatcherController: UIViewController {
 
     let refreshControl = UIRefreshControl()
     @IBOutlet weak var collectionView: UICollectionView!
+    var sizeOfCell = CGFloat(0)
 
     var marketsPrices = [
         "^DJI" : ["Dow Jones Industrial Average", 0.0, 0.0],
@@ -33,6 +34,8 @@ class MarketsWatcherController: UIViewController {
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         collectionView.addSubview(refreshControl) // not required when using UITableViewController
+        
+        sizeOfCell = (view.frame.width/2) - (view.frame.width/20)
     }
     
     @objc func refresh(_ sender: AnyObject) {
@@ -123,6 +126,9 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
                 currentPrice = round(100*currentPrice)/100
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
                 cell.currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                
+                cell.arrowImage.image = (UIImage.init(systemName: "arrow.down.app.fill"))
+                cell.arrowImage.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             } else {
                 //positive day for market
                 var percentageRounded = changePercentage - 100
@@ -133,9 +139,17 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
                 currentPrice = round(100*currentPrice)/100
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
                 cell.currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                
+                cell.arrowImage.image = (UIImage.init(systemName: "arrow.up.square.fill"))
+                cell.arrowImage.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             }
         }
         return cell
     }
-    
+}
+
+extension MarketsWatcherController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: sizeOfCell, height: sizeOfCell)
+    }
 }

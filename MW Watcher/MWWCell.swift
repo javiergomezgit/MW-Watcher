@@ -13,31 +13,25 @@ class MWWCell: UITableViewCell {
     @IBOutlet weak var pubdateLabel: UILabel!
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet weak var linkButton: UIButton!
-    @IBOutlet weak var linkTickerButton: UIButton!
     @IBOutlet var imageViewFeed: UIImageView!
-    @IBOutlet weak var backgroundCell: UIView!
     @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
-    
-    
-    
+        
     static let identifier = "MWWCustomCell"
     
     static func nib() -> UINib {
         return UINib(nibName: "MWWCell", bundle: nil)
     }
     
-    public func setRSSValues(title: String, description: String, link: String, pubdate: String, linkTicker: String, imageFeed: UIImage) {
-        
-        let linkTitle = loadLinkQuery(linkString: title)
+    public func setRSSValues(title: String, description: String, link: String, pubdate: String, ticker: String, imageFeed: UIImage) {
         
         titleLabel.text = title
-        linkButton.titleLabel?.text = linkTitle //link
-        linkTickerButton.titleLabel?.text = linkTicker
+        linkButton.titleLabel?.text = link
         pubdateLabel.text = pubdate
         imageViewFeed.image = imageFeed
+        tickerLabel.text = ticker
 
-        isTickerPositive(tickerValue: description)
+        //isTickerPositive(tickerValue: description)
     }
   
     
@@ -73,7 +67,6 @@ class MWWCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
     }
-    
 }
 
 

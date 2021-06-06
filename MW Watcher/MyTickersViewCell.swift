@@ -13,6 +13,8 @@ class MyTickersViewCell: UITableViewCell {
     @IBOutlet var changeLabel: UILabel!
     @IBOutlet var currentPriceLabel: UILabel!
     @IBOutlet var previousPriceLabel: UILabel!
+    @IBOutlet var imageArrow: UIImageView!
+    @IBOutlet weak var buttonTickerNews: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()

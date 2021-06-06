@@ -66,3 +66,81 @@ func clean(head: [String]) -> String {
     
     return cleanArray
 }
+
+
+/*
+// MARK: - Ticker
+struct Ticker: Codable {
+    let chart: Chart
+}
+
+// MARK: - Chart
+struct Chart: Codable {
+    let result: [Result]?
+    let error: Description?
+}
+
+struct Description: Codable {
+    let description: String
+}
+
+// MARK: - Result
+struct Result: Codable {
+    let meta: Meta
+}
+
+struct Meta: Codable {
+    let regularMarketPrice: Double
+    let chartPreviousClose: Double
+}
+
+// MARK: - Ticker
+struct Ticker: Codable {
+    let quoteResponse: QuoteResponse
+}
+
+// MARK: - QuoteResponse
+struct QuoteResponse: Codable {
+    let result: [Result]
+}
+
+// MARK: - Result
+struct Result: Codable {
+
+    let postMarketChangePercent: Double
+    let postMarketPrice: Double
+    let longName: String
+    let regularMarketPrice: Double
+}
+
+// MARK: - Ticker
+struct Ticker: Codable {
+    let chart: Chart
+}
+
+// MARK: - Chart
+struct Chart: Codable {
+    let result: [Result]?
+    let error: Description?
+}
+
+struct Description: Codable {
+    let description: String
+}
+
+// MARK: - Result
+struct Result: Codable {
+    let meta: Meta
+}
+
+struct Meta: Codable {
+    let regularMarketPrice: Double
+    let chartPreviousClose: Double
+}
+
+struct Tickers {
+    let ticker: String
+    let marketPrice: Double
+    let previousPrice: Double
+}
+*/

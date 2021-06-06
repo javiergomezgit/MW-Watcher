@@ -18,14 +18,14 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
-		<key>SSCustomPullToRefresh.xcscheme</key>
+		<key>SwiftSoup.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
-		<key>SwiftSoup.xcscheme</key>
+		<key>SwiftyOnboard.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

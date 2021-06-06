@@ -7,6 +7,7 @@
 
 import UIKit
 import Foundation
+import LocalAuthentication
 
 struct Tickers {
     let ticker: String
@@ -22,7 +23,6 @@ class MyTickersController: UIViewController {
     let savedTickers = SaveMyTickers()
     var refreshControl = UIRefreshControl()
 
-    
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
 
@@ -82,8 +82,7 @@ class MyTickersController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-
-       // let titleTextAttributes = NSAttributedString()
+        authenticationWithTouchID()
         
         let font = UIFont.boldSystemFont(ofSize: 16)
         let titleTextAttributes: [NSAttributedString.Key: Any] = [
@@ -94,19 +93,15 @@ class MyTickersController: UIViewController {
         chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .normal)
         chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .selected)
         
-        //chosingTimeSegment.tintColor = UIColor.white
-        
-         
-        let loadSavedTickers = savedTickers.loadTickers()
-        
-        if !loadSavedTickers.isEmpty {
-            loadTicker(loadSingle: nil, loadMultiple: loadSavedTickers)
-        }
         //TODO: Improve loading / load only once for all time, then make the calculation of times based on the picked segment control
         
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl) // not required when using UITableViewController
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        authenticationWithTouchID()
     }
     
     @objc func refresh(_ sender: AnyObject) {
@@ -164,7 +159,16 @@ class MyTickersController: UIViewController {
                 if let tickerFound = json![ticker] {
                     //SINGLE TICKER
                     let tickerDictionary = tickerFound as? [String: Any]
-                    let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
+                    
+                    let foundClose = tickerDictionary!["chartPreviousClose"]
+                    
+                    guard let previousClose = foundClose as? Double else {
+                        DispatchQueue.main.async {
+                            self.showAlert(title: "Error", message: "We couldn't find the ticker", titleButton: "Try later")
+                        }
+                        return
+                    }
+                    
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
                     let closePrice = closePriceArray!.last as! Double
                     
@@ -249,6 +253,9 @@ extension MyTickersController: UITableViewDelegate, UITableViewDataSource {
             let previousPrice = Double(round(100*tickers[indexPath.row].previousPrice)/100)
             cell.previousPriceLabel.text = "PREV. $" + String(previousPrice)
             cell.previousPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            
+            cell.imageArrow.image = (UIImage.init(systemName: "arrow.down.app.fill"))
+            cell.imageArrow.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
         } else {
             var percentageRounded = percentageChange - 100
             percentageRounded = Double(round(100*percentageRounded)/100)
@@ -257,10 +264,37 @@ extension MyTickersController: UITableViewDelegate, UITableViewDataSource {
             
             let previousPrice = Double(round(100*tickers[indexPath.row].previousPrice)/100)
             cell.previousPriceLabel.text = "PREV. $" + String(previousPrice)
-            cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)        }
+            cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            
+            cell.imageArrow.image = (UIImage.init(systemName: "arrow.up.square.fill"))
+            cell.imageArrow.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+        }
+        
+        cell.buttonTickerNews.tag = indexPath.row
+        cell.buttonTickerNews.addTarget(self, action: #selector(openNews(sender:)), for: .touchUpInside)
         
         return cell
     }
+    
+    
+@objc func openNews(sender: UIButton) {
+    let ticker = self.tickers[sender.tag].ticker
+    
+    print (sender.tag)
+    print (ticker)
+
+    let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+    let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
+    
+    destination!.ticker = ticker
+    
+    //    nextViewController.modalPresentationStyle = .fullScreen
+    //    nextViewController.modalTransitionStyle = .crossDissolve
+    self.show(destination!, sender: self)
+    }
+
+    
+    
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
             return .delete
@@ -292,104 +326,134 @@ extension MyTickersController {
 }
 
 
+//Delegate for authentication with Biometrics
+extension MyTickersController {
+    
+    func authenticationWithTouchID() {
+        let localAuthenticationContext = LAContext()
+        localAuthenticationContext.localizedFallbackTitle = "Use Passcode"
 
+        var authError: NSError?
+        let reasonString = "To access the secure data"
 
-//for the day checking
-//let request = NSMutableURLRequest(url: NSURL(string: "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=aapl&interval=1d&range=2d")! as URL,
-//for the month
-//let request = NSMutableURLRequest(url: NSURL(string: "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=aapl&interval=1mo&range=1mo")! as URL,
+        if localAuthenticationContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
+            
+            localAuthenticationContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reasonString) { success, evaluateError in
+                
+                DispatchQueue.main.async {
+                    if success {
+                        
+                        //TODO: User authenticated successfully, take appropriate action
+                        let loadSavedTickers = self.savedTickers.loadTickers()
+                        
+                        if !loadSavedTickers.isEmpty {
+                            self.loadTicker(loadSingle: nil, loadMultiple: loadSavedTickers)
+                        }
+                        
+                    } else {
+                        //TODO: User did not authenticate successfully, look at error and take appropriate action
+                        
+                        guard let error = evaluateError else {
+                            return
+                        }
+                        
+                        print(self.evaluateAuthenticationPolicyMessageForLA(errorCode: error._code))
+                        //TODO: If you have choosen the 'Fallback authentication mechanism selected' (LAError.userFallback). Handle gracefully
+                        
+                    }
+                }
+                
+            }
+        } else {
+            
+            guard let error = authError else {
+                return
+            }
+            //TODO: Show appropriate alert if biometry/TouchID/FaceID is lockout or not enrolled
+            print(self.evaluateAuthenticationPolicyMessageForLA(errorCode: error.code))
+        }
+    }
+    
+    func evaluatePolicyFailErrorMessageForLA(errorCode: Int) -> String {
+        var message = ""
+        if #available(iOS 11.0, macOS 10.13, *) {
+            switch errorCode {
+                case LAError.biometryNotAvailable.rawValue:
+                    message = "Authentication could not start because the device does not support biometric authentication."
+                
+                case LAError.biometryLockout.rawValue:
+                    message = "Authentication could not continue because the user has been locked out of biometric authentication, due to failing authentication too many times."
+                
+                case LAError.biometryNotEnrolled.rawValue:
+                    message = "Authentication could not start because the user has not enrolled in biometric authentication."
+                
+                default:
+                    message = "Did not find error code on LAError object"
+            }
+        } else {
+            switch errorCode {
+                case LAError.touchIDLockout.rawValue:
+                    message = "Too many failed attempts."
+                
+                case LAError.touchIDNotAvailable.rawValue:
+                    message = "TouchID is not available on the device"
+                
+                case LAError.touchIDNotEnrolled.rawValue:
+                    message = "TouchID is not enrolled on the device"
+                
+                default:
+                    message = "Did not find error code on LAError object"
+            }
+        }
+        
+        return message;
+    }
+    
+    func evaluateAuthenticationPolicyMessageForLA(errorCode: Int) -> String {
+        
+        var message = ""
+        
+        switch errorCode {
+            
+        case LAError.authenticationFailed.rawValue:
+            message = "The user failed to provide valid credentials"
+            
+        case LAError.appCancel.rawValue:
+            message = "Authentication was cancelled by application"
+            
+        case LAError.invalidContext.rawValue:
+            message = "The context is invalid"
+            
+        case LAError.notInteractive.rawValue:
+            message = "Not interactive"
+            
+        case LAError.passcodeNotSet.rawValue:
+            message = "Passcode is not set on the device"
+            
+        case LAError.systemCancel.rawValue:
+            message = "Authentication was cancelled by the system"
+            
+        case LAError.userCancel.rawValue:
+            message = "The user did cancel"
+            
+        case LAError.userFallback.rawValue:
+            message = "The user chose to use the fallback"
 
-//more info
-//let request = NSMutableURLRequest(url: NSURL(string: "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/v2/get-quotes?region=US&symbols=aapl")! as URL,
-
-
-
-
-//    UITextFieldDelegate in viewcontroller
-//    self.tickerToAddText.delegate = self
-//
-//    @objc func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-//        self.view.endEditing(true)
-//        return false
-//    }
-
-
-
-
-
-/*
-// MARK: - Ticker
-struct Ticker: Codable {
-    let chart: Chart
+        default:
+            message = evaluatePolicyFailErrorMessageForLA(errorCode: errorCode)
+        }
+        
+        return message
+    }
 }
+    
 
-// MARK: - Chart
-struct Chart: Codable {
-    let result: [Result]?
-    let error: Description?
-}
 
-struct Description: Codable {
-    let description: String
-}
 
-// MARK: - Result
-struct Result: Codable {
-    let meta: Meta
-}
 
-struct Meta: Codable {
-    let regularMarketPrice: Double
-    let chartPreviousClose: Double
-}
 
-// MARK: - Ticker
-struct Ticker: Codable {
-    let quoteResponse: QuoteResponse
-}
 
-// MARK: - QuoteResponse
-struct QuoteResponse: Codable {
-    let result: [Result]
-}
 
-// MARK: - Result
-struct Result: Codable {
 
-    let postMarketChangePercent: Double
-    let postMarketPrice: Double
-    let longName: String
-    let regularMarketPrice: Double
-}
 
-// MARK: - Ticker
-struct Ticker: Codable {
-    let chart: Chart
-}
 
-// MARK: - Chart
-struct Chart: Codable {
-    let result: [Result]?
-    let error: Description?
-}
-
-struct Description: Codable {
-    let description: String
-}
-
-// MARK: - Result
-struct Result: Codable {
-    let meta: Meta
-}
-
-struct Meta: Codable {
-    let regularMarketPrice: Double
-    let chartPreviousClose: Double
-}
-
-struct Tickers {
-    let ticker: String
-    let marketPrice: Double
-    let previousPrice: Double
-}
-*/

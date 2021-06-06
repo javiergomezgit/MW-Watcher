@@ -13,7 +13,7 @@ class SaveHeadlines {
     var headlinesManagedObject: [NSManagedObject] = []
     let entityName = "News"
     
-    func saveHeadlines(headline: String, date: String) -> Bool {
+    func saveHeadlines(headline: String, date: String, link: String) -> Bool {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return false }
         let managedContext = appDelegate.persistentContainer.viewContext
         let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
@@ -21,6 +21,7 @@ class SaveHeadlines {
         
         headlineObject.setValue(headline, forKey: "headline")
         headlineObject.setValue(date, forKey: "date")
+        headlineObject.setValue(link, forKey: "link")
         
         do {
             try managedContext.save()

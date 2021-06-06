@@ -12,5 +12,6 @@ class MarketsViewCell: UICollectionViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var currentPriceLabel: UILabel!
     @IBOutlet weak var changeLabel: UILabel!
+    @IBOutlet var arrowImage: UIImageView!
     
 }

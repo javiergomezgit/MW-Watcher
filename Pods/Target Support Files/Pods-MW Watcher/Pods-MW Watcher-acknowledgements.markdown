@@ -1,11 +1,11 @@
 # Acknowledgements
 This application makes use of the following third party libraries:
 
-## SSCustomPullToRefresh
+## SwiftSoup
 
 MIT License
 
-Copyright (c) 2021 Simform Solutions
+Copyright (c) 2016 Nabil Chatbi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,11 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-## SwiftSoup
+## SwiftyOnboard
 
 MIT License
 
-Copyright (c) 2016 Nabil Chatbi
+Copyright (c) 2017 Juan Pablo Fernandez
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
