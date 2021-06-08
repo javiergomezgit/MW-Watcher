@@ -8,12 +8,12 @@
 import CoreData
 import UIKit
 
-class SaveHeadlines {
+class UserSaveNews {
     
-    var headlinesManagedObject: [NSManagedObject] = []
-    let entityName = "News"
+    var newsManagedObjectArray: [NSManagedObject] = []
+    let entityName = "SavedNewsEntity"
     
-    func saveHeadlines(headline: String, date: String, link: String) -> Bool {
+    func saveNews(headline: String, date: String, link: String) -> Bool {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return false }
         let managedContext = appDelegate.persistentContainer.viewContext
         let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
@@ -25,7 +25,7 @@ class SaveHeadlines {
         
         do {
             try managedContext.save()
-            headlinesManagedObject.append(headlineObject)
+            newsManagedObjectArray.append(headlineObject)
             return true
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
@@ -33,7 +33,7 @@ class SaveHeadlines {
         }
     }
     
-    func deleteHeadlines(headline: String, date: String, deleteAll: Bool) {
+    func deleteNews(headline: String, date: String, deleteAll: Bool) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
@@ -49,13 +49,13 @@ class SaveHeadlines {
         } else {
             let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
             do {
-                headlinesManagedObject = try managedContext.fetch(fetchRequest)
+                newsManagedObjectArray = try managedContext.fetch(fetchRequest)
 
-                for headlineManagedObject in headlinesManagedObject {
-                    let localHeadline = headlineManagedObject.value(forKey: "headline") as! String
+                for newsManagedObject in newsManagedObjectArray {
+                    let localHeadline = newsManagedObject.value(forKey: "headline") as! String
                     //let date = headlineManagedObject.value(forKey: "date") as! String
                     if localHeadline == headline {
-                        managedContext.delete(headlineManagedObject)
+                        managedContext.delete(newsManagedObject)
                         try managedContext.save()
                     }
                 }
@@ -66,25 +66,27 @@ class SaveHeadlines {
 
     }
     
-    func loadHeadlines() -> [HeadlineItem] {
-        var headlineItems : [HeadlineItem] = []
+    func loadNews() -> [UserSavedNewsItem] {
+        var newsItemArray : [UserSavedNewsItem] = []
+        
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         let managedContext = appDelegate!.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         
         do {
-            headlinesManagedObject = try managedContext.fetch(fetchRequest)
+            newsManagedObjectArray = try managedContext.fetch(fetchRequest)
 
-            for headlineManagedObject in headlinesManagedObject {
-                let headline = headlineManagedObject.value(forKey: "headline") as! String
-                let date = headlineManagedObject.value(forKey: "date") as! String
+            for newsManagedObject in newsManagedObjectArray {
+                let headline = newsManagedObject.value(forKey: "headline") as! String
+                let date = newsManagedObject.value(forKey: "date") as! String
+                let link = newsManagedObject.value(forKey: "link") as! String
                 
-                let headlineItem = HeadlineItem.init(headline: headline, date: date)
-                headlineItems.append(headlineItem)
+                let newsItem = UserSavedNewsItem.init(headline: headline, link: link, pubDate: date)
+                newsItemArray.append(newsItem)
             }
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        return headlineItems
+        return newsItemArray
     }
 }

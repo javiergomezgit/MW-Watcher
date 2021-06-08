@@ -12,7 +12,6 @@ class TickerNewsViewCell: UITableViewCell {
     @IBOutlet weak var headlineLabel: UILabel!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var shareButton: UIButton!
-    @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var linkButton: UIButton!
     

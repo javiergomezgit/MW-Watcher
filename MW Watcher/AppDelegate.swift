@@ -23,14 +23,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         if isFirstLaunch() {
                         
-            let saveTickers = SaveMyTickers()
-            let saveHeadlines = SaveHeadlines()
+            let saveTickers = SaveTickers()
+            let saveHeadlines = UserSaveNews()
            
-            let headlines = ["TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS", "BRJB 1.95% | MEATPACER JBS HIT BY CYBERATTACH AFFECTING NORTH AMERICA AUSTRALIAN", "AMZ -0.15% | AMAZON STOP TESTIN JOB APPLICANTS MARIJUANA BACKS FEDERAL LEGALIZATION", "TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS"]
+            let news = ["TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS", "BRJB 1.95% | MEATPACER JBS HIT BY CYBERATTACH AFFECTING NORTH AMERICA AUSTRALIAN", "AMZ -0.15% | AMAZON STOP TESTIN JOB APPLICANTS MARIJUANA BACKS FEDERAL LEGALIZATION", "TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS"]
             let tickers = ["AAPL", "AA", "TSLA", "MSFT"]
             
-            for headline in headlines {
-                _ = saveHeadlines.saveHeadlines(headline: headline, date: "May 10, 2020", link: "")
+            for new in news {
+                _ = saveHeadlines.saveNews(headline: new, date: "May 10, 2020", link: "")
             }
             for ticker in tickers {
                 saveTickers.saveTicker(ticker: ticker)
@@ -68,3 +68,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
+
+
+/*
+ headlines
+ title
+ news
+ 
+ ticker
+ company
+ 
+ author
+ 
+ pubdate
+ date
+ 
+ 
+ 
+ 
+ */

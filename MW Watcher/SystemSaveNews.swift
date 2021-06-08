@@ -6,44 +6,40 @@
 //
 
 
-
-//import Foundation
 import CoreData
 import UIKit
 
-class SaveFeeds {
+class SystemSaveNews {
     
-    var feedsManagedObject: [NSManagedObject] = []
-    let entityName = "RSS"
+    var newsManagedObjectArray: [NSManagedObject] = []
+    let entityName = "LiveNewsEntity"
     
-    func saveRSS(title: String, link: String, pubDate: String, ticker: String, linkTicker: String, image: UIImage ) {
+    func systemSaveNews(headline: String, pubDate: String, image: UIImage ) {
     
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
         let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
-        let feed = NSManagedObject(entity: entity, insertInto: managedContext)
+        let newsManagedObject = NSManagedObject(entity: entity, insertInto: managedContext)
       
-        feed.setValue(title, forKeyPath: "title")
-        feed.setValue(link, forKey: "link")
-        feed.setValue(pubDate, forKey: "pubDate")
-        feed.setValue(ticker, forKey: "ticker")
-        feed.setValue(linkTicker, forKey: "linkTicker")
+        newsManagedObject.setValue(headline, forKeyPath: "headline")
+        newsManagedObject.setValue(pubDate, forKey: "pubDate")
         
         guard let imageToData = image.jpegData(compressionQuality: 1) else {
             print("jpg error")
             return
             }
-        feed.setValue(imageToData, forKey: "image")
+        
+        newsManagedObject.setValue(imageToData, forKey: "image")
 
         do {
             try managedContext.save()
-            feedsManagedObject.append(feed)
+            newsManagedObjectArray.append(newsManagedObject)
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
     }
     
-    func deleteFeeds() {
+    func systemDeleteNews() {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
@@ -57,9 +53,8 @@ class SaveFeeds {
         }
     }
     
-    func loadFeeds() -> [RSSItemWithImages] {
-        //guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        var feedItems : [RSSItemWithImages] = []
+    func systemLoadNews() -> [SystemSavedNewsItem] {
+        var newsItemArray : [SystemSavedNewsItem] = []
         
             let appDelegate = UIApplication.shared.delegate as? AppDelegate
             let managedContext = appDelegate!.persistentContainer.viewContext
@@ -67,18 +62,15 @@ class SaveFeeds {
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         
         do {
-            feedsManagedObject = try managedContext.fetch(fetchRequest)
-            print (feedsManagedObject.count)
+            newsManagedObjectArray = try managedContext.fetch(fetchRequest)
+            print (newsManagedObjectArray.count)
 
-            for feed in feedsManagedObject {
-                let title = feed.value(forKey: "title") as! String
-                let link = feed.value(forKey: "link") as! String
-                let pubDate = feed.value(forKey: "pubDate") as! String
-                let ticker = feed.value(forKey: "ticker") as! String
-                let linkTicker = feed.value(forKey: "linkTicker") as! String
-                
-                let imageData = feed.value(forKey: "image") as! Data
+            for newsManagedObject in newsManagedObjectArray {
                 var imageFromData = UIImage()
+
+                let headline = newsManagedObject.value(forKey: "headline") as! String
+                let pubDate = newsManagedObject.value(forKey: "pubDate") as! String
+                let imageData = newsManagedObject.value(forKey: "image") as! Data
                 do {
                     if let image = UIImage(data: imageData) {
                         imageFromData = image
@@ -87,13 +79,13 @@ class SaveFeeds {
                     }
                 }
                 
-                let feedItem = RSSItemWithImages.init(title: title, link: link, pubDate: pubDate, ticker: ticker, linkTicker: linkTicker, rssImage: imageFromData)
-                feedItems.append(feedItem)
+                let newsItem = SystemSavedNewsItem.init(headline: headline, pubDate: pubDate, image: imageFromData)
+                newsItemArray.append(newsItem)
             }
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        return feedItems
+        return newsItemArray
             
     }
    

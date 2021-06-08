@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MarketsWatcherController: UIViewController {
+class MarketsController: UIViewController {
 
     let refreshControl = UIRefreshControl()
     @IBOutlet weak var collectionView: UICollectionView!
@@ -21,11 +21,10 @@ class MarketsWatcherController: UIViewController {
         "^RUA" : ["Russell 3000", 0.0, 0.0],
         "^SP400" : ["S&P 400", 0.0, 0.0],
         "^RUT" : ["Russell 2000", 0.0, 0.0],
-        "BTC-USD" : ["Bitcoin USD", 0.0, 0.0],
         "^VIX" : ["CBOE Volatility Index", 0.0, 0.0]
     ]
     
-    var marketNames = ["^DJI","^GSPC","NDAQ","^W5000","^RUA","^SP400","^RUT","BTC-USD","^VIX"]
+    var marketNames = ["^DJI","^GSPC","NDAQ","^W5000","^RUA","^SP400","^RUT","^VIX"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,8 +42,90 @@ class MarketsWatcherController: UIViewController {
         //tableView.reloadData()
     }
     
+    /* crypto
+     let headers = [
+         "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+         "x-rapidapi-host": "alpha-vantage.p.rapidapi.com"
+     ]
+
+     let request = NSMutableURLRequest(url: NSURL(string: "https://alpha-vantage.p.rapidapi.com/query?market=usd&symbol=BTC&function=DIGITAL_CURRENCY_DAILY")! as URL,
+                                             cachePolicy: .useProtocolCachePolicy,
+                                         timeoutInterval: 10.0)
+     request.httpMethod = "GET"
+     request.allHTTPHeaderFields = headers
+
+     let session = URLSession.shared
+     let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+         if (error != nil) {
+             print(error)
+         } else {
+             let httpResponse = response as? HTTPURLResponse
+             print(httpResponse)
+         }
+     })
+
+     dataTask.resume()
+     */
+    
     
     func loadCurrentPrices() {
+        let headers = [
+            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+            "x-rapidapi-host": "yahoo-finance-low-latency.p.rapidapi.com"
+        ]
+
+        let request = NSMutableURLRequest(url: NSURL(string: "https://yahoo-finance-low-latency.p.rapidapi.com/v6/finance/quote?symbols=%5EDJI%2C%5EGSPC%2CNDAQ%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX&lang=en&region=US")! as URL,
+                                                cachePolicy: .useProtocolCachePolicy,
+                                            timeoutInterval: 10.0)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                print(error)
+            } else {
+                let httpResponse = response as? HTTPURLResponse
+                print(httpResponse)
+                
+                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+                print (json!)
+                
+                let resultJSON = json?["quoteResponse"] as? [String: Any]
+                
+                if let resultArray = resultJSON!["result"] as? [Any] {
+
+                    for tickerJSON in resultArray {
+                        
+                        let tickerDictionary = tickerJSON as? [String: Any]
+                        
+                        
+                        let marketPrice = tickerDictionary!["regularMarketPrice"] as! Double
+                        let changePercentage = tickerDictionary!["regularMarketChangePercent"] as! Double
+                        let ticker = tickerDictionary!["symbol"] as! String
+
+                        let marketsNameValues = self.marketsPrices[ticker]
+                        let nameOfMarket = marketsNameValues![0]
+
+                        self.marketsPrices[ticker] = [nameOfMarket, marketPrice, changePercentage]
+                    }
+                    
+                    print (self.marketsPrices)
+                    DispatchQueue.main.async {
+                        self.refreshControl.endRefreshing()
+                        self.collectionView.reloadData()
+                    }
+
+                }
+                
+
+            }
+        })
+
+        dataTask.resume()
+    }
+    
+    func loadCurrentPrices1() {
         let headers = [
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
             "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
@@ -92,14 +173,13 @@ class MarketsWatcherController: UIViewController {
                 }
             }
         })
-
         dataTask.resume()
     }
 }
 
 
 
-extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return marketNames.count
     }
@@ -114,12 +194,11 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
             cell.nameLabel.text = tickerInfo[0] as? String
             
             var currentPrice = tickerInfo[1] as! Double
-            let previousPrice = tickerInfo[2] as! Double
-            let changePercentage = (currentPrice * 100) / previousPrice
-            if changePercentage < 100 {
+            let percentageChanged = tickerInfo[2] as! Double
+            
+            if percentageChanged < 0 {
                 //negative day for market
-                var percentageRounded = 100 - changePercentage
-                percentageRounded = round(100*percentageRounded)/100
+                let percentageRounded = round(100*percentageChanged)/100
                 cell.changeLabel.text = String(percentageRounded) + "%"
                 cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
                 
@@ -131,8 +210,7 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
                 cell.arrowImage.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             } else {
                 //positive day for market
-                var percentageRounded = changePercentage - 100
-                percentageRounded = round(100*percentageRounded)/100
+                let percentageRounded = round(100*percentageChanged)/100
                 cell.changeLabel.text = String(percentageRounded) + "%"
                 cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
                 
@@ -143,12 +221,13 @@ extension MarketsWatcherController: UICollectionViewDelegate, UICollectionViewDa
                 cell.arrowImage.image = (UIImage.init(systemName: "arrow.up.square.fill"))
                 cell.arrowImage.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             }
+
         }
         return cell
     }
 }
 
-extension MarketsWatcherController: UICollectionViewDelegateFlowLayout {
+extension MarketsController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: sizeOfCell, height: sizeOfCell)
     }

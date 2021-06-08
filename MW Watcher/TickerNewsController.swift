@@ -9,7 +9,6 @@ import UIKit
 
 struct TickerNews {
     let headline: String
-    let author: String
     let pubDate: String
     let linkHeadline: String
 }
@@ -20,8 +19,8 @@ class TickerNewsController: UIViewController {
     @IBOutlet var tableView: UITableView!
     
     var ticker = "AAPL"
-    var tickerNews: [TickerNews] = []
-    let saveHeadlines = SaveHeadlines()
+    var tickerNewsArray: [TickerNews] = []
+    let saveHeadlines = UserSaveNews()
 
     
     override func viewDidLoad() {
@@ -56,7 +55,7 @@ class TickerNewsController: UIViewController {
             if (error != nil) {
                 //print(error)
             } else {
-                let httpResponse = response as? HTTPURLResponse
+                //let httpResponse = response as? HTTPURLResponse
                 //print(httpResponse)
                 
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
@@ -71,15 +70,14 @@ class TickerNewsController: UIViewController {
                     }
                     
                     let foundNew = new as? [String: Any]
-                    let title = foundNew!["title"] as! String
-                    let date = foundNew!["pubDate"] as! String
+                    let headline = foundNew!["title"] as! String
+                    let date = self.newLocalTime(timeString: foundNew!["pubDate"] as! String)
                     let link = foundNew!["link"] as! String
                     
+                    let tickerNews = TickerNews.init(headline: headline, pubDate: date, linkHeadline: link)
                     
-                    let tickerNew = TickerNews.init(headline: title, author: "", pubDate: date, linkHeadline: link)
-                    
-                    print (tickerNew)
-                    self.tickerNews.append(tickerNew)
+                    print (tickerNews)
+                    self.tickerNewsArray.append(tickerNews)
                 }
 
                 DispatchQueue.main.async {
@@ -90,6 +88,25 @@ class TickerNewsController: UIViewController {
 
         dataTask.resume()
     }
+    
+    func newLocalTime(timeString: String) -> String {
+        print (timeString)
+        //Get date and format
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = "E, d MMM yyyy HH:mm:ss Z"
+        dateFormatterGet.timeZone = TimeZone(identifier: "UTC")
+        
+        //Convert format
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .medium
+        dateFormatter.timeZone = TimeZone.current
+
+        let dateObj: Date? = dateFormatterGet.date(from: timeString)
+        let newLocalTime = dateFormatter.string(from: dateObj!)
+
+        return newLocalTime
+    }
 
 
 }
@@ -97,7 +114,7 @@ class TickerNewsController: UIViewController {
 
 extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tickerNews.count
+        return tickerNewsArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -105,10 +122,10 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         
         tickerLabel.text = ticker
         
-        cell.headlineLabel.text = tickerNews[indexPath.row].headline
-        cell.dateLabel.text = tickerNews[indexPath.row].pubDate
+        cell.headlineLabel.text = tickerNewsArray[indexPath.row].headline
+        cell.dateLabel.text = tickerNewsArray[indexPath.row].pubDate
        
-        cell.linkButton.titleLabel?.text = tickerNews[indexPath.row].linkHeadline
+        cell.linkButton.titleLabel?.text = tickerNewsArray[indexPath.row].linkHeadline
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
         cell.saveButton.tag = indexPath.row
@@ -126,9 +143,9 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         let index = sender.tag
         
         sender.animateButton(sender: sender, duration: 0.1)
-        let title = self.tickerNews[index].headline
-        let link = tickerNews[index].linkHeadline
-        let dateOfNew = tickerNews[index].pubDate
+        let headline = self.tickerNewsArray[index].headline
+        let link = tickerNewsArray[index].linkHeadline
+        let dateOfNew = tickerNewsArray[index].pubDate
 
         print ("SAVED NEW")
         let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
@@ -137,21 +154,21 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         sender.setImage(boldSearch, for: .normal)
         sender.tintColor = .red
         
-        if saveHeadlines.saveHeadlines(headline: title, date: dateOfNew, link: link) {
+        if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
             let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
             let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
 
             sender.setImage(boldSearch, for: .normal)
             sender.tintColor = .red
-            print ("\(title) saved article")
+            print ("\(headline) saved article")
         }
     }
 
     @objc func shareTitle(sender: UIButton){
         sender.animateButton(sender: sender, duration: 0.1)
         let index = sender.tag
-        let headline = self.tickerNews[index].headline
-        let link = self.tickerNews[index].linkHeadline
+        let headline = self.tickerNewsArray[index].headline
+        let link = self.tickerNewsArray[index].linkHeadline
 
         let objectsToShare = [headline, link] as [Any]
         let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)

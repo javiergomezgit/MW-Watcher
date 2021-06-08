@@ -6,20 +6,14 @@
 //
 
 
-struct HeadlineItem {
-    var headline: String
-    var date: String
-}
-
-
 import UIKit
 
-class SavedHeadlinesController: UIViewController {
+class SavedNewsController: UIViewController {
 
     @IBOutlet var tableView: UITableView!
 
-    let savedHeadlines = SaveHeadlines()
-    var headlines: [HeadlineItem] = []
+    let savedNews = UserSaveNews()
+    var newsItems: [UserSavedNewsItem] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,12 +21,13 @@ class SavedHeadlinesController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         
-        headlines = savedHeadlines.loadHeadlines()
+        newsItems = savedNews.loadNews()
+        
     }
     
     @IBAction func deleteAllButton(_ sender: UIButton) {
-        savedHeadlines.deleteHeadlines(headline: "", date: "", deleteAll: true)
-        headlines.removeAll()
+        savedNews.deleteNews(headline: "", date: "", deleteAll: true)
+        newsItems.removeAll()
         tableView.reloadData()
     }
     
@@ -40,28 +35,36 @@ class SavedHeadlinesController: UIViewController {
 
         sender.animateButton(sender: sender, duration: 0.1)
         let index = sender.tag
-        let title = headlines[index].headline
-        let date = headlines[index].date
+        let headline = newsItems[index].headline
+        let date = newsItems[index].pubDate
         
-        let objectToShare = [title, " | ", date] as [Any]
+        let objectToShare = [headline, " | ", date] as [Any]
         let activityVC = UIActivityViewController(activityItems: objectToShare, applicationActivities: nil)
         self.present(activityVC, animated: true, completion: nil)
     }
     
-
+    @IBAction func linkButton(_ sender: UIButton) {
+        //guard let urlString = sender.titleLabel?.text else { return }
+        let index = sender.tag
+        let urlString = newsItems[index].link
+        
+        guard let url = URL(string: urlString) else { return }
+        UIApplication.shared.open(url)
+    }
+    
 }
 
 
-extension SavedHeadlinesController: UITableViewDelegate, UITableViewDataSource {
+extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return headlines.count
+        return newsItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "headlineCell", for: indexPath) as! HeadlineViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "headlineCell", for: indexPath) as! SavedNewsViewCell
         
-        cell.headlineLabel.text = headlines[indexPath.row].headline
-        cell.dateLabel.text = headlines[indexPath.row].date
+        cell.headlineLabel.text = newsItems[indexPath.row].headline
+        cell.dateLabel.text = newsItems[indexPath.row].pubDate
         
         
         return cell
@@ -74,10 +77,10 @@ extension SavedHeadlinesController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
-            let headline = headlines[indexPath.row].headline
-            let date = headlines[indexPath.row].date
-            savedHeadlines.deleteHeadlines(headline: headline, date: date, deleteAll: false)
-            headlines.remove(at: indexPath.row)
+            let headline = newsItems[indexPath.row].headline
+            let date = newsItems[indexPath.row].pubDate
+            savedNews.deleteNews(headline: headline, date: date, deleteAll: false)
+            newsItems.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .left)
         }
     }

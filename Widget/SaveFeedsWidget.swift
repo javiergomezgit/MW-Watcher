@@ -22,7 +22,7 @@ public enum AppGroup: String {
 }
 
 var feedsManagedObject: [NSManagedObject] = []
-let entityName = "RSS"
+let entityName = "LiveNewsEntity"
 
 struct SaveFeedsWidget {
     
@@ -40,9 +40,9 @@ struct SaveFeedsWidget {
         return managedContext
     }
 
-    func loadSavedFeeds() -> [RSSItem] {
+    func loadSavedFeeds() -> [SystemSavedNewsItem] {
                 
-        var feedItems : [RSSItem] = []
+        var feedItems : [SystemSavedNewsItem] = []
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
 
         do {
@@ -50,14 +50,11 @@ struct SaveFeedsWidget {
             print (feedsManagedObject.count)
 
             for feed in feedsManagedObject {
-                let title = feed.value(forKey: "title") as! String
-                let link = feed.value(forKey: "link") as! String
+                let headline = feed.value(forKey: "headline") as! String
                 let pubDate = feed.value(forKey: "pubDate") as! String
-                let ticker = feed.value(forKey: "ticker") as! String
-                let linkTicker = feed.value(forKey: "linkTicker") as! String
-                let enclosure = feed.value(forKey: "enclosure") as! String
+                let image = feed.value(forKey: "image") as! UIImage
                 
-                let feedItem = RSSItem.init(title: title, link: link, pubDate: pubDate, ticker: ticker, linkTicker: linkTicker, enclosure: enclosure)
+                let feedItem = SystemSavedNewsItem.init(headline: headline, pubDate: pubDate, image: image)
                 
                 feedItems.append(feedItem)
             }
@@ -81,17 +78,19 @@ struct SaveFeedsWidget {
         }
         
     }
-    func saveOnlineFeeds(title: String, link: String, pubDate: String, ticker: String, linkTicker: String, enclosure: String) {
+    func saveOnlineFeeds(title: String, pubDate: String, image: UIImage) {
         
         let entity = NSEntityDescription.entity(forEntityName: entityName, in: setUpStoring())
         let feed = NSManagedObject(entity: entity!, insertInto: setUpStoring())
         
         feed.setValue(title, forKeyPath: "title")
-        feed.setValue(link, forKey: "link")
         feed.setValue(pubDate, forKey: "pubDate")
-        feed.setValue(ticker, forKey: "ticker")
-        feed.setValue(linkTicker, forKey: "linkTicker")
-        feed.setValue(enclosure, forKey: "enclosure")
+        
+        guard let imageToData = image.jpegData(compressionQuality: 1) else {
+            print ("error saving")
+            return
+        }
+        feed.setValue(imageToData, forKey: "image")
         
         do {
             try setUpStoring().save()

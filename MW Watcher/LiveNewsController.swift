@@ -9,13 +9,13 @@ import UIKit
 import CoreData
 import SafariServices
 
-class MWWController: UIViewController {
+class LiveNewsController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    var rssItemsImages: [RSSItemWithImages] = []
-    let savedFeeds = SaveFeeds()
-    let saveHeadlines = SaveHeadlines()
+    var newsItems: [NewsItem] = []
+    let savedFeeds = SystemSaveNews()
+    let saveHeadlines = UserSaveNews()
     var refreshControl = UIRefreshControl()
     var overlay : UIView!
     var alert : UIAlertController!
@@ -25,13 +25,12 @@ class MWWController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.register(MWWCell.nib(), forCellReuseIdentifier: MWWCell.identifier)
         tableView.delegate = self
         tableView.dataSource = self
         
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl) // not required when using UITableViewController
+        tableView.addSubview(refreshControl)
 
         loadNews()
         
@@ -39,8 +38,7 @@ class MWWController: UIViewController {
     
     @objc func refresh(_ sender: AnyObject) {
         loadNews()
-        //tableView.reloadData()
-    }
+     }
     
 
     
@@ -68,17 +66,18 @@ class MWWController: UIViewController {
                 //print(httpResponse)
                 
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                //print (json!)
+                print (json!)
                 
                 let jsonNews = json!["value"] as! [Any]
                 
-                self.rssItemsImages.removeAll()
+                self.newsItems.removeAll()
                 
                 for jsonNew in jsonNews {
                     
                     let dictionaryNew = jsonNew as! [String: Any]
                     
-                    let pubDate = dictionaryNew["datePublished"] as! String
+                    let notFormatedDate = dictionaryNew["datePublished"] as! String
+                    let pubDate = self.newLocalTime(timeString: notFormatedDate)
                     
                     let headline = dictionaryNew["name"] as! String
                     
@@ -102,8 +101,8 @@ class MWWController: UIViewController {
                     let authorArray = authorDictionary.first as! [String: Any]
                     let author = authorArray["name"] as! String
                     
-                    let rssitem = RSSItemWithImages.init(title: headline, link: link, pubDate: pubDate, ticker: author, linkTicker: "", rssImage: downloadedImage)
-                    self.rssItemsImages.append(rssitem)
+                    let newsItem = NewsItem.init(headline: headline, link: link, pubDate: pubDate, ticker: "", author: author, image: downloadedImage)
+                    self.newsItems.append(newsItem)
                 }
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
@@ -114,51 +113,23 @@ class MWWController: UIViewController {
         })
         dataTask.resume()
     }
+    
+    func newLocalTime(timeString: String) -> String {
 
-    
-    
-//    func loadFeeds() {
-//
-//        let mwURLString = "https://www.marketwatch.com/latest-news"
-//        let parsingHTML = HTMLParser()
-//        let rssItems = parsingHTML.loadHTML(urlString: mwURLString, amountOfFeeds: 10)
-//
-//        if rssItems.isEmpty {
-//            DispatchQueue.main.async {
-//                self.rssItemsImages = self.savedFeeds.loadFeeds()
-//                self.tableView.reloadData()
-//                self.refreshControl.endRefreshing()
-//            }
-//        } else {
-//            DispatchQueue.main.async {
-//                self.savedFeeds.deleteFeeds()
-//            }
-//            self.rssItemsImages.removeAll()
-//
-//            for rssItem in rssItems {
-//                let downloadedImage = self.downloadImageFeed(URLImage: rssItem.enclosure)
-//
-//                self.rssItemsImages.append(
-//                    RSSItemWithImages(
-//                        title: rssItem.title,
-//                        link: rssItem.link,
-//                        pubDate: rssItem.pubDate,
-//                        ticker: rssItem.ticker,
-//                        linkTicker: rssItem.linkTicker,
-//                        rssImage: downloadedImage
-//                    )
-//                )
-//
-//                DispatchQueue.main.async {
-//                    self.savedFeeds.saveRSS(
-//                        title: rssItem.title, link: rssItem.link, pubDate: rssItem.pubDate, ticker: rssItem.ticker, linkTicker: rssItem.linkTicker, image: downloadedImage
-//                    )
-//                }
-//            }
-//            self.refreshControl.endRefreshing()
-//            self.tableView.reloadData()
-//        }
-//    }
+        let date = timeString.components(separatedBy: ".")
+
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+        dateFormatterGet.timeZone = TimeZone(identifier: "CDT")
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .medium
+        dateFormatter.timeZone = TimeZone(identifier: "PDT")//NSTimeZone(name: "America/Los_Angeles") as TimeZone?
+       
+        let dateObj: Date? = dateFormatterGet.date(from: date[0] + "Z")
+        return dateFormatter.string(from: dateObj!)
+    }
    
     
     let imageCache = NSCache<NSString, UIImage>()
@@ -177,20 +148,50 @@ class MWWController: UIViewController {
     }
 }
 
+/*
+ func PDTForamte(endTime: String) -> String{
+     // create dateFormatter with UTC time format
+     let dateFormatter = DateFormatter()
+     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+zzzz"
+     dateFormatter.timeZone = TimeZone(identifier: "UTC")
+
+     guard let date = dateFormatter.date(from: endTime) else {
+         return endTime.components(separatedBy: "T").first ?? "" //return date before 'T'.
+     }
+
+     let pdtFormatter = DateFormatter()
+     pdtFormatter.dateStyle = .long
+     pdtFormatter.timeStyle = .long
+     if let americaZone = NSTimeZone(name: "America/Los_Angeles") {
+         pdtFormatter.timeZone = americaZone as TimeZone
+     }
+
+     let dateString: String = pdtFormatter.string(from: date)
+
+     let calendar = NSCalendar.autoupdatingCurrent
+     //We subtract 1 min because American Date here be 12:00:00 AM but It should be return to the previous day
+     let newDate = calendar.date(byAdding: .minute, value: -1, to: pdtFormatter.date(from: dateString)!) ?? Date()
+     pdtFormatter.dateFormat = "yyyy-MM-dd"
+     let newDateString: String = pdtFormatter.string(from: newDate)
+
+     return newDateString
+ }
+ */
+
 
 // MARK: - Table Delegate
-extension MWWController: UITableViewDelegate, UITableViewDataSource {
+extension LiveNewsController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-       return rssItemsImages.count
+       return newsItems.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: MWWCell.identifier, for: indexPath) as! MWWCell
-        let rssItem = rssItemsImages[indexPath.row]
-
-        cell.setRSSValues(title: rssItem.title, description: rssItem.ticker, link: rssItem.link, pubdate: rssItem.pubDate, ticker: rssItem.ticker, imageFeed: rssItem.rssImage)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "LiveNewsViewCell", for: indexPath) as! LiveNewsViewCell
+        let newsItem = newsItems[indexPath.row]
+        
+        cell.setNewsValues(headline: newsItem.headline, link: newsItem.link, pubdate: newsItem.pubDate, author: newsItem.author, imageFeed: newsItem.image)
         
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
@@ -205,16 +206,14 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
     
     @objc func saveTitle(sender: UIButton) {
         sender.animateButton(sender: sender, duration: 0.1)
-        let title = self.rssItemsImages[sender.tag].title
-        let netChange = self.rssItemsImages[sender.tag].ticker
-        let headline = "\(netChange) | \(title)"
-        let dateOfNew = self.rssItemsImages[sender.tag].pubDate
-        let link = self.rssItemsImages[sender.tag].link
+        let headline = self.newsItems[sender.tag].headline
+        let dateOfNew = self.newsItems[sender.tag].pubDate
+        let link = self.newsItems[sender.tag].link
         
         print (sender.tag)
         print (headline)
 
-        if saveHeadlines.saveHeadlines(headline: headline, date: dateOfNew, link: link) {
+        if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
             let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
             let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
             
@@ -227,10 +226,10 @@ extension MWWController: UITableViewDelegate, UITableViewDataSource {
     @objc func shareTitle(sender: UIButton){
         sender.animateButton(sender: sender, duration: 0.1)
         let index = sender.tag
-        let title = self.rssItemsImages[index].title
-        let link = self.rssItemsImages[index].link
+        let headline = self.newsItems[index].headline
+        let link = self.newsItems[index].link
         
-        let objectsToShare = [title, link] as [Any]
+        let objectsToShare = [headline, link] as [Any]
         let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
         self.present(activityVC, animated: true, completion: nil)
     }

@@ -8,9 +8,9 @@
 import CoreData
 import UIKit
 
-class SaveMyTickers {
-    var tickerManagedObject: [NSManagedObject] = []
-    let entityName = "MyTickers"
+class SaveTickers {
+    var tickerManagedObjectArray: [NSManagedObject] = []
+    let entityName = "WatchlistEntity"
     
     func saveTicker(ticker: String) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return  }
@@ -22,7 +22,7 @@ class SaveMyTickers {
         
         do {
             try managedContext.save()
-            tickerManagedObject.append(tickerObject)
+            tickerManagedObjectArray.append(tickerObject)
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
@@ -44,12 +44,12 @@ class SaveMyTickers {
         } else {
             let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
             do {
-                tickerManagedObject = try managedContext.fetch(fetchRequest)
+                tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
 
-                for tickerObject in tickerManagedObject {
-                    let localTicker = tickerObject.value(forKey: "ticker") as! String
+                for tickerManagedObject in tickerManagedObjectArray {
+                    let localTicker = tickerManagedObject.value(forKey: "ticker") as! String
                     if localTicker == ticker {
-                        managedContext.delete(tickerObject)
+                        managedContext.delete(tickerManagedObject)
                         try managedContext.save()
                     }
                 }
@@ -68,9 +68,9 @@ class SaveMyTickers {
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         
         do {
-            tickerManagedObject = try managedContext.fetch(fetchRequest)
+            tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
 
-            for tickerObject in tickerManagedObject {
+            for tickerObject in tickerManagedObjectArray {
                 let ticker = tickerObject.value(forKey: "ticker") as! String
                 tickerItems.append(ticker)
             }

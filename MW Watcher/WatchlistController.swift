@@ -15,12 +15,12 @@ struct Tickers {
     let previousPrice: Double
 }
 
-class MyTickersController: UIViewController {
+class WatchlistController: UIViewController {
 
     //MARK: Variables
     var tickers: [Tickers] = []
     var timeRange: String = "&interval=1d&range=1d"
-    let savedTickers = SaveMyTickers()
+    let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
 
     //MARK: Outlets and IBActions
@@ -219,7 +219,7 @@ class MyTickersController: UIViewController {
 
 
 //Customs
-extension MyTickersController {
+extension WatchlistController {
     func showAlert(title: String, message: String, titleButton: String) {
         let dialogMessage = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let ok = UIAlertAction(title: titleButton, style: .default, handler: { (action) -> Void in
@@ -231,7 +231,7 @@ extension MyTickersController {
 }
 
 //Delegate for table view
-extension MyTickersController: UITableViewDelegate, UITableViewDataSource {
+extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
   
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tickers.count
@@ -239,7 +239,7 @@ extension MyTickersController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "myTickersCell", for: indexPath) as! MyTickersViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "myTickersCell", for: indexPath) as! WatchlistViewCell
         cell.tickerLabel.text = tickers[indexPath.row].ticker
         cell.currentPriceLabel.text = "$" + String(tickers[indexPath.row].marketPrice)
         
@@ -313,7 +313,7 @@ extension MyTickersController: UITableViewDelegate, UITableViewDataSource {
 }
 
 //Delegate for keyboard
-extension MyTickersController {
+extension WatchlistController {
     func initializeHideKeyboard(){
         let tap: UITapGestureRecognizer = UITapGestureRecognizer(
             target: self,
@@ -327,7 +327,7 @@ extension MyTickersController {
 
 
 //Delegate for authentication with Biometrics
-extension MyTickersController {
+extension WatchlistController {
     
     func authenticationWithTouchID() {
         let localAuthenticationContext = LAContext()
