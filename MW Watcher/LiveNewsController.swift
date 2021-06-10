@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 import SafariServices
+import AMPopTip
 
 class LiveNewsController: UIViewController {
     
@@ -21,10 +22,23 @@ class LiveNewsController: UIViewController {
     var alert : UIAlertController!
     var activityIndicator : UIActivityIndicatorView!
     var loadedTimes = 0
+    var alreadyLaunched = false
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+    
+        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingLiveNews")
+        UserDefaults.standard.set(true, forKey: "firstLaunchingLiveNews")
+        UserDefaults.standard.synchronize()
+        
+        //change to true for testing
+        if !isFirstLaunch {
+           alreadyLaunched = false
+        } else {
+            alreadyLaunched = true
+        }
+        
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -36,10 +50,43 @@ class LiveNewsController: UIViewController {
         
     }
     
+    
+    
+    
     @objc func refresh(_ sender: AnyObject) {
         loadNews()
      }
     
+    
+    func showFirstTimeNotification(whereView: UIView) {
+        let popTip = PopTip()
+        popTip.delayIn = TimeInterval(1)
+        popTip.actionAnimation = .bounce(2)
+        
+        let positionPoptip = CGRect(x: whereView.frame.maxX - 50, y: whereView.frame.minY - 20, width: 100, height: 100)
+        popTip.show(text: "You can save your favorite news", direction: .left, maxWidth: 150, in: view, from: positionPoptip)
+        
+        popTip.bubbleColor = UIColor(named: "onboardingNotification")!
+        
+        popTip.shouldDismissOnTap = true
+        
+        popTip.tapHandler = { popTip in
+          print("tapped")
+            //NO MORE new notification
+        }
+        
+
+
+        popTip.dismissHandler = { popTip in
+          print("dismissed")
+        }
+
+        popTip.tapOutsideHandler = { _ in
+          print("tap outside")
+        }
+
+        
+    }
 
     
     func loadNews(){
@@ -60,9 +107,9 @@ class LiveNewsController: UIViewController {
         
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
-                print(error)
+                self.showAlert(title: "Error", message: "Connection Error", titleButton: "Ok")                
             } else {
-                let httpResponse = response as? HTTPURLResponse
+                //let httpResponse = response as? HTTPURLResponse
                 //print(httpResponse)
                 
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
@@ -85,7 +132,7 @@ class LiveNewsController: UIViewController {
                     
                     print (dictionaryNew)
                     let imageDictionary = dictionaryNew["image"] as? [String : Any]
-                    print (imageDictionary)
+                    //print (imageDictionary)
                     
                     var downloadedImage = UIImage()
                     if imageDictionary != nil {
@@ -107,6 +154,9 @@ class LiveNewsController: UIViewController {
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     self.refreshControl.endRefreshing()
+                    if !self.alreadyLaunched {
+                        self.showFirstTimeNotification(whereView: self.tableView)
+                    }
                 }
                 
             }

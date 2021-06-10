@@ -41,7 +41,7 @@ class HTMLParser {
                 if let timeExists = try detailsSpan.first()?.text(), let _ = try aBgQuoteElement.first()?.attr("href") {
                     if countingFeeds <= amountOfFeeds {
                         let linkArticle: Elements = try article.select("a")
-                        let link: String = try linkArticle.attr("href")
+                        //let link: String = try linkArticle.attr("href") for using it in future to link to web/app
 
                         let worddline: Elements = try article.select("h3")
                         let worddlineString = try worddline.first()!.text()
@@ -63,7 +63,6 @@ class HTMLParser {
 
                         let symbolPercentage = try symbolPercentageElement.first()!.text()
                         var symbol = try symbolElement.first()!.text()
-                        let symbolLink = "https://finance.yahoo.com/quote/\(symbol)"
                         symbol = symbol + " " + symbolPercentage
 
                         let newTime = newLocalTime(timeString: timeExists)

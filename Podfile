@@ -8,6 +8,7 @@ target 'MW Watcher' do
   # Pods for MW Watcher
   pod 'SwiftSoup'
   pod 'SwiftyOnboard'
+  pod 'AMPopTip'
 end
 
 target 'WidgetExtension' do

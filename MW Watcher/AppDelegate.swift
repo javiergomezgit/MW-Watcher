@@ -13,30 +13,28 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var alreadyLaunched = false
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+       
+        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunching")
+        UserDefaults.standard.set(true, forKey: "firstLaunching")
+        UserDefaults.standard.synchronize()
+        alreadyLaunched = isFirstLaunch
+
+        print (alreadyLaunched)
+        //Never launched before = false / NEW APP
+        if !alreadyLaunched {
+           saveFirstData()
+            print ("enter to ssave initial data")
+        }
         
         return true
     }
     
+    //first
     lazy var persistentContainer: NSPersistentContainer = {
         
-        if isFirstLaunch() {
-                        
-            let saveTickers = SaveTickers()
-            let saveHeadlines = UserSaveNews()
-           
-            let news = ["TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS", "BRJB 1.95% | MEATPACER JBS HIT BY CYBERATTACH AFFECTING NORTH AMERICA AUSTRALIAN", "AMZ -0.15% | AMAZON STOP TESTIN JOB APPLICANTS MARIJUANA BACKS FEDERAL LEGALIZATION", "TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS"]
-            let tickers = ["AAPL", "AA", "TSLA", "MSFT"]
-            
-            for new in news {
-                _ = saveHeadlines.saveNews(headline: new, date: "May 10, 2020", link: "")
-            }
-            for ticker in tickers {
-                saveTickers.saveTicker(ticker: ticker)
-            }
-        }
-                
         let container = NSPersistentContainer(name: "SavingFeeds")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -46,18 +44,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return container
     }()
     
-    
-    func isFirstLaunch() -> Bool {
-        let hasBeenLaunchedBeforeFlag = "hasBeenLaunchedBeforeFlag"
-        let isFirstLaunch = !UserDefaults.standard.bool(forKey: hasBeenLaunchedBeforeFlag)
-        if (isFirstLaunch) {
-            UserDefaults.standard.set(true, forKey: hasBeenLaunchedBeforeFlag)
-            UserDefaults.standard.synchronize()
+    func saveFirstData() {
+        let saveTickers = SaveTickers()
+        let saveHeadlines = UserSaveNews()
+       
+        let news = ["TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS", "BRJB 1.95% | MEATPACER JBS HIT BY CYBERATTACH AFFECTING NORTH AMERICA AUSTRALIAN", "AMZ -0.15% | AMAZON STOP TESTIN JOB APPLICANTS MARIJUANA BACKS FEDERAL LEGALIZATION", "TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS"]
+        let tickers = ["AAPL", "AA", "TSLA", "MSFT"]
+        
+        for new in news {
+            _ = saveHeadlines.saveNews(headline: new, date: "May 10, 2020", link: "")
         }
-        return isFirstLaunch
+        for ticker in tickers {
+            saveTickers.saveTicker(ticker: ticker)
+        }
     }
     
-
     // MARK: UISceneSession Lifecycle
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
@@ -67,23 +68,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      
     }
 }
-
-
-
-/*
- headlines
- title
- news
- 
- ticker
- company
- 
- author
- 
- pubdate
- date
- 
- 
- 
- 
- */

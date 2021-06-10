@@ -8,6 +8,7 @@
 import UIKit
 import Foundation
 import LocalAuthentication
+import AMPopTip
 
 struct Tickers {
     let ticker: String
@@ -22,10 +23,12 @@ class WatchlistController: UIViewController {
     var timeRange: String = "&interval=1d&range=1d"
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
+    var alreadyLaunched = false
 
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
-
+    @IBOutlet weak var addTickerButton: UIButton!
+    
     @IBAction func addingTicker(_ sender: UIButton) {
         let alert = UIAlertController(title: "Add a new ticker", message: "Please type a new ticker for the watchlist", preferredStyle: .alert)
 
@@ -84,6 +87,17 @@ class WatchlistController: UIViewController {
         
         authenticationWithTouchID()
         
+        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
+        UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
+        UserDefaults.standard.synchronize()
+        
+        //change to true for testing
+        if !isFirstLaunch {
+           alreadyLaunched = false
+        } else {
+            alreadyLaunched = true
+        }
+        
         let font = UIFont.boldSystemFont(ofSize: 16)
         let titleTextAttributes: [NSAttributedString.Key: Any] = [
             .font: font,
@@ -98,6 +112,7 @@ class WatchlistController: UIViewController {
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl) // not required when using UITableViewController
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -109,6 +124,18 @@ class WatchlistController: UIViewController {
         loadTicker(loadSingle: nil, loadMultiple: loadSavedTickers)
         tableView.reloadData()
     }
+    
+    func showFirstTimeNotification(whereView: UIView) {
+        let popTip = PopTip()
+        popTip.delayIn = TimeInterval(1)
+        popTip.actionAnimation = .bounce(2)
+        
+        let positionPoptip = CGRect(x: whereView.frame.maxX - 70, y: whereView.frame.minY - 30, width: 100, height: 100)
+        popTip.show(text: "Add your favorite stocks", direction: .left, maxWidth: 100, in: view, from: positionPoptip)
+        
+        popTip.bubbleColor = UIColor(named: "onboardingNotification")!
+    }
+
     
     
     //MARK: Network connections
@@ -142,16 +169,16 @@ class WatchlistController: UIViewController {
         print (request.description)
 
         let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { [self] (data, response, error) -> Void in
             if (error != nil) {
                 print(error!)
-                self.showAlert(title: "Error", message: String(error.debugDescription), titleButton: "Try later")
+                showAlert(title: "Error", message: "Connection Error", titleButton: "Try again later")
             } else {
                 //let httpResponse = response as? HTTPURLResponse
                 json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
                 if json == nil  {
                     DispatchQueue.main.async {
-                        self.showAlert(title: "Error", message: "We couldn't connect", titleButton: "Try later")
+                        self.showAlert(title: "Error", message: "Connection Error", titleButton: "Ok")
                     }
                     return
                 }
@@ -176,7 +203,7 @@ class WatchlistController: UIViewController {
                     self.tickers.append(Tickers(ticker: ticker, marketPrice: closePrice, previousPrice: previousClose))
                     print (self.tickers)
                     DispatchQueue.main.async {
-                        self.showAlert(title: "ADDED", message: "We added \(ticker) to the watchlist", titleButton: "OK")
+                        self.showAlert(title: "Added", message: "We added \(ticker) to the watchlist", titleButton: "OK")
                         self.tableView.reloadData()
                         self.refreshControl.endRefreshing()
                     }
@@ -206,7 +233,8 @@ class WatchlistController: UIViewController {
                         }
                     } else  {
                         DispatchQueue.main.async {
-                            self.showAlert(title: "Not Found", message: "Ticker not found", titleButton: "OK")
+                            //self.showAlert(title: "Not Found", message: "Ticker not found", titleButton: "OK")
+                            self.showAlert(title: "Not Found", message: "Ticker not found", titleButton: "Ok")
                         }
                     }
                 }
@@ -219,7 +247,7 @@ class WatchlistController: UIViewController {
 
 
 //Customs
-extension WatchlistController {
+extension UIViewController {
     func showAlert(title: String, message: String, titleButton: String) {
         let dialogMessage = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let ok = UIAlertAction(title: titleButton, style: .default, handler: { (action) -> Void in
@@ -342,6 +370,9 @@ extension WatchlistController {
                 
                 DispatchQueue.main.async {
                     if success {
+                        if !self.alreadyLaunched {
+                            self.showFirstTimeNotification(whereView: self.addTickerButton)
+                        }
                         
                         //TODO: User authenticated successfully, take appropriate action
                         let loadSavedTickers = self.savedTickers.loadTickers()

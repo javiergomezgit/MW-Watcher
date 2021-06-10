@@ -54,6 +54,7 @@ class TickerNewsController: UIViewController {
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
                 //print(error)
+                self.showAlert(title: "Error", message: "Connection Error", titleButton: "Ok")
             } else {
                 //let httpResponse = response as? HTTPURLResponse
                 //print(httpResponse)

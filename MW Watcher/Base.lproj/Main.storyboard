@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="xSP-pN-JiN">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pUw-t2-ZMF">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
@@ -74,8 +74,9 @@
                                                         <constraint firstAttribute="width" constant="35" id="jeY-as-yye"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="22"/>
-                                                    <state key="normal" image="newspaper" catalog="system">
+                                                    <state key="normal">
                                                         <color key="titleColor" red="0.35850413422434013" green="0.33721132120187791" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                        <imageReference key="image" image="magnifyingglass.circle" catalog="system" symbolScale="large" renderingMode="template"/>
                                                     </state>
                                                 </button>
                                             </subviews>
@@ -90,9 +91,11 @@
                                                 <constraint firstItem="V3L-mm-5zq" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="S0B-6D-o3a"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.4" id="VEN-tm-Hr3"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" id="bWi-am-VRI"/>
+                                                <constraint firstItem="htY-qF-A28" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="C5a-Th-JRe" secondAttribute="trailing" constant="3" id="cRL-F2-Sjz"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.45" id="fKp-kr-wWd"/>
                                                 <constraint firstItem="nsp-M7-cSR" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="gWP-UH-SBq"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.4" id="jil-IW-Bgo"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="nsp-M7-cSR" secondAttribute="trailing" constant="20" symbolic="YES" id="psg-W1-LiR"/>
                                                 <constraint firstItem="nsp-M7-cSR" firstAttribute="top" secondItem="V3L-mm-5zq" secondAttribute="bottom" constant="8" id="uLJ-g7-7LW"/>
                                                 <constraint firstAttribute="trailing" secondItem="htY-qF-A28" secondAttribute="trailing" constant="10" id="xsc-w9-bqY"/>
                                             </constraints>
@@ -138,7 +141,7 @@
                                     <color key="textColor" systemColor="labelColor"/>
                                 </textAttributes>
                                 <items>
-                                    <navigationItem title="Watchlist" largeTitleDisplayMode="always" id="i86-QP-FrG"/>
+                                    <navigationItem title="Stock Watchlist" largeTitleDisplayMode="always" id="i86-QP-FrG"/>
                                 </items>
                             </navigationBar>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dzb-Y8-pqi">
@@ -159,7 +162,7 @@
                                 <rect key="frame" x="132" y="199" width="126" height="20"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="Adl-fL-zDF"/>
-                                    <constraint firstAttribute="width" constant="126" id="qWr-Em-6H1"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="126" id="qWr-Em-6H1"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" weight="light" pointSize="16"/>
                                 <nil key="textColor"/>
@@ -186,9 +189,12 @@
                             <constraint firstItem="LoU-IO-5iu" firstAttribute="top" secondItem="dzb-Y8-pqi" secondAttribute="bottom" constant="4" id="wLj-eL-Et5"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" tag="1" title="Watchlist" image="person.badge.plus" catalog="system" id="hFF-R7-vy4"/>
+                    <tabBarItem key="tabBarItem" tag="1" title="Watchlist" id="hFF-R7-vy4">
+                        <imageReference key="image" image="person.badge.plus" catalog="system" symbolScale="large" renderingMode="template"/>
+                    </tabBarItem>
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
+                        <outlet property="addTickerButton" destination="dzb-Y8-pqi" id="erw-aO-k6t"/>
                         <outlet property="chosingTimeSegment" destination="vff-76-cro" id="rpi-Pu-SZr"/>
                         <outlet property="tableView" destination="xpE-vS-nB9" id="cZN-eB-XgD"/>
                     </connections>
@@ -394,32 +400,32 @@
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QcU-p3-5Kt">
                                                     <rect key="frame" x="306" y="5" width="54" height="94.666666666666671"/>
                                                     <subviews>
-                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YZT-QQ-5lV">
-                                                            <rect key="frame" x="0.0" y="0.0" width="54" height="47.333333333333336"/>
-                                                            <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                            <state key="normal">
-                                                                <imageReference key="image" image="square.and.arrow.up" catalog="system" symbolScale="large" renderingMode="template"/>
-                                                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" weight="regular"/>
-                                                            </state>
-                                                        </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tgg-pR-EF1">
-                                                            <rect key="frame" x="0.0" y="47.333333333333329" width="54" height="47.333333333333329"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="54" height="47.333333333333336"/>
                                                             <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                             <state key="normal">
                                                                 <imageReference key="image" image="bookmark" catalog="system" symbolScale="large" renderingMode="template"/>
                                                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default" weight="regular"/>
                                                             </state>
                                                         </button>
+                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YZT-QQ-5lV">
+                                                            <rect key="frame" x="0.0" y="47.333333333333329" width="54" height="47.333333333333329"/>
+                                                            <color key="tintColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <state key="normal">
+                                                                <imageReference key="image" image="square.and.arrow.up" catalog="system" symbolScale="large" renderingMode="template"/>
+                                                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" weight="regular"/>
+                                                            </state>
+                                                        </button>
                                                     </subviews>
                                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                     <constraints>
-                                                        <constraint firstAttribute="bottom" secondItem="Tgg-pR-EF1" secondAttribute="bottom" id="R7e-T9-vkt"/>
+                                                        <constraint firstAttribute="bottom" secondItem="YZT-QQ-5lV" secondAttribute="bottom" id="2gI-bb-py1"/>
+                                                        <constraint firstItem="Tgg-pR-EF1" firstAttribute="top" secondItem="QcU-p3-5Kt" secondAttribute="top" id="FPt-rJ-FmC"/>
                                                         <constraint firstAttribute="trailing" secondItem="YZT-QQ-5lV" secondAttribute="trailing" id="Ue4-f4-3UJ"/>
                                                         <constraint firstItem="Tgg-pR-EF1" firstAttribute="leading" secondItem="QcU-p3-5Kt" secondAttribute="leading" id="ev6-dX-0uA"/>
                                                         <constraint firstItem="Tgg-pR-EF1" firstAttribute="height" secondItem="QcU-p3-5Kt" secondAttribute="height" multiplier="0.5" id="jzS-XL-nwf"/>
                                                         <constraint firstItem="YZT-QQ-5lV" firstAttribute="height" secondItem="QcU-p3-5Kt" secondAttribute="height" multiplier="0.5" id="qNr-g7-q8R"/>
                                                         <constraint firstItem="YZT-QQ-5lV" firstAttribute="leading" secondItem="QcU-p3-5Kt" secondAttribute="leading" id="t7q-6G-0RA"/>
-                                                        <constraint firstItem="YZT-QQ-5lV" firstAttribute="top" secondItem="QcU-p3-5Kt" secondAttribute="top" id="waQ-cP-0av"/>
                                                         <constraint firstAttribute="trailing" secondItem="Tgg-pR-EF1" secondAttribute="trailing" id="zOH-E1-AnK"/>
                                                     </constraints>
                                                 </view>
@@ -445,7 +451,7 @@
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                     </subviews>
-                                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                    <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                     <constraints>
                                                         <constraint firstItem="WGL-uY-nJR" firstAttribute="leading" secondItem="eNY-Cn-G0C" secondAttribute="leading" id="89l-OE-4Ne"/>
                                                         <constraint firstItem="1bx-CR-9Mh" firstAttribute="leading" secondItem="eNY-Cn-G0C" secondAttribute="leading" id="aD5-Ow-NOY"/>
@@ -466,6 +472,7 @@
                                                 <constraint firstItem="lhN-vv-F7z" firstAttribute="top" secondItem="urH-kA-tUT" secondAttribute="topMargin" id="3kV-vF-0xX"/>
                                                 <constraint firstItem="ir8-6g-guP" firstAttribute="leading" secondItem="urH-kA-tUT" secondAttribute="leading" id="9cr-G7-ryi"/>
                                                 <constraint firstItem="ir8-6g-guP" firstAttribute="top" secondItem="urH-kA-tUT" secondAttribute="top" id="Am7-T1-5QW"/>
+                                                <constraint firstItem="eNY-Cn-G0C" firstAttribute="top" secondItem="lhN-vv-F7z" secondAttribute="bottom" constant="2" id="EXu-2b-XEp"/>
                                                 <constraint firstItem="QcU-p3-5Kt" firstAttribute="top" secondItem="urH-kA-tUT" secondAttribute="top" constant="5" id="FCl-Dt-f3f"/>
                                                 <constraint firstAttribute="trailing" secondItem="QcU-p3-5Kt" secondAttribute="trailing" id="RKS-Bx-rRn"/>
                                                 <constraint firstItem="QcU-p3-5Kt" firstAttribute="height" secondItem="urH-kA-tUT" secondAttribute="height" multiplier="0.7" id="TEh-tP-I64"/>
@@ -475,7 +482,6 @@
                                                 <constraint firstItem="DcY-zx-VRU" firstAttribute="leading" secondItem="urH-kA-tUT" secondAttribute="leading" id="VVb-mv-IT4"/>
                                                 <constraint firstAttribute="bottom" secondItem="ir8-6g-guP" secondAttribute="bottom" id="ac6-Op-3gl"/>
                                                 <constraint firstItem="DcY-zx-VRU" firstAttribute="width" secondItem="urH-kA-tUT" secondAttribute="width" multiplier="0.25" id="acb-Dk-rgO"/>
-                                                <constraint firstAttribute="bottom" secondItem="eNY-Cn-G0C" secondAttribute="bottom" id="c8e-JN-PkG"/>
                                                 <constraint firstItem="eNY-Cn-G0C" firstAttribute="leading" secondItem="lhN-vv-F7z" secondAttribute="leading" id="d3T-cl-hUq"/>
                                                 <constraint firstItem="QcU-p3-5Kt" firstAttribute="width" secondItem="urH-kA-tUT" secondAttribute="width" multiplier="0.15" id="kdq-tq-fyW"/>
                                                 <constraint firstItem="QcU-p3-5Kt" firstAttribute="leading" secondItem="lhN-vv-F7z" secondAttribute="trailing" id="qOH-s9-1Mb"/>
@@ -518,7 +524,9 @@
                             <constraint firstItem="KVT-8j-9Qf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="v3d-Jc-1p6"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="News Watcher" image="eye" catalog="system" id="xT7-AX-Gax"/>
+                    <tabBarItem key="tabBarItem" title="Live News" id="xT7-AX-Gax">
+                        <imageReference key="image" image="eyeglasses" catalog="system" symbolScale="large" renderingMode="template"/>
+                    </tabBarItem>
                     <navigationItem key="navigationItem" title="Market News Watcher" largeTitleDisplayMode="always" id="sPz-6J-vWC"/>
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
@@ -661,7 +669,9 @@
                             <constraint firstItem="oHh-td-os8" firstAttribute="leading" secondItem="VLy-KU-n69" secondAttribute="leading" constant="15" id="ssV-j7-MkS"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" tag="2" title="Markets" image="network" catalog="system" id="PVH-Tc-PVr"/>
+                    <tabBarItem key="tabBarItem" tag="2" title="Markets" id="PVH-Tc-PVr">
+                        <imageReference key="image" image="network" catalog="system" symbolScale="large" renderingMode="template"/>
+                    </tabBarItem>
                     <connections>
                         <outlet property="collectionView" destination="pol-p3-L1K" id="mjz-7h-CvH"/>
                     </connections>
@@ -706,7 +716,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Delete All" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hWt-Kq-eyO">
                                 <rect key="frame" x="255" y="97.666666666666671" width="80" height="20"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="80" id="oXA-Bs-125"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="oXA-Bs-125"/>
                                     <constraint firstAttribute="height" constant="20" id="uqL-ey-1f9"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="16"/>
@@ -731,7 +741,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dD7-XE-crF">
-                                                    <rect key="frame" x="5" y="33.333333333333343" width="295.33333333333331" height="20"/>
+                                                    <rect key="frame" x="5" y="33.333333333333336" width="295.33333333333331" height="20"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="20" id="9gR-iV-ulz"/>
                                                     </constraints>
@@ -767,11 +777,13 @@
                                                 <constraint firstItem="dD7-XE-crF" firstAttribute="top" secondItem="YnN-gb-5br" secondAttribute="bottom" constant="5" id="9HV-Uq-1Bd"/>
                                                 <constraint firstItem="YnN-gb-5br" firstAttribute="width" secondItem="dbw-2y-Dey" secondAttribute="width" multiplier="0.82" id="CEs-XG-UWf"/>
                                                 <constraint firstItem="rP3-jh-nD0" firstAttribute="leading" secondItem="dbw-2y-Dey" secondAttribute="leading" id="VnX-NU-Kxw"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="YnN-gb-5br" secondAttribute="trailing" constant="20" symbolic="YES" id="W5F-2S-k13"/>
                                                 <constraint firstItem="rP3-jh-nD0" firstAttribute="top" secondItem="dbw-2y-Dey" secondAttribute="top" id="XIu-yZ-wjt"/>
                                                 <constraint firstAttribute="bottom" secondItem="rP3-jh-nD0" secondAttribute="bottom" id="ZHb-OY-5kE"/>
                                                 <constraint firstItem="dD7-XE-crF" firstAttribute="leading" secondItem="dbw-2y-Dey" secondAttribute="leading" constant="5" id="cXd-DO-6Ca"/>
                                                 <constraint firstAttribute="trailing" secondItem="3ZH-7X-TAb" secondAttribute="trailing" id="dw9-4B-byZ"/>
                                                 <constraint firstItem="3ZH-7X-TAb" firstAttribute="centerY" secondItem="dbw-2y-Dey" secondAttribute="centerY" multiplier="0.9" id="e4f-SP-cd4"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="dD7-XE-crF" secondAttribute="trailing" constant="20" symbolic="YES" id="ewy-UP-cA6"/>
                                                 <constraint firstItem="YnN-gb-5br" firstAttribute="top" secondItem="dbw-2y-Dey" secondAttribute="top" constant="5" id="pS5-OD-6ZN"/>
                                                 <constraint firstItem="YnN-gb-5br" firstAttribute="leading" secondItem="dbw-2y-Dey" secondAttribute="leading" constant="5" id="yl8-4i-eYJ"/>
                                             </constraints>
@@ -779,6 +791,8 @@
                                         <connections>
                                             <outlet property="dateLabel" destination="dD7-XE-crF" id="tIM-x9-zey"/>
                                             <outlet property="headlineLabel" destination="YnN-gb-5br" id="YbE-Cc-afz"/>
+                                            <outlet property="shareButton" destination="3ZH-7X-TAb" id="2FV-b0-YED"/>
+                                            <outlet property="view" destination="dbw-2y-Dey" id="PV4-FE-x0b"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -802,16 +816,19 @@
                             <constraint firstItem="AjB-fc-xlI" firstAttribute="trailing" secondItem="xiG-vW-d11" secondAttribute="trailing" constant="15" id="YW1-Y3-oRR"/>
                             <constraint firstItem="AjB-fc-xlI" firstAttribute="top" secondItem="fxc-J9-fhb" secondAttribute="top" id="bYx-L2-NXh"/>
                             <constraint firstItem="ziO-FQ-1BK" firstAttribute="leading" secondItem="xiG-vW-d11" secondAttribute="leading" constant="15" id="gTQ-VY-FWJ"/>
+                            <constraint firstItem="hWt-Kq-eyO" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="xiG-vW-d11" secondAttribute="leading" symbolic="YES" id="joE-1c-hax"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" tag="3" title="Saved News" image="bookmark" catalog="system" id="9w3-Ds-I8P"/>
+                    <tabBarItem key="tabBarItem" tag="3" title="Saved News" id="9w3-Ds-I8P">
+                        <imageReference key="image" image="bookmark" catalog="system" symbolScale="large" renderingMode="template"/>
+                    </tabBarItem>
                     <connections>
                         <outlet property="tableView" destination="ziO-FQ-1BK" id="yI9-zA-upG"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ASb-mU-QAK" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2420" y="866.5876777251184"/>
+            <point key="canvasLocation" x="2482" y="867"/>
         </scene>
         <!--Launch-->
         <scene sceneID="09B-KD-KJo">
@@ -855,10 +872,10 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
-                        <segue destination="FAU-XL-brR" kind="relationship" relationship="viewControllers" id="PSN-xG-sKh"/>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="hYT-AU-v4C"/>
-                        <segue destination="nTi-58-3tj" kind="relationship" relationship="viewControllers" id="zWE-fT-HFn"/>
                         <segue destination="a6H-wW-AWp" kind="relationship" relationship="viewControllers" id="cM5-V3-dx3"/>
+                        <segue destination="FAU-XL-brR" kind="relationship" relationship="viewControllers" id="PSN-xG-sKh"/>
+                        <segue destination="nTi-58-3tj" kind="relationship" relationship="viewControllers" id="zWE-fT-HFn"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="w45-sS-oei" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -871,9 +888,9 @@
         <image name="Image" width="2000" height="1000"/>
         <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>
-        <image name="eye" catalog="system" width="128" height="81"/>
+        <image name="eyeglasses" catalog="system" width="128" height="54"/>
+        <image name="magnifyingglass.circle" catalog="system" width="128" height="121"/>
         <image name="network" catalog="system" width="128" height="121"/>
-        <image name="newspaper" catalog="system" width="128" height="108"/>
         <image name="person.badge.plus" catalog="system" width="128" height="124"/>
         <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
         <image name="trash.circle.fill" catalog="system" width="128" height="121"/>

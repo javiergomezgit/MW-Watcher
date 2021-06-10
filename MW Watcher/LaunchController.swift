@@ -17,7 +17,7 @@ class LaunchController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         //FALSE for testing, once donde change to TRUE
-        if !launchedBefore() {
+        if launchedBefore() {
             // if launched then go to mmw news
             DispatchQueue.main.async {
                 let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
@@ -38,15 +38,16 @@ class LaunchController: UIViewController {
     
     func launchedBefore() -> Bool {
         
-        let hasBeenLaunchedBeforeFlag = "hasBeenLaunchedBeforeFlag"
-        let isFirstLaunch = UserDefaults.standard.bool(forKey: hasBeenLaunchedBeforeFlag)
+        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingLaunch")
+        UserDefaults.standard.set(true, forKey: "firstLaunchingLaunch")
+        UserDefaults.standard.synchronize()
         
+        //change to false for testing
         if isFirstLaunch {
             return true
         } else {
             return false
         }
-       
     }
     
     @objc func handleContinue(sender: UIButton) {
@@ -83,20 +84,21 @@ extension LaunchController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {
 
         let page = SwiftyOnboardPage()
         
-        page.title.text = "description of text 1"
-        page.title.font = UIFont(name: "Lato-Heavy", size: 22)
-        page.subTitle.font = UIFont(name: "Damascus", size: 18)
+        page.subTitle.isHidden = true
+        page.title.isHidden = true
         
-        if index == 1 {
-            page.subTitle.isHidden = true
-        } else {
-            page.subTitle.text = "test sub"
-        }
-        
+//        page.title.font = UIFont(name: "Cochin", size: 22)
+//        if index == 0 {
+//            page.title.text = "description of text 1"
+//        } else if index == 1 {
+//            page.title.text = "description of text 2"
+//        } else {
+//            page.title.text = "description of text 3"
+//        }
         
         
         let nameOfImage = ("page\(index+1).jpg")
-        page.imageView.backgroundColor = UIColor.blue
+//        page.imageView.backgroundColor = UIColor.white
         page.imageView.image = UIImage(named: nameOfImage)
         
         return page

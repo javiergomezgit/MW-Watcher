@@ -7,16 +7,31 @@
 
 
 import UIKit
+import AMPopTip
+
 
 class SavedNewsController: UIViewController {
 
     @IBOutlet var tableView: UITableView!
-
+    
     let savedNews = UserSaveNews()
     var newsItems: [UserSavedNewsItem] = []
+    var alreadyLaunched = false
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingSavedNews")
+        UserDefaults.standard.set(true, forKey: "firstLaunchingSavedNews")
+        UserDefaults.standard.synchronize()
+        
+        //change to true for testing
+        if !isFirstLaunch {
+           alreadyLaunched = false
+        } else {
+            alreadyLaunched = true
+        }
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -52,6 +67,21 @@ class SavedNewsController: UIViewController {
         UIApplication.shared.open(url)
     }
     
+//    func launchedBefore() -> Bool {
+//
+//        let hasBeenLaunchedBeforeFlag = "hasBeenLaunchedBeforeFlag"
+//        let isFirstLaunch = UserDefaults.standard.bool(forKey: hasBeenLaunchedBeforeFlag)
+//
+//        if isFirstLaunch {
+//            return true
+//        } else {
+//            return false
+//        }
+//    }
+    
+    
+   
+    
 }
 
 
@@ -66,6 +96,14 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.headlineLabel.text = newsItems[indexPath.row].headline
         cell.dateLabel.text = newsItems[indexPath.row].pubDate
         
+        if !alreadyLaunched {
+            if indexPath.row == 0  {
+                cell.showFirstTimeNotification(whereView: cell.headlineLabel)
+            }
+            if indexPath.row == 2 {
+                cell.showSecondTimeNotification(whereView: cell.headlineLabel)
+            }
+        }
         
         return cell
 
@@ -85,3 +123,4 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
         }
     }
 }
+
