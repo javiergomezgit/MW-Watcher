@@ -12,7 +12,7 @@ class MarketsController: UIViewController {
     let refreshControl = UIRefreshControl()
     @IBOutlet weak var collectionView: UICollectionView!
     var sizeOfCell = CGFloat(0)
-
+    
     var marketsPrices = [
         "^DJI" : ["Dow Jones Industrial Average", 0.0, 0.0],
         "^GSPC" : ["S&P 500", 0.0, 0.0],
@@ -28,6 +28,7 @@ class MarketsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         loadCurrentPrices()
         
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
@@ -41,32 +42,6 @@ class MarketsController: UIViewController {
         loadCurrentPrices()
         //tableView.reloadData()
     }
-    
-    /* crypto
-     let headers = [
-         "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
-         "x-rapidapi-host": "alpha-vantage.p.rapidapi.com"
-     ]
-
-     let request = NSMutableURLRequest(url: NSURL(string: "https://alpha-vantage.p.rapidapi.com/query?market=usd&symbol=BTC&function=DIGITAL_CURRENCY_DAILY")! as URL,
-                                             cachePolicy: .useProtocolCachePolicy,
-                                         timeoutInterval: 10.0)
-     request.httpMethod = "GET"
-     request.allHTTPHeaderFields = headers
-
-     let session = URLSession.shared
-     let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-         if (error != nil) {
-             print(error)
-         } else {
-             let httpResponse = response as? HTTPURLResponse
-             print(httpResponse)
-         }
-     })
-
-     dataTask.resume()
-     */
-    
     
     func loadCurrentPrices() {
         let headers = [
