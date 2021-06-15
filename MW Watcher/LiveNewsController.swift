@@ -23,6 +23,7 @@ class LiveNewsController: UIViewController {
     var activityIndicator : UIActivityIndicatorView!
     var loadedTimes = 0
     var alreadyLaunched = false
+    var savedRows : [Int: Bool] = [:]
     
 
     override func viewDidLoad() {
@@ -49,10 +50,7 @@ class LiveNewsController: UIViewController {
         loadNews()
         
     }
-    
-    
-    
-    
+      
     @objc func refresh(_ sender: AnyObject) {
         loadNews()
      }
@@ -243,6 +241,15 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource {
         
         cell.setNewsValues(headline: newsItem.headline, link: newsItem.link, pubdate: newsItem.pubDate, author: newsItem.author, imageFeed: newsItem.image)
         
+        let configuration = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .regular)
+        if savedRows[indexPath.row] == true {
+            cell.saveButton.tintColor = .red
+            cell.saveButton.setImage(UIImage(systemName: "bookmark.fill", withConfiguration: configuration), for: .normal)
+        } else {
+            cell.saveButton.tintColor = .darkGray
+            cell.saveButton.setImage(UIImage(systemName: "bookmark", withConfiguration: configuration), for: .normal)
+        }
+        
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
         cell.shareButton.tag = indexPath.row
@@ -255,22 +262,39 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource {
     }
     
     @objc func saveTitle(sender: UIButton) {
+      
         sender.animateButton(sender: sender, duration: 0.1)
         let headline = self.newsItems[sender.tag].headline
         let dateOfNew = self.newsItems[sender.tag].pubDate
         let link = self.newsItems[sender.tag].link
-        
-        print (sender.tag)
-        print (headline)
-
-        if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
-            let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
-            let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
-            
-            sender.setImage(boldSearch, for: .normal)
-            sender.tintColor = .red
-            print ("\(headline) saved article")
+       
+        let configurationButton = sender.currentImage?.configuration //UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
+        var boldSearch = UIImage()
+                
+        let currentImageData = sender.currentImage
+        let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
+      
+        if currentImageData?.pngData() == imageData?.pngData() {
+            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
+                sender.tintColor = .red
+                boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: configurationButton)!
+                print ("\(headline) saved article")
+                self.savedRows[sender.tag] = true
+            } else {
+                //TODO: - send alert to user that was not possible to save
+                print ("\(headline) NOT SAVED")
+            }
+        } else {
+            //unsave
+            if saveHeadlines.deleteNews(headline: headline, date: dateOfNew, deleteAll: false)! {
+                sender.tintColor = .darkGray
+                boldSearch = UIImage(systemName: "bookmark", withConfiguration: configurationButton)!
+                self.savedRows[sender.tag] = false
+            } else {
+                print ("\(headline) NOT UNSAVED")
+            }
         }
+        sender.setImage(boldSearch, for: .normal)
     }
     
     @objc func shareTitle(sender: UIButton){

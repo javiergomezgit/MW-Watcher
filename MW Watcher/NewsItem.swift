@@ -36,33 +36,85 @@ struct SystemSavedNewsItem {
 //MARK: Crypto Model
 
 /*
- "asset_id": "USD",
- "name": "US Dollar",
- "type_is_crypto": 0,
- "data_start": "2010-07-17",
- "data_end": "2021-06-12",
- "data_quote_start": "2014-02-24T17:43:05.0000000Z",
- "data_quote_end": "2021-06-12T15:47:23.6790000Z",
- "data_orderbook_start": "2014-02-24T17:43:05.0000000Z",
- "data_orderbook_end": "2020-08-05T14:38:00.7082850Z",
- "data_trade_start": "2010-07-17T23:09:17.0000000Z",
- "data_trade_end": "2021-06-12T15:47:23.1280000Z",
- "data_symbols_count": 62293,
- "volume_1hrs_usd": 4676848154094.24,
- "volume_1day_usd": 137590032091975.87,
- "volume_1mth_usd": 6466515236780999.71,
- "id_icon": "0a4185f2-1a03-4a7c-b866-ba7076d8c73b"
+ {
+     "data": {
+         "BTC": {
+             "id": 1,
+             "name": "Bitcoin",
+             "symbol": "BTC",
+             "slug": "bitcoin",
+             "num_market_pairs": 9756,
+             "date_added": "2013-04-28T00:00:00.000Z",
+             "tags": [
+                 "mineable",
+                 "pow",
+                 "sha-256",
+                 "store-of-value",
+                 "state-channels",
+                 "coinbase-ventures-portfolio",
+                 "three-arrows-capital-portfolio",
+                 "polychain-capital-portfolio",
+                 "binance-labs-portfolio",
+                 "arrington-xrp-capital",
+                 "blockchain-capital-portfolio",
+                 "boostvc-portfolio",
+                 "cms-holdings-portfolio",
+                 "dcg-portfolio",
+                 "dragonfly-capital-portfolio",
+                 "electric-capital-portfolio",
+                 "fabric-ventures-portfolio",
+                 "framework-ventures",
+                 "galaxy-digital-portfolio",
+                 "huobi-capital",
+                 "alameda-research-portfolio",
+                 "a16z-portfolio",
+                 "1confirmation-portfolio",
+                 "winklevoss-capital",
+                 "usv-portfolio",
+                 "placeholder-ventures-portfolio",
+                 "pantera-capital-portfolio",
+                 "multicoin-capital-portfolio",
+                 "paradigm-xzy-screener"
+             ],
+             "max_supply": 21000000,
+             "circulating_supply": 18734450,
+             "total_supply": 18734450,
+             "is_active": 1,
+             "platform": null,
+             "cmc_rank": 1,
+             "is_fiat": 0,
+             "last_updated": "2021-06-14T04:52:02.000Z",
+             "quote": {
+                 "USD": {
+                     "price": 39248.232180201485,
+                     "volume_24h": 43149561503.525696,
+                     "percent_change_1h": 0.98757247,
+                     "percent_change_24h": 11.64561834,
+                     "percent_change_7d": 8.10445013,
+                     "percent_change_30d": -20.64356666,
+                     "percent_change_60d": -37.83630061,
+                     "percent_change_90d": -28.20907292,
+                     "market_cap": 735294043368.3757,
+                     "last_updated": "2021-06-14T04:52:02.000Z"
+                 }
+             }
+         },
  */
 
-struct Crypto: Codable {
-    let asset_id: String
-    let name: String?
-    let price_usd: Float?
-    let id_icon: String?
-    
+struct CryptoAPIResponse: Codable {
+    let data: [String: CryptoData]
 }
 
-struct Icon: Codable {
-    let asset_id: String
-    let url: String
+struct CryptoData: Codable {
+    let id: Int
+    let name: String
+    let symbol: String
+    let quote: [String: Quote]
+}
+
+struct Quote: Codable {
+    let price: Float
+    let percent_change_24h: Float
+    let percent_change_30d: Float
+    let volume_24h: Float
 }

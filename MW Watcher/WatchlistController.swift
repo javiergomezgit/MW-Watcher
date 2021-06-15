@@ -295,7 +295,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
             cell.imageArrow.image = (UIImage.init(systemName: "arrow.up.square.fill"))
-            cell.imageArrow.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.imageArrow.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0) 
         }
         
         cell.buttonTickerNews.tag = indexPath.row

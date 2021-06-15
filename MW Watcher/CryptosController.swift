@@ -9,78 +9,115 @@ import UIKit
 
 class CryptosController: UIViewController {
         
+    private var cryptoData: [CryptoData]?
     private var viewModels = [CryptosViewCellModel]()
     
-    private let tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
-        tableView.register(CryptosViewCell.self, forCellReuseIdentifier: "CryptosViewCell")
-        return tableView
-    }()
+    @IBOutlet var tableView: UITableView!
+    var refreshControl = UIRefreshControl()
     
     static let numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.locale = .current
         formatter.allowsFloats = true
         formatter.numberStyle = .currency
-        formatter.formatterBehavior = .default
-        
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+    
+    static let percentFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.allowsFloats = true
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+    
+    static let volumeFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.allowsFloats = true
+        formatter.maximumFractionDigits = 0
+        formatter.numberStyle = .decimal
+        formatter.groupingSize = 3
+        formatter.groupingSeparator = ","
         return formatter
     }()
     
     override func viewDidLoad() {
+
+        tableView.register(CryptosViewCell.self, forCellReuseIdentifier: "CryptosViewCell")
         
-        
-        
-        view.addSubview(tableView)
         tableView.dataSource = self
         tableView.delegate = self
         
-        CryptosAPI.shared.getAllIcons()
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        tableView.addSubview(refreshControl)
         
         loadCryptoPrices()
-        
+    }
+
+
+    @objc func refresh(_ sender: AnyObject) {
+        loadCryptoPrices()
+        //tableView.reloadData()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        tableView.frame = view.bounds
+        //tableView.frame = view.bounds
     }
     
     
     
-    func loadCryptoPrices() {
+    private func loadCryptoPrices() {
+        
         CryptosAPI.shared.getAllCryptosData { [weak self] result in
             switch result {
-            case .success(let models):
-                self?.viewModels = models.compactMap({ model in
-                    let price = model.price_usd ?? 0
-                    let formatter = CryptosController.numberFormatter
-                    let pricesString = formatter.string(from: NSNumber(value: price))
-                    
-                    let iconUrl = URL(
-                        string:
-                            CryptosAPI.shared.icons.filter({ icon in
-                                icon.asset_id == model.asset_id
-                            }).first?.url ?? ""
-                        )
-                    
-                    return CryptosViewCellModel(
-                        name: model.name ?? "N/A",
-                        symbol: model.asset_id,
-                        price: pricesString ?? "N/A",
-                        iconUrl: iconUrl
-                    )
-                })
+            case .success(let data):
                 
+                self?.cryptoData = data
                 DispatchQueue.main.async {
-                    self?.tableView.reloadData()
+                    self?.setUpViewModel()
                 }
-                //print (models)
-                print (models.count)
             case .failure(let error):
                 print (error)
             }
         }
+    }
+    
+    private func setUpViewModel() {
+
+        guard let models = cryptoData else { return }
+        
+        //                let sortedValues = valueCrypto.sorted { first, second -> Bool in
+        //                    return first.symbol < second.symbol
+        //                }
+        
+        let cryptosSortedByVolume = models.sorted { first, second -> Bool in
+            return first.quote["USD"]!.volume_24h > second.quote["USD"]!.volume_24h
+        }
+        
+        for model in cryptosSortedByVolume {
+            guard let price = model.quote["USD"]?.price else { return }
+            guard let change = model.quote["USD"]?.percent_change_24h else { return }
+            guard let changeMonth = model.quote["USD"]?.percent_change_30d else { return }
+            guard let volume = model.quote["USD"]?.volume_24h else { return }
+            
+            let number = NSNumber(value: price)
+            let stringPrice = CryptosController.numberFormatter.string(from: number)
+            
+            let percent = NSNumber(value: change)
+            let percentDay = CryptosController.percentFormatter.string(from: percent)
+            
+            let percentM = NSNumber(value: changeMonth)
+            let percentMonth = CryptosController.percentFormatter.string(from: percentM)
+            
+            let volumeReduce = NSNumber(value: (volume/1000000))
+            let volume24hr = CryptosController.volumeFormatter.string(from: volumeReduce)
+            
+            viewModels.append(CryptosViewCellModel(symbol: model.symbol, name: model.name, price: stringPrice!, change: percentDay!, changeMonth: percentMonth!, volume: volume24hr!, cryptoImage: UIImage(named: model.symbol)!))
+        }
+        self.refreshControl.endRefreshing()
+        tableView.reloadData()
     }
 
     
@@ -96,40 +133,12 @@ extension CryptosController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CryptosViewCell", for: indexPath) as! CryptosViewCell
-
         cell.configure(with: viewModels[indexPath.row])
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        80
+        100
     }
 
 }
-
-
-/* crypto
- let headers = [
-     "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
-     "x-rapidapi-host": "alpha-vantage.p.rapidapi.com"
- ]
-
- let request = NSMutableURLRequest(url: NSURL(string: "https://alpha-vantage.p.rapidapi.com/query?market=usd&symbol=BTC&function=DIGITAL_CURRENCY_DAILY")! as URL,
-                                         cachePolicy: .useProtocolCachePolicy,
-                                     timeoutInterval: 10.0)
- request.httpMethod = "GET"
- request.allHTTPHeaderFields = headers
-
- let session = URLSession.shared
- let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-     if (error != nil) {
-         print(error)
-     } else {
-         let httpResponse = response as? HTTPURLResponse
-         print(httpResponse)
-     }
- })
-
- dataTask.resume()
- */
-

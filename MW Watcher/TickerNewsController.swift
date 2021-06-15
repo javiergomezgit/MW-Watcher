@@ -21,7 +21,7 @@ class TickerNewsController: UIViewController {
     var ticker = "AAPL"
     var tickerNewsArray: [TickerNews] = []
     let saveHeadlines = UserSaveNews()
-
+    var savedRows : [Int: Bool] = [:]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,7 +32,6 @@ class TickerNewsController: UIViewController {
         tickerLabel.text = ticker
         
         loadTickerNews()
-        
         
     }
     
@@ -148,22 +147,54 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         let link = tickerNewsArray[index].linkHeadline
         let dateOfNew = tickerNewsArray[index].pubDate
 
-        print ("SAVED NEW")
-        let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
-        let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
-
-        sender.setImage(boldSearch, for: .normal)
-        sender.tintColor = .red
+        let configurationButton = sender.currentImage?.configuration
+        var boldSearch = UIImage()
         
-        if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
-            let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
-            let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
-
-            sender.setImage(boldSearch, for: .normal)
-            sender.tintColor = .red
-            print ("\(headline) saved article")
+        let currentImageData = sender.currentImage
+        let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
+        
+//        let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
+//        let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
+//
+//        sender.setImage(boldSearch, for: .normal)
+//        sender.tintColor = .red
+        
+        if currentImageData?.pngData() == imageData?.pngData() {
+            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
+                sender.tintColor = .red
+                boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: configurationButton)!
+                print ("\(headline) saved article")
+                self.savedRows[sender.tag] = true
+            } else {
+                //TODO: - send alert to user that was not possible to save
+                print ("\(headline) NOT SAVED")
+            }
+        } else {
+            //unsave
+            if saveHeadlines.deleteNews(headline: headline, date: dateOfNew, deleteAll: false)! {
+                sender.tintColor = .darkGray
+                boldSearch = UIImage(systemName: "bookmark", withConfiguration: configurationButton)!
+                self.savedRows[sender.tag] = false
+            } else {
+                print ("\(headline) NOT UNSAVED")
+            }
         }
+        sender.setImage(boldSearch, for: .normal)
     }
+    
+
+   
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     @objc func shareTitle(sender: UIButton){
         sender.animateButton(sender: sender, duration: 0.1)

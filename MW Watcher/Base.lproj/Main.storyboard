@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nEn-Pm-HgO">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="pUw-t2-ZMF">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
@@ -680,17 +680,46 @@
             </objects>
             <point key="canvasLocation" x="1664.6153846153845" y="866.5876777251184"/>
         </scene>
-        <!--Item-->
+        <!--Crypto Coins-->
         <scene sceneID="1hb-QM-Kr4">
             <objects>
-                <viewController id="nEn-Pm-HgO" customClass="CryptosController" customModule="MW_Watcher" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Crypto Coins" id="nEn-Pm-HgO" customClass="CryptosController" customModule="MW_Watcher" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="mjv-Pm-Vyq">
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar contentMode="scaleToFill" largeTitles="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FB2-b0-kvi">
+                                <rect key="frame" x="15" y="0.0" width="390" height="90"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="90" id="vdb-OF-UB4"/>
+                                </constraints>
+                                <items>
+                                    <navigationItem title="Crypto Coins" largeTitleDisplayMode="always" id="Tkg-XB-Haa"/>
+                                </items>
+                            </navigationBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="jCy-pZ-KRU">
+                                <rect key="frame" x="15" y="109" width="360" height="652"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </tableView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="WAp-b0-Zhf"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="FB2-b0-kvi" firstAttribute="top" secondItem="mjv-Pm-Vyq" secondAttribute="top" id="4Tk-87-eul"/>
+                            <constraint firstItem="jCy-pZ-KRU" firstAttribute="top" secondItem="WAp-b0-Zhf" secondAttribute="top" constant="65" id="6rl-MU-pD1"/>
+                            <constraint firstItem="FB2-b0-kvi" firstAttribute="leading" secondItem="WAp-b0-Zhf" secondAttribute="leading" constant="15" id="QAR-6M-vM0"/>
+                            <constraint firstItem="WAp-b0-Zhf" firstAttribute="trailing" secondItem="jCy-pZ-KRU" secondAttribute="trailing" constant="15" id="X27-Xn-H10"/>
+                            <constraint firstItem="WAp-b0-Zhf" firstAttribute="bottom" secondItem="jCy-pZ-KRU" secondAttribute="bottom" id="dYF-WH-8Yh"/>
+                            <constraint firstItem="jCy-pZ-KRU" firstAttribute="leading" secondItem="WAp-b0-Zhf" secondAttribute="leading" constant="15" id="mJj-ch-rbw"/>
+                            <constraint firstItem="FB2-b0-kvi" firstAttribute="trailing" secondItem="WAp-b0-Zhf" secondAttribute="trailing" constant="15" id="wGL-HV-gdp"/>
+                        </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="IPM-aq-bGy"/>
+                    <tabBarItem key="tabBarItem" title="Crypto Coins" id="IPM-aq-bGy">
+                        <imageReference key="image" image="bitcoinsign.circle" catalog="system" symbolScale="large" renderingMode="template"/>
+                    </tabBarItem>
+                    <connections>
+                        <outlet property="tableView" destination="jCy-pZ-KRU" id="DVY-rJ-I7Y"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GBB-Wr-Rem" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -873,7 +902,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wfo-bo-GU5" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="477" y="158"/>
+            <point key="canvasLocation" x="745" y="158"/>
         </scene>
         <!--Market Watcher-->
         <scene sceneID="pb0-gL-1pV">
@@ -889,21 +918,22 @@
                     </tabBar>
                     <connections>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="hYT-AU-v4C"/>
+                        <segue destination="nEn-Pm-HgO" kind="relationship" relationship="viewControllers" id="8CE-Qb-Tek"/>
                         <segue destination="a6H-wW-AWp" kind="relationship" relationship="viewControllers" id="cM5-V3-dx3"/>
                         <segue destination="FAU-XL-brR" kind="relationship" relationship="viewControllers" id="PSN-xG-sKh"/>
                         <segue destination="nTi-58-3tj" kind="relationship" relationship="viewControllers" id="zWE-fT-HFn"/>
-                        <segue destination="nEn-Pm-HgO" kind="relationship" relationship="viewControllers" id="8CE-Qb-Tek"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="w45-sS-oei" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1388" y="158"/>
+            <point key="canvasLocation" x="1665" y="158"/>
         </scene>
     </scenes>
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
         <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
+        <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>
         <image name="eyeglasses" catalog="system" width="128" height="54"/>
         <image name="magnifyingglass.circle" catalog="system" width="128" height="121"/>

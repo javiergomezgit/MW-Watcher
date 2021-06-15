@@ -224,12 +224,12 @@
 			isa = PBXGroup;
 			children = (
 				221236AD263DA728007EA092 /* Main.storyboard */,
-				22D21C72267538EA00C2313E /* CryptosViewCell.swift */,
 				223B377A266ED82900526E46 /* LiveNewsViewCell.swift */,
 				220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */,
 				220F4EA4265D324800106325 /* SavedNewsViewCell.swift */,
 				22EFA841266D172D004D0856 /* TickerNewsViewCell.swift */,
 				223EF56F265D858700160C8D /* WatchlistViewCell.swift */,
+				22D21C72267538EA00C2313E /* CryptosViewCell.swift */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -237,10 +237,10 @@
 		221236C9263DAA85007EA092 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				22D21C702675383300C2313E /* CryptosController.swift */,
 				2286501826680BC200769EB2 /* LaunchController.swift */,
 				221236AB263DA728007EA092 /* LiveNewsController.swift */,
 				220F4EA2265D318D00106325 /* MarketsController.swift */,
-				22D21C702675383300C2313E /* CryptosController.swift */,
 				22F8F332265C6C240084C98F /* SavedNewsController.swift */,
 				226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */,
 				220F4EA0265D314200106325 /* WatchlistController.swift */,
@@ -667,7 +667,7 @@
 				CODE_SIGN_ENTITLEMENTS = "MW Watcher/MW Watcher.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.2;
+				CURRENT_PROJECT_VERSION = 1.2.3;
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -679,7 +679,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -698,7 +698,7 @@
 				CODE_SIGN_ENTITLEMENTS = "MW Watcher/MW Watcher.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.2;
+				CURRENT_PROJECT_VERSION = 1.2.3;
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -710,7 +710,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -728,7 +728,7 @@
 				CODE_SIGN_ENTITLEMENTS = WidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.2;
+				CURRENT_PROJECT_VERSION = 1.2.3;
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				INFOPLIST_FILE = Widget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -737,7 +737,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -755,7 +755,7 @@
 				CODE_SIGN_ENTITLEMENTS = WidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.2;
+				CURRENT_PROJECT_VERSION = 1.2.3;
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				INFOPLIST_FILE = Widget/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
@@ -764,7 +764,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

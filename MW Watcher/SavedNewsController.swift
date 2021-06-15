@@ -17,6 +17,7 @@ class SavedNewsController: UIViewController {
     let savedNews = UserSaveNews()
     var newsItems: [UserSavedNewsItem] = []
     var alreadyLaunched = false
+    let refreshControl = UIRefreshControl()
 
 
     override func viewDidLoad() {
@@ -36,9 +37,29 @@ class SavedNewsController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         
-        newsItems = savedNews.loadNews()
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        tableView.addSubview(refreshControl)
         
+        //newsItems = savedNews.loadNews()
     }
+    
+    @objc func refresh(_ sender: AnyObject) {
+        newsItems = savedNews.loadNews()
+        if !newsItems.isEmpty {
+            refreshControl.endRefreshing()
+            tableView.reloadData()
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        newsItems = savedNews.loadNews()
+        if !newsItems.isEmpty {
+            tableView.reloadData()
+        }
+    }
+    
+    
     
     @IBAction func deleteAllButton(_ sender: UIButton) {
         savedNews.deleteNews(headline: "", date: "", deleteAll: true)
@@ -66,21 +87,6 @@ class SavedNewsController: UIViewController {
         guard let url = URL(string: urlString) else { return }
         UIApplication.shared.open(url)
     }
-    
-//    func launchedBefore() -> Bool {
-//
-//        let hasBeenLaunchedBeforeFlag = "hasBeenLaunchedBeforeFlag"
-//        let isFirstLaunch = UserDefaults.standard.bool(forKey: hasBeenLaunchedBeforeFlag)
-//
-//        if isFirstLaunch {
-//            return true
-//        } else {
-//            return false
-//        }
-//    }
-    
-    
-   
     
 }
 

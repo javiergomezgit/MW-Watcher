@@ -33,8 +33,13 @@ class UserSaveNews {
         }
     }
     
-    func deleteNews(headline: String, date: String, deleteAll: Bool) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+    func deleteNews(headline: String, date: String, deleteAll: Bool) -> Bool? {
+        var success = false
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            //success = false
+            return false
+        }
         let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         
@@ -43,14 +48,15 @@ class UserSaveNews {
             do {
                 try managedContext.execute(deleteRequest)
                 try managedContext.save()
+                success = true
             } catch {
                 print ("there is an error")
+                success = false
             }
         } else {
             let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
             do {
                 newsManagedObjectArray = try managedContext.fetch(fetchRequest)
-
                 for newsManagedObject in newsManagedObjectArray {
                     let localHeadline = newsManagedObject.value(forKey: "headline") as! String
                     //let date = headlineManagedObject.value(forKey: "date") as! String
@@ -59,11 +65,13 @@ class UserSaveNews {
                         try managedContext.save()
                     }
                 }
+                success = true
             } catch let error as NSError {
                 print("Could not fetch. \(error), \(error.userInfo)")
+                success = false
             }
         }
-
+        return success
     }
     
     func loadNews() -> [UserSavedNewsItem] {

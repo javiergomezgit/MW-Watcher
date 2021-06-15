@@ -69,11 +69,6 @@ class LaunchController: UIViewController {
     }
 }
 
-
-
-
-
-
 extension LaunchController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {
     
     func swiftyOnboardNumberOfPages(_ swiftyOnboard: SwiftyOnboard) -> Int {
@@ -96,6 +91,7 @@ extension LaunchController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {
 //            page.title.text = "description of text 3"
 //        }
         
+        page.backgroundColor = UIColor.white
         
         let nameOfImage = ("page\(index+1).jpg")
 //        page.imageView.backgroundColor = UIColor.white
