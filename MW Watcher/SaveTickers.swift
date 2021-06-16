@@ -13,20 +13,22 @@ class SaveTickers {
     let entityName = "WatchlistEntity"
     
     func saveTicker(ticker: String) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return  }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
-        let tickerObject = NSManagedObject(entity: entity, insertInto: managedContext)
-        
-        tickerObject.setValue(ticker, forKey: "ticker")
-        
-        do {
-            try managedContext.save()
-            tickerManagedObjectArray.append(tickerObject)
-        } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
+        DispatchQueue.main.async { [self] in
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return  }
+            let managedContext = appDelegate.persistentContainer.viewContext
+            let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
+            let tickerObject = NSManagedObject(entity: entity, insertInto: managedContext)
+            
+            tickerObject.setValue(ticker, forKey: "ticker")
+            
+            do {
+                try managedContext.save()
+                tickerManagedObjectArray.append(tickerObject)
+            } catch let error as NSError {
+                print("Could not save. \(error), \(error.userInfo)")
+            }
         }
-    }
+     }
 
     func deleteTickers(ticker: String, deleteAll: Bool) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }

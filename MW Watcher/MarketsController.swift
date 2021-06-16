@@ -58,7 +58,7 @@ class MarketsController: UIViewController {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
-                self.showAlert(title: "Error", message: "Connection Error", titleButton: "Ok")
+                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
             } else {
                 //let httpResponse = response as? HTTPURLResponse
                 //print(httpResponse)
@@ -92,7 +92,7 @@ class MarketsController: UIViewController {
                     }
 
                 } else {
-                    self.showAlert(title: "Error", message: "Connection Error", titleButton: "Ok")
+                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                 }
             }
         })

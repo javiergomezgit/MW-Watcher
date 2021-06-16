@@ -15,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var alreadyLaunched = false
     
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
        
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunching")
@@ -32,9 +33,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
-    //first
     lazy var persistentContainer: NSPersistentContainer = {
-        
+                
         let container = NSPersistentContainer(name: "SavingFeeds")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -44,6 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return container
     }()
     
+    //Saving initial data when new app
     func saveFirstData() {
         let saveTickers = SaveTickers()
         let saveHeadlines = UserSaveNews()

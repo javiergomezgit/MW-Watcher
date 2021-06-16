@@ -55,21 +55,15 @@ class CryptosController: UIViewController {
         loadCryptoPrices()
     }
 
-
     @objc func refresh(_ sender: AnyObject) {
         loadCryptoPrices()
-        //tableView.reloadData()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        //tableView.frame = view.bounds
     }
-    
-    
-    
+     
     private func loadCryptoPrices() {
-        
         CryptosAPI.shared.getAllCryptosData { [weak self] result in
             switch result {
             case .success(let data):
@@ -79,6 +73,9 @@ class CryptosController: UIViewController {
                     self?.setUpViewModel()
                 }
             case .failure(let error):
+                DispatchQueue.main.async {
+                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                }
                 print (error)
             }
         }
@@ -87,10 +84,6 @@ class CryptosController: UIViewController {
     private func setUpViewModel() {
 
         guard let models = cryptoData else { return }
-        
-        //                let sortedValues = valueCrypto.sorted { first, second -> Bool in
-        //                    return first.symbol < second.symbol
-        //                }
         
         let cryptosSortedByVolume = models.sorted { first, second -> Bool in
             return first.quote["USD"]!.volume_24h > second.quote["USD"]!.volume_24h
@@ -119,8 +112,6 @@ class CryptosController: UIViewController {
         self.refreshControl.endRefreshing()
         tableView.reloadData()
     }
-
-    
 }
 
 

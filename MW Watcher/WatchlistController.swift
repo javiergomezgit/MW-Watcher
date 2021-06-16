@@ -30,29 +30,14 @@ class WatchlistController: UIViewController {
     @IBOutlet weak var addTickerButton: UIButton!
     
     @IBAction func addingTicker(_ sender: UIButton) {
-        let alert = UIAlertController(title: "Add a new ticker", message: "Please type a new ticker for the watchlist", preferredStyle: .alert)
-
-        alert.addTextField { field in
-            field.placeholder = "TICKER"
-            field.clearButtonMode = .always
-            field.autocorrectionType = .no
-            field.smartDashesType = .no
-            field.smartQuotesType = .no
-            field.smartInsertDeleteType = .no
-            field.spellCheckingType = .no
-            field.keyboardType = .alphabet
-            field.returnKeyType = .default
-            field.keyboardType = .default
-            field.autocapitalizationType = .allCharacters
-        }
-        
+        let alert = ShowAlerts.inputTextAlert(title: "Add a new ticker", message: "Please type a new ticker for the watchlist")
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
         
             guard let field = alert.textFields else { return }
             let fieldArray = field.first
             guard let ticker = fieldArray!.text, !ticker.isEmpty else {
-                self.showAlert(title: "Empty field", message: "You need to type your ticker", titleButton: "OK")
+                ShowAlerts.showSimpleAlert(title: "Empty field", message: "You need to type your ticker", titleButton: "Ok", over: self)
                 return
             }
             self.loadTicker(loadSingle: ticker, loadMultiple: nil)
@@ -172,13 +157,13 @@ class WatchlistController: UIViewController {
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { [self] (data, response, error) -> Void in
             if (error != nil) {
                 print(error!)
-                showAlert(title: "Error", message: "Connection Error", titleButton: "Try again later")
+                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
             } else {
                 //let httpResponse = response as? HTTPURLResponse
                 json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
                 if json == nil  {
                     DispatchQueue.main.async {
-                        self.showAlert(title: "Error", message: "Connection Error", titleButton: "Ok")
+                        ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                     }
                     return
                 }
@@ -191,7 +176,7 @@ class WatchlistController: UIViewController {
                     
                     guard let previousClose = foundClose as? Double else {
                         DispatchQueue.main.async {
-                            self.showAlert(title: "Error", message: "We couldn't find the ticker", titleButton: "Try later")
+                            ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find the ticker", titleButton: "Ok", over: self)
                         }
                         return
                     }
@@ -203,7 +188,7 @@ class WatchlistController: UIViewController {
                     self.tickers.append(Tickers(ticker: ticker, marketPrice: closePrice, previousPrice: previousClose))
                     print (self.tickers)
                     DispatchQueue.main.async {
-                        self.showAlert(title: "Added", message: "We added \(ticker) to the watchlist", titleButton: "OK")
+                        ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(ticker) to the watchlist", titleButton: "Ok", over: self)
                         self.tableView.reloadData()
                         self.refreshControl.endRefreshing()
                     }
@@ -233,8 +218,7 @@ class WatchlistController: UIViewController {
                         }
                     } else  {
                         DispatchQueue.main.async {
-                            //self.showAlert(title: "Not Found", message: "Ticker not found", titleButton: "OK")
-                            self.showAlert(title: "Not Found", message: "Ticker not found", titleButton: "Ok")
+                            ShowAlerts.showSimpleAlert(title: "Not Found", message: "Ticker not found", titleButton: "Ok", over: self)
                         }
                     }
                 }
@@ -247,17 +231,6 @@ class WatchlistController: UIViewController {
 
 
 //Customs
-extension UIViewController {
-    func showAlert(title: String, message: String, titleButton: String) {
-        let dialogMessage = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        let ok = UIAlertAction(title: titleButton, style: .default, handler: { (action) -> Void in
-            print("Ok button tapped")
-         })
-        dialogMessage.addAction(ok)
-        self.present(dialogMessage, animated: true, completion: nil)
-    }
-}
-
 //Delegate for table view
 extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
   

@@ -105,7 +105,7 @@ class LiveNewsController: UIViewController {
         
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
-                self.showAlert(title: "Error", message: "Connection Error", titleButton: "Ok")                
+                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error, try later!", titleButton: "OK", over: self)
             } else {
                 //let httpResponse = response as? HTTPURLResponse
                 //print(httpResponse)
@@ -313,9 +313,6 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource {
         guard let url = URL(string: urlString) else { return }
         
         UIApplication.shared.open(url)
-
-//        let vc = SFSafariViewController(url: url)
-//        present(vc, animated: true)
     }
 }
 

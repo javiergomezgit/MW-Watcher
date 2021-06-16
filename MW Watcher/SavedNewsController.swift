@@ -39,9 +39,7 @@ class SavedNewsController: UIViewController {
         
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl)
-        
-        //newsItems = savedNews.loadNews()
+        tableView.addSubview(refreshControl)        
     }
     
     @objc func refresh(_ sender: AnyObject) {
@@ -62,7 +60,7 @@ class SavedNewsController: UIViewController {
     
     
     @IBAction func deleteAllButton(_ sender: UIButton) {
-        savedNews.deleteNews(headline: "", date: "", deleteAll: true)
+        _ = savedNews.deleteNews(headline: "", date: "", deleteAll: true)
         newsItems.removeAll()
         tableView.reloadData()
     }
@@ -123,7 +121,7 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete{
             let headline = newsItems[indexPath.row].headline
             let date = newsItems[indexPath.row].pubDate
-            savedNews.deleteNews(headline: headline, date: date, deleteAll: false)
+            _ = savedNews.deleteNews(headline: headline, date: date, deleteAll: false)
             newsItems.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .left)
         }
