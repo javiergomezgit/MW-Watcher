@@ -1,6 +1,0 @@
-module Pods_MW_Watcher {
-  umbrella header "Pods-MW Watcher-umbrella.h"
-
-  export *
-  module * { export * }
-}

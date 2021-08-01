@@ -45,11 +45,11 @@ class MarketsController: UIViewController {
     
     func loadCurrentPrices() {
         let headers = [
-            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
-            "x-rapidapi-host": "yahoo-finance-low-latency.p.rapidapi.com"
+            "x-api-key": "oFf1Q9pDzb6LovcGuCciz1ngVdnCN04J1FGi2fLa",
+            "x-rapidapi-host": "yfapi.net"
         ]
 
-        let request = NSMutableURLRequest(url: NSURL(string: "https://yahoo-finance-low-latency.p.rapidapi.com/v6/finance/quote?symbols=%5EDJI%2C%5EGSPC%2CNDAQ%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX&lang=en&region=US")! as URL,
+        let request = NSMutableURLRequest(url: NSURL(string: "https://yfapi.net/v6/finance/quote?symbols=%5EDJI%2C%5EGSPC%2CNDAQ%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX&lang=en&region=US")! as URL,
                                                 cachePolicy: .useProtocolCachePolicy,
                                             timeoutInterval: 10.0)
         request.httpMethod = "GET"

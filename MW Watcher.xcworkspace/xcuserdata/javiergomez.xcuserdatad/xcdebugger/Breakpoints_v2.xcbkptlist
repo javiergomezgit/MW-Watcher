@@ -103,22 +103,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "327B231A-7D95-4D15-8471-333BCD6C5F61"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/CryptosViewCell.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "121"
-            endingLineNumber = "121"
-            landmarkName = "configure(with:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "49CDA88A-D4E3-4CA4-A952-A203638029E2"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -135,16 +119,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7F644F1D-B820-444A-99AA-44181FD84398"
+            uuid = "6A714BDE-2023-40D0-BF23-DFA43FA794A2"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/SavedNewsController.swift"
+            filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
-            landmarkName = "viewDidAppear(_:)"
+            startingLineNumber = "69"
+            endingLineNumber = "69"
+            landmarkName = "loadCurrentPrices()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
