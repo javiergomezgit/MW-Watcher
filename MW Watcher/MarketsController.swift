@@ -130,7 +130,7 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
                 cell.currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
                 
-                cell.arrowImage.image = (UIImage.init(systemName: "arrow.down.app.fill"))
+                cell.arrowImage.image = (UIImage.init(named: "arrow.down.app.fill"))
                 cell.arrowImage.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             } else {
                 //positive day for market
@@ -142,7 +142,7 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
                 cell.currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
                 
-                cell.arrowImage.image = (UIImage.init(systemName: "arrow.up.square.fill"))
+                cell.arrowImage.image = (UIImage.init(named: "arrow.up.square.fill"))
                 cell.arrowImage.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             }
 

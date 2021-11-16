@@ -20,6 +20,7 @@
 		221236B1263DA72A007EA092 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 221236B0263DA72A007EA092 /* Assets.xcassets */; };
 		221236B4263DA72A007EA092 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 221236B2263DA72A007EA092 /* LaunchScreen.storyboard */; };
 		2219565D266E641800DDDB93 /* NewsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EFA843266D8CAE004D0856 /* NewsItem.swift */; };
+		222394A527405E6100C544BB /* CostCalculatorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222394A427405E6100C544BB /* CostCalculatorController.swift */; };
 		223A03E226548926005BE1D8 /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D6354F2653778F00EAD8ED /* HTMLParser.swift */; };
 		223B377B266ED82900526E46 /* LiveNewsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223B377A266ED82900526E46 /* LiveNewsViewCell.swift */; };
 		223EF570265D858700160C8D /* WatchlistViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223EF56F265D858700160C8D /* WatchlistViewCell.swift */; };
@@ -97,6 +98,7 @@
 		221236B0263DA72A007EA092 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		221236B3263DA72A007EA092 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		221236B5263DA72A007EA092 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		222394A427405E6100C544BB /* CostCalculatorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostCalculatorController.swift; sourceTree = "<group>"; };
 		223B377A266ED82900526E46 /* LiveNewsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveNewsViewCell.swift; sourceTree = "<group>"; };
 		223EF56F265D858700160C8D /* WatchlistViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistViewCell.swift; sourceTree = "<group>"; };
 		223EF571265D867100160C8D /* SaveTickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveTickers.swift; sourceTree = "<group>"; };
@@ -246,6 +248,7 @@
 				221236AB263DA728007EA092 /* LiveNewsController.swift */,
 				220F4EA2265D318D00106325 /* MarketsController.swift */,
 				22F8F332265C6C240084C98F /* SavedNewsController.swift */,
+				222394A427405E6100C544BB /* CostCalculatorController.swift */,
 				226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */,
 				220F4EA0265D314200106325 /* WatchlistController.swift */,
 			);
@@ -525,6 +528,7 @@
 				22AD1A47264B381C001A5362 /* SystemSaveNews.swift in Sources */,
 				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
 				223EF570265D858700160C8D /* WatchlistViewCell.swift in Sources */,
+				222394A527405E6100C544BB /* CostCalculatorController.swift in Sources */,
 				221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */,
 				220F4EA5265D324800106325 /* SavedNewsViewCell.swift in Sources */,
 				229554F4267A3FAD0082235C /* ShowAlerts.swift in Sources */,
@@ -636,7 +640,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -691,7 +695,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -719,7 +723,7 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "MW Watcher/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -751,7 +755,7 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = "MW Watcher/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
