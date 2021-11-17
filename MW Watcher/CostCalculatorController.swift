@@ -37,6 +37,10 @@ class CostCalculatorController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.hideKeyboardWhenTappedAround()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
         qtyOwnedText.becomeFirstResponder()
     }
     
@@ -50,6 +54,7 @@ class CostCalculatorController: UIViewController {
     }
         
     func totalOwned() {
+        
         if !qtyOwnedText.text!.isEmpty {
             if let numberInt = Int(qtyOwnedText.text!) {
                 self.qtyOwned = numberInt
@@ -107,7 +112,8 @@ class CostCalculatorController: UIViewController {
         }
         
         if !amountBuyingText.text!.isEmpty {
-            if let amount = Double(amountBuyingText.text!) {
+            if let amount = Double(amountBuyingText.text!
+            ) {
                 self.amountBuying = amount
             } else { self.amountBuying = 0.0 }
         }
@@ -129,7 +135,9 @@ class CostCalculatorController: UIViewController {
         let totalShares = qtyOwned + qtyBuying
         
         finalPrice = totalAmounts / Double(totalShares)
-        finalPercentage = ((finalPrice * 100) / priceOwned) - 100
+        
+        
+        finalPercentage = ((priceBuying * 100) / finalPrice) - 100
 
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 2
@@ -140,6 +148,11 @@ class CostCalculatorController: UIViewController {
         let amountString = formatter.string(from: totalAmounts as NSNumber)
         amountTotalLabel.text = "S\(amountString!)"
         sharesTotalLabel.text = String(totalShares)
+        
+        if finalPercentage.isNaN {
+            finalPercentage = 0
+            finalPrice = 0
+        }
         
         let totalPriceString = formatter.string(from: finalPrice as NSNumber)
         totalPriceLabel.text = "$\(totalPriceString!)"
@@ -158,4 +171,22 @@ class CostCalculatorController: UIViewController {
     
     
 
+}
+
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}
+
+extension String {
+    var cleanNumber: String {
+        let allowCharacters = Set("1234567890.")
+        return self.filter {allowCharacters.contains($0) }
+    }
 }
