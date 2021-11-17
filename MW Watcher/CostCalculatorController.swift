@@ -51,8 +51,14 @@ class CostCalculatorController: UIViewController {
         
     func totalOwned() {
         if !qtyOwnedText.text!.isEmpty {
-            self.qtyOwned = Int(qtyOwnedText.text!) ?? 0
+            if let numberInt = Int(qtyOwnedText.text!) {
+                self.qtyOwned = numberInt
+            } else {
+                let numDouble = Double(qtyOwnedText.text!)
+                self.qtyOwned = Int(numDouble!)
+            }
         } else { self.qtyOwned = 0 }
+        
         
         if !priceOwnedText.text!.isEmpty {
             if let price = Double(priceOwnedText.text!) {
@@ -67,10 +73,15 @@ class CostCalculatorController: UIViewController {
         }
         
         totalAmountOwned = priceOwned * Double(qtyOwned)
-        amountOwnedText.text = "$ \(String(totalAmountOwned))"
+        
+        let formatter = NumberFormatter()
+        formatter.maximumFractionDigits = 2
+        formatter.numberStyle = .decimal
+        let numberSting = formatter.string(from: totalAmountOwned as NSNumber)
+
+        amountOwnedText.text = "$ \(numberSting!)"
         totalCost()
     }
-    
     
     @IBAction func qtyBuyingChanged(_ sender: Any) {
         totalBuying()
@@ -81,7 +92,12 @@ class CostCalculatorController: UIViewController {
     
     func totalBuying() {
         if !qtyBuyingText.text!.isEmpty {
-            self.qtyBuying = Int(qtyBuyingText.text!) ?? 0
+            if let numberInt = Int(qtyBuyingText.text!) {
+                self.qtyBuying = numberInt
+            } else {
+                let numDouble = Double(qtyBuyingText.text!)
+                self.qtyBuying = Int(numDouble!)
+            }
         } else { self.qtyBuying = 0 }
         
         if !priceBuyingText.text!.isEmpty {
@@ -97,7 +113,13 @@ class CostCalculatorController: UIViewController {
         }
         
         totalAmountBuying = priceBuying * Double(qtyBuying)
-        amountBuyingText.text = "$\(String(totalAmountBuying))"
+        
+        let formatter = NumberFormatter()
+        formatter.maximumFractionDigits = 2
+        formatter.numberStyle = .decimal
+        let numberSting = formatter.string(from: totalAmountBuying as NSNumber)
+        
+        amountBuyingText.text = "$\(numberSting!)"
         totalCost()
 
     }
@@ -107,13 +129,20 @@ class CostCalculatorController: UIViewController {
         let totalShares = qtyOwned + qtyBuying
         
         finalPrice = totalAmounts / Double(totalShares)
-        
         finalPercentage = ((finalPrice * 100) / priceOwned) - 100
-    
+
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 3
+        formatter.numberStyle = .decimal
+        //let numberSting = formatter.string(from: totalAmountBuying as NSNumber)
         
-        amountTotalLabel.text = "S\(String(totalAmounts))"
+        let amountString = formatter.string(from: totalAmounts as NSNumber)
+        amountTotalLabel.text = "S\(amountString!)"
         sharesTotalLabel.text = String(totalShares)
-        totalPriceLabel.text = "$\(String(finalPrice))" //-33
+        
+        let totalPriceString = formatter.string(from: finalPrice as NSNumber)
+        totalPriceLabel.text = "$\(totalPriceString!)"
         
         if finalPercentage < 0 {
             profitLossPercentageLabel.textColor = .red
@@ -121,7 +150,9 @@ class CostCalculatorController: UIViewController {
             profitLossPercentageLabel.textColor = .systemGreen
         }
         
-        profitLossPercentageLabel.text = "\(String(finalPercentage))%"
+        formatter.maximumFractionDigits = 2
+        let finalPercentageString = formatter.string(from: finalPercentage as NSNumber)
+        profitLossPercentageLabel.text = "\(finalPercentageString!)%"
         
     }
     
