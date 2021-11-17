@@ -614,16 +614,35 @@
                                     <constraint firstItem="Beb-69-FQA" firstAttribute="height" secondItem="rL0-b9-924" secondAttribute="height" multiplier="0.75" id="yuP-Db-BZA"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CrC-NJ-our">
+                                <rect key="frame" x="180" y="47" width="30" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="9FP-qM-JFz"/>
+                                    <constraint firstAttribute="width" constant="30" id="mCt-oq-ey3"/>
+                                </constraints>
+                                <color key="tintColor" systemColor="labelColor"/>
+                                <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                <state key="normal">
+                                    <color key="titleColor" systemColor="labelColor"/>
+                                    <imageReference key="image" image="arrow.counterclockwise" symbolScale="default" renderingMode="original"/>
+                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="30" scale="large" weight="regular"/>
+                                </state>
+                                <connections>
+                                    <action selector="resetTextFields:" destination="DZx-RA-0sP" eventType="touchUpInside" id="RnU-8F-VyD"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="nRu-Ke-PCp"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="rL0-b9-924" firstAttribute="height" secondItem="dpX-Qd-bfw" secondAttribute="height" multiplier="0.6" id="0O6-aF-ccC"/>
+                            <constraint firstItem="CrC-NJ-our" firstAttribute="top" secondItem="nRu-Ke-PCp" secondAttribute="top" constant="3" id="2NA-hq-rWA"/>
                             <constraint firstItem="nRu-Ke-PCp" firstAttribute="trailing" secondItem="rL0-b9-924" secondAttribute="trailing" id="NTM-fG-vOU"/>
                             <constraint firstItem="rL0-b9-924" firstAttribute="leading" secondItem="nRu-Ke-PCp" secondAttribute="leading" id="VUm-jx-vEP"/>
                             <constraint firstItem="aDt-na-hX2" firstAttribute="top" secondItem="nRu-Ke-PCp" secondAttribute="top" constant="5" id="aPO-5Y-ngB"/>
                             <constraint firstItem="H1t-lh-02y" firstAttribute="top" secondItem="nRu-Ke-PCp" secondAttribute="top" constant="5" id="ajh-rN-TZv"/>
                             <constraint firstItem="rL0-b9-924" firstAttribute="top" secondItem="dpX-Qd-bfw" secondAttribute="top" id="flf-cA-bQ1"/>
+                            <constraint firstItem="CrC-NJ-our" firstAttribute="centerX" secondItem="dpX-Qd-bfw" secondAttribute="centerX" id="gDq-be-bM3"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Calculator" image="number" catalog="system" id="A1b-br-OWk"/>
@@ -1216,8 +1235,8 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
-                        <segue destination="DZx-RA-0sP" kind="relationship" relationship="viewControllers" id="iSf-SZ-H8u"/>
                         <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="hYT-AU-v4C"/>
+                        <segue destination="DZx-RA-0sP" kind="relationship" relationship="viewControllers" id="iSf-SZ-H8u"/>
                         <segue destination="a6H-wW-AWp" kind="relationship" relationship="viewControllers" id="cM5-V3-dx3"/>
                         <segue destination="nEn-Pm-HgO" kind="relationship" relationship="viewControllers" id="8CE-Qb-Tek"/>
                         <segue destination="FAU-XL-brR" kind="relationship" relationship="viewControllers" id="PSN-xG-sKh"/>
@@ -1231,8 +1250,9 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
-        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
+        <image name="arrow.counterclockwise" width="12" height="14"/>
         <image name="arrow.down.app.fill" width="10" height="10"/>
+        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>
         <image name="eyeglasses" catalog="system" width="128" height="54"/>

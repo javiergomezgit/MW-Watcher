@@ -8,7 +8,7 @@
 import UIKit
 
 class CostCalculatorController: UIViewController {
-
+    
     @IBOutlet weak var qtyOwnedText: UITextField!
     @IBOutlet weak var priceOwnedText: UITextField!
     @IBOutlet weak var amountOwnedText: UITextField!
@@ -21,7 +21,7 @@ class CostCalculatorController: UIViewController {
     @IBOutlet weak var sharesTotalLabel: UILabel!
     @IBOutlet weak var profitLossPercentageLabel: UILabel!
     @IBOutlet weak var totalPriceLabel: UILabel!
-
+    
     private var qtyOwned = 0
     private var priceOwned = 0.0
     private var amountOwned = 0.0
@@ -52,23 +52,24 @@ class CostCalculatorController: UIViewController {
     }
     @IBAction func amountOwnedChanged(_ sender: Any) {
     }
-        
+    
     func totalOwned() {
         
         if !qtyOwnedText.text!.isEmpty {
-            if let numberInt = Int(qtyOwnedText.text!) {
-                self.qtyOwned = numberInt
+            let numString = qtyOwnedText.text!.cleanNumber
+            if let numberInt = Int(numString) {
+                qtyOwned = numberInt
             } else {
-                let numDouble = Double(qtyOwnedText.text!)
-                self.qtyOwned = Int(numDouble!)
+                if let numberDouble = Double(numString) {
+                    qtyOwned = Int(numberDouble)
+                }
             }
-        } else { self.qtyOwned = 0 }
-        
-        
+        }
+    
         if !priceOwnedText.text!.isEmpty {
-            if let price = Double(priceOwnedText.text!) {
-                self.priceOwned = price
-            } else { self.priceOwned = 0.0 }
+            if let price = Double(priceOwnedText.text!.cleanNumber) {
+                priceOwned = price
+            }
         }
         
         if !amountOwnedText.text!.isEmpty {
@@ -83,7 +84,7 @@ class CostCalculatorController: UIViewController {
         formatter.maximumFractionDigits = 2
         formatter.numberStyle = .decimal
         let numberSting = formatter.string(from: totalAmountOwned as NSNumber)
-
+        
         amountOwnedText.text = "$ \(numberSting!)"
         totalCost()
     }
@@ -97,18 +98,21 @@ class CostCalculatorController: UIViewController {
     
     func totalBuying() {
         if !qtyBuyingText.text!.isEmpty {
-            if let numberInt = Int(qtyBuyingText.text!) {
-                self.qtyBuying = numberInt
+            let numString = qtyBuyingText.text!.cleanNumber
+            if let numberInt = Int(numString) {
+                qtyBuying = numberInt
             } else {
-                let numDouble = Double(qtyBuyingText.text!)
-                self.qtyBuying = Int(numDouble!)
+                if let numDouble = Double(numString)
+                {
+                    qtyBuying = Int(numDouble)
+                }
             }
-        } else { self.qtyBuying = 0 }
+        }
         
         if !priceBuyingText.text!.isEmpty {
-            if let price = Double(priceBuyingText.text!) {
-                self.priceBuying = price
-            } else { self.priceBuying = 0.0 }
+            if let price = Double(priceBuyingText.text!.cleanNumber) {
+                priceBuying = price
+            }
         }
         
         if !amountBuyingText.text!.isEmpty {
@@ -127,7 +131,7 @@ class CostCalculatorController: UIViewController {
         
         amountBuyingText.text = "$\(numberSting!)"
         totalCost()
-
+        
     }
     
     func totalCost() {
@@ -138,7 +142,7 @@ class CostCalculatorController: UIViewController {
         
         
         finalPercentage = ((priceBuying * 100) / finalPrice) - 100
-
+        
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 3
@@ -166,10 +170,21 @@ class CostCalculatorController: UIViewController {
         formatter.maximumFractionDigits = 2
         let finalPercentageString = formatter.string(from: finalPercentage as NSNumber)
         profitLossPercentageLabel.text = "\(finalPercentageString!)%"
-        
     }
     
     
+    @IBAction func resetTextFields(_ sender: Any) {
+        qtyOwnedText.text = ""
+        qtyBuyingText.text = ""
+        priceOwnedText.text = ""
+        priceBuyingText.text = ""
+        amountOwnedText.text = ""
+        amountBuyingText.text = ""
+        amountTotalLabel.text = ""
+        sharesTotalLabel.text = ""
+        profitLossPercentageLabel.text = ""
+        totalPriceLabel.text = ""
+    }
 
 }
 
