@@ -28,6 +28,7 @@ class WatchlistController: UIViewController {
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
     @IBOutlet weak var addTickerButton: UIButton!
+    @IBOutlet weak var versionLabel: UILabel!
     
     @IBAction func addingTicker(_ sender: UIButton) {
         let alert = ShowAlerts.inputTextAlert(title: "Add a new ticker", message: "Please type a new ticker for the watchlist")
@@ -69,6 +70,9 @@ class WatchlistController: UIViewController {
     //MARK: Initials
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        versionLabel.text = appVersion
         
         authenticationWithTouchID()
         

@@ -21,7 +21,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="xpE-vS-nB9">
-                                <rect key="frame" x="15" y="224" width="360" height="537"/>
+                                <rect key="frame" x="15" y="224" width="360" height="515"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="myTickersCell" rowHeight="120" id="8mn-2a-bvy" customClass="WatchlistViewCell" customModule="MW_Watcher" customModuleProvider="target">
@@ -169,13 +169,21 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KqR-G9-dfh">
+                                <rect key="frame" x="0.0" y="741" width="390" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="EKt-JY-lav"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="13"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ct6-hU-zsk"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="eqW-93-aVq" firstAttribute="top" secondItem="nce-SP-hWW" secondAttribute="top" id="19R-PN-UIq"/>
                             <constraint firstItem="dzb-Y8-pqi" firstAttribute="top" secondItem="vff-76-cro" secondAttribute="bottom" constant="15" id="A08-Fc-98D"/>
-                            <constraint firstItem="ct6-hU-zsk" firstAttribute="bottom" secondItem="xpE-vS-nB9" secondAttribute="bottom" id="FRg-Wt-jBR"/>
                             <constraint firstItem="ct6-hU-zsk" firstAttribute="trailing" secondItem="xpE-vS-nB9" secondAttribute="trailing" constant="15" id="FjS-ae-cJj"/>
                             <constraint firstItem="dzb-Y8-pqi" firstAttribute="centerX" secondItem="nce-SP-hWW" secondAttribute="centerX" id="HXv-Pu-xQo"/>
                             <constraint firstItem="xpE-vS-nB9" firstAttribute="leading" secondItem="ct6-hU-zsk" secondAttribute="leading" constant="15" id="JOq-og-NNe"/>
@@ -183,11 +191,15 @@
                             <constraint firstItem="vff-76-cro" firstAttribute="leading" secondItem="ct6-hU-zsk" secondAttribute="leading" constant="5" id="QKZ-HK-CUX"/>
                             <constraint firstItem="ct6-hU-zsk" firstAttribute="trailing" secondItem="vff-76-cro" secondAttribute="trailing" constant="5" id="QdE-dv-lIM"/>
                             <constraint firstItem="vff-76-cro" firstAttribute="top" secondItem="eqW-93-aVq" secondAttribute="bottom" constant="10" id="SxD-hh-r0K"/>
+                            <constraint firstItem="KqR-G9-dfh" firstAttribute="top" secondItem="xpE-vS-nB9" secondAttribute="bottom" constant="2" id="Ypy-vB-ScP"/>
+                            <constraint firstItem="ct6-hU-zsk" firstAttribute="bottom" secondItem="KqR-G9-dfh" secondAttribute="bottom" id="aVI-ka-FT4"/>
                             <constraint firstItem="LoU-IO-5iu" firstAttribute="centerX" secondItem="dzb-Y8-pqi" secondAttribute="centerX" id="ara-ei-z2C"/>
                             <constraint firstItem="dzb-Y8-pqi" firstAttribute="width" secondItem="nce-SP-hWW" secondAttribute="width" multiplier="0.2" id="egX-Gk-yDn"/>
+                            <constraint firstItem="KqR-G9-dfh" firstAttribute="leading" secondItem="ct6-hU-zsk" secondAttribute="leading" id="jZG-XB-qgo"/>
                             <constraint firstItem="eqW-93-aVq" firstAttribute="leading" secondItem="ct6-hU-zsk" secondAttribute="leading" constant="15" id="oJW-gc-Ny6"/>
                             <constraint firstItem="xpE-vS-nB9" firstAttribute="top" secondItem="LoU-IO-5iu" secondAttribute="bottom" constant="5" id="sue-gd-UQB"/>
                             <constraint firstItem="LoU-IO-5iu" firstAttribute="top" secondItem="dzb-Y8-pqi" secondAttribute="bottom" constant="4" id="wLj-eL-Et5"/>
+                            <constraint firstItem="ct6-hU-zsk" firstAttribute="trailing" secondItem="KqR-G9-dfh" secondAttribute="trailing" id="zw0-LD-kLl"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" tag="1" title="Watchlist" id="hFF-R7-vy4">
@@ -198,11 +210,12 @@
                         <outlet property="addTickerButton" destination="dzb-Y8-pqi" id="erw-aO-k6t"/>
                         <outlet property="chosingTimeSegment" destination="vff-76-cro" id="rpi-Pu-SZr"/>
                         <outlet property="tableView" destination="xpE-vS-nB9" id="cZN-eB-XgD"/>
+                        <outlet property="versionLabel" destination="KqR-G9-dfh" id="cq0-oa-Uuu"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aZT-l8-gZF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1703" y="879"/>
+            <point key="canvasLocation" x="1701.5384615384614" y="878.67298578199052"/>
         </scene>
         <!--Ticker News-->
         <scene sceneID="Xb9-OB-yhw">
@@ -378,54 +391,54 @@
                                         <rect key="frame" x="0.0" y="0.0" width="194" height="379.66666666666669"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Owned" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H1t-lh-02y">
-                                                <rect key="frame" x="0.0" y="49" width="194" height="23"/>
-                                                <fontDescription key="fontDescription" name="DINCondensed-Bold" family="DIN Condensed" pointSize="23"/>
+                                                <rect key="frame" x="0.0" y="49" width="194" height="29"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="21"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Qty Buying" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="QTY-Sb-Hae">
-                                                <rect key="frame" x="57" y="157.66666666666666" width="80" height="19.333333333333343"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Qty Owned" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="QTY-Sb-Hae">
+                                                <rect key="frame" x="50.666666666666657" y="152.66666666666666" width="93" height="23.333333333333343"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="$4.97" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="IcM-Ae-ILI">
-                                                <rect key="frame" x="24.333333333333329" y="192" width="145.33333333333337" height="34"/>
+                                                <rect key="frame" x="24.333333333333329" y="191" width="145.33333333333337" height="36"/>
                                                 <color key="backgroundColor" red="0.94254873287459828" green="0.91700311846952998" blue="1" alpha="0.17000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="19"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="decimalPad" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
                                                 <connections>
                                                     <action selector="priceOwnedChanged:" destination="DZx-RA-0sP" eventType="editingChanged" id="oOI-AG-HLS"/>
                                                 </connections>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Price Owned" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="afV-gu-zvl">
-                                                <rect key="frame" x="50.666666666666664" y="229" width="92.666666666666686" height="19.333333333333343"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <rect key="frame" x="45.999999999999993" y="230" width="102.33333333333331" height="23.333333333333343"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" tag="2" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="$1,242.5" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="fgy-gH-o4S">
-                                                <rect key="frame" x="24.333333333333329" y="263.33333333333331" width="145.33333333333337" height="34"/>
+                                                <rect key="frame" x="24.333333333333329" y="268.33333333333331" width="145.33333333333337" height="36"/>
                                                 <color key="backgroundColor" red="0.94254873287459828" green="0.91700311846952998" blue="1" alpha="0.17000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="19"/>
                                                 <textInputTraits key="textInputTraits" keyboardType="numberPad" textContentType="postal-code"/>
                                                 <connections>
                                                     <action selector="amountOwnedChanged:" destination="DZx-RA-0sP" eventType="editingDidEnd" id="j1G-aK-bpa"/>
                                                 </connections>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Amount Owned" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="W6b-sM-DrV">
-                                                <rect key="frame" x="40.666666666666657" y="300.33333333333331" width="113" height="20"/>
+                                                <rect key="frame" x="33.666666666666664" y="307.33333333333331" width="126.66666666666669" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="78b-aW-HdG"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="250 shares" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="jsC-FQ-6ga">
-                                                <rect key="frame" x="24.333333333333329" y="120.66666666666669" width="145.33333333333337" height="34"/>
+                                                <rect key="frame" x="24.333333333333329" y="113.66666666666669" width="145.33333333333337" height="36"/>
                                                 <color key="backgroundColor" red="0.94254873287459828" green="0.91700311846952998" blue="1" alpha="0.17000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="19"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="decimalPad" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
                                                 <connections>
                                                     <action selector="qtyOwnedChanged:" destination="DZx-RA-0sP" eventType="editingChanged" id="TKI-p1-S6Y"/>
@@ -458,59 +471,59 @@
                                         <rect key="frame" x="195" y="0.0" width="195" height="379.66666666666669"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Buying" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aDt-na-hX2">
-                                                <rect key="frame" x="0.0" y="49" width="195" height="23"/>
-                                                <fontDescription key="fontDescription" name="DINCondensed-Bold" family="DIN Condensed" pointSize="23"/>
+                                                <rect key="frame" x="0.0" y="49" width="195" height="29"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="21"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="$4.51" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="Ypp-le-BzS">
-                                                <rect key="frame" x="24.333333333333343" y="192" width="146.33333333333334" height="34"/>
+                                                <rect key="frame" x="24.333333333333343" y="191" width="146.33333333333334" height="36"/>
                                                 <color key="backgroundColor" red="1" green="0.98539692152360858" blue="0.76839000492129084" alpha="0.17000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="19"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="decimalPad" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
                                                 <connections>
                                                     <action selector="priceBuyingChanged:" destination="DZx-RA-0sP" eventType="editingChanged" id="LEl-nm-Ux2"/>
                                                 </connections>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Price Buying" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="XGa-hw-v7Q">
-                                                <rect key="frame" x="52.33333333333335" y="229" width="90.666666666666686" height="20"/>
+                                                <rect key="frame" x="48" y="230" width="99" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="hY9-mK-7lM"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="100 shares" textAlignment="center" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="9Lf-8O-OGo">
-                                                <rect key="frame" x="24.333333333333343" y="120" width="146.33333333333334" height="34"/>
+                                                <rect key="frame" x="24.333333333333343" y="117" width="146.33333333333334" height="36"/>
                                                 <color key="backgroundColor" red="1" green="0.98539692152360858" blue="0.76839000492129084" alpha="0.17000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="19"/>
                                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="decimalPad" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no" textContentType="username"/>
                                                 <connections>
                                                     <action selector="qtyBuyingChanged:" destination="DZx-RA-0sP" eventType="editingChanged" id="RHP-TF-J71"/>
                                                 </connections>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Qty Buying" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="q8n-yp-Y2A">
-                                                <rect key="frame" x="55.666666666666657" y="157" width="84" height="20"/>
+                                                <rect key="frame" x="55.666666666666657" y="156" width="84" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="8wu-6R-ynW"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <textField opaque="NO" tag="5" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="$451" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="iAb-rq-K42">
-                                                <rect key="frame" x="24.333333333333343" y="264" width="146.33333333333334" height="34"/>
+                                                <rect key="frame" x="24.333333333333343" y="265" width="146.33333333333334" height="36"/>
                                                 <color key="backgroundColor" red="1" green="0.98539692152360858" blue="0.76839000492129084" alpha="0.17000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="19"/>
                                                 <textInputTraits key="textInputTraits" keyboardType="phonePad" textContentType="tel"/>
                                             </textField>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Amount Buying" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="iRx-jV-LT5">
-                                                <rect key="frame" x="42.33333333333335" y="301" width="110.66666666666669" height="20"/>
+                                                <rect key="frame" x="35.999999999999993" y="304" width="123.33333333333331" height="20"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="20" id="FIi-GQ-rIc"/>
                                                 </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="17"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
@@ -542,37 +555,37 @@
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5EI-I7-wfX">
                                                 <rect key="frame" x="15" y="5" width="156" height="0.0"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="18"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="idm-HB-hVi">
                                                 <rect key="frame" x="219" y="5" width="156" height="0.0"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="19"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="18"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hqi-ep-erB">
                                                 <rect key="frame" x="170" y="95" width="0.0" height="0.0"/>
-                                                <fontDescription key="fontDescription" name="Kefa-Regular" family="Kefa" pointSize="20"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="20"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F1U-ag-TXs">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="23423" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F1U-ag-TXs">
                                                 <rect key="frame" x="180" y="65.333333333333314" width="195" height="50.333333333333343"/>
-                                                <fontDescription key="fontDescription" name="GillSans-Bold" family="Gill Sans" pointSize="40"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="41"/>
                                                 <color key="textColor" red="0.60784313725490191" green="0.74117647058823533" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total Qty" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TdG-kB-1af">
-                                                <rect key="frame" x="266" y="5" width="62" height="18"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                <rect key="frame" x="266.66666666666669" y="5" width="60.666666666666686" height="20.666666666666668"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="15"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total Amount" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ca4-Zq-yr0">
-                                                <rect key="frame" x="47.666666666666657" y="5" width="91" height="18"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                <rect key="frame" x="48" y="5" width="90" height="20.666666666666668"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="15"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
@@ -624,7 +637,7 @@
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal">
                                     <color key="titleColor" systemColor="labelColor"/>
-                                    <imageReference key="image" image="arrow.counterclockwise" symbolScale="default" renderingMode="original"/>
+                                    <imageReference key="image" image="arrow.triangle.2.circlepath" symbolScale="default" renderingMode="original"/>
                                     <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="30" scale="large" weight="regular"/>
                                 </state>
                                 <connections>
@@ -1250,9 +1263,9 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
-        <image name="arrow.counterclockwise" width="12" height="14"/>
-        <image name="arrow.down.app.fill" width="10" height="10"/>
         <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
+        <image name="arrow.down.app.fill" width="10" height="10"/>
+        <image name="arrow.triangle.2.circlepath" width="16" height="13"/>
         <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>
         <image name="eyeglasses" catalog="system" width="128" height="54"/>
