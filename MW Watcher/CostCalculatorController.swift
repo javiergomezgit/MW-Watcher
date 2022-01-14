@@ -9,6 +9,7 @@ import UIKit
 
 class CostCalculatorController: UIViewController {
     
+    @IBOutlet weak var resetButton: UIButton!
     @IBOutlet weak var qtyOwnedText: UITextField!
     @IBOutlet weak var priceOwnedText: UITextField!
     @IBOutlet weak var amountOwnedText: UITextField!
@@ -38,6 +39,9 @@ class CostCalculatorController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.hideKeyboardWhenTappedAround()
+        
+        let imageButton = UIImage(systemName: "arrow.triangle.2.circlepath")
+        resetButton.setImage(imageButton?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal), for: .normal)
     }
     
     override func viewWillAppear(_ animated: Bool) {
