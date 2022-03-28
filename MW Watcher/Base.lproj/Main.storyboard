@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="xSP-pN-JiN">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="xSP-pN-JiN">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -566,15 +566,21 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.00%" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hqi-ep-erB">
-                                                <rect key="frame" x="114" y="81.333333333333314" width="56" height="27.333333333333329"/>
+                                                <rect key="frame" x="114" y="79.666666666666629" width="56" height="27.333333333333329"/>
                                                 <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="20"/>
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$0.00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F1U-ag-TXs">
-                                                <rect key="frame" x="180" y="65.333333333333314" width="195" height="50.333333333333343"/>
+                                                <rect key="frame" x="180" y="66.666666666666629" width="195" height="44"/>
                                                 <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="41"/>
                                                 <color key="textColor" red="0.60784313725490191" green="0.74117647058823533" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Avg. Price" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PPo-GB-vLT">
+                                                <rect key="frame" x="244" y="115.66666666666663" width="67" height="20.666666666666657"/>
+                                                <fontDescription key="fontDescription" name="Avenir-Light" family="Avenir" pointSize="15"/>
+                                                <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total Qty" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TdG-kB-1af">
@@ -597,17 +603,19 @@
                                             <constraint firstItem="hqi-ep-erB" firstAttribute="centerY" secondItem="F1U-ag-TXs" secondAttribute="centerY" multiplier="1.05" id="4p2-yc-Zga"/>
                                             <constraint firstAttribute="trailing" secondItem="idm-HB-hVi" secondAttribute="trailing" constant="15" id="6g4-Oq-En4"/>
                                             <constraint firstItem="5EI-I7-wfX" firstAttribute="width" secondItem="rqF-BA-dOq" secondAttribute="width" multiplier="0.4" id="B0V-Ti-BlH"/>
+                                            <constraint firstItem="PPo-GB-vLT" firstAttribute="centerX" secondItem="F1U-ag-TXs" secondAttribute="centerX" id="TD7-rn-xQ7"/>
                                             <constraint firstItem="TdG-kB-1af" firstAttribute="top" secondItem="idm-HB-hVi" secondAttribute="bottom" id="Y3i-s9-EeE"/>
+                                            <constraint firstItem="PPo-GB-vLT" firstAttribute="top" secondItem="F1U-ag-TXs" secondAttribute="bottom" constant="5" id="b60-4m-cWr"/>
                                             <constraint firstItem="F1U-ag-TXs" firstAttribute="leading" secondItem="hqi-ep-erB" secondAttribute="trailing" constant="10" id="fd5-gQ-CD8"/>
                                             <constraint firstItem="ca4-Zq-yr0" firstAttribute="top" secondItem="5EI-I7-wfX" secondAttribute="bottom" id="ggc-H6-DTQ"/>
                                             <constraint firstAttribute="trailing" secondItem="F1U-ag-TXs" secondAttribute="trailing" constant="15" id="kQp-yr-8hn"/>
                                             <constraint firstItem="idm-HB-hVi" firstAttribute="width" secondItem="rqF-BA-dOq" secondAttribute="width" multiplier="0.4" id="l7v-W3-4cw"/>
-                                            <constraint firstItem="F1U-ag-TXs" firstAttribute="height" secondItem="rqF-BA-dOq" secondAttribute="height" multiplier="0.4" id="lnB-ht-gdk"/>
+                                            <constraint firstItem="F1U-ag-TXs" firstAttribute="height" secondItem="rqF-BA-dOq" secondAttribute="height" multiplier="0.35" id="lnB-ht-gdk"/>
                                             <constraint firstItem="ca4-Zq-yr0" firstAttribute="centerX" secondItem="5EI-I7-wfX" secondAttribute="centerX" id="nZo-Pl-Yqr"/>
                                             <constraint firstItem="TdG-kB-1af" firstAttribute="centerX" secondItem="idm-HB-hVi" secondAttribute="centerX" id="p4h-2n-LfQ"/>
                                             <constraint firstItem="idm-HB-hVi" firstAttribute="top" secondItem="rqF-BA-dOq" secondAttribute="top" constant="5" id="rC8-ke-19C"/>
                                             <constraint firstItem="5EI-I7-wfX" firstAttribute="leading" secondItem="rqF-BA-dOq" secondAttribute="leading" constant="15" id="rNr-3e-FuK"/>
-                                            <constraint firstAttribute="bottom" secondItem="F1U-ag-TXs" secondAttribute="bottom" constant="10" id="y7s-Od-VYf"/>
+                                            <constraint firstAttribute="bottom" secondItem="F1U-ag-TXs" secondAttribute="bottom" constant="15" id="y7s-Od-VYf"/>
                                         </constraints>
                                     </view>
                                 </subviews>
@@ -1262,8 +1270,8 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
-        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="arrow.down.app.fill" width="10" height="10"/>
+        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>
         <image name="eyeglasses" catalog="system" width="128" height="54"/>
