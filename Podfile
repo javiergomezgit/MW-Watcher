@@ -11,6 +11,8 @@ target 'MW Watcher' do
   pod 'AMPopTip'
   pod 'Firebase/Analytics'
   pod 'Firebase/Crashlytics'
+  pod 'Charts'
+  pod 'ChartsRealm'
 end
 
 target 'WidgetExtension' do

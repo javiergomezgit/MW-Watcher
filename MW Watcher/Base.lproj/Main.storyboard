@@ -1062,6 +1062,21 @@
             </objects>
             <point key="canvasLocation" x="3209" y="879"/>
         </scene>
+        <!--View Controller-->
+        <scene sceneID="slF-eo-STv">
+            <objects>
+                <viewController id="idr-8i-kfl" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="wWK-E2-pou">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="S5A-DB-S5t"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Ooz-10-1ii" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3208" y="1563"/>
+        </scene>
         <!--Saved News-->
         <scene sceneID="bIr-dc-Il8">
             <objects>
