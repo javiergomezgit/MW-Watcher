@@ -13,6 +13,7 @@ target 'MW Watcher' do
   pod 'Firebase/Crashlytics'
   pod 'Charts'
   pod 'ChartsRealm'
+  pod 'TinyConstraints'
 end
 
 target 'WidgetExtension' do

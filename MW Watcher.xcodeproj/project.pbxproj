@@ -45,6 +45,7 @@
 		2286502026681C4800769EB2 /* page3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2286501D26681C4800769EB2 /* page3.jpg */; };
 		229554F2267A3C260082235C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 229554F1267A3C260082235C /* CloudKit.framework */; };
 		229554F4267A3FAD0082235C /* ShowAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229554F3267A3FAD0082235C /* ShowAlerts.swift */; };
+		229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229A2F1D27F8ED3300A05EE1 /* ChartController.swift */; };
 		22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
 		22AD1A45264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
 		22AD1A47264B381C001A5362 /* SystemSaveNews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A46264B381C001A5362 /* SystemSaveNews.swift */; };
@@ -124,6 +125,7 @@
 		2286501D26681C4800769EB2 /* page3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = page3.jpg; sourceTree = "<group>"; };
 		229554F1267A3C260082235C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		229554F3267A3FAD0082235C /* ShowAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAlerts.swift; sourceTree = "<group>"; };
+		229A2F1D27F8ED3300A05EE1 /* ChartController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartController.swift; sourceTree = "<group>"; };
 		22AD1A43264B36FA001A5362 /* SavingFeeds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SavingFeeds.xcdatamodel; sourceTree = "<group>"; };
 		22AD1A46264B381C001A5362 /* SystemSaveNews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSaveNews.swift; sourceTree = "<group>"; };
 		22D21C6E26750DBC00C2313E /* CryptosAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosAPI.swift; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 			isa = PBXGroup;
 			children = (
 				22D21C702675383300C2313E /* CryptosController.swift */,
+				229A2F1D27F8ED3300A05EE1 /* ChartController.swift */,
 				2286501826680BC200769EB2 /* LaunchController.swift */,
 				221236AB263DA728007EA092 /* LiveNewsController.swift */,
 				220F4EA2265D318D00106325 /* MarketsController.swift */,
@@ -535,6 +538,7 @@
 				220F4EA3265D318D00106325 /* MarketsController.swift in Sources */,
 				2286501926680BC200769EB2 /* LaunchController.swift in Sources */,
 				220300BC265FDF7E008BAB70 /* MarketsViewCell.swift in Sources */,
+				229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */,
 				220F4EA1265D314200106325 /* WatchlistController.swift in Sources */,
 				22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
 				22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */,
