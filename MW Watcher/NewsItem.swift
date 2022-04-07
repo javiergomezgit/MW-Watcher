@@ -118,3 +118,26 @@ struct Quote: Codable {
     let percent_change_30d: Float
     let volume_24h: Float
 }
+
+
+
+struct CryptoIndividualAPIResponse: Codable {
+    let data: [String: CryptoIndividualData]
+}
+struct CryptoIndividualData: Codable {
+    let status: String
+    let quotes: [String: QuoteInvidual]
+}
+struct QuoteInvidual: Codable {
+    let startingAt: String
+    let open: Float
+    let high: Float
+    let low: Float
+    let close: Float
+    let avg: Float?
+}
+
+
+
+
+

@@ -41,7 +41,7 @@ class ChatController: UIViewController, ChartViewDelegate {
             switch result {
             case .success(let data):
                 
-                self?.cryptoData = data
+                //self?.cryptoData = data
                 print (data)
                 DispatchQueue.main.async {
                     self?.setUpViewModel()
