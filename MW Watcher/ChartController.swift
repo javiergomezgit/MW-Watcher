@@ -22,7 +22,7 @@ class ChatController: UIViewController, ChartViewDelegate {
     @IBOutlet weak var currentPercentageLabel: UILabel!
     @IBOutlet weak var timeFrameSegmented: UISegmentedControl!
     @IBOutlet weak var nameLabel: UILabel!
-    var selectedCandleChart = false
+    var selectedCandleChart = true
     
     var candleValues = [CandleChartDataEntry]()
     var linearValues = [ChartDataEntry]()
@@ -61,32 +61,23 @@ class ChatController: UIViewController, ChartViewDelegate {
 
         guard let modelCandles = cryptoData else { return }
 
-
-        
-        //        let cryptosSortedByVolume = models.sorted { first, second -> Bool in
-        //            return first.quote["USD"]!.volume_24h > second.quote["USD"]!.volume_24h
-        //        }
-       
         self.candleValues.removeAll()
         self.linearValues.removeAll()
-        
-        for candleValue in modelCandles {
-                  let startingAt = candleValue.startingAt
+
+        for (index, candleValue) in modelCandles.enumerated() {
+                  //let startingAt = candleValue.start_timestamp
             guard let openPrice = Double(candleValue.open) else { return }
-            guard let highPrice = Double(candleValue.high) else { return }
+            guard let highPrice = Double(candleValue.max) else { return }
             guard let closePrice = Double(candleValue.close) else { return }
-            guard let lowPrice = Double(candleValue.low) else { return }
+            guard let lowPrice = Double(candleValue.min) else { return }
             
-            let candleValueEntry = CandleChartDataEntry(x: Double(startingAt), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
-            let linearValueEntry = ChartDataEntry(x: Double(startingAt), y: closePrice)
+            let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
+            let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
             
             self.candleValues.append(candleValueEntry)
             self.linearValues.append(linearValueEntry)
         }
         
-        //self.candleValues = candleValuesTemp.sorted(by: { $0.low > $1.low })
-
-        print (self.candleValues)
         self.choseTypeChart()
     }
     
@@ -210,7 +201,7 @@ class ChatController: UIViewController, ChartViewDelegate {
 
     func setDataLineChart() {
         let set1 = LineChartDataSet(entries: linearValues, label: "Subscribs")
-        
+
         set1.mode = .cubicBezier
         set1.drawCirclesEnabled = false
         set1.lineWidth = 1
@@ -225,20 +216,17 @@ class ChatController: UIViewController, ChartViewDelegate {
             set1.fill = Fill(color: .red)
             set1.fillAlpha = 0.4
         }
-        
+
         set1.drawFilledEnabled = true
-        
+
         set1.drawHorizontalHighlightIndicatorEnabled = false
         set1.highlightColor = .systemRed
-        
+
         let data = LineChartData(dataSet: set1)
         data.setDrawValues(false)
         lineChartView.data = data
     }
 }
-
-
-
 
 
 

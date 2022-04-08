@@ -1071,16 +1071,16 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xo3-4p-GSC">
-                                <rect key="frame" x="0.0" y="190" width="390" height="422"/>
+                                <rect key="frame" x="0.0" y="190.00000000000003" width="390" height="337.66666666666674"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="pbo-cH-4Hl">
-                                <rect key="frame" x="5" y="617" width="380" height="41"/>
+                                <rect key="frame" x="5" y="567.66666666666663" width="380" height="41"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="fAU-g9-s9a"/>
                                 </constraints>
                                 <segments>
-                                    <segment title="1H"/>
+                                    <segment title="5min"/>
                                     <segment title="1D"/>
                                     <segment title="1W"/>
                                     <segment title="1M"/>
@@ -1146,14 +1146,14 @@
                         <viewLayoutGuide key="safeArea" id="S5A-DB-S5t"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="pbo-cH-4Hl" firstAttribute="top" secondItem="Xo3-4p-GSC" secondAttribute="bottom" constant="5" id="2sh-gN-doC"/>
+                            <constraint firstItem="pbo-cH-4Hl" firstAttribute="top" secondItem="Xo3-4p-GSC" secondAttribute="bottom" constant="40" id="2sh-gN-doC"/>
                             <constraint firstItem="Xo3-4p-GSC" firstAttribute="leading" secondItem="S5A-DB-S5t" secondAttribute="leading" id="CnB-hr-9T0"/>
                             <constraint firstItem="S5A-DB-S5t" firstAttribute="trailing" secondItem="pbo-cH-4Hl" secondAttribute="trailing" constant="5" id="HUL-lL-jTI"/>
                             <constraint firstItem="S5A-DB-S5t" firstAttribute="bottom" secondItem="R8q-7e-UVG" secondAttribute="bottom" constant="50" id="JhZ-Rc-I25"/>
                             <constraint firstItem="EMi-dk-dHu" firstAttribute="top" secondItem="S5A-DB-S5t" secondAttribute="top" constant="5" id="JjS-Ch-u7S"/>
                             <constraint firstItem="jg6-4P-aLa" firstAttribute="top" secondItem="EMi-dk-dHu" secondAttribute="bottom" constant="8" id="MkR-Dk-p4W"/>
                             <constraint firstItem="S5A-DB-S5t" firstAttribute="trailing" secondItem="R8q-7e-UVG" secondAttribute="trailing" constant="20" id="Pus-VB-hnj"/>
-                            <constraint firstItem="Xo3-4p-GSC" firstAttribute="height" secondItem="wWK-E2-pou" secondAttribute="height" multiplier="0.5" id="TdT-AH-kSi"/>
+                            <constraint firstItem="Xo3-4p-GSC" firstAttribute="height" secondItem="wWK-E2-pou" secondAttribute="height" multiplier="0.4" id="TdT-AH-kSi"/>
                             <constraint firstItem="Xo3-4p-GSC" firstAttribute="top" secondItem="FSj-Oc-Lbn" secondAttribute="bottom" constant="15" id="Ufz-CN-bC4"/>
                             <constraint firstItem="EMi-dk-dHu" firstAttribute="centerX" secondItem="wWK-E2-pou" secondAttribute="centerX" id="VJJ-sU-bn3"/>
                             <constraint firstItem="jg6-4P-aLa" firstAttribute="centerX" secondItem="wWK-E2-pou" secondAttribute="centerX" id="WrN-Hg-f13"/>

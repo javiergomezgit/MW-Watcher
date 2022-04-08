@@ -20,11 +20,10 @@ final class CryptosAPI {
         
         //Constants for individual crypto API
         static let apiKeyIndividual = "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
-        static let apiHeaderIndividual = "coinranking1.p.rapidapi.com"
-        static let baseURLIndividual = "https://coinranking1.p.rapidapi.com/coin/"
-        static var coinUUID = "Qwsogvtv82FCd"
-        static var interval = "minute"
-        static var limit = "60"
+        static let apiHeaderIndividual = "investing-cryptocurrency-markets.p.rapidapi.com"
+        static let baseURLIndividual = "https://investing-cryptocurrency-markets.p.rapidapi.com/coins/get-fullsize-chart?pair_ID="
+        static var pair_ID = "945629"
+        static var interval = "300"
     }
     private init() {}
 
@@ -71,7 +70,8 @@ final class CryptosAPI {
             "X-RapidAPI-Host": Constant.apiHeaderIndividual,
             "X-RapidAPI-Key": Constant.apiKeyIndividual
         ]
-        let request = NSMutableURLRequest(url: NSURL(string: Constant.baseURLIndividual + Constant.coinUUID + "/ohlc?referenceCurrencyUuid=yhjMzLPhuIDl&interval=" + Constant.interval + "&limit=" + Constant.limit)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+
+        let request = NSMutableURLRequest(url: NSURL(string: Constant.baseURLIndividual + Constant.pair_ID + "&time_utc_offset=28800&lang_ID=1&pair_interval=" + Constant.interval)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
@@ -86,17 +86,24 @@ final class CryptosAPI {
             guard let data = data else {
                 return
             }
-        
+                    
             do {
                 let response = try JSONDecoder().decode(CryptoIndividualAPIResponse.self, from: data)
         
                 var valueCryptoIndividual: [QuoteInvidual] = []
 
-                if let values = response.data.values.first as? [QuoteInvidual] {
-                    for value in values {
-                        valueCryptoIndividual.append(value)
+                if let values = response.quotes_data.values.first  {
+                    print (values)
+                    for (index, value) in values.enumerated() {
+                        if index < 60 {
+                            valueCryptoIndividual.append(value)
+                        } else {
+                            break
+                        }
                     }
-                    completion(.success(valueCryptoIndividual))
+                    let candleValues = valueCryptoIndividual.sorted(by: { $0.start_timestamp < $1.start_timestamp })
+
+                    completion(.success(candleValues))
                 }
             } catch {
                 completion(.failure(error))

@@ -32,14 +32,14 @@ struct Quote: Codable {
 
 //Individual Crypto coin
 struct CryptoIndividualAPIResponse: Codable {
-    let data: [String: [QuoteInvidual]]
+    let quotes_data: [String: [QuoteInvidual]]
 }
 
 struct QuoteInvidual: Codable {
-    let startingAt: Int
+    let start_timestamp: String
     let open: String
-    let high: String
-    let low: String
     let close: String
-    let avg: String
+    let min: String
+    let max: String
+    let volume: String
 }
