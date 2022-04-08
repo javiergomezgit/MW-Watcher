@@ -66,13 +66,12 @@ final class CryptosAPI {
         task.resume()
     }
     
-    public func getSelectedCrypto(completion: @escaping (Result<[CryptoIndividualData], Error>) -> Void) {
+    public func getSelectedCrypto(completion: @escaping (Result<[QuoteInvidual], Error>) -> Void) {
         let headers = [
             "X-RapidAPI-Host": Constant.apiHeaderIndividual,
             "X-RapidAPI-Key": Constant.apiKeyIndividual
         ]
-        
-        let request = NSMutableURLRequest(url: NSURL(string: Constant.baseURLIndividual + Constant.coinUUID + "/ohlc?interval=" + Constant.interval + "&limit=" + Constant.limit)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+        let request = NSMutableURLRequest(url: NSURL(string: Constant.baseURLIndividual + Constant.coinUUID + "/ohlc?referenceCurrencyUuid=yhjMzLPhuIDl&interval=" + Constant.interval + "&limit=" + Constant.limit)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
@@ -87,21 +86,18 @@ final class CryptosAPI {
             guard let data = data else {
                 return
             }
-            
-            let httpResponse = response as? HTTPURLResponse
-            print(httpResponse)
-            
+        
             do {
                 let response = try JSONDecoder().decode(CryptoIndividualAPIResponse.self, from: data)
-                
-                print (data)
-                var valueCrypto: [CryptoIndividualData] = []
-                for values in response.data.values {
-                    print (values)
-                    print (response.data.keys)
-                    valueCrypto.append(values)
+        
+                var valueCryptoIndividual: [QuoteInvidual] = []
+
+                if let values = response.data.values.first as? [QuoteInvidual] {
+                    for value in values {
+                        valueCryptoIndividual.append(value)
+                    }
+                    completion(.success(valueCryptoIndividual))
                 }
-                completion(.success(valueCrypto))
             } catch {
                 completion(.failure(error))
             }

@@ -34,7 +34,6 @@ struct SystemSavedNewsItem {
 }
 
 //MARK: Crypto Model
-
 /*
  {
      "data": {
@@ -100,44 +99,3 @@ struct SystemSavedNewsItem {
              }
          },
  */
-
-struct CryptoAPIResponse: Codable {
-    let data: [String: CryptoData]
-}
-
-struct CryptoData: Codable {
-    let id: Int
-    let name: String
-    let symbol: String
-    let quote: [String: Quote]
-}
-
-struct Quote: Codable {
-    let price: Float
-    let percent_change_24h: Float
-    let percent_change_30d: Float
-    let volume_24h: Float
-}
-
-
-
-struct CryptoIndividualAPIResponse: Codable {
-    let data: [String: CryptoIndividualData]
-}
-struct CryptoIndividualData: Codable {
-    let status: String
-    let quotes: [String: QuoteInvidual]
-}
-struct QuoteInvidual: Codable {
-    let startingAt: String
-    let open: Float
-    let high: Float
-    let low: Float
-    let close: Float
-    let avg: Float?
-}
-
-
-
-
-

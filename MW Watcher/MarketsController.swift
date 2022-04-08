@@ -16,7 +16,7 @@ class MarketsController: UIViewController {
     var marketsPrices = [
         "^DJI" : ["Dow Jones Industrial Average", 0.0, 0.0],
         "^GSPC" : ["S&P 500", 0.0, 0.0],
-        "^NDX" : ["Nasdaq, Inc.", 0.0, 0.0],
+        "^NDX" : ["Nasdaq, Inc.", 0.0, 0.0], //need to change to $COMP
         "^W5000" : ["Wilshire 5000 Total Market Index", 0.0, 0.0],
         "^RUA" : ["Russell 3000", 0.0, 0.0],
         "^SP400" : ["S&P 400", 0.0, 0.0],

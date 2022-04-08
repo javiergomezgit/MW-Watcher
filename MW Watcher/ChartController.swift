@@ -11,7 +11,7 @@ import TinyConstraints
 
 class ChatController: UIViewController, ChartViewDelegate {
     
-    private var cryptoData: [CryptoData]?
+    private var cryptoData: [QuoteInvidual]?
     private var viewModels = [CryptosViewCellModel]()
     
     @IBOutlet weak var chartView: UIView!
@@ -24,6 +24,10 @@ class ChatController: UIViewController, ChartViewDelegate {
     @IBOutlet weak var nameLabel: UILabel!
     var selectedCandleChart = false
     
+    var candleValues = [CandleChartDataEntry]()
+    var linearValues = [ChartDataEntry]()
+
+    
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
         
     }
@@ -32,8 +36,6 @@ class ChatController: UIViewController, ChartViewDelegate {
         super.viewDidLoad()
         
         loadCryptoPrices()
-        
-        //choseTypeChart()
     }
     
     private func loadCryptoPrices() {
@@ -41,7 +43,7 @@ class ChatController: UIViewController, ChartViewDelegate {
             switch result {
             case .success(let data):
                 
-                //self?.cryptoData = data
+                self?.cryptoData = data
                 print (data)
                 DispatchQueue.main.async {
                     self?.setUpViewModel()
@@ -57,34 +59,36 @@ class ChatController: UIViewController, ChartViewDelegate {
     
     private func setUpViewModel() {
 
-        guard let models = cryptoData else { return }
+        guard let modelCandles = cryptoData else { return }
+
+
         
-        let cryptosSortedByVolume = models.sorted { first, second -> Bool in
-            return first.quote["USD"]!.volume_24h > second.quote["USD"]!.volume_24h
+        //        let cryptosSortedByVolume = models.sorted { first, second -> Bool in
+        //            return first.quote["USD"]!.volume_24h > second.quote["USD"]!.volume_24h
+        //        }
+       
+        self.candleValues.removeAll()
+        self.linearValues.removeAll()
+        
+        for candleValue in modelCandles {
+                  let startingAt = candleValue.startingAt
+            guard let openPrice = Double(candleValue.open) else { return }
+            guard let highPrice = Double(candleValue.high) else { return }
+            guard let closePrice = Double(candleValue.close) else { return }
+            guard let lowPrice = Double(candleValue.low) else { return }
+            
+            let candleValueEntry = CandleChartDataEntry(x: Double(startingAt), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
+            let linearValueEntry = ChartDataEntry(x: Double(startingAt), y: closePrice)
+            
+            self.candleValues.append(candleValueEntry)
+            self.linearValues.append(linearValueEntry)
         }
         
-        for model in cryptosSortedByVolume {
-            guard let price = model.quote["USD"]?.price else { return }
-            guard let change = model.quote["USD"]?.percent_change_24h else { return }
-            guard let changeMonth = model.quote["USD"]?.percent_change_30d else { return }
-            guard let volume = model.quote["USD"]?.volume_24h else { return }
-            
-            let number = NSNumber(value: price)
-            let stringPrice = CryptosController.numberFormatter.string(from: number)
-            
-            let percent = NSNumber(value: change)
-            let percentDay = CryptosController.percentFormatter.string(from: percent)
-            
-            let percentM = NSNumber(value: changeMonth)
-            let percentMonth = CryptosController.percentFormatter.string(from: percentM)
-            
-            let volumeReduce = NSNumber(value: (volume/1000000))
-            let volume24hr = CryptosController.volumeFormatter.string(from: volumeReduce)
-            
-            viewModels.append(CryptosViewCellModel(symbol: model.symbol, name: model.name, price: stringPrice!, change: percentDay!, changeMonth: percentMonth!, volume: volume24hr!, cryptoImage: UIImage(named: model.symbol)!))
-        }
+        //self.candleValues = candleValuesTemp.sorted(by: { $0.low > $1.low })
+
+        print (self.candleValues)
+        self.choseTypeChart()
     }
-    
     
     func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight) {
         print(entry)
@@ -98,7 +102,6 @@ class ChatController: UIViewController, ChartViewDelegate {
         }
         choseTypeChart()
     }
-    
     
     func choseTypeChart(){
         if selectedCandleChart {
@@ -122,6 +125,7 @@ class ChatController: UIViewController, ChartViewDelegate {
         }
     }
     
+    //MARK: Candle Chart
     lazy var candleView: CandleStickChartView = {
         let candleView = CandleStickChartView()
         candleView.delegate = self
@@ -145,7 +149,6 @@ class ChatController: UIViewController, ChartViewDelegate {
 //        candleView.legend.orientation = .vertical
 //        candleView.legend.drawInside = false
 //        candleView.legend.font = UIFont(name: "HelveticaNeue-Light", size: 12)!
-        
         candleView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
         candleView.rightAxis.labelTextColor = .label
         candleView.rightAxis.spaceTop = 0.3
@@ -156,7 +159,7 @@ class ChatController: UIViewController, ChartViewDelegate {
     }()
     
     func setDataCandleChart() {
-        let set1 = CandleChartDataSet(entries: yV, label: "1 Hour Time Frame")
+        let set1 = CandleChartDataSet(entries: candleValues, label: "1 Hour Time Frame")
                 
         set1.axisDependency = .left
         set1.setColor(UIColor(white: 80/255, alpha: 1))
@@ -175,77 +178,16 @@ class ChatController: UIViewController, ChartViewDelegate {
         let data = CandleChartData(dataSet: set1)
         candleView.data = data
     }
+       
     
-    let yV: [CandleChartDataEntry] = [
-        CandleChartDataEntry(x:1, shadowH:126.16, shadowL:123.07, open:123.87, close:125.90),
-        CandleChartDataEntry(x:2, shadowH:127.13, shadowL:125.65, open:126.50, close:126.21),
-        CandleChartDataEntry(x:3, shadowH:127.92, shadowL:125.14, open:125.83, close:127.90),
-        CandleChartDataEntry(x:4, shadowH:130.39, shadowL:128.52, open:128.95, close:130.36),
-        CandleChartDataEntry(x:5, shadowH:133.04, shadowL:129.47, open:129.80, close:133.00),
-        CandleChartDataEntry(x:6, shadowH:132.85, shadowL:130.63, open:132.52, close:131.24),
-        CandleChartDataEntry(x:7, shadowH:134.66, shadowL:131.93, open:132.44, close:134.43),
-        CandleChartDataEntry(x:8, shadowH:135.00, shadowL:131.66, open:134.94, close:132.03),
-        CandleChartDataEntry(x:9, shadowH:135.00, shadowL:133.64, open:133.82, close:134.50),
-        CandleChartDataEntry(x:10, shadowH:134.67, shadowL:133.28, open:134.30, close:134.16),
-        CandleChartDataEntry(x:11, shadowH:135.47, shadowL:133.34, open:133.51, close:134.84),
-        CandleChartDataEntry(x:12, shadowH:135.53, shadowL:131.81, open:135.02, close:133.11),
-        CandleChartDataEntry(x:13, shadowH:133.75, shadowL:131.30, open:132.36, close:133.50),
-        CandleChartDataEntry(x:14, shadowH:134.15, shadowL:131.41, open:133.04, close:131.94),
-        CandleChartDataEntry(x:15, shadowH:135.12, shadowL:132.16, open:132.16, close:134.32),
-        CandleChartDataEntry(x:16, shadowH:135.06, shadowL:133.56, open:134.83, close:134.72),
-        CandleChartDataEntry(x:17, shadowH:135.41, shadowL:134.11, open:135.01, close:134.39),
-        CandleChartDataEntry(x:18, shadowH:135.02, shadowL:133.08, open:134.31, close:133.58),
-        CandleChartDataEntry(x:19, shadowH:137.07, shadowL:132.45, open:136.47, close:133.48),
-        CandleChartDataEntry(x:20, shadowH:133.56, shadowL:131.07, open:131.78, close:131.46),
-        CandleChartDataEntry(x:21, shadowH:134.07, shadowL:131.83, open:132.04, close:132.54),
-        CandleChartDataEntry(x:22, shadowH:131.49, shadowL:126.70, open:131.19, close:127.85),
-        CandleChartDataEntry(x:23, shadowH:130.45, shadowL:127.97, open:129.20, close:128.10),
-        CandleChartDataEntry(x:24, shadowH:129.75, shadowL:127.13, open:127.89, close:129.74),
-        CandleChartDataEntry(x:25, shadowH:131.26, shadowL:129.48, open:130.85, close:130.21),
-        CandleChartDataEntry(x:26, shadowH:129.54, shadowL:126.81, open:129.41, close:126.85),
-        CandleChartDataEntry(x:27, shadowH:126.27, shadowL:122.77, open:123.50, close:125.91),
-        CandleChartDataEntry(x:28, shadowH:124.64, shadowL:122.25, open:123.40, close:122.77),
-        CandleChartDataEntry(x:29, shadowH:126.15, shadowL:124.26, open:124.58, close:124.97),
-        CandleChartDataEntry(x:30, shadowH:127.89, shadowL:125.85, open:126.25, close:127.45),
-        CandleChartDataEntry(x:31, shadowH:126.93, shadowL:125.17, open:126.82, close:126.27),
-        CandleChartDataEntry(x:32, shadowH:126.99, shadowL:124.78, open:126.56, close:124.85),
-        CandleChartDataEntry(x:33, shadowH:124.92, shadowL:122.86, open:123.16, close:124.69),
-        CandleChartDataEntry(x:34, shadowH:127.72, shadowL:125.10, open:125.23, close:127.31),
-        CandleChartDataEntry(x:35, shadowH:128.00, shadowL:125.21, open:127.82, close:125.43),
-        CandleChartDataEntry(x:36, shadowH:127.94, shadowL:125.94, open:126.01, close:127.10),
-        CandleChartDataEntry(x:37, shadowH:128.32, shadowL:126.32, open:127.82, close:126.90),
-        CandleChartDataEntry(x:38, shadowH:127.39, shadowL:126.42, open:126.96, close:126.85),
-        CandleChartDataEntry(x:39, shadowH:127.64, shadowL:125.08, open:126.44, close:125.28),
-        CandleChartDataEntry(x:40, shadowH:125.80, shadowL:124.55, open:125.57, close:124.61),
-        CandleChartDataEntry(x:41, shadowH:125.35, shadowL:123.94, open:125.08, close:124.28),
-        CandleChartDataEntry(x:42, shadowH:125.24, shadowL:124.05, open:124.28, close:125.06),
-        CandleChartDataEntry(x:43, shadowH:124.85, shadowL:123.13, open:124.68, close:123.54),
-        CandleChartDataEntry(x:44, shadowH:126.16, shadowL:123.85, open:124.07, close:125.89),
-        CandleChartDataEntry(x:45, shadowH:126.32, shadowL:124.83, open:126.17, close:125.90),
-        CandleChartDataEntry(x:46, shadowH:128.46, shadowL:126.21, open:126.60, close:126.74),
-        CandleChartDataEntry(x:47, shadowH:127.75, shadowL:126.52, open:127.21, close:127.13),
-        CandleChartDataEntry(x:48, shadowH:128.19, shadowL:125.94, open:127.02, close:126.11),
-        CandleChartDataEntry(x:49, shadowH:127.44, shadowL:126.10, open:126.53, close:127.35),
-        CandleChartDataEntry(x:50, shadowH:130.54, shadowL:127.07, open:127.82, close:130.48),
-        CandleChartDataEntry(x:51, shadowH:130.60, shadowL:129.39, open:129.94, close:129.64),
-        CandleChartDataEntry(x:52, shadowH:130.89, shadowL:128.46, open:130.37, close:130.15),
-        CandleChartDataEntry(x:53, shadowH:132.55, shadowL:129.65, open:129.80, close:131.79),
-        CandleChartDataEntry(x:54, shadowH:131.51, shadowL:130.24, open:130.71, close:130.46),
-        CandleChartDataEntry(x:55, shadowH:132.41, shadowL:129.21, open:130.30, close:132.30),
-        CandleChartDataEntry(x:56, shadowH:134.08, shadowL:131.62, open:132.13, close:133.98),
-        CandleChartDataEntry(x:57, shadowH:134.32, shadowL:133.23, open:133.77, close:133.70),
-        CandleChartDataEntry(x:58, shadowH:134.64, shadowL:132.93, open:134.45, close:133.41),
-        CandleChartDataEntry(x:59, shadowH:133.89, shadowL:132.81, open:133.46, close:133.11),
-        CandleChartDataEntry(x:60, shadowH:135.25, shadowL:133.35, open:133.41, close:134.78)
-        ]
-    
+    //MARK: Linear Chart
     lazy var lineChartView: LineChartView = {
         let lineChartView = LineChartView()
         lineChartView.delegate = self
         lineChartView.leftAxis.enabled = false
         lineChartView.xAxis.enabled = false
         lineChartView.rightAxis.enabled = true
-//        lineChartView.animate(xAxisDuration: 0.2)
+        //lineChartView.animate(xAxisDuration: 0.2)
         
         lineChartView.dragEnabled = true
         lineChartView.setScaleEnabled(true)
@@ -263,28 +205,17 @@ class ChatController: UIViewController, ChartViewDelegate {
         lineChartView.rightAxis.axisLineColor = .label
         lineChartView.rightAxis.labelPosition = .outsideChart
         
-        
-//        chartView.xAxis.labelPosition = .bottom
-//        chartView.xAxis.labelFont = .boldSystemFont(ofSize: 12)
-//        chartView.xAxis.setLabelCount(3, force: false)
-//        chartView.xAxis.labelTextColor = .systemYellow
-//        chartView.xAxis.axisLineColor = .systemTeal
-        
-//        lineChartView.animate(xAxisDuration: 1.5)
-        
-        
         return lineChartView
     }()
 
-    
     func setDataLineChart() {
-        let set1 = LineChartDataSet(entries: yValues, label: "Subscribs")
+        let set1 = LineChartDataSet(entries: linearValues, label: "Subscribs")
         
         set1.mode = .cubicBezier
         set1.drawCirclesEnabled = false
         set1.lineWidth = 1
-        let v1 = yValues.first!.y
-        let v2 = yValues.last!.y
+        let v1 = linearValues.first!.y
+        let v2 = linearValues.last!.y
         if v1 < v2 {
             set1.setColor(.blue.withAlphaComponent(0.2))
             set1.fill = Fill(color: .green)
@@ -304,74 +235,77 @@ class ChatController: UIViewController, ChartViewDelegate {
         data.setDrawValues(false)
         lineChartView.data = data
     }
-    
-    let yValues: [ChartDataEntry] = [
-        ChartDataEntry(x:0, y:124.89),
-        ChartDataEntry(x:1, y:126.35),
-        ChartDataEntry(x:2, y:126.87),
-        ChartDataEntry(x:3, y:129.65),
-        ChartDataEntry(x:4, y:131.40),
-        ChartDataEntry(x:5, y:131.88),
-        ChartDataEntry(x:6, y:133.43),
-        ChartDataEntry(x:7, y:133.49),
-        ChartDataEntry(x:8, y:134.16),
-        ChartDataEntry(x:9, y:134.23),
-        ChartDataEntry(x:10, y:134.17),
-        ChartDataEntry(x:11, y:134.07),
-        ChartDataEntry(x:12, y:132.93),
-        ChartDataEntry(x:13, y:132.49),
-        ChartDataEntry(x:14, y:133.24),
-        ChartDataEntry(x:15, y:134.78),
-        ChartDataEntry(x:16, y:134.70),
-        ChartDataEntry(x:17, y:133.95),
-        ChartDataEntry(x:18, y:134.97),
-        ChartDataEntry(x:19, y:131.62),
-        ChartDataEntry(x:20, y:132.29),
-        ChartDataEntry(x:21, y:129.52),
-        ChartDataEntry(x:22, y:128.65),
-        ChartDataEntry(x:23, y:128.82),
-        ChartDataEntry(x:24, y:130.53),
-        ChartDataEntry(x:25, y:128.13),
-        ChartDataEntry(x:26, y:124.71),
-        ChartDataEntry(x:27, y:123.08),
-        ChartDataEntry(x:28, y:124.78),
-        ChartDataEntry(x:29, y:126.85),
-        ChartDataEntry(x:30, y:126.54),
-        ChartDataEntry(x:31, y:125.70),
-        ChartDataEntry(x:32, y:123.93),
-        ChartDataEntry(x:33, y:126.27),
-        ChartDataEntry(x:34, y:126.63),
-        ChartDataEntry(x:35, y:126.56),
-        ChartDataEntry(x:36, y:127.36),
-        ChartDataEntry(x:37, y:126.90),
-        ChartDataEntry(x:38, y:125.86),
-        ChartDataEntry(x:39, y:125.09),
-        ChartDataEntry(x:40, y:124.68),
-        ChartDataEntry(x:41, y:124.67),
-        ChartDataEntry(x:42, y:124.11),
-        ChartDataEntry(x:43, y:124.98),
-        ChartDataEntry(x:44, y:126.04),
-        ChartDataEntry(x:45, y:126.67),
-        ChartDataEntry(x:46, y:127.17),
-        ChartDataEntry(x:47, y:126.56),
-        ChartDataEntry(x:48, y:126.94),
-        ChartDataEntry(x:49, y:129.15),
-        ChartDataEntry(x:50, y:129.79),
-        ChartDataEntry(x:51, y:130.26),
-        ChartDataEntry(x:52, y:130.79),
-        ChartDataEntry(x:53, y:130.59),
-        ChartDataEntry(x:54, y:131.30),
-        ChartDataEntry(x:55, y:133.06),
-        ChartDataEntry(x:56, y:133.74),
-        ChartDataEntry(x:57, y:133.93),
-        ChartDataEntry(x:58, y:133.29),
-        ChartDataEntry(x:59, y:134.10),
-        ChartDataEntry(x:60, y:135.57)
-    ]
 }
 
 
+
+
+
+
+
+
+
 /*
+ CandleChartDataEntry(x:1, shadowH:126.16, shadowL:123.07, open:123.87, close:125.90),
+ CandleChartDataEntry(x:2, shadowH:127.13, shadowL:125.65, open:126.50, close:126.21),
+ CandleChartDataEntry(x:3, shadowH:127.92, shadowL:125.14, open:125.83, close:127.90),
+ CandleChartDataEntry(x:4, shadowH:130.39, shadowL:128.52, open:128.95, close:130.36),
+ CandleChartDataEntry(x:5, shadowH:133.04, shadowL:129.47, open:129.80, close:133.00),
+ CandleChartDataEntry(x:6, shadowH:132.85, shadowL:130.63, open:132.52, close:131.24),
+ CandleChartDataEntry(x:7, shadowH:134.66, shadowL:131.93, open:132.44, close:134.43),
+ CandleChartDataEntry(x:8, shadowH:135.00, shadowL:131.66, open:134.94, close:132.03),
+ CandleChartDataEntry(x:9, shadowH:135.00, shadowL:133.64, open:133.82, close:134.50),
+ CandleChartDataEntry(x:10, shadowH:134.67, shadowL:133.28, open:134.30, close:134.16),
+ CandleChartDataEntry(x:11, shadowH:135.47, shadowL:133.34, open:133.51, close:134.84),
+ CandleChartDataEntry(x:12, shadowH:135.53, shadowL:131.81, open:135.02, close:133.11),
+ CandleChartDataEntry(x:13, shadowH:133.75, shadowL:131.30, open:132.36, close:133.50),
+ CandleChartDataEntry(x:14, shadowH:134.15, shadowL:131.41, open:133.04, close:131.94),
+ CandleChartDataEntry(x:15, shadowH:135.12, shadowL:132.16, open:132.16, close:134.32),
+ CandleChartDataEntry(x:16, shadowH:135.06, shadowL:133.56, open:134.83, close:134.72),
+ CandleChartDataEntry(x:17, shadowH:135.41, shadowL:134.11, open:135.01, close:134.39),
+ CandleChartDataEntry(x:18, shadowH:135.02, shadowL:133.08, open:134.31, close:133.58),
+ CandleChartDataEntry(x:19, shadowH:137.07, shadowL:132.45, open:136.47, close:133.48),
+ CandleChartDataEntry(x:20, shadowH:133.56, shadowL:131.07, open:131.78, close:131.46),
+ CandleChartDataEntry(x:21, shadowH:134.07, shadowL:131.83, open:132.04, close:132.54),
+ CandleChartDataEntry(x:22, shadowH:131.49, shadowL:126.70, open:131.19, close:127.85),
+ CandleChartDataEntry(x:23, shadowH:130.45, shadowL:127.97, open:129.20, close:128.10),
+ CandleChartDataEntry(x:24, shadowH:129.75, shadowL:127.13, open:127.89, close:129.74),
+ CandleChartDataEntry(x:25, shadowH:131.26, shadowL:129.48, open:130.85, close:130.21),
+ CandleChartDataEntry(x:26, shadowH:129.54, shadowL:126.81, open:129.41, close:126.85),
+ CandleChartDataEntry(x:27, shadowH:126.27, shadowL:122.77, open:123.50, close:125.91),
+ CandleChartDataEntry(x:28, shadowH:124.64, shadowL:122.25, open:123.40, close:122.77),
+ CandleChartDataEntry(x:29, shadowH:126.15, shadowL:124.26, open:124.58, close:124.97),
+ CandleChartDataEntry(x:30, shadowH:127.89, shadowL:125.85, open:126.25, close:127.45),
+ CandleChartDataEntry(x:31, shadowH:126.93, shadowL:125.17, open:126.82, close:126.27),
+ CandleChartDataEntry(x:32, shadowH:126.99, shadowL:124.78, open:126.56, close:124.85),
+ CandleChartDataEntry(x:33, shadowH:124.92, shadowL:122.86, open:123.16, close:124.69),
+ CandleChartDataEntry(x:34, shadowH:127.72, shadowL:125.10, open:125.23, close:127.31),
+ CandleChartDataEntry(x:35, shadowH:128.00, shadowL:125.21, open:127.82, close:125.43),
+ CandleChartDataEntry(x:36, shadowH:127.94, shadowL:125.94, open:126.01, close:127.10),
+ CandleChartDataEntry(x:37, shadowH:128.32, shadowL:126.32, open:127.82, close:126.90),
+ CandleChartDataEntry(x:38, shadowH:127.39, shadowL:126.42, open:126.96, close:126.85),
+ CandleChartDataEntry(x:39, shadowH:127.64, shadowL:125.08, open:126.44, close:125.28),
+ CandleChartDataEntry(x:40, shadowH:125.80, shadowL:124.55, open:125.57, close:124.61),
+ CandleChartDataEntry(x:41, shadowH:125.35, shadowL:123.94, open:125.08, close:124.28),
+ CandleChartDataEntry(x:42, shadowH:125.24, shadowL:124.05, open:124.28, close:125.06),
+ CandleChartDataEntry(x:43, shadowH:124.85, shadowL:123.13, open:124.68, close:123.54),
+ CandleChartDataEntry(x:44, shadowH:126.16, shadowL:123.85, open:124.07, close:125.89),
+ CandleChartDataEntry(x:45, shadowH:126.32, shadowL:124.83, open:126.17, close:125.90),
+ CandleChartDataEntry(x:46, shadowH:128.46, shadowL:126.21, open:126.60, close:126.74),
+ CandleChartDataEntry(x:47, shadowH:127.75, shadowL:126.52, open:127.21, close:127.13),
+ CandleChartDataEntry(x:48, shadowH:128.19, shadowL:125.94, open:127.02, close:126.11),
+ CandleChartDataEntry(x:49, shadowH:127.44, shadowL:126.10, open:126.53, close:127.35),
+ CandleChartDataEntry(x:50, shadowH:130.54, shadowL:127.07, open:127.82, close:130.48),
+ CandleChartDataEntry(x:51, shadowH:130.60, shadowL:129.39, open:129.94, close:129.64),
+ CandleChartDataEntry(x:52, shadowH:130.89, shadowL:128.46, open:130.37, close:130.15),
+ CandleChartDataEntry(x:53, shadowH:132.55, shadowL:129.65, open:129.80, close:131.79),
+ CandleChartDataEntry(x:54, shadowH:131.51, shadowL:130.24, open:130.71, close:130.46),
+ CandleChartDataEntry(x:55, shadowH:132.41, shadowL:129.21, open:130.30, close:132.30),
+ CandleChartDataEntry(x:56, shadowH:134.08, shadowL:131.62, open:132.13, close:133.98),
+ CandleChartDataEntry(x:57, shadowH:134.32, shadowL:133.23, open:133.77, close:133.70),
+ CandleChartDataEntry(x:58, shadowH:134.64, shadowL:132.93, open:134.45, close:133.41),
+ CandleChartDataEntry(x:59, shadowH:133.89, shadowL:132.81, open:133.46, close:133.11),
+ CandleChartDataEntry(x:60, shadowH:135.25, shadowL:133.35, open:133.41, close:134.78),
  CandleChartDataEntry(x:61, shadowH:136.49, shadowL:134.35, open:134.80, close:136.33),
  CandleChartDataEntry(x:62, shadowH:137.41, shadowL:135.87, open:136.17, close:136.96),
  CandleChartDataEntry(x:63, shadowH:137.33, shadowL:135.76, open:136.60, close:137.27),
@@ -569,7 +503,67 @@ class ChatController: UIViewController, ChartViewDelegate {
  CandleChartDataEntry(x:255, shadowH:178.30, shadowL:174.42, open:177.50, close:175.06)
  
  
- 
+ ChartDataEntry(x:0, y:124.89),
+ ChartDataEntry(x:1, y:126.35),
+ ChartDataEntry(x:2, y:126.87),
+ ChartDataEntry(x:3, y:129.65),
+ ChartDataEntry(x:4, y:131.40),
+ ChartDataEntry(x:5, y:131.88),
+ ChartDataEntry(x:6, y:133.43),
+ ChartDataEntry(x:7, y:133.49),
+ ChartDataEntry(x:8, y:134.16),
+ ChartDataEntry(x:9, y:134.23),
+ ChartDataEntry(x:10, y:134.17),
+ ChartDataEntry(x:11, y:134.07),
+ ChartDataEntry(x:12, y:132.93),
+ ChartDataEntry(x:13, y:132.49),
+ ChartDataEntry(x:14, y:133.24),
+ ChartDataEntry(x:15, y:134.78),
+ ChartDataEntry(x:16, y:134.70),
+ ChartDataEntry(x:17, y:133.95),
+ ChartDataEntry(x:18, y:134.97),
+ ChartDataEntry(x:19, y:131.62),
+ ChartDataEntry(x:20, y:132.29),
+ ChartDataEntry(x:21, y:129.52),
+ ChartDataEntry(x:22, y:128.65),
+ ChartDataEntry(x:23, y:128.82),
+ ChartDataEntry(x:24, y:130.53),
+ ChartDataEntry(x:25, y:128.13),
+ ChartDataEntry(x:26, y:124.71),
+ ChartDataEntry(x:27, y:123.08),
+ ChartDataEntry(x:28, y:124.78),
+ ChartDataEntry(x:29, y:126.85),
+ ChartDataEntry(x:30, y:126.54),
+ ChartDataEntry(x:31, y:125.70),
+ ChartDataEntry(x:32, y:123.93),
+ ChartDataEntry(x:33, y:126.27),
+ ChartDataEntry(x:34, y:126.63),
+ ChartDataEntry(x:35, y:126.56),
+ ChartDataEntry(x:36, y:127.36),
+ ChartDataEntry(x:37, y:126.90),
+ ChartDataEntry(x:38, y:125.86),
+ ChartDataEntry(x:39, y:125.09),
+ ChartDataEntry(x:40, y:124.68),
+ ChartDataEntry(x:41, y:124.67),
+ ChartDataEntry(x:42, y:124.11),
+ ChartDataEntry(x:43, y:124.98),
+ ChartDataEntry(x:44, y:126.04),
+ ChartDataEntry(x:45, y:126.67),
+ ChartDataEntry(x:46, y:127.17),
+ ChartDataEntry(x:47, y:126.56),
+ ChartDataEntry(x:48, y:126.94),
+ ChartDataEntry(x:49, y:129.15),
+ ChartDataEntry(x:50, y:129.79),
+ ChartDataEntry(x:51, y:130.26),
+ ChartDataEntry(x:52, y:130.79),
+ ChartDataEntry(x:53, y:130.59),
+ ChartDataEntry(x:54, y:131.30),
+ ChartDataEntry(x:55, y:133.06),
+ ChartDataEntry(x:56, y:133.74),
+ ChartDataEntry(x:57, y:133.93),
+ ChartDataEntry(x:58, y:133.29),
+ ChartDataEntry(x:59, y:134.10),
+ ChartDataEntry(x:60, y:135.57),
  ChartDataEntry(x:61, y:136.57),
  ChartDataEntry(x:62, y:136.94),
  ChartDataEntry(x:63, y:138.93),

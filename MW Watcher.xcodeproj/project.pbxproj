@@ -37,6 +37,7 @@
 		225CF9B0264216A600D19929 /* MWWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AC264216A400D19929 /* MWWidget.intentdefinition */; };
 		225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AC264216A400D19929 /* MWWidget.intentdefinition */; };
 		225CF9B4264216A600D19929 /* WidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 225CF9A4264216A400D19929 /* WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		225E81DA27FF9571006387B4 /* CryptoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225E81D927FF9571006387B4 /* CryptoModel.swift */; };
 		226463EA26691EEE00A915D2 /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 226463E926691EEE00A915D2 /* LocalAuthentication.framework */; };
 		226CEA57266BD6EA002E44E3 /* TickerNewsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */; };
 		2286501926680BC200769EB2 /* LaunchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2286501826680BC200769EB2 /* LaunchController.swift */; };
@@ -117,6 +118,7 @@
 		225CF9AC264216A400D19929 /* MWWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = MWWidget.intentdefinition; sourceTree = "<group>"; };
 		225CF9AD264216A600D19929 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		225CF9AF264216A600D19929 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		225E81D927FF9571006387B4 /* CryptoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoModel.swift; sourceTree = "<group>"; };
 		226463E926691EEE00A915D2 /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
 		226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerNewsController.swift; sourceTree = "<group>"; };
 		2286501826680BC200769EB2 /* LaunchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchController.swift; sourceTree = "<group>"; };
@@ -220,6 +222,7 @@
 				22D6354F2653778F00EAD8ED /* HTMLParser.swift */,
 				22D21C6E26750DBC00C2313E /* CryptosAPI.swift */,
 				22EFA843266D8CAE004D0856 /* NewsItem.swift */,
+				225E81D927FF9571006387B4 /* CryptoModel.swift */,
 				223EF571265D867100160C8D /* SaveTickers.swift */,
 				22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */,
 				22AD1A46264B381C001A5362 /* SystemSaveNews.swift */,
@@ -521,6 +524,7 @@
 				223EF572265D867100160C8D /* SaveTickers.swift in Sources */,
 				22EFA844266D8CAE004D0856 /* NewsItem.swift in Sources */,
 				223B377B266ED82900526E46 /* LiveNewsViewCell.swift in Sources */,
+				225E81DA27FF9571006387B4 /* CryptoModel.swift in Sources */,
 				22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */,
 				22D21C712675383300C2313E /* CryptosController.swift in Sources */,
 				221236AC263DA728007EA092 /* LiveNewsController.swift in Sources */,
