@@ -26,7 +26,6 @@ class CryptosViewCell: UITableViewCell {
         return image
     }()
     
-    
     private let symbolLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 25, weight: .bold)
@@ -68,6 +67,11 @@ class CryptosViewCell: UITableViewCell {
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label
     }()
+    
+    public let buttonCryptoChart: UIButton = {
+        let button = UIButton()
+        return button
+    }()
         
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -88,6 +92,7 @@ class CryptosViewCell: UITableViewCell {
         contentView.addSubview(changePercentageDay)
         contentView.addSubview(changePercentageMonth)
         contentView.addSubview(volume24hr)
+        contentView.addSubview(buttonCryptoChart)
     }
 
     required init?(coder: NSCoder) {
@@ -103,6 +108,7 @@ class CryptosViewCell: UITableViewCell {
         changePercentageDay.sizeToFit()
         changePercentageMonth.sizeToFit()
         volume24hr.sizeToFit()
+        buttonCryptoChart.sizeToFit()
         
         let size: CGFloat = contentView.frame.size.height * 0.9
         cryptoImage.frame = CGRect(x: 0, y: (contentView.frame.size.height - (size-25))/2, width: size-25, height: size-25)
@@ -114,6 +120,8 @@ class CryptosViewCell: UITableViewCell {
         priceLabel.frame = CGRect(x: contentView.frame.size.width/2, y: 0, width: (contentView.frame.size.width/2)-15, height: contentView.frame.size.height/2)
         changePercentageDay.frame = CGRect(x: contentView.frame.size.width/2, y: contentView.frame.size.height/4, width: (contentView.frame.size.width/2)-15, height: contentView.frame.size.height/2)
         changePercentageMonth.frame = CGRect(x: contentView.frame.size.width/2, y: contentView.frame.size.height/2, width: (contentView.frame.size.width/2)-15, height: contentView.frame.size.height/2)
+        
+        buttonCryptoChart.frame = CGRect(x: 0, y: 0, width: contentView.frame.width, height: contentView.frame.height)
 
     }
     

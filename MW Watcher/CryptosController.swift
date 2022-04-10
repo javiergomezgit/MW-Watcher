@@ -112,6 +112,17 @@ class CryptosController: UIViewController {
         self.refreshControl.endRefreshing()
         tableView.reloadData()
     }
+    
+    @objc func openChart(sender: UIButton) {
+        //let symbol = self.viewModels[sender.tag].symbol
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let destination = storyboard.instantiateViewController(identifier: "ChartController") as? ChartController
+        
+        destination!.informationTicker = self.viewModels[sender.tag]
+        //    nextViewController.modalPresentationStyle = .fullScreen
+        //    nextViewController.modalTransitionStyle = .crossDissolve
+        self.show(destination!, sender: self)
+    }
 }
 
 
@@ -125,6 +136,10 @@ extension CryptosController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CryptosViewCell", for: indexPath) as! CryptosViewCell
         cell.configure(with: viewModels[indexPath.row])
+        
+        cell.buttonCryptoChart.tag = indexPath.row
+        cell.buttonCryptoChart.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
+        
         return cell
     }
     

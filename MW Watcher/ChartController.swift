@@ -9,10 +9,9 @@ import UIKit
 import Charts
 import TinyConstraints
 
-class ChatController: UIViewController, ChartViewDelegate {
+class ChartController: UIViewController, ChartViewDelegate {
     
     private var cryptoData: [QuoteInvidual]?
-    private var viewModels = [CryptosViewCellModel]()
     
     @IBOutlet weak var chartView: UIView!
     @IBOutlet weak var tickerLabel: UILabel!
@@ -24,13 +23,18 @@ class ChatController: UIViewController, ChartViewDelegate {
     @IBOutlet weak var currentPercentageLabel: UILabel!
     @IBOutlet weak var timeFrameSegmented: UISegmentedControl!
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var volumeLabel: UILabel!
+    @IBOutlet weak var cryptoImage: UIImageView!
     
     var selectedCandleChart = true
     
     var candleValues = [CandleChartDataEntry]()
     var linearValues = [ChartDataEntry]()
     var interval = "300"
+    var symbol = "bit"
     var timeIntervals = ["old" : "1:2", "mid" : "1:2", "now" : "1:2"]
+    
+    public var informationTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
 
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
         let index = timeFrameSegmented.selectedSegmentIndex
@@ -56,11 +60,75 @@ class ChatController: UIViewController, ChartViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //loadCryptoPrices()
+        selectedTicker()
+    }
+    
+    private func selectedTicker(){
+     
+        let symbol = informationTicker.symbol
+        
+        if Float(informationTicker.change)! < 0.000 {
+            currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+        } else {
+            currentPercentageLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+        }
+        
+        tickerLabel.text = symbol
+        currentPriceLabel.text = informationTicker.price
+        currentPercentageLabel.text = "\(informationTicker.change)% Day"
+        nameLabel.text = informationTicker.name.uppercased()
+        volumeLabel.text = "Vol.\(informationTicker.volume) MM"
+        cryptoImage.image = informationTicker.cryptoImage
+        
+        //Will use pair ID instead of symbol/ticker
+        switch symbol {
+        case "BTC":
+            self.symbol = "945629"
+//            break
+        case "ETH":
+            self.symbol = "1058142" //Binance
+        case "LTC":
+            self.symbol = "1056828" //Binance
+        case "DOGE":
+            self.symbol = "1158819" //Binance
+        case "ADA":
+            self.symbol = "1055297" //Synthetic
+
+        case "DOT":
+            self.symbol = "1165465" //Cryptopia
+
+        case "BCH":
+            self.symbol = "1099022" //Binance
+
+        case "XLM":
+            self.symbol = "1093968" //Synthetic
+
+        case "BNB":
+            self.symbol = "1054919" //Binance
+
+        case "XMR":
+            self.symbol = "1176959" //Binance
+
+        case "XRP":
+            self.symbol = "1057392" //Index Investing.com
+
+        case "USDT":
+            self.symbol = "1031397" //Kraken
+        case "LINK":
+            self.symbol = "1070588" //Synthetic
+        case "USDC":
+            self.symbol = "1142432" //Binance
+        default:
+            print ("Ticker not found")
+        }
         loadCryptoPrices()
     }
     
     private func loadCryptoPrices() {
-        CryptosAPI.shared.getSelectedCrypto(interval: interval) { [weak self] result in
+        CryptosAPI.shared.getSelectedCrypto(interval: interval, symbol: symbol) { [weak self] result in
             switch result {
             case .success(let data):
                 
