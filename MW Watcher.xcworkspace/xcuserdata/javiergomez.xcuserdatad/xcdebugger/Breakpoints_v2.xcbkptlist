@@ -14,9 +14,9 @@
             filePath = "MW Watcher/CryptosAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "106"
-            endingLineNumber = "106"
-            landmarkName = "getSelectedCrypto(completion:)"
+            startingLineNumber = "105"
+            endingLineNumber = "105"
+            landmarkName = "getSelectedCrypto(interval:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,9 +30,9 @@
             filePath = "MW Watcher/CryptosAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "98"
-            endingLineNumber = "98"
-            landmarkName = "getSelectedCrypto(completion:)"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
+            landmarkName = "getSelectedCrypto(interval:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -46,9 +46,9 @@
             filePath = "MW Watcher/CryptosAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "101"
-            endingLineNumber = "101"
-            landmarkName = "getSelectedCrypto(completion:)"
+            startingLineNumber = "100"
+            endingLineNumber = "100"
+            landmarkName = "getSelectedCrypto(interval:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

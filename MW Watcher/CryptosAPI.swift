@@ -23,7 +23,6 @@ final class CryptosAPI {
         static let apiHeaderIndividual = "investing-cryptocurrency-markets.p.rapidapi.com"
         static let baseURLIndividual = "https://investing-cryptocurrency-markets.p.rapidapi.com/coins/get-fullsize-chart?pair_ID="
         static var pair_ID = "945629"
-        static var interval = "300"
     }
     private init() {}
 
@@ -65,13 +64,13 @@ final class CryptosAPI {
         task.resume()
     }
     
-    public func getSelectedCrypto(completion: @escaping (Result<[QuoteInvidual], Error>) -> Void) {
+    public func getSelectedCrypto(interval: String, completion: @escaping (Result<[QuoteInvidual], Error>) -> Void) {
         let headers = [
             "X-RapidAPI-Host": Constant.apiHeaderIndividual,
             "X-RapidAPI-Key": Constant.apiKeyIndividual
         ]
 
-        let request = NSMutableURLRequest(url: NSURL(string: Constant.baseURLIndividual + Constant.pair_ID + "&time_utc_offset=28800&lang_ID=1&pair_interval=" + Constant.interval)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+        let request = NSMutableURLRequest(url: NSURL(string: Constant.baseURLIndividual + Constant.pair_ID + "&time_utc_offset=28800&lang_ID=1&pair_interval=" + interval)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers

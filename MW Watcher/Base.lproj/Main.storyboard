@@ -1081,11 +1081,11 @@
                                 </constraints>
                                 <segments>
                                     <segment title="5min"/>
-                                    <segment title="1D"/>
-                                    <segment title="1W"/>
-                                    <segment title="1M"/>
-                                    <segment title="3M"/>
-                                    <segment title="1Y"/>
+                                    <segment title="1hr"/>
+                                    <segment title="5hr"/>
+                                    <segment title="Day"/>
+                                    <segment title="Week"/>
+                                    <segment title="Month"/>
                                 </segments>
                                 <connections>
                                     <action selector="timeFrameChange:" destination="idr-8i-kfl" eventType="valueChanged" id="gn3-Et-o92"/>
@@ -1142,11 +1142,36 @@
                                 <color key="textColor" red="0.60784313729999995" green="0.74117647060000003" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="nFl-gq-a6T">
+                                <rect key="frame" x="8" y="527.66666666666663" width="352" height="20"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jbd-qz-LWw">
+                                        <rect key="frame" x="0.0" y="0.0" width="117.33333333333333" height="20"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="N9x-qM-tFK">
+                                        <rect key="frame" x="117.33333333333334" y="0.0" width="117.33333333333334" height="20"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f3Q-S2-YGa">
+                                        <rect key="frame" x="234.66666666666666" y="0.0" width="117.33333333333334" height="20"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="cN1-y3-7jR"/>
+                                </constraints>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="S5A-DB-S5t"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="S5A-DB-S5t" firstAttribute="trailing" secondItem="nFl-gq-a6T" secondAttribute="trailing" constant="30" id="1LD-ne-GI5"/>
                             <constraint firstItem="pbo-cH-4Hl" firstAttribute="top" secondItem="Xo3-4p-GSC" secondAttribute="bottom" constant="40" id="2sh-gN-doC"/>
+                            <constraint firstItem="nFl-gq-a6T" firstAttribute="leading" secondItem="S5A-DB-S5t" secondAttribute="leading" constant="8" id="94d-Yc-poW"/>
                             <constraint firstItem="Xo3-4p-GSC" firstAttribute="leading" secondItem="S5A-DB-S5t" secondAttribute="leading" id="CnB-hr-9T0"/>
                             <constraint firstItem="S5A-DB-S5t" firstAttribute="trailing" secondItem="pbo-cH-4Hl" secondAttribute="trailing" constant="5" id="HUL-lL-jTI"/>
                             <constraint firstItem="S5A-DB-S5t" firstAttribute="bottom" secondItem="R8q-7e-UVG" secondAttribute="bottom" constant="50" id="JhZ-Rc-I25"/>
@@ -1154,6 +1179,7 @@
                             <constraint firstItem="jg6-4P-aLa" firstAttribute="top" secondItem="EMi-dk-dHu" secondAttribute="bottom" constant="8" id="MkR-Dk-p4W"/>
                             <constraint firstItem="S5A-DB-S5t" firstAttribute="trailing" secondItem="R8q-7e-UVG" secondAttribute="trailing" constant="20" id="Pus-VB-hnj"/>
                             <constraint firstItem="Xo3-4p-GSC" firstAttribute="height" secondItem="wWK-E2-pou" secondAttribute="height" multiplier="0.4" id="TdT-AH-kSi"/>
+                            <constraint firstItem="nFl-gq-a6T" firstAttribute="top" secondItem="Xo3-4p-GSC" secondAttribute="bottom" id="ToX-OS-AH2"/>
                             <constraint firstItem="Xo3-4p-GSC" firstAttribute="top" secondItem="FSj-Oc-Lbn" secondAttribute="bottom" constant="15" id="Ufz-CN-bC4"/>
                             <constraint firstItem="EMi-dk-dHu" firstAttribute="centerX" secondItem="wWK-E2-pou" secondAttribute="centerX" id="VJJ-sU-bn3"/>
                             <constraint firstItem="jg6-4P-aLa" firstAttribute="centerX" secondItem="wWK-E2-pou" secondAttribute="centerX" id="WrN-Hg-f13"/>
@@ -1170,7 +1196,10 @@
                         <outlet property="chartView" destination="Xo3-4p-GSC" id="d6R-jH-6gR"/>
                         <outlet property="currentPercentageLabel" destination="FSj-Oc-Lbn" id="KUN-C9-rew"/>
                         <outlet property="currentPriceLabel" destination="jg6-4P-aLa" id="zex-ed-Kkq"/>
+                        <outlet property="currentTimeLabel" destination="f3Q-S2-YGa" id="6K5-gL-Cnb"/>
+                        <outlet property="middleTimeLabel" destination="N9x-qM-tFK" id="mD2-eR-SpS"/>
                         <outlet property="nameLabel" destination="R8q-7e-UVG" id="fBI-Hs-M9E"/>
+                        <outlet property="oldestTimeLabel" destination="Jbd-qz-LWw" id="8KC-vW-gmp"/>
                         <outlet property="selectChartButton" destination="kZw-re-JMX" id="GiS-Jt-kVG"/>
                         <outlet property="tickerLabel" destination="EMi-dk-dHu" id="S0q-bX-cGp"/>
                         <outlet property="timeFrameSegmented" destination="pbo-cH-4Hl" id="KjA-xv-oeh"/>
@@ -1388,8 +1417,8 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
-        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="arrow.down.app.fill" width="10" height="10"/>
+        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>
         <image name="chartline" width="48" height="49"/>
