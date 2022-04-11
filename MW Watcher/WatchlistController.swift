@@ -24,6 +24,7 @@ class WatchlistController: UIViewController {
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
+    var percentageChange = 0.0
 
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
@@ -248,7 +249,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         cell.tickerLabel.text = tickers[indexPath.row].ticker
         cell.currentPriceLabel.text = "$" + String(tickers[indexPath.row].marketPrice)
         
-        let percentageChange = (tickers[indexPath.row].marketPrice * 100) / tickers[indexPath.row].previousPrice
+        percentageChange = (tickers[indexPath.row].marketPrice * 100) / tickers[indexPath.row].previousPrice
         if percentageChange < 100 {
             var percentageRounded = 100 - percentageChange
             percentageRounded = Double(round(100*percentageRounded)/100)
@@ -278,9 +279,25 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         cell.buttonTickerNews.tag = indexPath.row
         cell.buttonTickerNews.addTarget(self, action: #selector(openNews(sender:)), for: .touchUpInside)
         
+        cell.buttonOpenChart.tag = indexPath.row
+        cell.buttonOpenChart.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
+        
         return cell
     }
     
+    @objc func openChart(sender: UIButton) {
+        let ticker = self.tickers[sender.tag]
+        print (self.tickers[sender.tag])
+        print (percentageChange)
+       
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
+        
+        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageChange)
+        destination?.informationStockTicker = tickerWithChange
+        
+        self.show(destination!, sender: self)
+    }
     
 @objc func openNews(sender: UIButton) {
     let ticker = self.tickers[sender.tag].ticker

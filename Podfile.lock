@@ -103,6 +103,7 @@ PODS:
   - RealmSwift (3.18.0):
     - Realm (= 3.18.0)
   - SwiftSoup (2.3.2)
+  - SwiftyJSON (4.3.0)
   - SwiftyOnboard (1.3.8)
   - TinyConstraints (4.0.2)
 
@@ -113,6 +114,7 @@ DEPENDENCIES:
   - Firebase/Analytics
   - Firebase/Crashlytics
   - SwiftSoup
+  - SwiftyJSON (~> 4.0)
   - SwiftyOnboard
   - TinyConstraints
 
@@ -135,6 +137,7 @@ SPEC REPOS:
     - Realm
     - RealmSwift
     - SwiftSoup
+    - SwiftyJSON
     - SwiftyOnboard
     - TinyConstraints
 
@@ -156,9 +159,10 @@ SPEC CHECKSUMS:
   Realm: 7b3d04740facf45e958a514b466a32b04f1113d6
   RealmSwift: c817b5f374668cf08f649afb05f55d92a787649c
   SwiftSoup: f97bc4e988c7729d6457f9642f974c617a6e2510
+  SwiftyJSON: 6faa0040f8b59dead0ee07436cbf76b73c08fd08
   SwiftyOnboard: de60e90c2af23dd61b01ec0c6a8d0be3370f857b
   TinyConstraints: 7b7ccc0c485bb3bb47082138ff28bc33cd49897f
 
-PODFILE CHECKSUM: 84b2f1a72366d3997e4948fd8c7f9651c742c8e2
+PODFILE CHECKSUM: 31515d7673f3c231aafac3e1eaf225eb335c1802
 
 COCOAPODS: 1.11.2

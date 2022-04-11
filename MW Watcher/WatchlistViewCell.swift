@@ -15,6 +15,7 @@ class WatchlistViewCell: UITableViewCell {
     @IBOutlet var previousPriceLabel: UILabel!
     @IBOutlet var imageArrow: UIImageView!
     @IBOutlet weak var buttonTickerNews: UIButton!
+    @IBOutlet weak var buttonOpenChart: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()

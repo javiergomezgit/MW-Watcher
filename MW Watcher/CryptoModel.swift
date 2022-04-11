@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 //All crypto coins
 struct CryptoAPIResponse: Codable {
     let data: [String: CryptoData]

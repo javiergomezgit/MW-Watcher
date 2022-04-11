@@ -12,6 +12,7 @@ import TinyConstraints
 class ChartController: UIViewController, ChartViewDelegate {
     
     private var cryptoData: [QuoteInvidual]?
+    private var stockData: [ValueStock]?
     
     @IBOutlet weak var chartView: UIView!
     @IBOutlet weak var tickerLabel: UILabel!
@@ -31,44 +32,116 @@ class ChartController: UIViewController, ChartViewDelegate {
     var candleValues = [CandleChartDataEntry]()
     var linearValues = [ChartDataEntry]()
     var interval = "300"
+    var intervalStock = "15min"
     var symbol = "bit"
     var timeIntervals = ["old" : "1:2", "mid" : "1:2", "now" : "1:2"]
     
-    public var informationTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
+    public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
+    public var informationStockTicker = Tickers(ticker: "", marketPrice: 0.0, previousPrice: 0.0)
+    //Tickers(ticker: "AA", marketPrice: 84.15, previousPrice: 86.1)
 
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
         let index = timeFrameSegmented.selectedSegmentIndex
-        switch index {
-        case 0: self.interval = "300"
-            break
-        case 1: self.interval = "3600"
-            break
-        case 2: self.interval = "18000"
-            break
-        case 3: self.interval = "86400"
-            break
-        case 4: self.interval = "week"
-            break
-        case 5: self.interval = "month"
-            break
-        default:
-            self.interval = "300"
+        
+        if informationStockTicker.ticker == "" {
+            switch index {
+            case 0: self.interval = "300"
+                break
+            case 1: self.interval = "3600"
+                break
+            case 2: self.interval = "18000"
+                break
+            case 3: self.interval = "86400"
+                break
+            case 4: self.interval = "week"
+                break
+            case 5: self.interval = "month"
+                break
+            default:
+                self.interval = "300"
+            }
+            loadCryptoPrices()
+        } else {
+            switch index {
+            case 0: self.intervalStock = "15min"
+                break
+            case 1: self.intervalStock = "60min"
+                break
+            case 2: self.intervalStock = "18000"
+                break
+            case 3: self.intervalStock = "86400"
+                break
+            case 4: self.intervalStock = "week"
+                break
+            case 5: self.intervalStock = "month"
+                break
+            default:
+                self.intervalStock = "15min"
+            }
+            selectedStockTicker()
         }
-        loadCryptoPrices()
+        
+        
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         //loadCryptoPrices()
-        selectedTicker()
+        if informationStockTicker.ticker == "" {
+            selectedCryptoTicker()
+        } else {
+            selectedStockTicker()
+        }
     }
     
-    private func selectedTicker(){
-     
-        let symbol = informationTicker.symbol
+    private func selectedStockTicker() {
+        let symbol = informationStockTicker.ticker
+        let currentPrice = informationStockTicker.marketPrice
+        let percentageChange = Float(informationStockTicker.previousPrice) //using previousPrice structure to store percentage change
         
-        if Float(informationTicker.change)! < 0.000 {
+        if percentageChange < 0.000 {
+            currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+        } else {
+            currentPercentageLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+        }
+        
+        self.symbol = symbol
+        tickerLabel.text = symbol
+        currentPriceLabel.text = String(currentPrice)
+        currentPercentageLabel.text = "\(percentageChange)% Day"
+        
+        loadStockPrices()
+    }
+    
+    private func loadStockPrices(){
+        StocksAPI.shared.getStockValues(interval: self.intervalStock, symbol: symbol) { [weak self] result in
+            switch result {
+                
+            case .success(let data):
+                let data = data
+                print (data)
+                self?.stockData = data
+                DispatchQueue.main.async {
+                    self?.setUpStockModel()
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                }
+                print (error)
+            }
+        }
+        
+    }
+    
+    private func selectedCryptoTicker(){
+     
+        let symbol = informationCryptoTicker.symbol
+        
+        if Float(informationCryptoTicker.change)! < 0.000 {
             currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
         } else {
@@ -77,17 +150,16 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
         
         tickerLabel.text = symbol
-        currentPriceLabel.text = informationTicker.price
-        currentPercentageLabel.text = "\(informationTicker.change)% Day"
-        nameLabel.text = informationTicker.name.uppercased()
-        volumeLabel.text = "Vol.\(informationTicker.volume) MM"
-        cryptoImage.image = informationTicker.cryptoImage
+        currentPriceLabel.text = informationCryptoTicker.price
+        currentPercentageLabel.text = "\(informationCryptoTicker.change)% Day"
+        nameLabel.text = informationCryptoTicker.name.uppercased()
+        volumeLabel.text = "Vol.\(informationCryptoTicker.volume) MM"
+        cryptoImage.image = informationCryptoTicker.cryptoImage
         
         //Will use pair ID instead of symbol/ticker
         switch symbol {
         case "BTC":
             self.symbol = "945629"
-//            break
         case "ETH":
             self.symbol = "1058142" //Binance
         case "LTC":
@@ -96,25 +168,18 @@ class ChartController: UIViewController, ChartViewDelegate {
             self.symbol = "1158819" //Binance
         case "ADA":
             self.symbol = "1055297" //Synthetic
-
         case "DOT":
             self.symbol = "1165465" //Cryptopia
-
         case "BCH":
             self.symbol = "1099022" //Binance
-
         case "XLM":
             self.symbol = "1093968" //Synthetic
-
         case "BNB":
             self.symbol = "1054919" //Binance
-
         case "XMR":
             self.symbol = "1176959" //Binance
-
         case "XRP":
             self.symbol = "1057392" //Index Investing.com
-
         case "USDT":
             self.symbol = "1031397" //Kraken
         case "LINK":
@@ -135,7 +200,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                 self?.cryptoData = data
                 print (data)
                 DispatchQueue.main.async {
-                    self?.setUpViewModel()
+                    self?.setUpCryptoModel()
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
@@ -146,10 +211,41 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
     }
     
-    private func setUpViewModel() {
+    private func setUpStockModel(){
+        guard let modelCandles = stockData else { return }
+        self.candleValues.removeAll()
+        self.linearValues.removeAll()
+
+        for (index, candleValue) in modelCandles.enumerated() {
+            let startingAt = candleValue.start_timestamp
+            guard let openPrice = Double(candleValue.open) else { return }
+            guard let highPrice = Double(candleValue.high) else { return }
+            guard let closePrice = Double(candleValue.close) else { return }
+            guard let lowPrice = Double(candleValue.low) else { return }
+            
+            let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
+            let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
+            
+            self.candleValues.append(candleValueEntry)
+            self.linearValues.append(linearValueEntry)
+            
+            switch index {
+            case 0:
+                self.timeIntervals["old"] = startingAt
+            case 29:
+                self.timeIntervals["mid"] = startingAt
+            case 59:
+                self.timeIntervals["now"] = startingAt
+            default: print ("")
+            }
+        }
+        //setupDateLabel()
+        choseTypeChart()
+    }
+    
+    private func setUpCryptoModel() {
 
         guard let modelCandles = cryptoData else { return }
-
         self.candleValues.removeAll()
         self.linearValues.removeAll()
 

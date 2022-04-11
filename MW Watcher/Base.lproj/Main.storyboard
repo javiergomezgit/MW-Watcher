@@ -31,6 +31,11 @@
                                             <rect key="frame" x="0.0" y="0.0" width="360" height="120"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xkg-4J-wYC">
+                                                    <rect key="frame" x="0.0" y="0.0" width="305" height="120"/>
+                                                    <state key="normal" title="Button"/>
+                                                    <buttonConfiguration key="configuration" style="plain"/>
+                                                </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="XXXXXXX" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.84999999999999998" translatesAutoresizingMaskIntoConstraints="NO" id="O19-uM-WAO">
                                                     <rect key="frame" x="0.0" y="5" width="162" height="48"/>
                                                     <fontDescription key="fontDescription" name="EuphemiaUCAS-Bold" family="Euphemia UCAS" pointSize="38"/>
@@ -87,21 +92,26 @@
                                                 <constraint firstItem="htY-qF-A28" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" id="7DG-aP-Chg"/>
                                                 <constraint firstItem="zPK-rw-3Bo" firstAttribute="leading" secondItem="V3L-mm-5zq" secondAttribute="trailing" constant="7.3333333333333286" id="9gG-vn-uvk"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="leading" secondItem="O19-uM-WAO" secondAttribute="trailing" constant="8" symbolic="YES" id="GNz-O1-5Q9"/>
+                                                <constraint firstItem="xkg-4J-wYC" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" id="JNa-qB-XXU"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="NtS-cs-XP3"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" constant="5" id="Qv9-In-oUg"/>
                                                 <constraint firstItem="V3L-mm-5zq" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="S0B-6D-o3a"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.4" id="VEN-tm-Hr3"/>
+                                                <constraint firstItem="xkg-4J-wYC" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="Wya-iJ-0or"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" id="bWi-am-VRI"/>
                                                 <constraint firstItem="htY-qF-A28" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="C5a-Th-JRe" secondAttribute="trailing" constant="3" id="cRL-F2-Sjz"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.45" id="fKp-kr-wWd"/>
                                                 <constraint firstItem="nsp-M7-cSR" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="gWP-UH-SBq"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.4" id="jil-IW-Bgo"/>
+                                                <constraint firstAttribute="bottom" secondItem="xkg-4J-wYC" secondAttribute="bottom" id="mRe-AD-asO"/>
                                                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="nsp-M7-cSR" secondAttribute="trailing" constant="20" symbolic="YES" id="psg-W1-LiR"/>
                                                 <constraint firstItem="nsp-M7-cSR" firstAttribute="top" secondItem="V3L-mm-5zq" secondAttribute="bottom" constant="8" id="uLJ-g7-7LW"/>
+                                                <constraint firstItem="htY-qF-A28" firstAttribute="leading" secondItem="xkg-4J-wYC" secondAttribute="trailing" constant="10" id="w9o-0V-yS8"/>
                                                 <constraint firstAttribute="trailing" secondItem="htY-qF-A28" secondAttribute="trailing" constant="10" id="xsc-w9-bqY"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
+                                            <outlet property="buttonOpenChart" destination="xkg-4J-wYC" id="ULk-ix-O6v"/>
                                             <outlet property="buttonTickerNews" destination="htY-qF-A28" id="GSY-jg-YVW"/>
                                             <outlet property="changeLabel" destination="C5a-Th-JRe" id="6op-OJ-5Pi"/>
                                             <outlet property="currentPriceLabel" destination="V3L-mm-5zq" id="FWa-C9-v5g"/>
@@ -1423,8 +1433,8 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="hYT-AU-v4C"/>
                         <segue destination="DZx-RA-0sP" kind="relationship" relationship="viewControllers" id="iSf-SZ-H8u"/>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="hYT-AU-v4C"/>
                         <segue destination="a6H-wW-AWp" kind="relationship" relationship="viewControllers" id="cM5-V3-dx3"/>
                         <segue destination="nEn-Pm-HgO" kind="relationship" relationship="viewControllers" id="8CE-Qb-Tek"/>
                         <segue destination="FAU-XL-brR" kind="relationship" relationship="viewControllers" id="PSN-xG-sKh"/>

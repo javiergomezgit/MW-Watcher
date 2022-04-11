@@ -14,6 +14,7 @@ target 'MW Watcher' do
   pod 'Charts'
   pod 'ChartsRealm'
   pod 'TinyConstraints'
+  pod 'SwiftyJSON', '~> 4.0'
 end
 
 target 'WidgetExtension' do
