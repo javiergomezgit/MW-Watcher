@@ -24,7 +24,7 @@ class WatchlistController: UIViewController {
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
-    var percentageChange = 0.0
+    var percentageChg = 0.0
 
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
@@ -249,10 +249,11 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         cell.tickerLabel.text = tickers[indexPath.row].ticker
         cell.currentPriceLabel.text = "$" + String(tickers[indexPath.row].marketPrice)
         
-        percentageChange = (tickers[indexPath.row].marketPrice * 100) / tickers[indexPath.row].previousPrice
+        let percentageChange = (tickers[indexPath.row].marketPrice * 100) / tickers[indexPath.row].previousPrice
         if percentageChange < 100 {
             var percentageRounded = 100 - percentageChange
             percentageRounded = Double(round(100*percentageRounded)/100)
+            
             cell.changeLabel.text = "- " + String(percentageRounded) + "%"
             cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
@@ -265,6 +266,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         } else {
             var percentageRounded = percentageChange - 100
             percentageRounded = Double(round(100*percentageRounded)/100)
+            
             cell.changeLabel.text = "+ " + String(percentageRounded) + "%"
             cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
@@ -288,12 +290,15 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     @objc func openChart(sender: UIButton) {
         let ticker = self.tickers[sender.tag]
         print (self.tickers[sender.tag])
-        print (percentageChange)
-       
+        
+        let perChange = (ticker.marketPrice * 100) / ticker.previousPrice
+        var percentageRounded = 100 - perChange
+        percentageRounded = Double(round(100*percentageRounded)/100) * -1
+               
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
-        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageChange)
+        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageRounded)
         destination?.informationStockTicker = tickerWithChange
         
         self.show(destination!, sender: self)

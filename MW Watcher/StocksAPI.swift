@@ -13,12 +13,12 @@ final class StocksAPI {
     
     private struct Constant {
         static let apiKey = "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
-        static let apiHost = "alpha-vantage.p.rapidapi.comY"
+        static let apiHost = "alpha-vantage.p.rapidapi.com"
         static let baseUrl = "https://alpha-vantage.p.rapidapi.com/query?"
         static let endpoint = "cryptocurrency/quotes/latest"
-        static var functionTime = "&function=TIME_SERIES_INTRADAY&"
-        static let options = "&datatype=json&output_size=full"
-        static var intervalTime = "15min"
+        static var functionTime = ""
+        static let options = "&datatype=json&output_size=compact"
+        static var intervalTime = ""
     }
     private init() {}
 
@@ -37,15 +37,20 @@ final class StocksAPI {
             Constant.intervalTime = "interval=60min"
             Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
         case "18000":
-            Constant.functionTime = "&function=TIME_SERIES_DAILY"
+            Constant.functionTime = "function=TIME_SERIES_DAILY_ADJUSTED&"
+            Constant.intervalTime = ""
         case "86400":
-            Constant.functionTime = "&function=TIME_SERIES_DAILY"
+            Constant.functionTime = "function=TIME_SERIES_DAILY_ADJUSTED&"
+            Constant.intervalTime = ""
         case "week":
-            Constant.functionTime = "&function=TIME_SERIES_WEEKLY"
+            Constant.functionTime = "function=TIME_SERIES_WEEKLY_ADJUSTED&"
+            Constant.intervalTime = ""
         case "month":
-            Constant.functionTime = "&function=TIME_SERIES_MONTHLY"
+            Constant.functionTime = "function=TIME_SERIES_MONTHLY_ADJUSTED&"
+            Constant.intervalTime = ""
         default:
-            Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
+            Constant.functionTime = "function=TIME_SERIES_INTRADAY_ADJUSTED&"
+            Constant.intervalTime = ""
         }
         let headers = [
             "X-RapidAPI-Host": Constant.apiHost,
@@ -62,6 +67,8 @@ final class StocksAPI {
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
+        
+        print (request.url)
         
         let session = URLSession.shared
         let task = session.dataTask(with: request as URLRequest) { data, response, error in
@@ -111,8 +118,9 @@ final class StocksAPI {
                         //print (valuesStock)
                     }
                 }
-                let sortedValues = valuesStock.sorted(by: { $0.start_timestamp < $1.start_timestamp }) //.sorted(by: { $0.start_timestamp < $1.start_timestamp })
-
+                dump (valuesStock)
+                let sortedValues = valuesStock.sorted(by: { $0.start_timestamp > $1.start_timestamp }) //.sorted(by: { $0.start_timestamp < $1.start_timestamp })
+                dump (sortedValues)
                 valuesStock.removeAll()
                 for (index, valueStock) in sortedValues.enumerated() {
                     if index <= 59 {
@@ -120,7 +128,9 @@ final class StocksAPI {
                     }
                 }
                 
-                completion(.success(sortedValues))
+                print (valuesStock)
+                valuesStock.reverse()
+                completion(.success(valuesStock))
             } catch {
                 completion(.failure(error))
             }

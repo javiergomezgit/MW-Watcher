@@ -27,7 +27,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     @IBOutlet weak var volumeLabel: UILabel!
     @IBOutlet weak var cryptoImage: UIImageView!
     
-    var selectedCandleChart = true
+    var selectedCandleChart = false
     
     var candleValues = [CandleChartDataEntry]()
     var linearValues = [ChartDataEntry]()
