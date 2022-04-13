@@ -54,7 +54,6 @@ class CryptosViewCell: UITableViewCell {
     
     private let changePercentageDay: UILabel = {
         let label = UILabel()
-        //label.textColor = .darkGray
         label.textAlignment = .right
         label.font = .systemFont(ofSize: 16, weight: .medium)
         return label

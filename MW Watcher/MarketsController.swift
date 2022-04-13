@@ -24,7 +24,16 @@ class MarketsController: UIViewController {
         "^VIX" : ["CBOE Volatility Index", 0.0, 0.0]
     ]
     
-    //https://rapidapi.com/sparior/api/yahoo-finance15 for markets
+    /*
+     let headers = [
+         "X-RapidAPI-Host": "mboum-finance.p.rapidapi.com",
+         "X-RapidAPI-Key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
+     ]
+
+     let request = NSMutableURLRequest(url: NSURL(string: "https://mboum-finance.p.rapidapi.com/hi/history?symbol=%5EDJI&interval=5m&diffandsplits=false")! as URL,
+                                             cachePolicy: .useProtocolCachePolicy,
+                                         timeoutInterval: 10.0)
+     */
     
     var marketNames = ["^DJI","^GSPC","^NDX","^W5000","^RUA","^SP400","^RUT","^VIX"]
     

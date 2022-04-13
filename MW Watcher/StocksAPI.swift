@@ -67,9 +67,7 @@ final class StocksAPI {
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-        
-        print (request.url)
-        
+                
         let session = URLSession.shared
         let task = session.dataTask(with: request as URLRequest) { data, response, error in
             if let error = error {
@@ -87,16 +85,8 @@ final class StocksAPI {
 
                 var valuesStock: [ValueStock] = []
                 for (key, subJson):(String, JSON) in json {
-                   // Do something you want
                     if key != "Meta Data" {
-
-                    //print (key)
-                    //print (subJson)
-//                        var enumerated = 0
                         for (key, subSubJSON):(String, JSON) in subJson {
-                            //print (key)
-                            //print (subSubJSON)
-                           
                             let dateTime = key
                             let open = subSubJSON["1. open"].stringValue
                             let high = subSubJSON["2. high"].stringValue
@@ -106,20 +96,11 @@ final class StocksAPI {
                              
                             let value = ValueStock(start_timestamp: dateTime, open: open, high: high, low: low, close: close, volume: volume)
                             valuesStock.append(value)
-                            
-//                            if enumerated <= 59 {
-//                                enumerated += 1
-//                                //print (subSubJSON)
-//                            } else {
-//                                break
-//                            }
                         }
-                        
-                        //print (valuesStock)
                     }
                 }
                 dump (valuesStock)
-                let sortedValues = valuesStock.sorted(by: { $0.start_timestamp > $1.start_timestamp }) //.sorted(by: { $0.start_timestamp < $1.start_timestamp })
+                let sortedValues = valuesStock.sorted(by: { $0.start_timestamp > $1.start_timestamp })
                 dump (sortedValues)
                 valuesStock.removeAll()
                 for (index, valueStock) in sortedValues.enumerated() {
