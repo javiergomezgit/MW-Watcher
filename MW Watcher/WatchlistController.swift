@@ -103,6 +103,7 @@ class WatchlistController: UIViewController {
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl) // not required when using UITableViewController
         
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {

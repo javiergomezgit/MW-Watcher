@@ -1080,7 +1080,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="d80-OU-Bu5">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Image" translatesAutoresizingMaskIntoConstraints="NO" id="d80-OU-Bu5">
                                 <rect key="frame" x="140" y="59" width="110" height="110"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="110" id="S0d-l1-SIe"/>
@@ -1179,11 +1179,10 @@
                                     <constraint firstAttribute="height" constant="40" id="fAU-g9-s9a"/>
                                 </constraints>
                                 <segments>
-                                    <segment title="5min"/>
-                                    <segment title="1hr"/>
-                                    <segment title="5hr"/>
+                                    <segment title="15min"/>
+                                    <segment title="Hr"/>
                                     <segment title="Day"/>
-                                    <segment title="Week"/>
+                                    <segment title="Day"/>
                                     <segment title="Month"/>
                                 </segments>
                                 <connections>

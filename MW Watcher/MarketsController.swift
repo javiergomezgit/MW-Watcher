@@ -24,7 +24,7 @@ class MarketsController: UIViewController {
         "^VIX" : ["CBOE Volatility Index", 0.0, 0.0]
     ]
     
-    //https://rapidapi.com/sparior/api/yahoo-finance15 for markets 
+    //https://rapidapi.com/sparior/api/yahoo-finance15 for markets
     
     var marketNames = ["^DJI","^GSPC","^NDX","^W5000","^RUA","^SP400","^RUT","^VIX"]
     

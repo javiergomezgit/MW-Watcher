@@ -92,6 +92,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             selectedCryptoTicker()
         } else {
             selectedStockTicker()
+            cryptoImage.image = UIImage(named: "logoWord")
         }
     }
     
