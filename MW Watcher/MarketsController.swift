@@ -86,14 +86,12 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let ticker = marketNames[indexPath.row]
         if let tickerInfo = marketsPrices[ticker] {
             print (tickerInfo)
-            cell.tickerLabel.text = ticker
             cell.nameLabel.text = tickerInfo[0] as? String
             
             var currentPrice = tickerInfo[1] as! Double
             let percentageChanged = tickerInfo[2] as! Double
             
             if percentageChanged < 0 {
-                //negative day for market
                 let percentageRounded = round(100*percentageChanged)/100
                 cell.changeLabel.text = String(percentageRounded) + "%"
                 cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)

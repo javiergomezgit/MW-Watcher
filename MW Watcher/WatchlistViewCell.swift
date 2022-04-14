@@ -26,7 +26,6 @@ class WatchlistViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
-        
         buttonOpenChart.setTitle("", for: .normal)
 
     }

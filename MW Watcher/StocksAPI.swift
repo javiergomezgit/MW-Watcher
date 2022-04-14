@@ -281,6 +281,8 @@ final class StocksAPI {
         dataTask.resume()
     }
     
+    
+    
     //MARK: API call for news of specific ticker (stock)
     func loadTickerNews(ticker: String, completion: @escaping ([TickerNews]?) -> Void) {
         let headers = [
@@ -314,7 +316,7 @@ final class StocksAPI {
                     
                     let foundNew = new as? [String: Any]
                     let headline = foundNew!["title"] as! String
-                    let date = self.newLocalTime(timeString: foundNew!["pubDate"] as! String)
+                    let date = Support.sharedSupport.newLocalTime(timeString: foundNew!["pubDate"] as! String)
                     let link = foundNew!["link"] as! String
                     
                     let tickerNews = TickerNews.init(headline: headline, pubDate: date, linkHeadline: link)
@@ -329,23 +331,66 @@ final class StocksAPI {
 
         dataTask.resume()
     }
-    //Change date format
-    func newLocalTime(timeString: String) -> String {
-        print (timeString)
-        //Get date and format
-        let dateFormatterGet = DateFormatter()
-        dateFormatterGet.dateFormat = "E, d MMM yyyy HH:mm:ss Z"
-        dateFormatterGet.timeZone = TimeZone(identifier: "UTC")
+    
+    //MARK: API call for live news
+    func loadAllNews(completion: @escaping([NewsItem]?) -> Void){
         
-        //Convert format
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .medium
-        dateFormatter.timeZone = TimeZone.current
+        let headers = [
+            "x-bingapis-sdk": "true",
+            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+            "x-rapidapi-host": "bing-news-search1.p.rapidapi.com"
+        ]
 
-        let dateObj: Date? = dateFormatterGet.date(from: timeString)
-        let newLocalTime = dateFormatter.string(from: dateObj!)
+        let request = NSMutableURLRequest(url:
+                                            NSURL(string: "https://bing-news-search1.p.rapidapi.com/news?safeSearch=Off&category=Business")! as URL,
+                                            cachePolicy: .useProtocolCachePolicy,
+                                            timeoutInterval: 10.0)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
 
-        return newLocalTime
+        let session = URLSession.shared
+        
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                completion(nil)
+            } else {
+            
+                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+                dump (json!)
+                let jsonNews = json!["value"] as! [Any]
+                     
+                var newsItems = [NewsItem]()
+                for jsonNew in jsonNews {
+                    
+                    let dictionaryNew = jsonNew as! [String: Any]
+                    
+                    let notFormatedDate = dictionaryNew["datePublished"] as! String
+                    let pubDate = Support.sharedSupport.newLocalTimeNews(timeString: notFormatedDate)
+                    let headline = dictionaryNew["name"] as! String
+                    let link = dictionaryNew["url"] as! String
+                    
+                    let imageDictionary = dictionaryNew["image"] as? [String : Any]
+
+                    var downloadedImage = UIImage()
+                    if imageDictionary != nil {
+                        let imageJSON = imageDictionary?["thumbnail"] as? [String: Any]
+                        let imageLink = imageJSON?["contentUrl"] as! String
+                        downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: imageLink)
+                    } else {
+                        downloadedImage = UIImage(named: "mw-logo")!
+                    }
+                    
+                    let authorDictionary = dictionaryNew["provider"] as! [Any]
+                    let authorArray = authorDictionary.first as! [String: Any]
+                    let author = authorArray["name"] as! String
+                    
+                    let newsItem = NewsItem.init(headline: headline, link: link, pubDate: pubDate, ticker: "", author: author, image: downloadedImage)
+                    newsItems.append(newsItem)
+                }
+                completion(newsItems)
+            }
+        })
+        dataTask.resume()
     }
+    
 }
