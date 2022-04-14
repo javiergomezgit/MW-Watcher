@@ -18,7 +18,7 @@ class TickerNewsController: UIViewController {
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet var tableView: UITableView!
     
-    var ticker = "AAPL"
+    var ticker = ""
     var tickerNewsArray: [TickerNews] = []
     let saveHeadlines = UserSaveNews()
     var savedRows : [Int: Bool] = [:]
@@ -30,85 +30,21 @@ class TickerNewsController: UIViewController {
         tableView.delegate = self
         
         tickerLabel.text = ticker
-        
         loadTickerNews()
-        
     }
     
-    
     func loadTickerNews() {
-        let headers = [
-            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
-            "x-rapidapi-host": "yahoo-finance15.p.rapidapi.com"
-        ]
-
-        let urlString = "https://yahoo-finance15.p.rapidapi.com/api/yahoo/ne/news/\(ticker)"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
-                                                cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
-                //print(error)
-                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
-            } else {
-                //let httpResponse = response as? HTTPURLResponse
-                //print(httpResponse)
-                
-                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                //print (json)
-                
-                let news = json!["item"] as! [Any]
-                
-                for (index, new) in news.enumerated() {
-                
-                    if index == 10 {
-                        break
-                    }
-                    
-                    let foundNew = new as? [String: Any]
-                    let headline = foundNew!["title"] as! String
-                    let date = self.newLocalTime(timeString: foundNew!["pubDate"] as! String)
-                    let link = foundNew!["link"] as! String
-                    
-                    let tickerNews = TickerNews.init(headline: headline, pubDate: date, linkHeadline: link)
-                    
-                    print (tickerNews)
-                    self.tickerNewsArray.append(tickerNews)
-                }
-
+        StocksAPI.shared.loadTickerNews(ticker: ticker) { loadedNewsArray in
+            if loadedNewsArray != nil {
+                self.tickerNewsArray = loadedNewsArray!
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                 }
+            } else {
+                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
             }
-        })
-
-        dataTask.resume()
+        }
     }
-    
-    func newLocalTime(timeString: String) -> String {
-        print (timeString)
-        //Get date and format
-        let dateFormatterGet = DateFormatter()
-        dateFormatterGet.dateFormat = "E, d MMM yyyy HH:mm:ss Z"
-        dateFormatterGet.timeZone = TimeZone(identifier: "UTC")
-        
-        //Convert format
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .medium
-        dateFormatter.timeZone = TimeZone.current
-
-        let dateObj: Date? = dateFormatterGet.date(from: timeString)
-        let newLocalTime = dateFormatter.string(from: dateObj!)
-
-        return newLocalTime
-    }
-
-
 }
 
 
@@ -134,8 +70,6 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.shareButton.tag = indexPath.row
         cell.shareButton.addTarget(self, action: #selector(shareTitle(sender:)), for: .touchUpInside)
 
-        
-        
         return cell
     }
     
@@ -152,13 +86,7 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         
         let currentImageData = sender.currentImage
         let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
-        
-//        let boldConfig = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
-//        let boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: boldConfig)
-//
-//        sender.setImage(boldSearch, for: .normal)
-//        sender.tintColor = .red
-        
+
         if currentImageData?.pngData() == imageData?.pngData() {
             if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
                 sender.tintColor = .red
@@ -182,20 +110,6 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         sender.setImage(boldSearch, for: .normal)
     }
     
-
-   
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
     @objc func shareTitle(sender: UIButton){
         sender.animateButton(sender: sender, duration: 0.1)
         let index = sender.tag

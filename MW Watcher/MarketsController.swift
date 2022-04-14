@@ -16,7 +16,7 @@ class MarketsController: UIViewController {
     var marketsPrices = [
         "^DJI" : ["Dow Jones Industrial Average", 0.0, 0.0],
         "^GSPC" : ["S&P 500", 0.0, 0.0],
-        "^NDX" : ["Nasdaq, Inc.", 0.0, 0.0], //need to change to $COMP
+        "^IXIC" : ["Nasdaq Composite", 0.0, 0.0],
         "^W5000" : ["Wilshire 5000 Total Market Index", 0.0, 0.0],
         "^RUA" : ["Russell 3000", 0.0, 0.0],
         "^SP400" : ["S&P 400", 0.0, 0.0],
@@ -35,7 +35,7 @@ class MarketsController: UIViewController {
                                          timeoutInterval: 10.0)
      */
     
-    var marketNames = ["^DJI","^GSPC","^NDX","^W5000","^RUA","^SP400","^RUT","^VIX"]
+    var marketNames = ["^DJI","^GSPC","^IXIC","^W5000","^RUA","^SP400","^RUT","^VIX"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,7 +60,7 @@ class MarketsController: UIViewController {
             "x-rapidapi-host": "yfapi.net"
         ]
 
-        let urlString = "https://yfapi.net/v6/finance/quote?region=US&lang=en&symbols=%5EDJI%2C%5EGSPC%2C%5ENDX%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX"
+        let urlString = "https://yfapi.net/v6/finance/quote?region=US&lang=en&symbols=%5EDJI%2C%5EGSPC%2C%5EIXIC%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX"
         let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
                                                 cachePolicy: .useProtocolCachePolicy,
                                             timeoutInterval: 10.0)

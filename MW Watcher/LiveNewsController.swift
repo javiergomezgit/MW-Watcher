@@ -196,6 +196,7 @@ class LiveNewsController: UIViewController {
     }
 }
 
+
 /*
  func PDTForamte(endTime: String) -> String{
      // create dateFormatter with UTC time format

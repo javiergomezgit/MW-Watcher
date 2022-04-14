@@ -10,14 +10,8 @@ import Foundation
 import LocalAuthentication
 import AMPopTip
 
-struct Tickers {
-    let ticker: String
-    let marketPrice: Double
-    let previousPrice: Double
-}
-
 class WatchlistController: UIViewController {
-
+    
     //MARK: Variables
     var tickers: [Tickers] = []
     var timeRange: String = "&interval=1d&range=1d"
@@ -25,28 +19,84 @@ class WatchlistController: UIViewController {
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
     var percentageChg = 0.0
-
+    
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
     @IBOutlet weak var addTickerButton: UIButton!
     @IBOutlet weak var versionLabel: UILabel!
+    @IBOutlet weak var chosingTimeSegment: UISegmentedControl!
+    
+    
+    //MARK: Initials
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        versionLabel.text = appVersion
+        
+        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
+        UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
+        UserDefaults.standard.synchronize()
+        
+        //change to true for testing
+        if !isFirstLaunch {
+            alreadyLaunched = false
+        } else {
+            alreadyLaunched = true
+        }
+        
+        let font = UIFont.boldSystemFont(ofSize: 16)
+        let titleTextAttributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: UIColor.white,
+        ]
+        
+        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .normal)
+        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .selected)
+        
+        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        tableView.addSubview(refreshControl) // not required when using UITableViewController
+        
+        loadInitialStocks()
+    }
+    
+    func loadInitialStocks(){
+        if !self.alreadyLaunched {
+            self.showFirstTimeNotification(whereView: self.addTickerButton)
+        }
+        
+        let loadSavedTickers = self.savedTickers.loadTickers()
+        if !loadSavedTickers.isEmpty {
+            self.loadMultipleStocks(savedTickers: loadSavedTickers)
+        }
+    }
     
     @IBAction func addingTicker(_ sender: UIButton) {
         let alert = ShowAlerts.inputTextAlert(title: "Add a new ticker", message: "Please type a new ticker for the watchlist")
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
-        
+            
             guard let field = alert.textFields else { return }
             let fieldArray = field.first
-            guard let ticker = fieldArray!.text, !ticker.isEmpty else {
+            guard let tickerToAdd = fieldArray!.text, !tickerToAdd.isEmpty else {
                 ShowAlerts.showSimpleAlert(title: "Empty field", message: "You need to type your ticker", titleButton: "Ok", over: self)
                 return
             }
-            self.loadTicker(loadSingle: ticker, loadMultiple: nil)
+            var alreadyOnList = false
+            for tick in self.tickers {
+                if tick.ticker == tickerToAdd {
+                    alreadyOnList = true
+                }
+            }
+            if !alreadyOnList {
+                self.loadIndividualStock(individualTicker: tickerToAdd)
+            } else {
+                ShowAlerts.showSimpleAlert(title: "Already added", message: "Your stock was already added", titleButton: "Ok", over: self)
+            }
         }))
         present(alert, animated: true)
     }
-    @IBOutlet weak var chosingTimeSegment: UISegmentedControl!
     
     @IBAction func chosingTime(_ sender: UISegmentedControl) {
         let loadSavedTickers = savedTickers.loadTickers()
@@ -63,56 +113,13 @@ class WatchlistController: UIViewController {
         }
         if !loadSavedTickers.isEmpty {
             tickers.removeAll()
-            loadTicker(loadSingle: nil, loadMultiple: loadSavedTickers)
+            loadMultipleStocks(savedTickers: loadSavedTickers)
         }
-    }
-    
-    
-    //MARK: Initials
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        versionLabel.text = appVersion
-        
-        authenticationWithTouchID()
-        
-        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
-        UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
-        UserDefaults.standard.synchronize()
-        
-        //change to true for testing
-        if !isFirstLaunch {
-           alreadyLaunched = false
-        } else {
-            alreadyLaunched = true
-        }
-        
-        let font = UIFont.boldSystemFont(ofSize: 16)
-        let titleTextAttributes: [NSAttributedString.Key: Any] = [
-            .font: font,
-            .foregroundColor: UIColor.white,
-        ]
-                
-        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .normal)
-        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .selected)
-        
-        //TODO: Improve loading / load only once for all time, then make the calculation of times based on the picked segment control
-        
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl) // not required when using UITableViewController
-        
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        authenticationWithTouchID()
     }
     
     @objc func refresh(_ sender: AnyObject) {
         let loadSavedTickers = savedTickers.loadTickers()
-        loadTicker(loadSingle: nil, loadMultiple: loadSavedTickers)
+        loadMultipleStocks(savedTickers: loadSavedTickers)
         tableView.reloadData()
     }
     
@@ -126,120 +133,67 @@ class WatchlistController: UIViewController {
         
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
     }
-
     
-    
-    //MARK: Network connections
-    func loadTicker(loadSingle: String?, loadMultiple: [String]?) {
-        let headers = [
-            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
-            "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
-        ]
-        
-        var ticker = ""
-        var url = ""
-        var json: [String: Any]? = [:]
-        
-        if loadSingle != nil {
-            ticker = loadSingle!
-            url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + ticker + timeRange
-        } else {
-            for singleTicker in loadMultiple! {
-                ticker = ticker + "%2C" + singleTicker
+    func loadMultipleStocks(savedTickers: [String]){
+        var mergedTickers = ""
+        for (index, savedTicker) in savedTickers.enumerated() {
+            if index == 0 {
+                mergedTickers = savedTicker
+            } else {
+                mergedTickers = mergedTickers + "," + savedTicker
             }
-            url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + ticker + timeRange
         }
         
-        print (url)
-
-        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
-                                                cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        print (request.description)
-
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { [self] (data, response, error) -> Void in
-            if (error != nil) {
-                print(error!)
-                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-            } else {
-                //let httpResponse = response as? HTTPURLResponse
-                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                if json == nil  {
-                    DispatchQueue.main.async {
-                        ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-                    }
-                    return
+        StocksAPI.shared.getPriceMultipleStocks(tickersGroup: mergedTickers, timeRange: timeRange) { result in
+            switch result {
+                
+            case .success(let groupStockPrices):
+                print (groupStockPrices)
+                self.tickers = groupStockPrices
+                
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    self.refreshControl.endRefreshing()
                 }
                 
-                if let tickerFound = json![ticker] {
-                    //SINGLE TICKER
-                    let tickerDictionary = tickerFound as? [String: Any]
-                    
-                    let foundClose = tickerDictionary!["chartPreviousClose"]
-                    
-                    guard let previousClose = foundClose as? Double else {
-                        DispatchQueue.main.async {
-                            ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find the ticker", titleButton: "Ok", over: self)
-                        }
-                        return
-                    }
-                    
-                    let closePriceArray = tickerDictionary!["close"] as? [Any]
-                    let closePrice = closePriceArray!.last as! Double
-                    
-                    self.savedTickers.saveTicker(ticker: ticker)
-                    self.tickers.append(Tickers(ticker: ticker, marketPrice: closePrice, previousPrice: previousClose))
-                    print (self.tickers)
-                    DispatchQueue.main.async {
-                        ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(ticker) to the watchlist", titleButton: "Ok", over: self)
-                        self.tableView.reloadData()
-                        self.refreshControl.endRefreshing()
-                    }
-                    
-                } else {
-                    //MULTIPLE TICKER
-                    if loadMultiple != nil {
-                        self.tickers.removeAll()
-                        var tickersWithoutSorting : [Tickers] = []
-                        for tickerJSON in json! {
-                            print (tickerJSON.value) //json
-                            print (tickerJSON.key) //ticker
-                            
-                            let tickerDictionary = tickerJSON.value as? [String: Any]
-                            let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
-                            let closePriceArray = tickerDictionary!["close"] as? [Any]
-                            let closePrice = closePriceArray!.last as! Double
-                            tickersWithoutSorting.append(Tickers(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose))
-                        }
-                                            
-                        self.tickers = tickersWithoutSorting.sorted{ $0.ticker < $1.ticker }
-                        
-                        print (self.tickers)
-                        DispatchQueue.main.async {
-                            self.tableView.reloadData()
-                            self.refreshControl.endRefreshing()
-                        }
-                    } else  {
-                        DispatchQueue.main.async {
-                            ShowAlerts.showSimpleAlert(title: "Not Found", message: "Ticker not found", titleButton: "Ok", over: self)
-                        }
-                    }
+            case .failure(let error):
+                print (error)
+                DispatchQueue.main.async {
+                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                 }
             }
-        })
-        dataTask.resume()
+        }
     }
     
+    func loadIndividualStock(individualTicker: String) {
+        
+        StocksAPI.shared.getPriceSingleStock(tickerSingle: individualTicker, timeRange: timeRange) { result in
+            switch result {
+                
+            case .success(let individualStockPrice):
+                self.savedTickers.saveTicker(ticker: individualTicker)
+                self.tickers.append(Tickers(ticker: individualTicker, marketPrice: individualStockPrice.marketPrice, previousPrice: individualStockPrice.previousPrice))
+                DispatchQueue.main.async {
+                    ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(individualTicker) to the watchlist", titleButton: "Ok", over: self)
+                    self.tableView.reloadData()
+                    self.refreshControl.endRefreshing()
+                }
+            case .failure(let error):
+                print (error.localizedDescription)
+                print (error)
+                DispatchQueue.main.async {
+                    ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find the ticker", titleButton: "Ok", over: self)
+                }
+            }
+        }
+    }
 }
 
 
 //Customs
 //Delegate for table view
 extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
-  
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tickers.count
     }
@@ -276,7 +230,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
             cell.imageArrow.image = (UIImage.init(systemName: "arrow.up.square.fill"))
-            cell.imageArrow.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0) 
+            cell.imageArrow.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
         }
         
         cell.buttonTickerNews.tag = indexPath.row
@@ -295,7 +249,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         let perChange = (ticker.marketPrice * 100) / ticker.previousPrice
         var percentageRounded = 100 - perChange
         percentageRounded = Double(round(100*percentageRounded)/100) * -1
-               
+        
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
@@ -305,28 +259,25 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         self.show(destination!, sender: self)
     }
     
-@objc func openNews(sender: UIButton) {
-    let ticker = self.tickers[sender.tag].ticker
-    
-    print (sender.tag)
-    print (ticker)
-
-    let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-    let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
-    
-    destination!.ticker = ticker
-    
-    //    nextViewController.modalPresentationStyle = .fullScreen
-    //    nextViewController.modalTransitionStyle = .crossDissolve
-    self.show(destination!, sender: self)
+    @objc func openNews(sender: UIButton) {
+        let ticker = self.tickers[sender.tag].ticker
+        
+        print (sender.tag)
+        print (ticker)
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
+        
+        destination!.ticker = ticker
+        
+        //    nextViewController.modalPresentationStyle = .fullScreen
+        //    nextViewController.modalTransitionStyle = .crossDissolve
+        self.show(destination!, sender: self)
     }
-
-    
-    
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-            return .delete
-        }
+        return .delete
+    }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
@@ -335,7 +286,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             
             tickers.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .left)
-           
+            
         }
     }
 }
@@ -352,139 +303,4 @@ extension WatchlistController {
         view.endEditing(true)
     }
 }
-
-
-//Delegate for authentication with Biometrics
-extension WatchlistController {
-    
-    func authenticationWithTouchID() {
-        let localAuthenticationContext = LAContext()
-        localAuthenticationContext.localizedFallbackTitle = "Use Passcode"
-
-        var authError: NSError?
-        let reasonString = "To access the secure data"
-
-        if localAuthenticationContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &authError) {
-            
-            localAuthenticationContext.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reasonString) { success, evaluateError in
-                
-                DispatchQueue.main.async {
-                    if success {
-                        if !self.alreadyLaunched {
-                            self.showFirstTimeNotification(whereView: self.addTickerButton)
-                        }
-                        
-                        //TODO: User authenticated successfully, take appropriate action
-                        let loadSavedTickers = self.savedTickers.loadTickers()
-                        
-                        if !loadSavedTickers.isEmpty {
-                            self.loadTicker(loadSingle: nil, loadMultiple: loadSavedTickers)
-                        }
-                        
-                    } else {
-                        //TODO: User did not authenticate successfully, look at error and take appropriate action
-                        
-                        guard let error = evaluateError else {
-                            return
-                        }
-                        
-                        print(self.evaluateAuthenticationPolicyMessageForLA(errorCode: error._code))
-                        //TODO: If you have choosen the 'Fallback authentication mechanism selected' (LAError.userFallback). Handle gracefully
-                        
-                    }
-                }
-                
-            }
-        } else {
-            
-            guard let error = authError else {
-                return
-            }
-            //TODO: Show appropriate alert if biometry/TouchID/FaceID is lockout or not enrolled
-            print(self.evaluateAuthenticationPolicyMessageForLA(errorCode: error.code))
-        }
-    }
-    
-    func evaluatePolicyFailErrorMessageForLA(errorCode: Int) -> String {
-        var message = ""
-        if #available(iOS 11.0, macOS 10.13, *) {
-            switch errorCode {
-                case LAError.biometryNotAvailable.rawValue:
-                    message = "Authentication could not start because the device does not support biometric authentication."
-                
-                case LAError.biometryLockout.rawValue:
-                    message = "Authentication could not continue because the user has been locked out of biometric authentication, due to failing authentication too many times."
-                
-                case LAError.biometryNotEnrolled.rawValue:
-                    message = "Authentication could not start because the user has not enrolled in biometric authentication."
-                
-                default:
-                    message = "Did not find error code on LAError object"
-            }
-        } else {
-            switch errorCode {
-                case LAError.touchIDLockout.rawValue:
-                    message = "Too many failed attempts."
-                
-                case LAError.touchIDNotAvailable.rawValue:
-                    message = "TouchID is not available on the device"
-                
-                case LAError.touchIDNotEnrolled.rawValue:
-                    message = "TouchID is not enrolled on the device"
-                
-                default:
-                    message = "Did not find error code on LAError object"
-            }
-        }
-        
-        return message;
-    }
-    
-    func evaluateAuthenticationPolicyMessageForLA(errorCode: Int) -> String {
-        
-        var message = ""
-        
-        switch errorCode {
-            
-        case LAError.authenticationFailed.rawValue:
-            message = "The user failed to provide valid credentials"
-            
-        case LAError.appCancel.rawValue:
-            message = "Authentication was cancelled by application"
-            
-        case LAError.invalidContext.rawValue:
-            message = "The context is invalid"
-            
-        case LAError.notInteractive.rawValue:
-            message = "Not interactive"
-            
-        case LAError.passcodeNotSet.rawValue:
-            message = "Passcode is not set on the device"
-            
-        case LAError.systemCancel.rawValue:
-            message = "Authentication was cancelled by the system"
-            
-        case LAError.userCancel.rawValue:
-            message = "The user did cancel"
-            
-        case LAError.userFallback.rawValue:
-            message = "The user chose to use the fallback"
-
-        default:
-            message = evaluatePolicyFailErrorMessageForLA(errorCode: errorCode)
-        }
-        
-        return message
-    }
-}
-    
-
-
-
-
-
-
-
-
-
 

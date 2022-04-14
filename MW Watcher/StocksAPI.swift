@@ -11,23 +11,27 @@ import SwiftyJSON
 final class StocksAPI {
     static let shared = StocksAPI()
     
-    private struct Constant {
-        static let apiKey = "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
-        static let apiHost = "alpha-vantage.p.rapidapi.com"
-        static let baseUrl = "https://alpha-vantage.p.rapidapi.com/query?"
-        static let endpoint = "cryptocurrency/quotes/latest"
-        static var functionTime = ""
-        static let options = "&datatype=json&output_size=compact"
-        static var intervalTime = ""
-    }
     private init() {}
-
     
     enum APIError: Error {
         case invalidURL
+        case tickerNotFound
+        case invalidJSON
+        case invalidTicker
     }
     
+    //MARK: API call for STOCKS chart
     public func getStockValues(interval: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
+        
+        struct Constant {
+            static let apiKey = "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
+            static let apiHost = "alpha-vantage.p.rapidapi.com"
+            static let baseUrl = "https://alpha-vantage.p.rapidapi.com/query?"
+            static let endpoint = "cryptocurrency/quotes/latest"
+            static var functionTime = ""
+            static let options = "&datatype=json&output_size=compact"
+            static var intervalTime = ""
+        }
         
         switch interval {
         case "15min":
@@ -57,13 +61,10 @@ final class StocksAPI {
             "X-RapidAPI-Key": Constant.apiKey
         ]
 
-        let request = NSMutableURLRequest(url: NSURL(string:
-                                                     Constant.baseUrl +
-                                                     Constant.intervalTime +
-                                                     Constant.functionTime +
-                                                     "symbol=" +
-                                                     symbol +
-                                                     Constant.options)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+        let request = NSMutableURLRequest(
+            url: NSURL(string: Constant.baseUrl + Constant.intervalTime + Constant.functionTime + "symbol=" + symbol + Constant.options)! as URL,
+            cachePolicy: .useProtocolCachePolicy,
+            timeoutInterval: 10.0)
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
@@ -117,5 +118,186 @@ final class StocksAPI {
             }
         }
         task.resume()
+    }
+    
+    
+    
+    
+    //MARK: API call for search of INDIVIDUAL stock with current price
+    func getPriceSingleStock(tickerSingle: String, timeRange: String, completion: @escaping (Result<Tickers, Error>) -> Void) {
+        
+        let headers = [
+            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+            "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+        ]
+        
+        let url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + tickerSingle + timeRange
+        var json: [String: Any]? = [:]
+        
+        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 10.0)
+        
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                print(error!)
+                completion(.failure(error!))
+            } else {
+                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+                if json == nil  {
+                    completion(.failure(APIError.invalidJSON))
+                }
+                
+                if let tickerFound = json![tickerSingle] {
+                    let tickerDictionary = tickerFound as? [String: Any]
+                    let foundClose = tickerDictionary!["chartPreviousClose"]
+                    
+                    guard let previousClose = foundClose as? Double else {
+                        completion(.failure(APIError.invalidURL))
+                        return
+                    }
+                    
+                    guard let closePriceArray = tickerDictionary!["close"] as? [Any] else {
+                        completion(.failure(APIError.invalidTicker))
+                        return
+                    }
+                    guard let closePrice = closePriceArray.last as? Double else {
+                        completion(.failure(APIError.invalidTicker))
+                        return
+                    }
+                    
+                    let tickerValues = Tickers(ticker: tickerSingle, marketPrice: closePrice, previousPrice: previousClose)
+
+                    completion(.success(tickerValues))
+                    
+                } else {
+                    print (APIError.tickerNotFound)
+                    completion(.failure(APIError.invalidURL))
+                }
+            }
+        })
+        dataTask.resume()
+    }
+    
+    //MARK: API call for GROUP of stocks with current price
+    func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[Tickers], Error>) -> Void) {
+        
+        let headers = [
+            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+            "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+        ]
+        
+        let url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + tickersGroup + timeRange
+        var json: [String: Any]? = [:]
+        
+        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 10.0)
+        
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                print(error!)
+                completion(.failure(error!))
+            } else {
+                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+                if json == nil  {
+                    completion(.failure("JSON is Empty" as! Error))
+                }
+                
+                var tickersWithoutSorting : [Tickers] = []
+                for tickerJSON in json! {
+                    print (tickerJSON.value) //json
+                    print (tickerJSON.key) //ticker
+                    
+                    let tickerDictionary = tickerJSON.value as? [String: Any]
+                    let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
+                    let closePriceArray = tickerDictionary!["close"] as? [Any]
+                    let closePrice = closePriceArray!.last as! Double
+                    tickersWithoutSorting.append(Tickers(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose))
+                }
+                
+                let tickersSorted = tickersWithoutSorting.sorted{ $0.ticker < $1.ticker }
+                completion(.success(tickersSorted))
+            }
+        })
+        dataTask.resume()
+    }
+    
+    
+    //MARK: API call for news of specific ticker (stock)
+    func loadTickerNews(ticker: String, completion: @escaping ([TickerNews]?) -> Void) {
+        let headers = [
+            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+            "x-rapidapi-host": "yahoo-finance15.p.rapidapi.com"
+        ]
+
+        let urlString = "https://yahoo-finance15.p.rapidapi.com/api/yahoo/ne/news/\(ticker)"
+        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
+                                                cachePolicy: .useProtocolCachePolicy,
+                                            timeoutInterval: 10.0)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                completion(nil)
+            } else {
+                
+                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+                
+                let news = json!["item"] as! [Any]
+                
+                var tickerNewsArray = [TickerNews]()
+                for (index, new) in news.enumerated() {
+                
+                    if index == 10 {
+                        break
+                    }
+                    
+                    let foundNew = new as? [String: Any]
+                    let headline = foundNew!["title"] as! String
+                    let date = self.newLocalTime(timeString: foundNew!["pubDate"] as! String)
+                    let link = foundNew!["link"] as! String
+                    
+                    let tickerNews = TickerNews.init(headline: headline, pubDate: date, linkHeadline: link)
+                    
+                    print (tickerNews)
+                    tickerNewsArray.append(tickerNews)
+                }
+
+                completion(tickerNewsArray)
+            }
+        })
+
+        dataTask.resume()
+    }
+    
+    //Change date format
+    func newLocalTime(timeString: String) -> String {
+        print (timeString)
+        //Get date and format
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = "E, d MMM yyyy HH:mm:ss Z"
+        dateFormatterGet.timeZone = TimeZone(identifier: "UTC")
+        
+        //Convert format
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .medium
+        dateFormatter.timeZone = TimeZone.current
+
+        let dateObj: Date? = dateFormatterGet.date(from: timeString)
+        let newLocalTime = dateFormatter.string(from: dateObj!)
+
+        return newLocalTime
     }
 }
