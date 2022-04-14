@@ -135,7 +135,6 @@ class CostCalculatorController: UIViewController {
         
         amountBuyingText.text = "$\(numberSting!)"
         totalCost()
-        
     }
     
     func totalCost() {
@@ -143,7 +142,6 @@ class CostCalculatorController: UIViewController {
         let totalShares = qtyOwned + qtyBuying
         
         finalPrice = totalAmounts / Double(totalShares)
-        
         
         finalPercentage = ((priceBuying * 100) / finalPrice) - 100
         
@@ -176,7 +174,6 @@ class CostCalculatorController: UIViewController {
         profitLossPercentageLabel.text = "\(finalPercentageString!)%"
     }
     
-    
     @IBAction func resetTextFields(_ sender: Any) {
         qtyOwnedText.text = ""
         qtyBuyingText.text = ""
@@ -189,7 +186,6 @@ class CostCalculatorController: UIViewController {
         profitLossPercentageLabel.text = ""
         totalPriceLabel.text = ""
     }
-
 }
 
 extension UIViewController {

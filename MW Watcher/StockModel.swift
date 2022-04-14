@@ -21,3 +21,13 @@ struct ValueStock: Codable {
     let close: String
     let volume: String
 }
+
+struct GeneralMarkets {
+    let indexTicker: String
+    let indexName: String
+    let indexPrice: Double
+    let changePercentage: Double
+    let exchange: String
+}
+
+

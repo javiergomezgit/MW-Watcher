@@ -55,61 +55,21 @@ class MarketsController: UIViewController {
     }
     
     func loadCurrentPrices() {
-        let headers = [
-            "x-api-key": "oFf1Q9pDzb6LovcGuCciz1ngVdnCN04J1FGi2fLa",
-            "x-rapidapi-host": "yfapi.net"
-        ]
-
-        let urlString = "https://yfapi.net/v6/finance/quote?region=US&lang=en&symbols=%5EDJI%2C%5EGSPC%2C%5EIXIC%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
-                                                cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
+        
+        StocksAPI.shared.getPriceGeneralMarkets { markets in
+            if markets == nil {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
             } else {
-                //let httpResponse = response as? HTTPURLResponse
-                //print(httpResponse)
-                
-                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                print (json!)
-                
-                let resultJSON = json?["quoteResponse"] as? [String: Any]
-                
-                if let resultArray = resultJSON!["result"] as? [Any] {
-
-                    for tickerJSON in resultArray {
-                        
-                        let tickerDictionary = tickerJSON as? [String: Any]
-                        
-                        
-                        let marketPrice = tickerDictionary!["regularMarketPrice"] as! Double
-                        let changePercentage = tickerDictionary!["regularMarketChangePercent"] as! Double
-                        let ticker = tickerDictionary!["symbol"] as! String
-
-                        let marketsNameValues = self.marketsPrices[ticker]
-                        let nameOfMarket = marketsNameValues![0]
-
-                        self.marketsPrices[ticker] = [nameOfMarket, marketPrice, changePercentage]
-                    }
-                    
-                    print (self.marketsPrices)
-                    DispatchQueue.main.async {
-                        self.refreshControl.endRefreshing()
-                        self.collectionView.reloadData()
-                    }
-
-                } else {
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
+                let marketsValues = markets!
+                for market in marketsValues {
+                    self.marketsPrices[market.indexTicker] = [market.indexName, market.indexPrice, market.changePercentage]
+                }
+                DispatchQueue.main.async {
+                    self.refreshControl.endRefreshing()
+                    self.collectionView.reloadData()
                 }
             }
-        })
-
-        dataTask.resume()
+        }
     }
 }
 

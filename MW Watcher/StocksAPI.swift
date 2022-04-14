@@ -231,6 +231,55 @@ final class StocksAPI {
         dataTask.resume()
     }
     
+    //MARK: API call for general markets
+    func getPriceGeneralMarkets(completion: @escaping([GeneralMarkets]?) -> Void) {
+        let headers = [
+            "x-api-key": "oFf1Q9pDzb6LovcGuCciz1ngVdnCN04J1FGi2fLa",
+            "x-rapidapi-host": "yfapi.net"
+        ]
+
+        let urlString = "https://yfapi.net/v6/finance/quote?region=US&lang=en&symbols=%5EDJI%2C%5EGSPC%2C%5EIXIC%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX"
+        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
+                                            cachePolicy: .useProtocolCachePolicy,
+                                            timeoutInterval: 10.0)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                completion(nil)
+            } else {
+                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+                print (json!)
+                
+                let resultJSON = json?["quoteResponse"] as? [String: Any]
+                
+                if let resultArray = resultJSON!["result"] as? [Any] {
+                    
+                    var marketsValues = [GeneralMarkets]()
+                    for tickerJSON in resultArray {
+                        
+                        let tickerDictionary = tickerJSON as? [String: Any]
+                        
+                        let marketPrice = tickerDictionary!["regularMarketPrice"] as! Double
+                        let changePercentage = tickerDictionary!["regularMarketChangePercent"] as! Double
+                        let ticker = tickerDictionary!["symbol"] as! String
+                        let exchange = tickerDictionary!["exchange"] as! String
+                        let shortName = tickerDictionary!["shortName"] as! String
+                        
+                        let marketIndex = GeneralMarkets(indexTicker: ticker, indexName: shortName, indexPrice: marketPrice, changePercentage: changePercentage, exchange: exchange)
+                        marketsValues.append(marketIndex)
+                    }
+                    marketsValues = marketsValues.sorted{ $0.changePercentage < $1.changePercentage }
+                    completion(marketsValues)
+                } else {
+                    completion(nil)
+                }
+            }
+        })
+        dataTask.resume()
+    }
     
     //MARK: API call for news of specific ticker (stock)
     func loadTickerNews(ticker: String, completion: @escaping ([TickerNews]?) -> Void) {
@@ -280,7 +329,6 @@ final class StocksAPI {
 
         dataTask.resume()
     }
-    
     //Change date format
     func newLocalTime(timeString: String) -> String {
         print (timeString)
