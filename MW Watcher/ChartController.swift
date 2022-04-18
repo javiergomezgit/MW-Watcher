@@ -43,19 +43,19 @@ class ChartController: UIViewController, ChartViewDelegate {
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
         let index = timeFrameSegmented.selectedSegmentIndex
         
+        startStopSpinner(start: true)
+        
         if informationStockTicker.ticker == "" {
             switch index {
-            case 0: self.interval = "300"
+            case 0: self.interval = "900"
                 break
             case 1: self.interval = "3600"
                 break
             case 2: self.interval = "18000"
                 break
-            case 3: self.interval = "86400"
+            case 3: self.interval = "week"
                 break
-            case 4: self.interval = "week"
-                break
-            case 5: self.interval = "month"
+            case 4: self.interval = "month"
                 break
             default:
                 self.interval = "300"
@@ -67,13 +67,11 @@ class ChartController: UIViewController, ChartViewDelegate {
                 break
             case 1: self.intervalStock = "60min"
                 break
-            case 2: self.intervalStock = "18000"
+            case 2: self.intervalStock = "day"
                 break
-            case 3: self.intervalStock = "86400"
+            case 3: self.intervalStock = "week"
                 break
-            case 4: self.intervalStock = "week"
-                break
-            case 5: self.intervalStock = "month"
+            case 4: self.intervalStock = "month"
                 break
             default:
                 self.intervalStock = "15min"
@@ -87,12 +85,27 @@ class ChartController: UIViewController, ChartViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //loadCryptoPrices()
+        startStopSpinner(start: true)
+        
         if informationStockTicker.ticker == "" {
             selectedCryptoTicker()
         } else {
             selectedStockTicker()
             cryptoImage.image = UIImage(named: "logoWord")
+        }
+    }
+    
+    let child = Spinner()
+    func startStopSpinner(start: Bool){
+        if start {
+            addChild(child)
+            child.view.frame = view.frame
+            view.addSubview(child.view)
+            child.didMove(toParent: self)
+        } else {
+            child.willMove(toParent: nil)
+            child.view.removeFromSuperview()
+            child.removeFromParent()
         }
     }
     
@@ -112,7 +125,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         self.symbol = symbol
         tickerLabel.text = symbol
         currentPriceLabel.text = String(currentPrice)
-        currentPercentageLabel.text = "\(percentageChange)% Day"
+        currentPercentageLabel.text = "\(percentageChange)% For the day"
         
         loadStockPrices()
     }
@@ -122,11 +135,18 @@ class ChartController: UIViewController, ChartViewDelegate {
             switch result {
                 
             case .success(let data):
-                let data = data
-                print (data)
-                self?.stockData = data
-                DispatchQueue.main.async {
-                    self?.setUpStockModel()
+                if data.count != 0  {
+                    self?.stockData = data
+                    DispatchQueue.main.async {
+                        self?.startStopSpinner(start: false)
+                        self?.setUpStockModel()
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self?.startStopSpinner(start: false)
+                        ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                    }
+                    print ("no more API")
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
@@ -198,10 +218,15 @@ class ChartController: UIViewController, ChartViewDelegate {
             switch result {
             case .success(let data):
                 
-                self?.cryptoData = data
-                print (data)
                 DispatchQueue.main.async {
-                    self?.setUpCryptoModel()
+                    self?.startStopSpinner(start: false)
+                    if data.count != 0 {
+                        self?.cryptoData = data
+                        self?.setUpCryptoModel()
+                    } else {
+                        ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                    }
+
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
@@ -211,6 +236,16 @@ class ChartController: UIViewController, ChartViewDelegate {
             }
         }
     }
+    
+    static let volumeFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.allowsFloats = true
+        formatter.maximumFractionDigits = 0
+        formatter.numberStyle = .decimal
+        formatter.groupingSize = 3
+        formatter.groupingSeparator = ","
+        return formatter
+    }()
     
     private func setUpStockModel(){
         guard let modelCandles = stockData else { return }
@@ -223,9 +258,15 @@ class ChartController: UIViewController, ChartViewDelegate {
             guard let highPrice = Double(candleValue.high) else { return }
             guard let closePrice = Double(candleValue.close) else { return }
             guard let lowPrice = Double(candleValue.low) else { return }
+            guard let volume = Double(candleValue.volume) else { return }
             
             let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
             let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
+            
+            let volumeReduce = NSNumber(value: (volume/1000))
+            if let volumeRound = ChartController.volumeFormatter.string(from: volumeReduce) {
+                self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
+            }
             
             self.candleValues.append(candleValueEntry)
             self.linearValues.append(linearValueEntry)
@@ -240,7 +281,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             default: print ("")
             }
         }
-        //setupDateLabel()
+        setupDateLabel()
         choseTypeChart()
     }
     
@@ -309,7 +350,20 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         for timeInterval in timeIntervals {
             let time = timeInterval.value
-            let date = Date(timeIntervalSince1970: Double(time)!)
+            var date = Date()
+            
+            if informationStockTicker.ticker == "" {
+                date = Date(timeIntervalSince1970: Double(time)!)
+            } else {
+                let dateFormatterGet = DateFormatter()
+                if index < 2 {
+                    dateFormatterGet.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                } else {
+                    dateFormatterGet.dateFormat = "yyyy-MM-dd"
+                }
+                date = dateFormatterGet.date(from: time)!
+            }
+            
             let dateFormatter = DateFormatter()
             dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
             dateFormatter.locale = NSLocale.current
@@ -323,25 +377,6 @@ class ChartController: UIViewController, ChartViewDelegate {
                 currentTimeLabel.text = strDate
             }
         }
-
-        
-//        let date = Date(timeIntervalSince1970: Double(mid!)!)
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
-//        dateFormatter.locale = NSLocale.current
-//        dateFormatter.dateFormat = "HH:mm"//"yyyy-MM-dd HH:mm" //Specify your format that you want
-//        let strDateMid = dateFormatter.string(from: date)
-                
-//        let date = Date(timeIntervalSince1970: Double(now!)!)
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
-//        dateFormatter.locale = NSLocale.current
-//        dateFormatter.dateFormat = "HH:mm"//"yyyy-MM-dd HH:mm" //Specify your format that you want
-//        let strDateNow = dateFormatter.string(from: date)
-        
-        
-        
-        
     }
     
     @IBAction func selectTypeChart(_ sender: UIButton) {
@@ -402,10 +437,11 @@ class ChartController: UIViewController, ChartViewDelegate {
         candleView.rightAxis.labelPosition = .outsideChart
         
         candleView.xAxis.enabled = true
-//        candleView.xAxis.labelPosition = .bottom
-//        candleView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-//        candleView.xAxis.labelTextColor = .label
-        candleView.xAxis.setLabelCount(3, force: true)
+        candleView.xAxis.labelPosition = .top
+        candleView.xAxis.yOffset = 10
+        candleView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
+        candleView.xAxis.labelTextColor = .label
+        candleView.xAxis.setLabelCount(5, force: true)
 
         return candleView
     }()
@@ -459,10 +495,11 @@ class ChartController: UIViewController, ChartViewDelegate {
         lineChartView.rightAxis.labelPosition = .outsideChart
         
         lineChartView.xAxis.enabled = true
-//        lineChartView.xAxis.labelPosition = .bottom
-//        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-//        lineChartView.xAxis.labelTextColor = .label
-        lineChartView.xAxis.setLabelCount(3, force: true)
+        lineChartView.xAxis.labelPosition = .top
+        lineChartView.xAxis.yOffset = 10
+        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
+        lineChartView.xAxis.labelTextColor = .label
+        lineChartView.xAxis.setLabelCount(5, force: true)
         
         return lineChartView
     }()

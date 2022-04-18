@@ -147,22 +147,54 @@ struct Tickers {
 
 
 
-let dateString = "2021-06-08T08:01:00.0000000Z"
+//let dateString = "2021-06-08T08:01:00.0000000Z"
+//
+//let date = dateString.components(separatedBy: ".")
+//
+//let dateFormatterGet = DateFormatter()
+//dateFormatterGet.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+//dateFormatterGet.timeZone = TimeZone(identifier: "CDT")
+//
+//   let dateFormatter = DateFormatter()
+//dateFormatter.dateStyle = .medium
+//dateFormatter.timeStyle = .medium
+//dateFormatter.timeZone = TimeZone(identifier: "PDT")//NSTimeZone(name: "America/Los_Angeles") as TimeZone?
+//
+//   let dateObj: Date? = dateFormatterGet.date(from: date[0] + "Z")
+//
+//   let some = dateFormatter.string(from: dateObj!)
+//
+//print (some)
 
-let date = dateString.components(separatedBy: ".")
+
+let dateString = "2022-04-14 20:00:00"
+//"HH:mm"
+/*
+ 
+     dateFormat =  "MM/dd"
+     break
+ case 3:
+     dateFormat =  "yyyy/MM/dd"
+     break
+ case 4:
+     dateFormat =  "yyyy/MM/dd"
+     break
+ case 5:
+     dateFormat =  "yyyy/MM"
+ */
 
 let dateFormatterGet = DateFormatter()
-dateFormatterGet.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-dateFormatterGet.timeZone = TimeZone(identifier: "CDT")
+dateFormatterGet.dateFormat = "yyyy-MM-dd HH:mm:ss"
+dateFormatterGet.timeZone = TimeZone(identifier: "PST")
 
-   let dateFormatter = DateFormatter()
-dateFormatter.dateStyle = .medium
-dateFormatter.timeStyle = .medium
-dateFormatter.timeZone = TimeZone(identifier: "PDT")//NSTimeZone(name: "America/Los_Angeles") as TimeZone?
+let dateFormatter = DateFormatter()
+//dateFormatter.dateFormat = "HH:mm"
+dateFormatter.dateFormat = "yyyy/MM"
 
-   let dateObj: Date? = dateFormatterGet.date(from: date[0] + "Z")
+//dateFormatter.timeZone = TimeZone(identifier: "PDT")//NSTimeZone(name: "America/Los_Angeles") as TimeZone?
+
+   let dateObj: Date? = dateFormatterGet.date(from: dateString)
 
    let some = dateFormatter.string(from: dateObj!)
 
 print (some)
-

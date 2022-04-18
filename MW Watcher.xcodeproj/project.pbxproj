@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		029EBE570F9544CD98C9D66A /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D31FD11CE62FC5F953C9C15 /* Pods_MW_Watcher.framework */; };
+		220235EF280CCC8300882206 /* Spinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220235EE280CCC8300882206 /* Spinner.swift */; };
 		220300BC265FDF7E008BAB70 /* MarketsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */; };
 		220F4EA1265D314200106325 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA0265D314200106325 /* WatchlistController.swift */; };
 		220F4EA3265D318D00106325 /* MarketsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA2265D318D00106325 /* MarketsController.swift */; };
@@ -90,6 +91,7 @@
 
 /* Begin PBXFileReference section */
 		07BEE81066EA37E4B1B9539D /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
+		220235EE280CCC8300882206 /* Spinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spinner.swift; sourceTree = "<group>"; };
 		220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsViewCell.swift; sourceTree = "<group>"; };
 		220F4EA0265D314200106325 /* WatchlistController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistController.swift; sourceTree = "<group>"; };
 		220F4EA2265D318D00106325 /* MarketsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsController.swift; sourceTree = "<group>"; };
@@ -282,6 +284,7 @@
 				2286501C26681C4800769EB2 /* page2.jpg */,
 				2286501D26681C4800769EB2 /* page3.jpg */,
 				229554F3267A3FAD0082235C /* ShowAlerts.swift */,
+				220235EE280CCC8300882206 /* Spinner.swift */,
 				227C7E682808931500A9E158 /* Support.swift */,
 			);
 			name = Support;
@@ -387,7 +390,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1250;
+				LastUpgradeCheck = 1330;
 				TargetAttributes = {
 					221236A3263DA728007EA092 = {
 						CreatedOnToolsVersion = 12.5;
@@ -545,6 +548,7 @@
 				226CEA57266BD6EA002E44E3 /* TickerNewsController.swift in Sources */,
 				22AD1A47264B381C001A5362 /* SystemSaveNews.swift in Sources */,
 				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
+				220235EF280CCC8300882206 /* Spinner.swift in Sources */,
 				223EF570265D858700160C8D /* WatchlistViewCell.swift in Sources */,
 				222394A527405E6100C544BB /* CostCalculatorController.swift in Sources */,
 				221236AA263DA728007EA092 /* SceneDelegate.swift in Sources */,
@@ -784,7 +788,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_COMPILATION_MODE = singlefile;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -800,7 +804,7 @@
 				CODE_SIGN_ENTITLEMENTS = WidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.8;
+				CURRENT_PROJECT_VERSION = 1.2.9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				INFOPLIST_FILE = Widget/Info.plist;
@@ -810,7 +814,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.8;
+				MARKETING_VERSION = 1.2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -829,7 +833,7 @@
 				CODE_SIGN_ENTITLEMENTS = WidgetExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.8;
+				CURRENT_PROJECT_VERSION = 1.2.9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				INFOPLIST_FILE = Widget/Info.plist;
@@ -839,7 +843,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.2.8;
+				MARKETING_VERSION = 1.2.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

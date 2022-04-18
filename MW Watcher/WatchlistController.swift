@@ -19,6 +19,7 @@ class WatchlistController: UIViewController {
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
     var percentageChg = 0.0
+    var spinner = UIActivityIndicatorView(style: .large)
     
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
@@ -58,7 +59,26 @@ class WatchlistController: UIViewController {
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl) // not required when using UITableViewController
         
+        
+        startStopSpinner(start: true)
+
+        
+           
         loadInitialStocks()
+    }
+    
+    let child = Spinner()
+    func startStopSpinner(start: Bool){
+        if start {
+            addChild(child)
+            child.view.frame = view.frame
+            view.addSubview(child.view)
+            child.didMove(toParent: self)
+        } else {
+            child.willMove(toParent: nil)
+            child.view.removeFromSuperview()
+            child.removeFromParent()
+        }
     }
     
     func loadInitialStocks(){
@@ -154,6 +174,7 @@ class WatchlistController: UIViewController {
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
                     self.refreshControl.endRefreshing()
+                    self.startStopSpinner(start: false)
                 }
                 
             case .failure(let error):

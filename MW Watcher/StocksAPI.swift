@@ -31,30 +31,34 @@ final class StocksAPI {
             static var functionTime = ""
             static let options = "&datatype=json&output_size=compact"
             static var intervalTime = ""
+            static var volume = "5. volume"
         }
         
         switch interval {
         case "15min":
             Constant.intervalTime = "interval=15min"
             Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
+            Constant.volume = "5. volume"
         case "60min":
             Constant.intervalTime = "interval=60min"
             Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
-        case "18000":
+            Constant.volume = "5. volume"
+        case "day":
             Constant.functionTime = "function=TIME_SERIES_DAILY_ADJUSTED&"
             Constant.intervalTime = ""
-        case "86400":
-            Constant.functionTime = "function=TIME_SERIES_DAILY_ADJUSTED&"
-            Constant.intervalTime = ""
+            Constant.volume = "6. volume"
         case "week":
             Constant.functionTime = "function=TIME_SERIES_WEEKLY_ADJUSTED&"
             Constant.intervalTime = ""
+            Constant.volume = "6. volume"
         case "month":
             Constant.functionTime = "function=TIME_SERIES_MONTHLY_ADJUSTED&"
             Constant.intervalTime = ""
+            Constant.volume = "6. volume"
         default:
-            Constant.functionTime = "function=TIME_SERIES_INTRADAY_ADJUSTED&"
-            Constant.intervalTime = ""
+            Constant.intervalTime = "interval=15min"
+            Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
+            Constant.volume = "5. volume"
         }
         let headers = [
             "X-RapidAPI-Host": Constant.apiHost,
@@ -89,11 +93,11 @@ final class StocksAPI {
                     if key != "Meta Data" {
                         for (key, subSubJSON):(String, JSON) in subJson {
                             let dateTime = key
-                            let open = subSubJSON["1. open"].stringValue
-                            let high = subSubJSON["2. high"].stringValue
-                            let low = subSubJSON["3. low"].stringValue
-                            let close = subSubJSON["4. close"].stringValue
-                            let volume = subSubJSON["5. volume"].stringValue
+                            let open    = subSubJSON["1. open"].stringValue
+                            let high    = subSubJSON["2. high"].stringValue
+                            let low     = subSubJSON["3. low"].stringValue
+                            let close   = subSubJSON["4. close"].stringValue
+                            let volume  = subSubJSON[Constant.volume].stringValue
                              
                             let value = ValueStock(start_timestamp: dateTime, open: open, high: high, low: low, close: close, volume: volume)
                             valuesStock.append(value)
