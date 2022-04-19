@@ -49,6 +49,19 @@ class Support {
         return newLocalTime
     }
     
+    //Change date format for time stamp format
+    func convertTimeStampToDate(timeString: String, dateFormat: String) -> String{
+        let time = timeString
+        let date = Date(timeIntervalSince1970: Double(time)!)
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
+        dateFormatter.locale = NSLocale.current
+        dateFormatter.dateFormat = dateFormat //Specify your format that you want
+        let newFormatDate = dateFormatter.string(from: date)
+        return newFormatDate
+    }
+    
     
     //Download image with and save in cache
     let imageCache = NSCache<NSString, UIImage>()

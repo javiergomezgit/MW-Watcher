@@ -1170,7 +1170,7 @@
                                     <constraint firstAttribute="height" constant="40" id="fAU-g9-s9a"/>
                                 </constraints>
                                 <segments>
-                                    <segment title="15 hrs"/>
+                                    <segment title="2 days"/>
                                     <segment title="4 days"/>
                                     <segment title="3 months"/>
                                     <segment title="1 yr"/>
@@ -1438,8 +1438,8 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
-        <image name="arrow.down.app.fill" width="10" height="10"/>
         <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
+        <image name="arrow.down.app.fill" width="10" height="10"/>
         <image name="arrow.triangle.2.circlepath" width="16" height="13"/>
         <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>

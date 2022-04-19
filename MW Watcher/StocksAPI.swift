@@ -21,55 +21,26 @@ final class StocksAPI {
     }
     
     //MARK: API call for STOCKS chart
-    public func getStockValues(interval: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
+    public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
         
         struct Constant {
             static let apiKey = "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
-            static let apiHost = "alpha-vantage.p.rapidapi.com"
-            static let baseUrl = "https://alpha-vantage.p.rapidapi.com/query?"
-            static let endpoint = "cryptocurrency/quotes/latest"
-            static var functionTime = ""
-            static let options = "&datatype=json&output_size=compact"
-            static var intervalTime = ""
-            static var volume = "5. volume"
+            static let apiHost = "yahoo-finance15.p.rapidapi.com"
+            static let baseUrl = "https://yahoo-finance15.p.rapidapi.com/api/yahoo/hi/history/"
+            static let endpoint = "?diffandsplits=true"
         }
-        
-        switch interval {
-        case "15min":
-            Constant.intervalTime = "interval=15min"
-            Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
-            Constant.volume = "5. volume"
-        case "60min":
-            Constant.intervalTime = "interval=60min"
-            Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
-            Constant.volume = "5. volume"
-        case "day":
-            Constant.functionTime = "function=TIME_SERIES_DAILY_ADJUSTED&"
-            Constant.intervalTime = ""
-            Constant.volume = "6. volume"
-        case "week":
-            Constant.functionTime = "function=TIME_SERIES_WEEKLY_ADJUSTED&"
-            Constant.intervalTime = ""
-            Constant.volume = "6. volume"
-        case "month":
-            Constant.functionTime = "function=TIME_SERIES_MONTHLY_ADJUSTED&"
-            Constant.intervalTime = ""
-            Constant.volume = "6. volume"
-        default:
-            Constant.intervalTime = "interval=15min"
-            Constant.functionTime = "&function=TIME_SERIES_INTRADAY&"
-            Constant.volume = "5. volume"
-        }
+      
         let headers = [
             "X-RapidAPI-Host": Constant.apiHost,
             "X-RapidAPI-Key": Constant.apiKey
         ]
 
         let request = NSMutableURLRequest(
-            url: NSURL(string: Constant.baseUrl + Constant.intervalTime + Constant.functionTime + "symbol=" + symbol + Constant.options)! as URL,
+            url: NSURL(string: Constant.baseUrl + symbol + "/" + intervalTime + Constant.endpoint)! as URL,
             cachePolicy: .useProtocolCachePolicy,
             timeoutInterval: 10.0)
         
+        print (request.url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
                 
@@ -87,26 +58,25 @@ final class StocksAPI {
             do {
                 
                 let json = try JSON(data: data)
-
+                
                 var valuesStock: [ValueStock] = []
+                
                 for (key, subJson):(String, JSON) in json {
-                    if key != "Meta Data" {
-                        for (key, subSubJSON):(String, JSON) in subJson {
-                            let dateTime = key
-                            let open    = subSubJSON["1. open"].stringValue
-                            let high    = subSubJSON["2. high"].stringValue
-                            let low     = subSubJSON["3. low"].stringValue
-                            let close   = subSubJSON["4. close"].stringValue
-                            let volume  = subSubJSON[Constant.volume].stringValue
-                             
-                            let value = ValueStock(start_timestamp: dateTime, open: open, high: high, low: low, close: close, volume: volume)
+                    if key == "items" {
+                        for (_, subSubJSON):(String, JSON) in subJson {
+                            let dateTime =  subSubJSON["date_utc"].double
+                            let open    =   subSubJSON["open"].double
+                            let high    =   subSubJSON["high"].double
+                            let low     =   subSubJSON["low"].double
+                            let close   =   subSubJSON["close"].double
+                            let volume  =   subSubJSON["volume"].double
+
+                            let value = ValueStock(start_timestamp: dateTime!, open: open!, high: high!, low: low!, close: close!, volume: volume!)
                             valuesStock.append(value)
                         }
                     }
                 }
-                dump (valuesStock)
                 let sortedValues = valuesStock.sorted(by: { $0.start_timestamp > $1.start_timestamp })
-                dump (sortedValues)
                 valuesStock.removeAll()
                 for (index, valueStock) in sortedValues.enumerated() {
                     if index <= 59 {
@@ -114,8 +84,10 @@ final class StocksAPI {
                     }
                 }
                 
-                print (valuesStock)
                 valuesStock.reverse()
+
+                dump (valuesStock)
+
                 completion(.success(valuesStock))
             } catch {
                 completion(.failure(error))
@@ -123,9 +95,6 @@ final class StocksAPI {
         }
         task.resume()
     }
-    
-    
-    
     
     //MARK: API call for search of INDIVIDUAL stock with current price
     func getPriceSingleStock(tickerSingle: String, timeRange: String, completion: @escaping (Result<Tickers, Error>) -> Void) {

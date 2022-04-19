@@ -63,18 +63,18 @@ class ChartController: UIViewController, ChartViewDelegate {
             loadCryptoPrices()
         } else {
             switch index {
-            case 0: self.intervalStock = "15min"
+            case 0: self.intervalStock = "15m"
                 break
-            case 1: self.intervalStock = "60min"
+            case 1: self.intervalStock = "1h"
                 break
-            case 2: self.intervalStock = "day"
+            case 2: self.intervalStock = "1d"
                 break
-            case 3: self.intervalStock = "week"
+            case 3: self.intervalStock = "1wk"
                 break
-            case 4: self.intervalStock = "month"
+            case 4: self.intervalStock = "1wk"
                 break
             default:
-                self.intervalStock = "15min"
+                self.intervalStock = "15m"
             }
             selectedStockTicker()
         }
@@ -88,8 +88,11 @@ class ChartController: UIViewController, ChartViewDelegate {
         startStopSpinner(start: true)
         
         if informationStockTicker.ticker == "" {
+            self.timeFrameSegmented.setEnabled(true, forSegmentAt: 4)
             selectedCryptoTicker()
         } else {
+            self.timeFrameSegmented.setEnabled(false, forSegmentAt: 4)
+            self.intervalStock = "15m"
             selectedStockTicker()
             cryptoImage.image = UIImage(named: "logoWord")
         }
@@ -131,7 +134,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     private func loadStockPrices(){
-        StocksAPI.shared.getStockValues(interval: self.intervalStock, symbol: symbol) { [weak self] result in
+        StocksAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
             switch result {
                 
             case .success(let data):
@@ -254,11 +257,11 @@ class ChartController: UIViewController, ChartViewDelegate {
 
         for (index, candleValue) in modelCandles.enumerated() {
             let startingAt = candleValue.start_timestamp
-            guard let openPrice = Double(candleValue.open) else { return }
-            guard let highPrice = Double(candleValue.high) else { return }
-            guard let closePrice = Double(candleValue.close) else { return }
-            guard let lowPrice = Double(candleValue.low) else { return }
-            guard let volume = Double(candleValue.volume) else { return }
+            let openPrice = candleValue.open
+            let highPrice = candleValue.high
+            let closePrice = candleValue.close
+            let lowPrice = candleValue.low
+            let volume = candleValue.volume
             
             let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
             let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
@@ -273,11 +276,11 @@ class ChartController: UIViewController, ChartViewDelegate {
             
             switch index {
             case 0:
-                self.timeIntervals["old"] = startingAt
+                self.timeIntervals["old"] = String(startingAt)
             case 29:
-                self.timeIntervals["mid"] = startingAt
+                self.timeIntervals["mid"] = String(startingAt)
             case 59:
-                self.timeIntervals["now"] = startingAt
+                self.timeIntervals["now"] = String(startingAt)
             default: print ("")
             }
         }
@@ -350,25 +353,15 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         for timeInterval in timeIntervals {
             let time = timeInterval.value
-            var date = Date()
-            
-            if informationStockTicker.ticker == "" {
-                date = Date(timeIntervalSince1970: Double(time)!)
-            } else {
-                let dateFormatterGet = DateFormatter()
-                if index < 2 {
-                    dateFormatterGet.dateFormat = "yyyy-MM-dd HH:mm:ss"
-                } else {
-                    dateFormatterGet.dateFormat = "yyyy-MM-dd"
-                }
-                date = dateFormatterGet.date(from: time)!
-            }
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
-            dateFormatter.locale = NSLocale.current
-            dateFormatter.dateFormat = dateFormat //"HH:mm"//"yyyy-MM-dd HH:mm" //Specify your format that you want
-            let strDate = dateFormatter.string(from: date)
+            let strDate = Support.sharedSupport.convertTimeStampToDate(timeString: time, dateFormat: dateFormat)
+//            let date = Date(timeIntervalSince1970: Double(time)!)
+//
+//            let dateFormatter = DateFormatter()
+//            dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
+//            dateFormatter.locale = NSLocale.current
+//            dateFormatter.dateFormat = dateFormat //Specify your format that you want
+//            let strDate = dateFormatter.string(from: date)
+           
             if timeInterval.key == "old" {
                 oldestTimeLabel.text = strDate
             } else if timeInterval.key == "mid" {

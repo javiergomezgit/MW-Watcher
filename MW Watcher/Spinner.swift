@@ -13,10 +13,11 @@ class Spinner: UIViewController {
 
     override func loadView() {
         view = UIView()
-        view.backgroundColor = UIColor(white: 0, alpha: 0.7)
+        view.backgroundColor = .label.withAlphaComponent(0.6) // UIColor(named:)  UIColor(white: 0, alpha: 0.7)
 
         spinner.translatesAutoresizingMaskIntoConstraints = false
         spinner.startAnimating()
+        spinner.color = .systemBackground
         view.addSubview(spinner)
 
         spinner.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true

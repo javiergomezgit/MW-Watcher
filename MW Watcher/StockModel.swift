@@ -14,12 +14,12 @@ struct Tickers {
 }
 
 struct ValueStock: Codable {
-    let start_timestamp: String
-    let open: String
-    let high: String
-    let low: String
-    let close: String
-    let volume: String
+    let start_timestamp: Double
+    let open: Double
+    let high: Double
+    let low: Double
+    let close: Double
+    let volume: Double
 }
 
 struct GeneralMarkets {

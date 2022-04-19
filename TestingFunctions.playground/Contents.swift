@@ -167,34 +167,15 @@ struct Tickers {
 //print (some)
 
 
-let dateString = "2022-04-14 20:00:00"
-//"HH:mm"
-/*
- 
-     dateFormat =  "MM/dd"
-     break
- case 3:
-     dateFormat =  "yyyy/MM/dd"
-     break
- case 4:
-     dateFormat =  "yyyy/MM/dd"
-     break
- case 5:
-     dateFormat =  "yyyy/MM"
- */
-
-let dateFormatterGet = DateFormatter()
-dateFormatterGet.dateFormat = "yyyy-MM-dd HH:mm:ss"
-dateFormatterGet.timeZone = TimeZone(identifier: "PST")
+//let dateString = "2022-04-01 15:30:00 UTC"
+let dateFormat =  "yyyy/MM"
+let time = 1648138500.0
+let date = Date(timeIntervalSince1970: time)
 
 let dateFormatter = DateFormatter()
-//dateFormatter.dateFormat = "HH:mm"
-dateFormatter.dateFormat = "yyyy/MM"
+dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
+dateFormatter.locale = NSLocale.current
+dateFormatter.dateFormat = dateFormat //Specify your format that you want
+let strDate = dateFormatter.string(from: date)
 
-//dateFormatter.timeZone = TimeZone(identifier: "PDT")//NSTimeZone(name: "America/Los_Angeles") as TimeZone?
-
-   let dateObj: Date? = dateFormatterGet.date(from: dateString)
-
-   let some = dateFormatter.string(from: dateObj!)
-
-print (some)
+print (strDate)
