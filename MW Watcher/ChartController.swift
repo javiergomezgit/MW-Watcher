@@ -35,10 +35,11 @@ class ChartController: UIViewController, ChartViewDelegate {
     var intervalStock = "15min"
     var symbol = "bit"
     var timeIntervals = ["old" : "1:2", "mid" : "1:2", "now" : "1:2"]
+    var indexMarket = false
     
     public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
     public var informationStockTicker = Tickers(ticker: "", marketPrice: 0.0, previousPrice: 0.0)
-    //Tickers(ticker: "AA", marketPrice: 84.15, previousPrice: 86.1)
+    public var indexName = ""
 
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
         let index = timeFrameSegmented.selectedSegmentIndex
@@ -127,6 +128,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         self.symbol = symbol
         tickerLabel.text = symbol
+        nameLabel.text = indexName
         currentPriceLabel.text = String(currentPrice)
         currentPercentageLabel.text = "\(percentageChange)% For the day"
         
@@ -134,7 +136,33 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     private func loadStockPrices(){
-        StocksAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
+        if indexMarket {
+            StocksAPI.shared.getMarketValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
+                switch result {
+                    
+                case .success(let data):
+                    if data.count != 0  {
+                        self?.stockData = data
+                        DispatchQueue.main.async {
+                            self?.startStopSpinner(start: false)
+                            self?.setUpStockModel()
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self?.startStopSpinner(start: false)
+                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                        }
+                        print ("no more API")
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                    }
+                    print (error)
+                }
+            }
+        } else {
+            StocksAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
             switch result {
                 
             case .success(let data):
@@ -157,6 +185,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                 }
                 print (error)
             }
+        }
         }
         
     }
@@ -255,6 +284,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         self.candleValues.removeAll()
         self.linearValues.removeAll()
 
+        var volumeReduce = NSNumber()
         for (index, candleValue) in modelCandles.enumerated() {
             let startingAt = candleValue.start_timestamp
             let openPrice = candleValue.open
@@ -266,10 +296,8 @@ class ChartController: UIViewController, ChartViewDelegate {
             let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
             let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
             
-            let volumeReduce = NSNumber(value: (volume/1000))
-            if let volumeRound = ChartController.volumeFormatter.string(from: volumeReduce) {
-                self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
-            }
+            volumeReduce = NSNumber(value: (volume/1000))
+           
             
             self.candleValues.append(candleValueEntry)
             self.linearValues.append(linearValueEntry)
@@ -284,6 +312,16 @@ class ChartController: UIViewController, ChartViewDelegate {
             default: print ("")
             }
         }
+        
+        if !indexMarket {
+            if let volumeRound = ChartController.volumeFormatter.string(from: volumeReduce) {
+                self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
+            }
+        } else {
+            self.volumeLabel.text = ""
+        }
+        
+        
         setupDateLabel()
         choseTypeChart()
     }
@@ -354,13 +392,6 @@ class ChartController: UIViewController, ChartViewDelegate {
         for timeInterval in timeIntervals {
             let time = timeInterval.value
             let strDate = Support.sharedSupport.convertTimeStampToDate(timeString: time, dateFormat: dateFormat)
-//            let date = Date(timeIntervalSince1970: Double(time)!)
-//
-//            let dateFormatter = DateFormatter()
-//            dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
-//            dateFormatter.locale = NSLocale.current
-//            dateFormatter.dateFormat = dateFormat //Specify your format that you want
-//            let strDate = dateFormatter.string(from: date)
            
             if timeInterval.key == "old" {
                 oldestTimeLabel.text = strDate
