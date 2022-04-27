@@ -11,6 +11,8 @@ struct TickerNews {
     let headline: String
     let pubDate: String
     let linkHeadline: String
+    let author: String
+    let image: UIImage
 }
 
 class TickerNewsController: UIViewController {
@@ -34,7 +36,7 @@ class TickerNewsController: UIViewController {
     }
     
     func loadTickerNews() {
-        StocksAPI.shared.loadTickerNews(ticker: ticker) { loadedNewsArray in
+        StocksAPI.shared.loadStockNews(ticker: ticker) { loadedNewsArray in
             if loadedNewsArray != nil {
                 self.tickerNewsArray = loadedNewsArray!
                 DispatchQueue.main.async {
@@ -44,6 +46,17 @@ class TickerNewsController: UIViewController {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
             }
         }
+        
+//        StocksAPI.shared.loadTickerNews(ticker: ticker) { loadedNewsArray in
+//            if loadedNewsArray != nil {
+//                self.tickerNewsArray = loadedNewsArray!
+//                DispatchQueue.main.async {
+//                    self.tableView.reloadData()
+//                }
+//            } else {
+//                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
+//            }
+//        }
     }
 }
 
@@ -55,11 +68,11 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TickerNewsCell", for: indexPath) as! TickerNewsViewCell
-        
         tickerLabel.text = ticker
         
         cell.headlineLabel.text = tickerNewsArray[indexPath.row].headline
         cell.dateLabel.text = tickerNewsArray[indexPath.row].pubDate
+        cell.newsImageView.image = tickerNewsArray[indexPath.row].image
        
         cell.linkButton.titleLabel?.text = tickerNewsArray[indexPath.row].linkHeadline
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
