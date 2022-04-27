@@ -489,7 +489,7 @@ final class StocksAPI {
                     let authorDictionary = dictionaryNew["provider"] as! [Any]
                     let authorArray = authorDictionary.first as! [String: Any]
                     let author = authorArray["name"] as! String
-                    
+
                     let newsItem = TickerNews.init(headline: headline, pubDate: pubDate, linkHeadline: link, author: author, image: downloadedImage)
                     newsItems.append(newsItem)
                 }

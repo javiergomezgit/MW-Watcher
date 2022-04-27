@@ -73,6 +73,7 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.headlineLabel.text = tickerNewsArray[indexPath.row].headline
         cell.dateLabel.text = tickerNewsArray[indexPath.row].pubDate
         cell.newsImageView.image = tickerNewsArray[indexPath.row].image
+        cell.authorLabel.text = tickerNewsArray[indexPath.row].author
        
         cell.linkButton.titleLabel?.text = tickerNewsArray[indexPath.row].linkHeadline
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
