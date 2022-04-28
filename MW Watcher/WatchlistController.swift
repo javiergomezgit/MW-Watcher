@@ -25,7 +25,6 @@ class WatchlistController: UIViewController {
     @IBOutlet var tableView: UITableView!
     @IBOutlet weak var addTickerButton: UIButton!
     @IBOutlet weak var versionLabel: UILabel!
-    @IBOutlet weak var chosingTimeSegment: UISegmentedControl!
     
     
     //MARK: Initials
