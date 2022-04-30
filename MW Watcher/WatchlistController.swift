@@ -14,7 +14,7 @@ class WatchlistController: UIViewController {
     
     //MARK: Variables
     var tickers: [Tickers] = []
-    var timeRange: String = "&interval=1d&range=1d"
+    var timeRange: String = "&interval=1d&range=1d" 
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
@@ -45,14 +45,14 @@ class WatchlistController: UIViewController {
             alreadyLaunched = true
         }
         
-        let font = UIFont.boldSystemFont(ofSize: 16)
-        let titleTextAttributes: [NSAttributedString.Key: Any] = [
-            .font: font,
-            .foregroundColor: UIColor.white,
-        ]
+//        let font = UIFont.boldSystemFont(ofSize: 16)
+//        let titleTextAttributes: [NSAttributedString.Key: Any] = [
+//            .font: font,
+//            .foregroundColor: UIColor.white,
+//        ]
         
-        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .normal)
-        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .selected)
+//        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .normal)
+//        chosingTimeSegment.setTitleTextAttributes(titleTextAttributes, for: .selected)
         
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
@@ -117,24 +117,24 @@ class WatchlistController: UIViewController {
         present(alert, animated: true)
     }
     
-    @IBAction func chosingTime(_ sender: UISegmentedControl) {
-        let loadSavedTickers = savedTickers.loadTickers()
-        
-        switch sender.selectedSegmentIndex {
-        case 0:
-            timeRange = "&interval=1d&range=1d"
-        case 1:
-            timeRange = "&interval=1d&range=5d"
-        case 2:
-            timeRange = "&interval=1wk&range=3mo"
-        default:
-            break
-        }
-        if !loadSavedTickers.isEmpty {
-            tickers.removeAll()
-            loadMultipleStocks(savedTickers: loadSavedTickers)
-        }
-    }
+//    @IBAction func chosingTime(_ sender: UISegmentedControl) {
+//        let loadSavedTickers = savedTickers.loadTickers()
+//
+//        switch sender.selectedSegmentIndex {
+//        case 0:
+//            timeRange = "&interval=1d&range=1d"
+//        case 1:
+//            timeRange = "&interval=1d&range=5d"
+//        case 2:
+//            timeRange = "&interval=1wk&range=3mo"
+//        default:
+//            break
+//        }
+//        if !loadSavedTickers.isEmpty {
+//            tickers.removeAll()
+//            loadMultipleStocks(savedTickers: loadSavedTickers)
+//        }
+//    }
     
     @objc func refresh(_ sender: AnyObject) {
         let loadSavedTickers = savedTickers.loadTickers()

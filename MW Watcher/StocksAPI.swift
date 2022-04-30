@@ -104,10 +104,16 @@ final class StocksAPI {
             "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
         ]
         
-        let url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + tickerSingle + timeRange
+        let urlString = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + tickerSingle + timeRange
         var json: [String: Any]? = [:]
         
-        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
+        //if it's not a valid url, exit the completion with error
+        if !urlString.isValidURL {
+            completion(.failure(APIError.invalidTicker))
+            return
+        }
+        
+        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
                                           cachePolicy: .useProtocolCachePolicy,
                                           timeoutInterval: 10.0)
         
