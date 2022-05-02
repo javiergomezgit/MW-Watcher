@@ -24,16 +24,12 @@ class WatchlistController: UIViewController {
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
     @IBOutlet weak var addTickerButton: UIButton!
-    @IBOutlet weak var versionLabel: UILabel!
     
     
     //MARK: Initials
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        versionLabel.text = appVersion
-        
+           
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.synchronize()
@@ -276,7 +272,9 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageRounded)
         destination?.informationStockTicker = tickerWithChange
         
-        self.show(destination!, sender: self)
+        destination!.modalTransitionStyle = .crossDissolve
+        self.present(destination!, animated: true, completion: nil)
+        
     }
     
     @objc func openNews(sender: UIButton) {
@@ -290,9 +288,9 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         
         destination!.ticker = ticker
         
-        //    nextViewController.modalPresentationStyle = .fullScreen
-        //    nextViewController.modalTransitionStyle = .crossDissolve
-        self.show(destination!, sender: self)
+        destination!.modalTransitionStyle = .crossDissolve
+        self.present(destination!, animated: true, completion: nil)
+//        self.show(destination!, sender: self)
     }
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {

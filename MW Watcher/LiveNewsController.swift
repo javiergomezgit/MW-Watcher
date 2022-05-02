@@ -25,9 +25,12 @@ class LiveNewsController: UIViewController {
     var alreadyLaunched = false
     var savedRows : [Int: Bool] = [:]
     
+    private let imageView = UIImageView(image: UIImage(named: "tray.2.fill"))
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setupUI()
         
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingLiveNews")
         UserDefaults.standard.set(true, forKey: "firstLaunchingLiveNews")
@@ -48,13 +51,11 @@ class LiveNewsController: UIViewController {
         tableView.addSubview(refreshControl)
         
         loadNews()
-        
     }
     
     @objc func refresh(_ sender: AnyObject) {
         loadNews()
     }
-    
     
     func showFirstTimeNotification(whereView: UIView) {
         let popTip = PopTip()
@@ -70,11 +71,8 @@ class LiveNewsController: UIViewController {
         
         popTip.tapHandler = { popTip in
             print("tapped")
-            //NO MORE new notification
         }
-        
-        
-        
+                
         popTip.dismissHandler = { popTip in
             print("dismissed")
         }
@@ -82,13 +80,10 @@ class LiveNewsController: UIViewController {
         popTip.tapOutsideHandler = { _ in
             print("tap outside")
         }
-        
-        
     }
     
     
     func loadNews(){
-        
         StocksAPI.shared.loadAllNews { allNews in
             if allNews == nil {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error, try later!", titleButton: "OK", over: self)
@@ -108,42 +103,60 @@ class LiveNewsController: UIViewController {
     }
 }
 
+//MARK: Setting right button in navigation controller
+extension LiveNewsController {
+    private struct Const {
+        /// Image height/width for Large NavBar state
+        static let ImageSizeForLargeState: CGFloat = 40
+        /// Margin from right anchor of safe area to right anchor of Image
+        static let ImageRightMargin: CGFloat = 16
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
+        static let ImageBottomMarginForLargeState: CGFloat = 12
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
+        static let ImageBottomMarginForSmallState: CGFloat = 6
+        /// Image height/width for Small NavBar state
+        static let ImageSizeForSmallState: CGFloat = 32
+        /// Height of NavBar for Small state. Usually it's just 44
+        static let NavBarHeightSmallState: CGFloat = 44
+        /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
+        static let NavBarHeightLargeState: CGFloat = 96.5
+    }
+    
+    private func setupUI() {
+//        navigationController?.navigationBar.prefersLargeTitles = true
 
-
-
-/*
- func PDTForamte(endTime: String) -> String{
- // create dateFormatter with UTC time format
- let dateFormatter = DateFormatter()
- dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss+zzzz"
- dateFormatter.timeZone = TimeZone(identifier: "UTC")
- 
- guard let date = dateFormatter.date(from: endTime) else {
- return endTime.components(separatedBy: "T").first ?? "" //return date before 'T'.
- }
- 
- let pdtFormatter = DateFormatter()
- pdtFormatter.dateStyle = .long
- pdtFormatter.timeStyle = .long
- if let americaZone = NSTimeZone(name: "America/Los_Angeles") {
- pdtFormatter.timeZone = americaZone as TimeZone
- }
- 
- let dateString: String = pdtFormatter.string(from: date)
- 
- let calendar = NSCalendar.autoupdatingCurrent
- //We subtract 1 min because American Date here be 12:00:00 AM but It should be return to the previous day
- let newDate = calendar.date(byAdding: .minute, value: -1, to: pdtFormatter.date(from: dateString)!) ?? Date()
- pdtFormatter.dateFormat = "yyyy-MM-dd"
- let newDateString: String = pdtFormatter.string(from: newDate)
- 
- return newDateString
- }
- */
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
+            imageView.isUserInteractionEnabled = true
+            imageView.addGestureRecognizer(tapGestureRecognizer)
+        
+        // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
+        guard let navigationBar = self.navigationController?.navigationBar else { return }
+        navigationBar.addSubview(imageView)
+        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
+        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
+            imageView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
+            imageView.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor)
+            ])
+    }
+    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
+    {
+//        let tappedImage = tapGestureRecognizer.view as! UIImageView
+        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let destination = storyboard.instantiateViewController(identifier: "savednews") as? SavedNewsController
+        
+        destination!.modalTransitionStyle = .coverVertical//.crossDissolve
+        destination!.modalPresentationStyle = .fullScreen
+        self.present(destination!, animated: true, completion: nil)
+    }
+}
 
 
 // MARK: - Table Delegate
-extension LiveNewsController: UITableViewDelegate, UITableViewDataSource {
+extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafariViewControllerDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return newsItems.count
@@ -225,9 +238,19 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource {
     
     @objc func connected(sender: UIButton){
         guard let urlString = sender.titleLabel?.text else { return }
-        guard let url = URL(string: urlString) else { return }
-        
-        UIApplication.shared.open(url)
+                
+        if let url = URL(string: urlString) {
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = true
+            let vc = SFSafariViewController(url: url, configuration: config)
+            vc.delegate = self
+            present(vc, animated: true)
+        }
+        //        UIApplication.shared.open(url)
+    }
+    
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        dismiss(animated: true)
     }
 }
 

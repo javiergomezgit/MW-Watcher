@@ -119,9 +119,10 @@ class CryptosController: UIViewController {
         let destination = storyboard.instantiateViewController(identifier: "ChartController") as? ChartController
         
         destination!.informationCryptoTicker = self.viewModels[sender.tag]
-        //    nextViewController.modalPresentationStyle = .fullScreen
+        destination!.modalTransitionStyle = .crossDissolve
+        self.present(destination!, animated: true, completion: nil)
         //    nextViewController.modalTransitionStyle = .crossDissolve
-        self.show(destination!, sender: self)
+
     }
 }
 
