@@ -26,7 +26,7 @@ class LiveNewsController: UIViewController {
     var savedRows : [Int: Bool] = [:]
     
     private let imageView = UIImageView(image: UIImage(named: "tray.2.fill"))
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -103,19 +103,19 @@ class LiveNewsController: UIViewController {
     }
 }
 
-//MARK: Setting right button in navigation controller
+//MARK: Right top button in navigation controller
 extension LiveNewsController {
     private struct Const {
         /// Image height/width for Large NavBar state
-        static let ImageSizeForLargeState: CGFloat = 40
+        static let ImageSizeForLargeState: CGFloat = 36
         /// Margin from right anchor of safe area to right anchor of Image
-        static let ImageRightMargin: CGFloat = 16
+        static let ImageRightMargin: CGFloat = 18
         /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
-        static let ImageBottomMarginForLargeState: CGFloat = 12
+        static let ImageBottomMarginForLargeState: CGFloat = 14
         /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
-        static let ImageBottomMarginForSmallState: CGFloat = 6
+        static let ImageBottomMarginForSmallState: CGFloat = 5
         /// Image height/width for Small NavBar state
-        static let ImageSizeForSmallState: CGFloat = 32
+        static let ImageSizeForSmallState: CGFloat = 28
         /// Height of NavBar for Small state. Usually it's just 44
         static let NavBarHeightSmallState: CGFloat = 44
         /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
@@ -132,8 +132,8 @@ extension LiveNewsController {
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
         guard let navigationBar = self.navigationController?.navigationBar else { return }
         navigationBar.addSubview(imageView)
-        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
-        imageView.clipsToBounds = true
+//        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
+//        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             imageView.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
@@ -150,7 +150,26 @@ extension LiveNewsController {
         
         destination!.modalTransitionStyle = .coverVertical//.crossDissolve
         destination!.modalPresentationStyle = .fullScreen
-        self.present(destination!, animated: true, completion: nil)
+        self.show(destination!, sender: self)
+
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showImage(false)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        showImage(true)
+    }
+
+    /// Show or hide the image from NavBar while going to next screen or back to initial screen
+    /// - Parameter show: show or hide the image from NavBar
+    private func showImage(_ show: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            self.imageView.alpha = show ? 1.0 : 0.0
+        }
     }
 }
 

@@ -20,15 +20,18 @@ class WatchlistController: UIViewController {
     var alreadyLaunched = false
     var percentageChg = 0.0
     var spinner = UIActivityIndicatorView(style: .large)
+    private let imageView = UIImageView(image: UIImage(named: "plus.square.on.square"))
+
     
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
-    @IBOutlet weak var addTickerButton: UIButton!
     
     
     //MARK: Initials
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setupUI()
            
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
@@ -53,11 +56,8 @@ class WatchlistController: UIViewController {
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl) // not required when using UITableViewController
-        
-        
+                
         startStopSpinner(start: true)
-
-        
            
         loadInitialStocks()
     }
@@ -78,7 +78,7 @@ class WatchlistController: UIViewController {
     
     func loadInitialStocks(){
         if !self.alreadyLaunched {
-            self.showFirstTimeNotification(whereView: self.addTickerButton)
+            self.showFirstTimeNotification(whereView: self.imageView)
         }
         
         let loadSavedTickers = self.savedTickers.loadTickers()
@@ -87,7 +87,7 @@ class WatchlistController: UIViewController {
         }
     }
     
-    @IBAction func addingTicker(_ sender: UIButton) {
+    func addingTicker() {
         let alert = ShowAlerts.inputTextAlert(title: "Add a new ticker", message: "Please type a new ticker for the watchlist")
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
@@ -112,25 +112,6 @@ class WatchlistController: UIViewController {
         }))
         present(alert, animated: true)
     }
-    
-//    @IBAction func chosingTime(_ sender: UISegmentedControl) {
-//        let loadSavedTickers = savedTickers.loadTickers()
-//
-//        switch sender.selectedSegmentIndex {
-//        case 0:
-//            timeRange = "&interval=1d&range=1d"
-//        case 1:
-//            timeRange = "&interval=1d&range=5d"
-//        case 2:
-//            timeRange = "&interval=1wk&range=3mo"
-//        default:
-//            break
-//        }
-//        if !loadSavedTickers.isEmpty {
-//            tickers.removeAll()
-//            loadMultipleStocks(savedTickers: loadSavedTickers)
-//        }
-//    }
     
     @objc func refresh(_ sender: AnyObject) {
         let loadSavedTickers = savedTickers.loadTickers()
@@ -322,3 +303,68 @@ extension WatchlistController {
     }
 }
 
+
+
+//MARK: Right top button in navigation controller
+extension WatchlistController {
+    private struct Const {
+        /// Image height/width for Large NavBar state
+        static let ImageSizeForLargeState: CGFloat = 36
+        /// Margin from right anchor of safe area to right anchor of Image
+        static let ImageRightMargin: CGFloat = 18
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
+        static let ImageBottomMarginForLargeState: CGFloat = 14
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
+        static let ImageBottomMarginForSmallState: CGFloat = 5
+        /// Image height/width for Small NavBar state
+        static let ImageSizeForSmallState: CGFloat = 28
+        /// Height of NavBar for Small state. Usually it's just 44
+        static let NavBarHeightSmallState: CGFloat = 44
+        /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
+        static let NavBarHeightLargeState: CGFloat = 96.5
+    }
+    
+    private func setupUI() {
+//        navigationController?.navigationBar.prefersLargeTitles = true
+
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
+            imageView.isUserInteractionEnabled = true
+            imageView.addGestureRecognizer(tapGestureRecognizer)
+        
+        // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
+        guard let navigationBar = self.navigationController?.navigationBar else { return }
+        navigationBar.addSubview(imageView)
+//        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
+//        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
+            imageView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
+            imageView.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor)
+            ])
+    }
+    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
+    {
+        addingTicker()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showImage(false)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        showImage(true)
+    }
+
+    /// Show or hide the image from NavBar while going to next screen or back to initial screen
+    /// - Parameter show: show or hide the image from NavBar
+    private func showImage(_ show: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            self.imageView.alpha = show ? 1.0 : 0.0
+        }
+    }
+    
+}

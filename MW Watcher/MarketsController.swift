@@ -132,9 +132,6 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
     }
 }
 
-//need to change, both buttons add stoc and look the saved news not working beacuse the top bar is in over them
-//change layout of stock watchlist table
-
 extension MarketsController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: sizeOfCell, height: sizeOfCell)

@@ -18,10 +18,12 @@ class SavedNewsController: UIViewController {
     var newsItems: [UserSavedNewsItem] = []
     var alreadyLaunched = false
     let refreshControl = UIRefreshControl()
-
-
+    private let imageView = UIImageView(image: UIImage(systemName: "trash.circle.fill"))
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setupUI()
         
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingSavedNews")
         UserDefaults.standard.set(true, forKey: "firstLaunchingSavedNews")
@@ -51,18 +53,12 @@ class SavedNewsController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        showImage(true)
+
         newsItems = savedNews.loadNews()
         if !newsItems.isEmpty {
             tableView.reloadData()
         }
-    }
-    
-    
-    
-    @IBAction func deleteAllButton(_ sender: UIButton) {
-        _ = savedNews.deleteNews(headline: "", date: "", deleteAll: true)
-        newsItems.removeAll()
-        tableView.reloadData()
     }
     
     @IBAction func shareHeadline(_ sender: UIButton) {
@@ -128,3 +124,62 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+//MARK: Right top button in navigation controller
+extension SavedNewsController {
+    private struct Const {
+        /// Image height/width for Large NavBar state
+        static let ImageSizeForLargeState: CGFloat = 36
+        /// Margin from right anchor of safe area to right anchor of Image
+        static let ImageRightMargin: CGFloat = 18
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
+        static let ImageBottomMarginForLargeState: CGFloat = 14
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
+        static let ImageBottomMarginForSmallState: CGFloat = 5
+        /// Image height/width for Small NavBar state
+        static let ImageSizeForSmallState: CGFloat = 28
+        /// Height of NavBar for Small state. Usually it's just 44
+        static let NavBarHeightSmallState: CGFloat = 44
+        /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
+        static let NavBarHeightLargeState: CGFloat = 96.5
+    }
+    
+    private func setupUI() {
+//        navigationController?.navigationBar.prefersLargeTitles = true
+
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
+            imageView.isUserInteractionEnabled = true
+            imageView.addGestureRecognizer(tapGestureRecognizer)
+        
+        // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
+        guard let navigationBar = self.navigationController?.navigationBar else { return }
+        navigationBar.addSubview(imageView)
+//        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
+//        imageView.clipsToBounds = true
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
+            imageView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
+            imageView.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor)
+            ])
+    }
+    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
+    {
+        _ = savedNews.deleteNews(headline: "", date: "", deleteAll: true)
+        newsItems.removeAll()
+        tableView.reloadData()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showImage(false)
+    }
+
+    /// Show or hide the image from NavBar while going to next screen or back to initial screen
+    /// - Parameter show: show or hide the image from NavBar
+    private func showImage(_ show: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            self.imageView.alpha = show ? 1.0 : 0.0
+        }
+    }
+}

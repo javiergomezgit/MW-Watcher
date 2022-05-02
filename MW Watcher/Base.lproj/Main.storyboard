@@ -127,23 +127,6 @@
                                     <outlet property="delegate" destination="a6H-wW-AWp" id="1ll-vi-Gl0"/>
                                 </connections>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dzb-Y8-pqi">
-                                <rect key="frame" x="303" y="7" width="40" height="204"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="dzb-Y8-pqi" secondAttribute="height" multiplier="1:1" id="UPe-fk-kNH"/>
-                                    <constraint firstAttribute="height" constant="40" id="ocJ-NV-ckF"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <color key="tintColor" systemColor="labelColor"/>
-                                <state key="normal">
-                                    <color key="titleColor" name="customBackgroundColor"/>
-                                    <imageReference key="image" image="plus" catalog="system" symbolScale="large"/>
-                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="large" weight="bold"/>
-                                </state>
-                                <connections>
-                                    <action selector="addingTicker:" destination="a6H-wW-AWp" eventType="touchUpInside" id="nZZ-Y4-eFQ"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ct6-hU-zsk"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -151,15 +134,12 @@
                             <constraint firstItem="xpE-vS-nB9" firstAttribute="top" secondItem="ct6-hU-zsk" secondAttribute="top" id="8vy-YM-AKZ"/>
                             <constraint firstItem="ct6-hU-zsk" firstAttribute="trailing" secondItem="xpE-vS-nB9" secondAttribute="trailing" constant="15" id="FjS-ae-cJj"/>
                             <constraint firstItem="xpE-vS-nB9" firstAttribute="leading" secondItem="ct6-hU-zsk" secondAttribute="leading" constant="15" id="JOq-og-NNe"/>
-                            <constraint firstItem="dzb-Y8-pqi" firstAttribute="top" secondItem="nce-SP-hWW" secondAttribute="top" constant="50" id="PX5-Oe-DaY"/>
-                            <constraint firstItem="ct6-hU-zsk" firstAttribute="trailing" secondItem="dzb-Y8-pqi" secondAttribute="trailing" constant="15" id="dsi-xU-3Zn"/>
                             <constraint firstItem="ct6-hU-zsk" firstAttribute="bottom" secondItem="xpE-vS-nB9" secondAttribute="bottom" id="qfz-Es-enb"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Stock Watchlist" id="AP1-Hf-Xbh"/>
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
-                        <outlet property="addTickerButton" destination="dzb-Y8-pqi" id="erw-aO-k6t"/>
                         <outlet property="tableView" destination="xpE-vS-nB9" id="cZN-eB-XgD"/>
                     </connections>
                 </viewController>
@@ -1279,34 +1259,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AdR-g6-hR2">
-                                <rect key="frame" x="340" y="88" width="35" height="35"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="35" id="TRr-og-FPA"/>
-                                    <constraint firstAttribute="width" constant="35" id="lJ4-nw-hrm"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <color key="tintColor" systemColor="systemRedColor"/>
-                                <state key="normal">
-                                    <imageReference key="image" image="trash.circle.fill" catalog="system" symbolScale="large"/>
-                                    <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="27" scale="large"/>
-                                </state>
-                                <connections>
-                                    <action selector="deleteAllButton:" destination="nTi-58-3tj" eventType="touchUpInside" id="VqX-ym-ifq"/>
-                                </connections>
-                            </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Delete All" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hWt-Kq-eyO">
-                                <rect key="frame" x="255" y="95.666666666666671" width="80" height="20"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="80" id="oXA-Bs-125"/>
-                                    <constraint firstAttribute="height" constant="20" id="uqL-ey-1f9"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                <color key="textColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="120" estimatedRowHeight="-1" sectionHeaderHeight="1" sectionFooterHeight="1" translatesAutoresizingMaskIntoConstraints="NO" id="ziO-FQ-1BK">
-                                <rect key="frame" x="15" y="133" width="360" height="677"/>
+                                <rect key="frame" x="15" y="88" width="360" height="722"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="headlineCell" rowHeight="120" id="3eg-D2-myw" customClass="SavedNewsViewCell" customModule="MW_Watcher" customModuleProvider="target">
@@ -1387,15 +1341,10 @@
                         <viewLayoutGuide key="safeArea" id="xiG-vW-d11"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="xiG-vW-d11" firstAttribute="trailing" secondItem="AdR-g6-hR2" secondAttribute="trailing" constant="15" id="91W-Po-uwd"/>
                             <constraint firstItem="xiG-vW-d11" firstAttribute="bottom" secondItem="ziO-FQ-1BK" secondAttribute="bottom" id="B3I-Pr-x4w"/>
-                            <constraint firstItem="ziO-FQ-1BK" firstAttribute="top" secondItem="AdR-g6-hR2" secondAttribute="bottom" constant="10" id="DzE-Nd-1Wg"/>
                             <constraint firstItem="xiG-vW-d11" firstAttribute="trailing" secondItem="ziO-FQ-1BK" secondAttribute="trailing" constant="15" id="M0g-u1-0YZ"/>
-                            <constraint firstItem="hWt-Kq-eyO" firstAttribute="centerY" secondItem="AdR-g6-hR2" secondAttribute="centerY" id="O8t-WQ-jku"/>
-                            <constraint firstItem="AdR-g6-hR2" firstAttribute="leading" secondItem="hWt-Kq-eyO" secondAttribute="trailing" constant="5" id="YMD-du-usF"/>
                             <constraint firstItem="ziO-FQ-1BK" firstAttribute="leading" secondItem="xiG-vW-d11" secondAttribute="leading" constant="15" id="gTQ-VY-FWJ"/>
-                            <constraint firstItem="AdR-g6-hR2" firstAttribute="top" secondItem="xiG-vW-d11" secondAttribute="top" id="isU-RY-kPd"/>
-                            <constraint firstItem="hWt-Kq-eyO" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="xiG-vW-d11" secondAttribute="leading" symbolic="YES" id="joE-1c-hax"/>
+                            <constraint firstItem="ziO-FQ-1BK" firstAttribute="top" secondItem="xiG-vW-d11" secondAttribute="top" id="wTW-3B-wwR"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Saved News" largeTitleDisplayMode="never" id="M9g-Jh-NKU">
@@ -1577,8 +1526,8 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
-        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="arrow.down.app.fill" width="10" height="10"/>
+        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="arrow.triangle.2.circlepath" width="16" height="13"/>
         <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>
@@ -1590,9 +1539,7 @@
         <image name="newspaper.fill" catalog="system" width="128" height="111"/>
         <image name="number" catalog="system" width="128" height="124"/>
         <image name="person.badge.plus" catalog="system" width="128" height="124"/>
-        <image name="plus" catalog="system" width="128" height="113"/>
         <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
-        <image name="trash.circle.fill" catalog="system" width="128" height="121"/>
         <namedColor name="AccentColor">
             <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
@@ -1622,9 +1569,6 @@
         </systemColor>
         <systemColor name="systemPurpleColor">
             <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemTealColor">
             <color red="0.18823529411764706" green="0.69019607843137254" blue="0.7803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
