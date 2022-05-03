@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyJSON
+import UIKit
 
 final class StocksAPI {
     static let shared = StocksAPI()
@@ -258,6 +259,51 @@ final class StocksAPI {
             }
         })
         dataTask.resume()
+    }
+    
+    //MARK: API Call for chart for general markets
+    func getLogoStock(symbol: String, completion: @escaping(Result<UIImage, Error>) -> Void) {
+        let headers = [
+            "X-RapidAPI-Host": "twelve-data1.p.rapidapi.com",
+            "X-RapidAPI-Key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
+        ]
+                
+        let urlString = "https://twelve-data1.p.rapidapi.com/logo?symbol=\(symbol)"
+        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+        
+        dump (request.url)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+                
+        let session = URLSession.shared
+        let task = session.dataTask(with: request as URLRequest) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                return
+            }
+                    
+            do {
+                let json = try JSON(data: data)
+                var downloadedImage = UIImage(named: "mw-logo")!
+                for (key, subJson):(String, JSON) in json {
+                    
+                    if key == "url" {
+                        guard let urlString = subJson.string else {
+                            return
+                        }
+                        downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: urlString)
+                    }
+                }
+                completion(.success(downloadedImage))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        task.resume()
     }
     
     //MARK: API Call for chart for general markets

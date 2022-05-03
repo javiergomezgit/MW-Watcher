@@ -88,6 +88,7 @@ class WatchlistController: UIViewController {
     }
     
     func addingTicker() {
+        
         let alert = ShowAlerts.inputTextAlert(title: "Add a new ticker", message: "Please type a new ticker for the watchlist")
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "Continue", style: .default, handler: { _ in
@@ -163,7 +164,6 @@ class WatchlistController: UIViewController {
     }
     
     func loadIndividualStock(individualTicker: String) {
-        
         StocksAPI.shared.getPriceSingleStock(tickerSingle: individualTicker, timeRange: timeRange) { result in
             switch result {
                 
@@ -174,6 +174,15 @@ class WatchlistController: UIViewController {
                     ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(individualTicker) to the watchlist", titleButton: "Ok", over: self)
                     self.tableView.reloadData()
                     self.refreshControl.endRefreshing()
+                }
+                StocksAPI.shared.getLogoStock(symbol: individualTicker) { result in
+                    switch result {
+                    case .success(let imageSymbol):
+                        dump (imageSymbol)
+
+                    case .failure(let error):
+                        dump (error)
+                    }
                 }
             case .failure(let error):
                 print (error.localizedDescription)

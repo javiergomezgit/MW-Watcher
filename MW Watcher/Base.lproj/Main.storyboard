@@ -31,6 +31,9 @@
                                             <rect key="frame" x="0.0" y="0.0" width="360" height="100"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2X2-fl-KHa">
+                                                    <rect key="frame" x="60" y="-14.666666666666664" width="240" height="128"/>
+                                                </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xkg-4J-wYC">
                                                     <rect key="frame" x="0.0" y="0.0" width="305" height="100"/>
                                                     <state key="normal" title="Button"/>
@@ -87,8 +90,10 @@
                                                 </imageView>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstItem="2X2-fl-KHa" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" constant="-14.67" id="5n9-R2-C5I"/>
                                                 <constraint firstItem="V3L-mm-5zq" firstAttribute="top" secondItem="O19-uM-WAO" secondAttribute="bottom" constant="2" id="6sq-Fq-GiE"/>
                                                 <constraint firstItem="htY-qF-A28" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" id="7DG-aP-Chg"/>
+                                                <constraint firstAttribute="bottom" secondItem="2X2-fl-KHa" secondAttribute="bottom" constant="-13.33" id="Ba7-Jw-sbj"/>
                                                 <constraint firstItem="zPK-rw-3Bo" firstAttribute="centerX" secondItem="C5a-Th-JRe" secondAttribute="centerX" id="DNk-CR-WvN"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="leading" secondItem="O19-uM-WAO" secondAttribute="trailing" constant="8" symbolic="YES" id="GNz-O1-5Q9"/>
                                                 <constraint firstItem="V3L-mm-5zq" firstAttribute="width" secondItem="O19-uM-WAO" secondAttribute="width" multiplier="0.8" id="HkH-ZD-bjr"/>
@@ -102,7 +107,9 @@
                                                 <constraint firstItem="htY-qF-A28" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="C5a-Th-JRe" secondAttribute="trailing" constant="3" id="cRL-F2-Sjz"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.6" id="fKp-kr-wWd"/>
                                                 <constraint firstItem="nsp-M7-cSR" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="gWP-UH-SBq"/>
+                                                <constraint firstItem="2X2-fl-KHa" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" constant="60" id="iLn-nA-oBx"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.4" id="jil-IW-Bgo"/>
+                                                <constraint firstItem="htY-qF-A28" firstAttribute="leading" secondItem="2X2-fl-KHa" secondAttribute="trailing" constant="15" id="m2J-e6-NVL"/>
                                                 <constraint firstAttribute="bottom" secondItem="xkg-4J-wYC" secondAttribute="bottom" id="mRe-AD-asO"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="top" secondItem="zPK-rw-3Bo" secondAttribute="bottom" constant="-4.9999999999998579" id="o4F-YI-hj9"/>
                                                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="nsp-M7-cSR" secondAttribute="trailing" constant="20" symbolic="YES" id="psg-W1-LiR"/>
@@ -117,6 +124,7 @@
                                             <outlet property="changeLabel" destination="C5a-Th-JRe" id="6op-OJ-5Pi"/>
                                             <outlet property="currentPriceLabel" destination="V3L-mm-5zq" id="FWa-C9-v5g"/>
                                             <outlet property="imageArrow" destination="zPK-rw-3Bo" id="1h7-PV-fGP"/>
+                                            <outlet property="imageTicker" destination="2X2-fl-KHa" id="c2o-Bd-UfY"/>
                                             <outlet property="previousPriceLabel" destination="nsp-M7-cSR" id="xiz-li-jE0"/>
                                             <outlet property="tickerLabel" destination="O19-uM-WAO" id="VI7-Rp-d7l"/>
                                         </connections>
