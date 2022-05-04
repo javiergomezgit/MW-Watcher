@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="18154" systemVersion="20F71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21E258" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="LiveNewsEntity" representedClassName="LiveNewsEntity" syncable="YES" codeGenerationType="class">
         <attribute name="headline" optional="YES" attributeType="String"/>
         <attribute name="image" optional="YES" attributeType="Binary"/>
@@ -11,11 +11,15 @@
         <attribute name="link" optional="YES" attributeType="String"/>
     </entity>
     <entity name="WatchlistEntity" representedClassName="WatchlistEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="descriptionCompany" optional="YES" attributeType="String"/>
+        <attribute name="exchange" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="ticker" optional="YES" attributeType="String"/>
+        <attribute name="website" optional="YES" attributeType="String"/>
     </entity>
     <elements>
         <element name="LiveNewsEntity" positionX="-45" positionY="0" width="128" height="74"/>
         <element name="SavedNewsEntity" positionX="-45" positionY="63" width="128" height="74"/>
-        <element name="WatchlistEntity" positionX="-45" positionY="54" width="128" height="44"/>
+        <element name="WatchlistEntity" positionX="-45" positionY="54" width="128" height="104"/>
     </elements>
 </model>

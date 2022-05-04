@@ -237,8 +237,8 @@
 				228451992803A99700FF0DF2 /* StocksAPI.swift */,
 				2284519B2803ABEA00FF0DF2 /* StockModel.swift */,
 				22EFA843266D8CAE004D0856 /* NewsItem.swift */,
-				223EF571265D867100160C8D /* SaveTickers.swift */,
 				22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */,
+				223EF571265D867100160C8D /* SaveTickers.swift */,
 				22AD1A46264B381C001A5362 /* SystemSaveNews.swift */,
 				22F8F32E265C5FC50084C98F /* UserSaveNews.swift */,
 			);
