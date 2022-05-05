@@ -12,7 +12,7 @@ class SaveTickers {
     var tickerManagedObjectArray: [NSManagedObject] = []
     let entityName = "WatchlistEntity"
     
-    func saveTicker(ticker: String) {
+    func saveTicker(ticker: String, nameCompany: String, imageCompany: UIImage) {
         DispatchQueue.main.async { [self] in
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return  }
             let managedContext = appDelegate.persistentContainer.viewContext
@@ -20,6 +20,13 @@ class SaveTickers {
             let tickerObject = NSManagedObject(entity: entity, insertInto: managedContext)
             
             tickerObject.setValue(ticker, forKey: "ticker")
+            tickerObject.setValue(nameCompany, forKey: "name")
+            
+            guard let imageToData = imageCompany.jpegData(compressionQuality: 1) else {
+                print("jpg error")
+                return
+            }
+            tickerObject.setValue(imageToData, forKey: "imageCompany")
             
             do {
                 try managedContext.save()
@@ -62,9 +69,9 @@ class SaveTickers {
 
     }
     
-    func loadTickers() -> [String] {
+    func loadTickers() -> [SavedTickers] {
         
-        var tickerItems : [String] = []
+        var tickerItems : [SavedTickers] = []
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         let managedContext = appDelegate!.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
@@ -73,8 +80,21 @@ class SaveTickers {
             tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
 
             for tickerObject in tickerManagedObjectArray {
+                var imageFromData = UIImage()
                 let ticker = tickerObject.value(forKey: "ticker") as! String
-                tickerItems.append(ticker)
+                let name = tickerObject.value(forKey: "nameCompany") as! String
+                let imageData = tickerObject.value(forKey: "imageCompany") as! Data
+                
+                do {
+                    if let image = UIImage(data: imageData) {
+                        imageFromData = image
+                    } else {
+                        imageFromData = UIImage(named: "mw-logo")!
+                    }
+                }
+                
+                let tickerItem = SavedTickers(ticker: ticker, nameCompany: name, imageCompany: imageFromData)
+                tickerItems.append(tickerItem)
             }
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")

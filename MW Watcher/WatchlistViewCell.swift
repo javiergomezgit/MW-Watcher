@@ -14,7 +14,7 @@ class WatchlistViewCell: UITableViewCell {
     @IBOutlet var currentPriceLabel: UILabel!
     @IBOutlet var previousPriceLabel: UILabel!
     @IBOutlet var imageArrow: UIImageView!
-    @IBOutlet weak var buttonTickerNews: UIButton!
+//    @IBOutlet weak var buttonTickerNews: UIButton!
     @IBOutlet weak var buttonOpenChart: UIButton!
     @IBOutlet weak var imageTicker: UIImageView!
     

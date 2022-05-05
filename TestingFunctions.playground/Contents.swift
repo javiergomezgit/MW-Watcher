@@ -168,14 +168,84 @@ struct Tickers {
 
 
 //let dateString = "2022-04-01 15:30:00 UTC"
-let dateFormat =  "yyyy/MM"
-let time = 1648138500.0
-let date = Date(timeIntervalSince1970: time)
+//let dateFormat =  "yyyy/MM"
+//let time = 1648138500.0
+//let date = Date(timeIntervalSince1970: time)
+//
+//let dateFormatter = DateFormatter()
+//dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
+//dateFormatter.locale = NSLocale.current
+//dateFormatter.dateFormat = dateFormat //Specify your format that you want
+//let strDate = dateFormatter.string(from: date)
+//
+//print (strDate)
 
-let dateFormatter = DateFormatter()
-dateFormatter.timeZone = TimeZone(abbreviation: "PST") //Set timezone that you want
-dateFormatter.locale = NSLocale.current
-dateFormatter.dateFormat = dateFormat //Specify your format that you want
-let strDate = dateFormatter.string(from: date)
 
-print (strDate)
+    let symbol = "FB"
+let headers = [
+    "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+    "x-rapidapi-host": "stock-data-yahoo-finance-alternative.p.rapidapi.com"
+]
+
+let urlString = "https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote?symbols=" + symbol
+var json: [String: Any]? = [:]
+
+
+let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
+                                  cachePolicy: .useProtocolCachePolicy,
+                                  timeoutInterval: 10.0)
+
+request.httpMethod = "GET"
+request.allHTTPHeaderFields = headers
+
+let session = URLSession.shared
+let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+    if (error != nil) {
+        print(error!)
+    } else {
+        json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+        if json == nil  {
+            print ("json nil")
+        }
+        
+        //print (json)
+        
+        if let tickerFound = json!["quoteResponse"] {
+//            print (tickerFound)
+            let tickerDictionary = tickerFound as? [String: Any]
+//            print (tickerDictionary?.first)
+            
+            let tickArraDy = tickerDictionary!["result"] as? [Any]
+//            print (tickArraDy!.count)
+            print (tickArraDy?.first)
+            
+            let soo = tickArraDy?.first as? [String: Any]
+            print (soo?["ask"])
+            
+            
+        
+            
+
+          
+//
+//            guard let previousClose = foundClose as? Double else {
+//                return
+//            }
+//
+//            guard let closePriceArray = tickerDictionary!["close"] as? [Any] else {
+//                return
+//            }
+//            guard let closePrice = closePriceArray.last as? Double else {
+//                return
+//            }
+
+
+            
+        } else {
+            print ("error")
+            
+        }
+    }
+})
+dataTask.resume()
+

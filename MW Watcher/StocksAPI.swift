@@ -98,14 +98,14 @@ final class StocksAPI {
     }
     
     //MARK: API call for search of INDIVIDUAL stock with current price
-    func getPriceSingleStock(tickerSingle: String, timeRange: String, completion: @escaping (Result<Tickers, Error>) -> Void) {
+    func getPriceSingleStock(tickerSingle: String, completion: @escaping (Result<Tickers, Error>) -> Void) {
         
         let headers = [
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
-            "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+            "x-rapidapi-host": "stock-data-yahoo-finance-alternative.p.rapidapi.com"
         ]
         
-        let urlString = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + tickerSingle + timeRange
+        let urlString = "https://stock-data-yahoo-finance-alternative.p.rapidapi.com/v6/finance/quote?symbols=" + tickerSingle
         var json: [String: Any]? = [:]
         
         //if it's not a valid url, exit the completion with error
@@ -132,28 +132,28 @@ final class StocksAPI {
                     completion(.failure(APIError.invalidJSON))
                 }
                 
-                if let tickerFound = json![tickerSingle] {
-                    let tickerDictionary = tickerFound as? [String: Any]
-                    let foundClose = tickerDictionary!["chartPreviousClose"]
-                    
-                    guard let previousClose = foundClose as? Double else {
-                        completion(.failure(APIError.invalidURL))
+                if let tickerFound = json!["quoteResponse"] {
+                    guard let tickerDictionary = tickerFound as? [String: Any] else {
+                        completion(.failure(APIError.invalidJSON))
                         return
                     }
                     
-                    guard let closePriceArray = tickerDictionary!["close"] as? [Any] else {
-                        completion(.failure(APIError.invalidTicker))
-                        return
+                    if tickerDictionary["error"] == nil {
+                        completion(.failure(APIError.invalidJSON))
+                    } else {
+                        let resultArray = tickerDictionary["result"] as? [Any]
+                        if let tickerValue = resultArray?.first as? [String: Any] {
+                            let marketPrice = tickerValue["regularMarketPrice"] as! Double
+                            let previousPrice = tickerValue["regularMarketPreviousClose"] as! Double
+                            let nameCompany = tickerValue["longName"] as! String
+                            let volume = tickerValue["regularMarketVolume"] as! Double
+                            
+                            let tickerValues = Tickers(ticker: tickerSingle, marketPrice: marketPrice, previousPrice: previousPrice, nameCompany: nameCompany, volume: volume)
+                            completion(.success(tickerValues))
+                        } else {
+                            completion(.failure(APIError.invalidJSON))
+                        }
                     }
-                    guard let closePrice = closePriceArray.last as? Double else {
-                        completion(.failure(APIError.invalidTicker))
-                        return
-                    }
-                    
-                    let tickerValues = Tickers(ticker: tickerSingle, marketPrice: closePrice, previousPrice: previousClose)
-
-                    completion(.success(tickerValues))
-                    
                 } else {
                     print (APIError.tickerNotFound)
                     completion(.failure(APIError.invalidURL))
@@ -162,6 +162,73 @@ final class StocksAPI {
         })
         dataTask.resume()
     }
+    
+    
+//    //MARK: API call for search of INDIVIDUAL stock with current price
+//    func getPriceSingleStock(tickerSingle: String, timeRange: String, completion: @escaping (Result<Tickers, Error>) -> Void) {
+//
+//        let headers = [
+//            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+//            "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+//        ]
+//
+//        let urlString = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + tickerSingle + timeRange
+//        var json: [String: Any]? = [:]
+//
+//        //if it's not a valid url, exit the completion with error
+//        if !urlString.isValidURL {
+//            completion(.failure(APIError.invalidTicker))
+//            return
+//        }
+//
+//        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
+//                                          cachePolicy: .useProtocolCachePolicy,
+//                                          timeoutInterval: 10.0)
+//
+//        request.httpMethod = "GET"
+//        request.allHTTPHeaderFields = headers
+//
+//        let session = URLSession.shared
+//        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+//            if (error != nil) {
+//                print(error!)
+//                completion(.failure(error!))
+//            } else {
+//                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+//                if json == nil  {
+//                    completion(.failure(APIError.invalidJSON))
+//                }
+//
+//                if let tickerFound = json![tickerSingle] {
+//                    let tickerDictionary = tickerFound as? [String: Any]
+//                    let foundClose = tickerDictionary!["chartPreviousClose"]
+//
+//                    guard let previousClose = foundClose as? Double else {
+//                        completion(.failure(APIError.invalidURL))
+//                        return
+//                    }
+//
+//                    guard let closePriceArray = tickerDictionary!["close"] as? [Any] else {
+//                        completion(.failure(APIError.invalidTicker))
+//                        return
+//                    }
+//                    guard let closePrice = closePriceArray.last as? Double else {
+//                        completion(.failure(APIError.invalidTicker))
+//                        return
+//                    }
+//
+//                    let tickerValues = Tickers(ticker: tickerSingle, marketPrice: closePrice, previousPrice: previousClose)
+//
+//                    completion(.success(tickerValues))
+//
+//                } else {
+//                    print (APIError.tickerNotFound)
+//                    completion(.failure(APIError.invalidURL))
+//                }
+//            }
+//        })
+//        dataTask.resume()
+//    }
     
     //MARK: API call for GROUP of stocks with current price
     func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[Tickers], Error>) -> Void) {
@@ -201,7 +268,7 @@ final class StocksAPI {
                     let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
                     let closePrice = closePriceArray!.last as! Double
-                    tickersWithoutSorting.append(Tickers(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose))
+                    tickersWithoutSorting.append(Tickers(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, nameCompany: "", volume: 34))
                 }
                 
                 let tickersSorted = tickersWithoutSorting.sorted{ $0.ticker < $1.ticker }

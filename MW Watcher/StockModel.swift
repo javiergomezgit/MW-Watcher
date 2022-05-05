@@ -6,11 +6,20 @@
 //
 
 import Foundation
+import UIKit
 
 struct Tickers {
     let ticker: String
     let marketPrice: Double
     let previousPrice: Double
+    let nameCompany: String
+    let volume: Double
+}
+
+struct SavedTickers {
+    let ticker: String
+    let nameCompany: String
+    let imageCompany: UIImage
 }
 
 struct ValueStock: Codable {

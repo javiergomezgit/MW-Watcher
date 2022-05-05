@@ -131,16 +131,16 @@ class WatchlistController: UIViewController {
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
     }
     
-    func loadMultipleStocks(savedTickers: [String]){
+    func loadMultipleStocks(savedTickers: [SavedTickers]){
         var mergedTickers = ""
         for (index, savedTicker) in savedTickers.enumerated() {
             if index == 0 {
-                mergedTickers = savedTicker
+                mergedTickers = savedTicker.ticker
             } else {
-                mergedTickers = mergedTickers + "," + savedTicker
+                mergedTickers = mergedTickers + "," + savedTicker.ticker
             }
         }
-        
+
         StocksAPI.shared.getPriceMultipleStocks(tickersGroup: mergedTickers, timeRange: timeRange) { result in
             switch result {
                 
@@ -164,12 +164,11 @@ class WatchlistController: UIViewController {
     }
     
     func loadIndividualStock(individualTicker: String) {
-        StocksAPI.shared.getPriceSingleStock(tickerSingle: individualTicker, timeRange: timeRange) { result in
+        StocksAPI.shared.getPriceSingleStock(tickerSingle: individualTicker) { result in
             switch result {
                 
             case .success(let individualStockPrice):
-                self.savedTickers.saveTicker(ticker: individualTicker)
-                self.tickers.append(Tickers(ticker: individualTicker, marketPrice: individualStockPrice.marketPrice, previousPrice: individualStockPrice.previousPrice))
+                self.tickers.append(Tickers(ticker: individualTicker, marketPrice: individualStockPrice.marketPrice, previousPrice: individualStockPrice.previousPrice, nameCompany: individualStockPrice.nameCompany, volume: individualStockPrice.volume))
                 DispatchQueue.main.async {
                     ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(individualTicker) to the watchlist", titleButton: "Ok", over: self)
                     self.tableView.reloadData()
@@ -179,7 +178,8 @@ class WatchlistController: UIViewController {
                     switch result {
                     case .success(let imageSymbol):
                         dump (imageSymbol)
-
+                                            
+                        self.savedTickers.saveTicker(ticker: individualTicker, nameCompany: individualStockPrice.nameCompany, imageCompany: imageSymbol)
                     case .failure(let error):
                         dump (error)
                     }
@@ -239,8 +239,8 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.imageArrow.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
         }
         
-        cell.buttonTickerNews.tag = indexPath.row
-        cell.buttonTickerNews.addTarget(self, action: #selector(openNews(sender:)), for: .touchUpInside)
+//        cell.buttonTickerNews.tag = indexPath.row
+//        cell.buttonTickerNews.addTarget(self, action: #selector(openNews(sender:)), for: .touchUpInside)
         
         cell.buttonOpenChart.tag = indexPath.row
         cell.buttonOpenChart.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
@@ -259,7 +259,8 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
-        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageRounded)
+//        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageRounded, nameCompany: "", volume: 0)
+        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageRounded, nameCompany: "", volume: 0)
         destination?.informationStockTicker = tickerWithChange
         
         destination!.modalTransitionStyle = .crossDissolve

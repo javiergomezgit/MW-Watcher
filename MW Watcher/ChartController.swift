@@ -38,7 +38,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     var indexMarket = false
     
     public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
-    public var informationStockTicker = Tickers(ticker: "", marketPrice: 0.0, previousPrice: 0.0)
+    public var informationStockTicker = Tickers(ticker: "", marketPrice: 0.0, previousPrice: 0.0, nameCompany: "", volume: 0)
     public var indexName = ""
 
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
