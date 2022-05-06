@@ -12,7 +12,7 @@
     </entity>
     <entity name="WatchlistEntity" representedClassName="WatchlistEntity" syncable="YES" codeGenerationType="class">
         <attribute name="imageCompany" optional="YES" attributeType="Binary"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="nameCompany" optional="YES" attributeType="String"/>
         <attribute name="ticker" optional="YES" attributeType="String"/>
     </entity>
     <elements>

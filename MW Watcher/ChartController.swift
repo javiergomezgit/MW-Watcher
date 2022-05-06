@@ -38,7 +38,8 @@ class ChartController: UIViewController, ChartViewDelegate {
     var indexMarket = false
     
     public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
-    public var informationStockTicker = Tickers(ticker: "", marketPrice: 0.0, previousPrice: 0.0, nameCompany: "", volume: 0)
+    public var informationStockTicker = Tickers(ticker: ["" : ValueTickers(marketPrice: 0, previousPrice: 0, nameCompany: nil, volume: nil, imageCompany: nil)])
+
     public var indexName = ""
 
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
@@ -46,7 +47,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         startStopSpinner(start: true)
         
-        if informationStockTicker.ticker == "" {
+        if informationStockTicker.ticker.first?.key == "" {
             switch index {
             case 0: self.interval = "900"
                 break
@@ -88,7 +89,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         startStopSpinner(start: true)
         
-        if informationStockTicker.ticker == "" {
+        if informationStockTicker.ticker.first?.key == "" {
             self.timeFrameSegmented.setEnabled(true, forSegmentAt: 4)
             selectedCryptoTicker()
         } else {
@@ -114,9 +115,9 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     private func selectedStockTicker() {
-        let symbol = informationStockTicker.ticker
-        let currentPrice = informationStockTicker.marketPrice
-        let percentageChange = Float(informationStockTicker.previousPrice) //using previousPrice structure to store percentage change
+        let symbol = informationStockTicker.ticker.first!.key
+        let currentPrice = informationStockTicker.ticker.first!.value.marketPrice
+        let percentageChange = Float(informationStockTicker.ticker.first!.value.previousPrice!) //using previousPrice structure to store percentage change
         
         if percentageChange < 0.000 {
             currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
@@ -129,7 +130,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         self.symbol = symbol
         tickerLabel.text = symbol
         nameLabel.text = indexName
-        currentPriceLabel.text = String(currentPrice)
+        currentPriceLabel.text = String(currentPrice!)
         currentPercentageLabel.text = "\(percentageChange)% For the day"
         
         loadStockPrices()

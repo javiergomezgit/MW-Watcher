@@ -97,7 +97,7 @@ final class StocksAPI {
         task.resume()
     }
     
-    //MARK: API call for search of INDIVIDUAL stock with current price
+    //MARK: API call for search/add of INDIVIDUAL stock with current price
     func getPriceSingleStock(tickerSingle: String, completion: @escaping (Result<Tickers, Error>) -> Void) {
         
         let headers = [
@@ -148,8 +148,15 @@ final class StocksAPI {
                             let nameCompany = tickerValue["longName"] as! String
                             let volume = tickerValue["regularMarketVolume"] as! Double
                             
-                            let tickerValues = Tickers(ticker: tickerSingle, marketPrice: marketPrice, previousPrice: previousPrice, nameCompany: nameCompany, volume: volume)
-                            completion(.success(tickerValues))
+                            self.getLogoStock(symbol: tickerSingle) { result in
+                                switch result {
+                                case .failure(let error):
+                                    completion(.failure(error))
+                                case .success(let imageCompany):
+                                    let tickerValues = Tickers(ticker: [tickerSingle : ValueTickers(marketPrice: marketPrice, previousPrice: previousPrice, nameCompany: nameCompany, volume: volume, imageCompany: imageCompany)])
+                                    completion(.success(tickerValues))
+                                }
+                            }
                         } else {
                             completion(.failure(APIError.invalidJSON))
                         }
@@ -163,76 +170,53 @@ final class StocksAPI {
         dataTask.resume()
     }
     
-    
-//    //MARK: API call for search of INDIVIDUAL stock with current price
-//    func getPriceSingleStock(tickerSingle: String, timeRange: String, completion: @escaping (Result<Tickers, Error>) -> Void) {
-//
-//        let headers = [
-//            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
-//            "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
-//        ]
-//
-//        let urlString = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + tickerSingle + timeRange
-//        var json: [String: Any]? = [:]
-//
-//        //if it's not a valid url, exit the completion with error
-//        if !urlString.isValidURL {
-//            completion(.failure(APIError.invalidTicker))
-//            return
-//        }
-//
-//        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
-//                                          cachePolicy: .useProtocolCachePolicy,
-//                                          timeoutInterval: 10.0)
-//
-//        request.httpMethod = "GET"
-//        request.allHTTPHeaderFields = headers
-//
-//        let session = URLSession.shared
-//        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-//            if (error != nil) {
-//                print(error!)
-//                completion(.failure(error!))
-//            } else {
-//                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-//                if json == nil  {
-//                    completion(.failure(APIError.invalidJSON))
-//                }
-//
-//                if let tickerFound = json![tickerSingle] {
-//                    let tickerDictionary = tickerFound as? [String: Any]
-//                    let foundClose = tickerDictionary!["chartPreviousClose"]
-//
-//                    guard let previousClose = foundClose as? Double else {
-//                        completion(.failure(APIError.invalidURL))
-//                        return
-//                    }
-//
-//                    guard let closePriceArray = tickerDictionary!["close"] as? [Any] else {
-//                        completion(.failure(APIError.invalidTicker))
-//                        return
-//                    }
-//                    guard let closePrice = closePriceArray.last as? Double else {
-//                        completion(.failure(APIError.invalidTicker))
-//                        return
-//                    }
-//
-//                    let tickerValues = Tickers(ticker: tickerSingle, marketPrice: closePrice, previousPrice: previousClose)
-//
-//                    completion(.success(tickerValues))
-//
-//                } else {
-//                    print (APIError.tickerNotFound)
-//                    completion(.failure(APIError.invalidURL))
-//                }
-//            }
-//        })
-//        dataTask.resume()
-//    }
+    //MARK: API Call for getting logo of specific stock
+    func getLogoStock(symbol: String, completion: @escaping(Result<UIImage, Error>) -> Void) {
+        let headers = [
+            "X-RapidAPI-Host": "twelve-data1.p.rapidapi.com",
+            "X-RapidAPI-Key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
+        ]
+                
+        let urlString = "https://twelve-data1.p.rapidapi.com/logo?symbol=\(symbol)"
+        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
+        
+        dump (request.url)
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+                
+        let session = URLSession.shared
+        let task = session.dataTask(with: request as URLRequest) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                return
+            }
+                    
+            do {
+                let json = try JSON(data: data)
+                var downloadedImage = UIImage(named: "mw-logo")!
+                for (key, subJson):(String, JSON) in json {
+                    
+                    if key == "url" {
+                        guard let urlString = subJson.string else {
+                            return
+                        }
+                        downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: urlString)
+                    }
+                }
+                completion(.success(downloadedImage))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
     
     //MARK: API call for GROUP of stocks with current price
-    func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[Tickers], Error>) -> Void) {
-        
+    func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[GroupPrices], Error>) -> Void) {
         let headers = [
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
             "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
@@ -259,7 +243,7 @@ final class StocksAPI {
                     completion(.failure("JSON is Empty" as! Error))
                 }
                 
-                var tickersWithoutSorting : [Tickers] = []
+                var tickersWithoutSorting : [GroupPrices] = []
                 for tickerJSON in json! {
                     print (tickerJSON.value) //json
                     print (tickerJSON.key) //ticker
@@ -268,10 +252,12 @@ final class StocksAPI {
                     let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
                     let closePrice = closePriceArray!.last as! Double
-                    tickersWithoutSorting.append(Tickers(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, nameCompany: "", volume: 34))
+                    
+                    let tickerValues = GroupPrices(groupTicker: tickerJSON.key, closePrice: closePrice, previousClosePrice: previousClose)
+                    tickersWithoutSorting.append(tickerValues)
                 }
                 
-                let tickersSorted = tickersWithoutSorting.sorted{ $0.ticker < $1.ticker }
+                let tickersSorted = tickersWithoutSorting.sorted{ $0.groupTicker < $1.groupTicker }
                 completion(.success(tickersSorted))
             }
         })
@@ -327,98 +313,7 @@ final class StocksAPI {
         })
         dataTask.resume()
     }
-    //https://twelve-data1.p.rapidapi.com/profile
-    //MARK: API Call for profile stock
-    func getProfileStock(symbol: String, completion: @escaping(Result<UIImage, Error>) -> Void) {
-        let headers = [
-            "X-RapidAPI-Host": "twelve-data1.p.rapidapi.com",
-            "X-RapidAPI-Key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
-        ]
-                
-        let urlString = "https://twelve-data1.p.rapidapi.com/profile?symbol=\(symbol)"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        dump (request.url)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-                
-        let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                return
-            }
-                    
-            do {
-                let json = try JSON(data: data)
-                var downloadedImage = UIImage(named: "mw-logo")!
-                for (key, subJson):(String, JSON) in json {
 
-                    if key == "url" {
-                        guard let urlString = subJson.string else {
-                            return
-                        }
-                        downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: urlString)
-                    }
-                }
-                completion(.success(downloadedImage))
-            } catch {
-                completion(.failure(error))
-            }
-        }
-        task.resume()
-    }
-    
-    
-    
-    //MARK: API Call for chart for general markets
-    func getLogoStock(symbol: String, completion: @escaping(Result<UIImage, Error>) -> Void) {
-        let headers = [
-            "X-RapidAPI-Host": "twelve-data1.p.rapidapi.com",
-            "X-RapidAPI-Key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
-        ]
-                
-        let urlString = "https://twelve-data1.p.rapidapi.com/logo?symbol=\(symbol)"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        dump (request.url)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-                
-        let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                return
-            }
-                    
-            do {
-                let json = try JSON(data: data)
-                var downloadedImage = UIImage(named: "mw-logo")!
-                for (key, subJson):(String, JSON) in json {
-                    
-                    if key == "url" {
-                        guard let urlString = subJson.string else {
-                            return
-                        }
-                        downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: urlString)
-                    }
-                }
-                completion(.success(downloadedImage))
-            } catch {
-                completion(.failure(error))
-            }
-        }
-        task.resume()
-    }
     
     //MARK: API Call for chart for general markets
     func getMarketValues(intervalTime: String, symbol: String, completion: @escaping(Result<[ValueStock], Error>) -> Void) {

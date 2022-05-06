@@ -14,6 +14,7 @@ class WatchlistController: UIViewController {
     
     //MARK: Variables
     var tickers: [Tickers] = []
+    var groupTickers: [GroupPrices] = []
     var timeRange: String = "&interval=1d&range=1d" 
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
@@ -57,7 +58,7 @@ class WatchlistController: UIViewController {
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl) // not required when using UITableViewController
                 
-        startStopSpinner(start: true)
+        //startStopSpinner(start: true)
            
         loadInitialStocks()
     }
@@ -82,6 +83,7 @@ class WatchlistController: UIViewController {
         }
         
         let loadSavedTickers = self.savedTickers.loadTickers()
+        self.tickers = loadSavedTickers
         if !loadSavedTickers.isEmpty {
             self.loadMultipleStocks(savedTickers: loadSavedTickers)
         }
@@ -100,11 +102,12 @@ class WatchlistController: UIViewController {
                 return
             }
             var alreadyOnList = false
-            for tick in self.tickers {
-                if tick.ticker == tickerToAdd {
-                    alreadyOnList = true
-                }
-            }
+            //TODO: Verify if already exists on the list array
+//            for tick in self.tickers {
+//                if tick.ticker == tickerToAdd {
+//                    alreadyOnList = true
+//                }
+//            }
             if !alreadyOnList {
                 self.loadIndividualStock(individualTicker: tickerToAdd)
             } else {
@@ -116,6 +119,7 @@ class WatchlistController: UIViewController {
     
     @objc func refresh(_ sender: AnyObject) {
         let loadSavedTickers = savedTickers.loadTickers()
+        self.tickers = loadSavedTickers
         loadMultipleStocks(savedTickers: loadSavedTickers)
         tableView.reloadData()
     }
@@ -131,13 +135,14 @@ class WatchlistController: UIViewController {
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
     }
     
-    func loadMultipleStocks(savedTickers: [SavedTickers]){
+    func loadMultipleStocks(savedTickers: [Tickers]){
         var mergedTickers = ""
         for (index, savedTicker) in savedTickers.enumerated() {
+//            let spp = savedTicker.ticker.first?.value
             if index == 0 {
-                mergedTickers = savedTicker.ticker
+                mergedTickers = savedTicker.ticker.first!.key
             } else {
-                mergedTickers = mergedTickers + "," + savedTicker.ticker
+                mergedTickers = mergedTickers + "," + savedTicker.ticker.first!.key
             }
         }
 
@@ -146,7 +151,7 @@ class WatchlistController: UIViewController {
                 
             case .success(let groupStockPrices):
                 print (groupStockPrices)
-                self.tickers = groupStockPrices
+                self.groupTickers = groupStockPrices
                 
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
@@ -167,22 +172,25 @@ class WatchlistController: UIViewController {
         StocksAPI.shared.getPriceSingleStock(tickerSingle: individualTicker) { result in
             switch result {
                 
-            case .success(let individualStockPrice):
-                self.tickers.append(Tickers(ticker: individualTicker, marketPrice: individualStockPrice.marketPrice, previousPrice: individualStockPrice.previousPrice, nameCompany: individualStockPrice.nameCompany, volume: individualStockPrice.volume))
+            case .success(let stockValues):
+                guard let tickerValues = stockValues.ticker[individualTicker] else {
+
+                    return
+                }
+                
+                self.tickers.append(Tickers(ticker: [individualTicker : ValueTickers(
+                    marketPrice: tickerValues.marketPrice,
+                    previousPrice: tickerValues.previousPrice,
+                    nameCompany: tickerValues.nameCompany,
+                    volume: tickerValues.volume,
+                    imageCompany: tickerValues.imageCompany)]))
+                
+                self.savedTickers.saveTicker(ticker: individualTicker, nameCompany: tickerValues.nameCompany!, imageCompany: tickerValues.imageCompany!)
+                
                 DispatchQueue.main.async {
                     ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(individualTicker) to the watchlist", titleButton: "Ok", over: self)
                     self.tableView.reloadData()
                     self.refreshControl.endRefreshing()
-                }
-                StocksAPI.shared.getLogoStock(symbol: individualTicker) { result in
-                    switch result {
-                    case .success(let imageSymbol):
-                        dump (imageSymbol)
-                                            
-                        self.savedTickers.saveTicker(ticker: individualTicker, nameCompany: individualStockPrice.nameCompany, imageCompany: imageSymbol)
-                    case .failure(let error):
-                        dump (error)
-                    }
                 }
             case .failure(let error):
                 print (error.localizedDescription)
@@ -207,10 +215,16 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "myTickersCell", for: indexPath) as! WatchlistViewCell
-        cell.tickerLabel.text = tickers[indexPath.row].ticker
-        cell.currentPriceLabel.text = "$" + String(tickers[indexPath.row].marketPrice)
+        let ticker = tickers[indexPath.row].ticker.first!.key
+        let valuesTicker = tickers[indexPath.row].ticker.first!.value
+        let marketPrice = valuesTicker.marketPrice ?? 0.0
+        let previousPrice = valuesTicker.previousPrice ?? 0.0
         
-        let percentageChange = (tickers[indexPath.row].marketPrice * 100) / tickers[indexPath.row].previousPrice
+        cell.tickerLabel.text = ticker
+        cell.currentPriceLabel.text = "$\(valuesTicker.marketPrice)"
+        cell.imageTicker.image = valuesTicker.imageCompany!
+        
+        let percentageChange = (marketPrice * 100) / previousPrice
         if percentageChange < 100 {
             var percentageRounded = 100 - percentageChange
             percentageRounded = Double(round(100*percentageRounded)/100)
@@ -218,7 +232,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.changeLabel.text = "- " + String(percentageRounded) + "%"
             cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
-            let previousPrice = Double(round(100*tickers[indexPath.row].previousPrice)/100)
+            let previousPrice = Double(round(100*previousPrice)/100)
             cell.previousPriceLabel.text = "PREV. $" + String(previousPrice)
             cell.previousPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
@@ -231,7 +245,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.changeLabel.text = "+ " + String(percentageRounded) + "%"
             cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
-            let previousPrice = Double(round(100*tickers[indexPath.row].previousPrice)/100)
+            let previousPrice = Double(round(100*previousPrice)/100)
             cell.previousPriceLabel.text = "PREV. $" + String(previousPrice)
             cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
@@ -249,18 +263,18 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     }
     
     @objc func openChart(sender: UIButton) {
-        let ticker = self.tickers[sender.tag]
+        let tickerArray = self.tickers[sender.tag]
+        let ticker = tickerArray.ticker.first!.value
         print (self.tickers[sender.tag])
         
-        let perChange = (ticker.marketPrice * 100) / ticker.previousPrice
+        let perChange = (ticker.marketPrice! * 100) / ticker.previousPrice!
         var percentageRounded = 100 - perChange
         percentageRounded = Double(round(100*percentageRounded)/100) * -1
         
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
-//        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageRounded, nameCompany: "", volume: 0)
-        let tickerWithChange = Tickers(ticker: ticker.ticker, marketPrice: ticker.marketPrice, previousPrice: percentageRounded, nameCompany: "", volume: 0)
+        let tickerWithChange = Tickers(ticker: [tickerArray.ticker.first!.key : ValueTickers(marketPrice: ticker.marketPrice, previousPrice: ticker.previousPrice, nameCompany: ticker.nameCompany, volume: ticker.volume, imageCompany: ticker.imageCompany)])
         destination?.informationStockTicker = tickerWithChange
         
         destination!.modalTransitionStyle = .crossDissolve
@@ -269,7 +283,8 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     }
     
     @objc func openNews(sender: UIButton) {
-        let ticker = self.tickers[sender.tag].ticker
+        let tickerArray = self.tickers[sender.tag]
+        let ticker = tickerArray.ticker.first!.key
         
         print (sender.tag)
         print (ticker)
@@ -290,7 +305,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
-            let ticker = tickers[indexPath.row].ticker
+            let ticker = tickers[indexPath.row].ticker.first!.key
             savedTickers.deleteTickers(ticker: ticker, deleteAll: false)
             
             tickers.remove(at: indexPath.row)

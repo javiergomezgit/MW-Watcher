@@ -48,8 +48,8 @@
                                                     <state key="normal" title="Button"/>
                                                     <buttonConfiguration key="configuration" style="plain"/>
                                                 </button>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="$3999.128" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V3L-mm-5zq">
-                                                    <rect key="frame" x="224" y="3" width="172.66666666666666" height="30"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$3999.128" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V3L-mm-5zq">
+                                                    <rect key="frame" x="224" y="3" width="172.66666666666663" height="30"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="30" id="wGv-Jx-0KI"/>
                                                     </constraints>
@@ -63,8 +63,14 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="PREV. $3400.34" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="nsp-M7-cSR">
-                                                    <rect key="frame" x="204" y="55" width="148.66666666666666" height="25"/>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPL" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.84999999999999998" translatesAutoresizingMaskIntoConstraints="NO" id="O19-uM-WAO">
+                                                    <rect key="frame" x="99" y="11" width="216" height="35"/>
+                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="45"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="PREV. $3400.34" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="nsp-M7-cSR">
+                                                    <rect key="frame" x="211" y="64" width="148.66666666666666" height="25"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="25" id="MUZ-tT-kse"/>
                                                     </constraints>
@@ -72,35 +78,29 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="AAPL" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumScaleFactor="0.84999999999999998" translatesAutoresizingMaskIntoConstraints="NO" id="O19-uM-WAO">
-                                                    <rect key="frame" x="99" y="11" width="216" height="35"/>
-                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="45"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="top" secondItem="O19-uM-WAO" secondAttribute="bottom" constant="2" id="6sq-Fq-GiE"/>
-                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="leading" secondItem="O19-uM-WAO" secondAttribute="trailing" constant="8" symbolic="YES" id="GNz-O1-5Q9"/>
+                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="top" secondItem="O19-uM-WAO" secondAttribute="bottom" constant="-43" id="6sq-Fq-GiE"/>
+                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="leading" secondItem="O19-uM-WAO" secondAttribute="trailing" constant="-91" id="GNz-O1-5Q9"/>
                                                 <constraint firstItem="V3L-mm-5zq" firstAttribute="width" secondItem="O19-uM-WAO" secondAttribute="width" multiplier="0.8" id="HkH-ZD-bjr"/>
                                                 <constraint firstItem="xkg-4J-wYC" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" id="JNa-qB-XXU"/>
-                                                <constraint firstItem="O19-uM-WAO" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="NtS-cs-XP3"/>
-                                                <constraint firstItem="O19-uM-WAO" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" constant="5" id="Qv9-In-oUg"/>
-                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="S0B-6D-o3a"/>
+                                                <constraint firstItem="O19-uM-WAO" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" constant="99" id="NtS-cs-XP3"/>
+                                                <constraint firstItem="O19-uM-WAO" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" constant="11" id="Qv9-In-oUg"/>
+                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" constant="224" id="S0B-6D-o3a"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.35" id="VEN-tm-Hr3"/>
                                                 <constraint firstItem="xkg-4J-wYC" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="Wya-iJ-0or"/>
                                                 <constraint firstItem="zPK-rw-3Bo" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" id="X5P-eF-xjb"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" id="bWi-am-VRI"/>
                                                 <constraint firstItem="zPK-rw-3Bo" firstAttribute="leading" secondItem="2X2-fl-KHa" secondAttribute="trailing" constant="3" id="cG8-6J-lvc"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.6" id="fKp-kr-wWd"/>
-                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="gWP-UH-SBq"/>
+                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" constant="211" id="gWP-UH-SBq"/>
                                                 <constraint firstItem="2X2-fl-KHa" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" id="ian-07-eRD"/>
                                                 <constraint firstItem="C5a-Th-JRe" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.4" id="jil-IW-Bgo"/>
                                                 <constraint firstItem="2X2-fl-KHa" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.17" id="kN3-Vi-Tbb"/>
                                                 <constraint firstAttribute="bottom" secondItem="xkg-4J-wYC" secondAttribute="bottom" id="mRe-AD-asO"/>
                                                 <constraint firstItem="2X2-fl-KHa" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="nbj-v0-O6K"/>
-                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="nsp-M7-cSR" secondAttribute="trailing" constant="20" symbolic="YES" id="psg-W1-LiR"/>
-                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="top" secondItem="V3L-mm-5zq" secondAttribute="bottom" constant="3" id="uLJ-g7-7LW"/>
+                                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="nsp-M7-cSR" secondAttribute="trailing" constant="0.33333333333337123" id="psg-W1-LiR"/>
+                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="top" secondItem="V3L-mm-5zq" secondAttribute="bottom" constant="31" id="uLJ-g7-7LW"/>
                                                 <constraint firstItem="zPK-rw-3Bo" firstAttribute="width" secondItem="2X2-fl-KHa" secondAttribute="width" multiplier="0.45" id="uNN-9Z-xFj"/>
                                             </constraints>
                                         </tableViewCellContentView>
@@ -1531,8 +1531,8 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
-        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="arrow.down.app.fill" width="10" height="10"/>
+        <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
         <image name="arrow.triangle.2.circlepath" width="16" height="13"/>
         <image name="bitcoinsign.circle" catalog="system" width="128" height="121"/>
         <image name="bookmark" catalog="system" width="112" height="128"/>

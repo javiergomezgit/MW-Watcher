@@ -49,18 +49,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     //Saving initial data when new app
     func saveFirstData() {
-        let saveTickers = SaveTickers()
         let saveHeadlines = UserSaveNews()
        
         let news = ["TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS", "BRJB 1.95% | MEATPACER JBS HIT BY CYBERATTACH AFFECTING NORTH AMERICA AUSTRALIAN", "AMZ -0.15% | AMAZON STOP TESTIN JOB APPLICANTS MARIJUANA BACKS FEDERAL LEGALIZATION", "TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS"]
-        let tickers = ["AAPL", "AA", "TSLA", "MSFT"]
         
         for new in news {
             _ = saveHeadlines.saveNews(headline: new, date: "May 10, 2020", link: "")
         }
-        for ticker in tickers {
-            saveTickers.saveTicker(ticker: ticker)
-        }
+
     }
     
     // MARK: UISceneSession Lifecycle

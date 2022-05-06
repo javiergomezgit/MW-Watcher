@@ -20,7 +20,7 @@ class SaveTickers {
             let tickerObject = NSManagedObject(entity: entity, insertInto: managedContext)
             
             tickerObject.setValue(ticker, forKey: "ticker")
-            tickerObject.setValue(nameCompany, forKey: "name")
+            tickerObject.setValue(nameCompany, forKey: "nameCompany")
             
             guard let imageToData = imageCompany.jpegData(compressionQuality: 1) else {
                 print("jpg error")
@@ -37,6 +37,7 @@ class SaveTickers {
         }
      }
 
+    //TODO: Add delete image and delete name company, not only ticker
     func deleteTickers(ticker: String, deleteAll: Bool) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
@@ -69,9 +70,9 @@ class SaveTickers {
 
     }
     
-    func loadTickers() -> [SavedTickers] {
+    func loadTickers() -> [Tickers] {
         
-        var tickerItems : [SavedTickers] = []
+        var tickerItems : [Tickers] = []
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         let managedContext = appDelegate!.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
@@ -93,7 +94,7 @@ class SaveTickers {
                     }
                 }
                 
-                let tickerItem = SavedTickers(ticker: ticker, nameCompany: name, imageCompany: imageFromData)
+                let tickerItem = Tickers(ticker: [ticker : ValueTickers(marketPrice: nil, previousPrice: nil, nameCompany: name, volume: nil, imageCompany: imageFromData)])
                 tickerItems.append(tickerItem)
             }
         } catch let error as NSError {

@@ -9,17 +9,21 @@ import Foundation
 import UIKit
 
 struct Tickers {
-    let ticker: String
-    let marketPrice: Double
-    let previousPrice: Double
-    let nameCompany: String
-    let volume: Double
+    let ticker: [String: ValueTickers]
 }
 
-struct SavedTickers {
-    let ticker: String
-    let nameCompany: String
-    let imageCompany: UIImage
+struct ValueTickers {
+    let marketPrice: Double?
+    let previousPrice: Double?
+    let nameCompany: String?
+    let volume: Double?
+    let imageCompany: UIImage?
+}
+
+struct GroupPrices {
+    let groupTicker: String
+    let closePrice: Double
+    let previousClosePrice: Double
 }
 
 struct ValueStock: Codable {
