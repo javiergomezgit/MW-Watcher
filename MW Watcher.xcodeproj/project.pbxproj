@@ -44,6 +44,8 @@
 		227C38AC281EF3350073FC36 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227C38AB281EF3350073FC36 /* SettingsController.swift */; };
 		227C38AE281F31910073FC36 /* BrowserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227C38AD281F31910073FC36 /* BrowserController.swift */; };
 		227C7E692808931500A9E158 /* Support.swift in Sources */ = {isa = PBXBuildFile; fileRef = 227C7E682808931500A9E158 /* Support.swift */; };
+		2280C3D82825A67D00F7AAA2 /* ChartsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2280C3D72825A67D00F7AAA2 /* ChartsAPI.swift */; };
+		2280C3DA2825A6D900F7AAA2 /* NewsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2280C3D92825A6D900F7AAA2 /* NewsAPI.swift */; };
 		2284519A2803A99700FF0DF2 /* StocksAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228451992803A99700FF0DF2 /* StocksAPI.swift */; };
 		2284519C2803ABEA00FF0DF2 /* StockModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2284519B2803ABEA00FF0DF2 /* StockModel.swift */; };
 		2286501926680BC200769EB2 /* LaunchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2286501826680BC200769EB2 /* LaunchController.swift */; };
@@ -131,6 +133,8 @@
 		227C38AB281EF3350073FC36 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
 		227C38AD281F31910073FC36 /* BrowserController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserController.swift; sourceTree = "<group>"; };
 		227C7E682808931500A9E158 /* Support.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Support.swift; sourceTree = "<group>"; };
+		2280C3D72825A67D00F7AAA2 /* ChartsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsAPI.swift; sourceTree = "<group>"; };
+		2280C3D92825A6D900F7AAA2 /* NewsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsAPI.swift; sourceTree = "<group>"; };
 		228451992803A99700FF0DF2 /* StocksAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StocksAPI.swift; sourceTree = "<group>"; };
 		2284519B2803ABEA00FF0DF2 /* StockModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockModel.swift; sourceTree = "<group>"; };
 		2286501826680BC200769EB2 /* LaunchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchController.swift; sourceTree = "<group>"; };
@@ -232,15 +236,12 @@
 			isa = PBXGroup;
 			children = (
 				22D6354F2653778F00EAD8ED /* HTMLParser.swift */,
-				22D21C6E26750DBC00C2313E /* CryptosAPI.swift */,
-				225E81D927FF9571006387B4 /* CryptoModel.swift */,
-				228451992803A99700FF0DF2 /* StocksAPI.swift */,
-				2284519B2803ABEA00FF0DF2 /* StockModel.swift */,
-				22EFA843266D8CAE004D0856 /* NewsItem.swift */,
+				22E783B52825C41A00A3420C /* CryptoModel */,
+				22E783B72825C45000A3420C /* StocksModel */,
+				22E783B82825C47F00A3420C /* NewsModel */,
+				2280C3D72825A67D00F7AAA2 /* ChartsAPI.swift */,
 				22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */,
 				223EF571265D867100160C8D /* SaveTickers.swift */,
-				22AD1A46264B381C001A5362 /* SystemSaveNews.swift */,
-				22F8F32E265C5FC50084C98F /* UserSaveNews.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -249,12 +250,7 @@
 			isa = PBXGroup;
 			children = (
 				221236AD263DA728007EA092 /* Main.storyboard */,
-				223B377A266ED82900526E46 /* LiveNewsViewCell.swift */,
-				220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */,
-				220F4EA4265D324800106325 /* SavedNewsViewCell.swift */,
-				22EFA841266D172D004D0856 /* TickerNewsViewCell.swift */,
-				223EF56F265D858700160C8D /* WatchlistViewCell.swift */,
-				22D21C72267538EA00C2313E /* CryptosViewCell.swift */,
+				22E783B92825C4C900A3420C /* ViewCells */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -262,17 +258,13 @@
 		221236C9263DAA85007EA092 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				22D21C702675383300C2313E /* CryptosController.swift */,
-				229A2F1D27F8ED3300A05EE1 /* ChartController.swift */,
 				2286501826680BC200769EB2 /* LaunchController.swift */,
+				22E783BA2825C54A00A3420C /* TabControlled */,
+				229A2F1D27F8ED3300A05EE1 /* ChartController.swift */,
+				226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */,
 				227C38AD281F31910073FC36 /* BrowserController.swift */,
-				227C38AB281EF3350073FC36 /* SettingsController.swift */,
-				221236AB263DA728007EA092 /* LiveNewsController.swift */,
-				220F4EA2265D318D00106325 /* MarketsController.swift */,
 				22F8F332265C6C240084C98F /* SavedNewsController.swift */,
 				222394A427405E6100C544BB /* CostCalculatorController.swift */,
-				226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */,
-				220F4EA0265D314200106325 /* WatchlistController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -333,6 +325,60 @@
 				225CF9AF264216A600D19929 /* Info.plist */,
 			);
 			path = Widget;
+			sourceTree = "<group>";
+		};
+		22E783B52825C41A00A3420C /* CryptoModel */ = {
+			isa = PBXGroup;
+			children = (
+				22D21C6E26750DBC00C2313E /* CryptosAPI.swift */,
+				225E81D927FF9571006387B4 /* CryptoModel.swift */,
+			);
+			path = CryptoModel;
+			sourceTree = "<group>";
+		};
+		22E783B72825C45000A3420C /* StocksModel */ = {
+			isa = PBXGroup;
+			children = (
+				228451992803A99700FF0DF2 /* StocksAPI.swift */,
+				2284519B2803ABEA00FF0DF2 /* StockModel.swift */,
+			);
+			path = StocksModel;
+			sourceTree = "<group>";
+		};
+		22E783B82825C47F00A3420C /* NewsModel */ = {
+			isa = PBXGroup;
+			children = (
+				2280C3D92825A6D900F7AAA2 /* NewsAPI.swift */,
+				22EFA843266D8CAE004D0856 /* NewsItem.swift */,
+				22AD1A46264B381C001A5362 /* SystemSaveNews.swift */,
+				22F8F32E265C5FC50084C98F /* UserSaveNews.swift */,
+			);
+			path = NewsModel;
+			sourceTree = "<group>";
+		};
+		22E783B92825C4C900A3420C /* ViewCells */ = {
+			isa = PBXGroup;
+			children = (
+				223B377A266ED82900526E46 /* LiveNewsViewCell.swift */,
+				220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */,
+				220F4EA4265D324800106325 /* SavedNewsViewCell.swift */,
+				22EFA841266D172D004D0856 /* TickerNewsViewCell.swift */,
+				223EF56F265D858700160C8D /* WatchlistViewCell.swift */,
+				22D21C72267538EA00C2313E /* CryptosViewCell.swift */,
+			);
+			name = ViewCells;
+			sourceTree = "<group>";
+		};
+		22E783BA2825C54A00A3420C /* TabControlled */ = {
+			isa = PBXGroup;
+			children = (
+				22D21C702675383300C2313E /* CryptosController.swift */,
+				227C38AB281EF3350073FC36 /* SettingsController.swift */,
+				221236AB263DA728007EA092 /* LiveNewsController.swift */,
+				220F4EA2265D318D00106325 /* MarketsController.swift */,
+				220F4EA0265D314200106325 /* WatchlistController.swift */,
+			);
+			name = TabControlled;
 			sourceTree = "<group>";
 		};
 		C658810D9F34D18312E4133B /* Pods */ = {
@@ -544,12 +590,14 @@
 				227C38AC281EF3350073FC36 /* SettingsController.swift in Sources */,
 				223B377B266ED82900526E46 /* LiveNewsViewCell.swift in Sources */,
 				225E81DA27FF9571006387B4 /* CryptoModel.swift in Sources */,
+				2280C3D82825A67D00F7AAA2 /* ChartsAPI.swift in Sources */,
 				22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */,
 				22D21C712675383300C2313E /* CryptosController.swift in Sources */,
 				221236AC263DA728007EA092 /* LiveNewsController.swift in Sources */,
 				2284519A2803A99700FF0DF2 /* StocksAPI.swift in Sources */,
 				221236A8263DA728007EA092 /* AppDelegate.swift in Sources */,
 				22D21C73267538EA00C2313E /* CryptosViewCell.swift in Sources */,
+				2280C3DA2825A6D900F7AAA2 /* NewsAPI.swift in Sources */,
 				22F8F333265C6C240084C98F /* SavedNewsController.swift in Sources */,
 				227C7E692808931500A9E158 /* Support.swift in Sources */,
 				226CEA57266BD6EA002E44E3 /* TickerNewsController.swift in Sources */,

@@ -36,7 +36,7 @@ class TickerNewsController: UIViewController {
     }
     
     func loadTickerNews() {
-        StocksAPI.shared.loadStockNews(ticker: ticker) { loadedNewsArray in
+        NewsAPI.shared.loadStockNews(ticker: ticker) { loadedNewsArray in
             if loadedNewsArray != nil {
                 self.tickerNewsArray = loadedNewsArray!
                 DispatchQueue.main.async {

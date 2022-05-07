@@ -24,12 +24,12 @@ final class CryptosAPI {
         static let baseURLIndividual = "https://investing-cryptocurrency-markets.p.rapidapi.com/coins/get-fullsize-chart?pair_ID="
     }
     private init() {}
-
     
     enum APIError: Error {
         case invalidURL
     }
     
+    //MARK: API Call for a group of crypto coins (Hard Coded)
     public func getAllCryptosData(completion: @escaping (Result<[CryptoData], Error>) -> Void) {
         guard let url = URL(string: Constant.baseUrl + Constant.endpoint + "?symbol=" + Constant.symbols) else {
             completion(.failure(APIError.invalidURL))
@@ -63,6 +63,7 @@ final class CryptosAPI {
         task.resume()
     }
     
+    //MARK: API Call for an individual crypto coin, requested by the user
     public func getSelectedCrypto(interval: String, symbol: String, completion: @escaping (Result<[QuoteInvidual], Error>) -> Void) {
         
         let headers = [

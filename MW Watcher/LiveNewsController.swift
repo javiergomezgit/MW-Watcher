@@ -15,7 +15,7 @@ class LiveNewsController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     
     var newsItems: [NewsItem] = []
-    let savedFeeds = SystemSaveNews()
+//    let savedFeeds = SystemSaveNews()
     let saveHeadlines = UserSaveNews()
     var refreshControl = UIRefreshControl()
     var overlay : UIView!
@@ -84,7 +84,7 @@ class LiveNewsController: UIViewController {
     
     
     func loadNews(){
-        StocksAPI.shared.loadAllNews { allNews in
+        NewsAPI.shared.loadAllNews { allNews in
             if allNews == nil {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error, try later!", titleButton: "OK", over: self)
             } else {

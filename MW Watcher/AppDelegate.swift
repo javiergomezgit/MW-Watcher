@@ -9,7 +9,6 @@ import UIKit
 import CoreData
 import Firebase
 
-
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -28,10 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         print (alreadyLaunched)
         //Never launched before = false / NEW APP
-        if !alreadyLaunched {
-           saveFirstData()
-            print ("enter to ssave initial data")
-        }
         
         return true
     }
@@ -46,18 +41,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         })
         return container
     }()
-    
-    //Saving initial data when new app
-    func saveFirstData() {
-        let saveHeadlines = UserSaveNews()
-       
-        let news = ["TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS", "BRJB 1.95% | MEATPACER JBS HIT BY CYBERATTACH AFFECTING NORTH AMERICA AUSTRALIAN", "AMZ -0.15% | AMAZON STOP TESTIN JOB APPLICANTS MARIJUANA BACKS FEDERAL LEGALIZATION", "TLA 0.0% | TESLA FAILED OVERSEE ELON MUSK TWEET SEC ARGUED LETTERS"]
-        
-        for new in news {
-            _ = saveHeadlines.saveNews(headline: new, date: "May 10, 2020", link: "")
-        }
-
-    }
     
     // MARK: UISceneSession Lifecycle
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {

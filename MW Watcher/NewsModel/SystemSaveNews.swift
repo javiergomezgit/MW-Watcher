@@ -10,7 +10,7 @@ import CoreData
 import UIKit
 
 class SystemSaveNews {
-    
+    /*
     var newsManagedObjectArray: [NSManagedObject] = []
     let entityName = "LiveNewsEntity"
     
@@ -88,5 +88,5 @@ class SystemSaveNews {
         return newsItemArray
             
     }
-   
+   */
 }

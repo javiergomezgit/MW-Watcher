@@ -7,38 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "AEAB9E5A-0FE2-440B-B97F-410BD2FC1516"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksAPI.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "557"
-            endingLineNumber = "557"
-            landmarkName = "loadStockNews(ticker:completion:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "3A8CC8E9-9E2E-42B4-A716-8E4F36BAA3BF"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksAPI.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "526"
-            endingLineNumber = "526"
-            landmarkName = "loadStockNews(ticker:completion:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "92D636C3-D77B-4E48-A062-553DC4CA8173"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -55,22 +23,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "03365DCE-EEA5-47FF-8C60-634C654F23EF"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksAPI.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "550"
-            endingLineNumber = "550"
-            landmarkName = "loadStockNews(ticker:completion:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "9B40753C-E024-4D7D-90B6-D6C341A4FB87"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
@@ -78,8 +30,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "144"
-            endingLineNumber = "144"
+            startingLineNumber = "70"
+            endingLineNumber = "70"
             landmarkName = "getPriceSingleStock(tickerSingle:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -142,8 +94,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "141"
-            endingLineNumber = "141"
+            startingLineNumber = "67"
+            endingLineNumber = "67"
             landmarkName = "getPriceSingleStock(tickerSingle:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -158,8 +110,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "156"
-            endingLineNumber = "156"
+            startingLineNumber = "82"
+            endingLineNumber = "82"
             landmarkName = "getPriceSingleStock(tickerSingle:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -254,8 +206,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "154"
-            endingLineNumber = "154"
+            startingLineNumber = "80"
+            endingLineNumber = "80"
             landmarkName = "getPriceSingleStock(tickerSingle:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -286,8 +238,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "194"
-            endingLineNumber = "194"
+            startingLineNumber = "120"
+            endingLineNumber = "120"
             landmarkName = "getLogoStock(symbol:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -302,8 +254,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "199"
-            endingLineNumber = "199"
+            startingLineNumber = "125"
+            endingLineNumber = "125"
             landmarkName = "getLogoStock(symbol:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -318,8 +270,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "187"
-            endingLineNumber = "187"
+            startingLineNumber = "113"
+            endingLineNumber = "113"
             landmarkName = "getLogoStock(symbol:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -350,8 +302,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "203"
-            endingLineNumber = "203"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
             landmarkName = "getLogoStock(symbol:completion:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -366,8 +318,8 @@
             filePath = "MW Watcher/StocksAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "207"
-            endingLineNumber = "207"
+            startingLineNumber = "133"
+            endingLineNumber = "133"
             landmarkName = "getLogoStock(symbol:completion:)"
             landmarkType = "7">
          </BreakpointContent>

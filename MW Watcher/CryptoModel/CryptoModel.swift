@@ -7,7 +7,7 @@
 
 import Foundation
 
-//All crypto coins
+//MARK: All crypto coins
 struct CryptoAPIResponse: Codable {
     let data: [String: CryptoData]
 }
@@ -26,9 +26,7 @@ struct Quote: Codable {
     let volume_24h: Float
 }
 
-
-
-//Individual Crypto coin
+//MARK: Individual Crypto coin
 struct CryptoIndividualAPIResponse: Codable {
     let quotes_data: [String: [QuoteInvidual]]
 }

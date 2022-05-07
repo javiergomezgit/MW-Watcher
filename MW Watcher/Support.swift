@@ -11,7 +11,7 @@ import UIKit
 class Support {
     static let sharedSupport = Support()
     
-    //Change date format for ALL live news
+    //MARK: Change date format for ALL live news
     func newLocalTimeNews(timeString: String) -> String {
         
         let date = timeString.components(separatedBy: ".")
@@ -29,7 +29,7 @@ class Support {
         return dateFormatter.string(from: dateObj!)
     }
     
-    //Change date format News specific stock
+    //MARK: Change date format News specific stock
     func newLocalTime(timeString: String) -> String {
         print (timeString)
         //Get date and format
@@ -49,7 +49,8 @@ class Support {
         return newLocalTime
     }
     
-    //Change date format for time stamp format
+    
+    //MARK: Change date format for time stamp format
     func convertTimeStampToDate(timeString: String, dateFormat: String) -> String{
         let time = timeString
         let date = Date(timeIntervalSince1970: Double(time)!)
@@ -63,7 +64,7 @@ class Support {
     }
     
     
-    //Download image with and save in cache
+    //MARK: Download image with and save in cache
     let imageCache = NSCache<NSString, UIImage>()
     func downloadImageFeed(URLImage: String) -> UIImage {
         var image = UIImage()
@@ -78,11 +79,10 @@ class Support {
         }
         return image
     }
-    
 }
 
 
-//MARK: - Button delegate
+//MARK: - Button delegate (animation button)
 extension UIButton {
     func animateButton(sender: UIButton, duration: Double) {
         UIButton.animate(withDuration: duration,

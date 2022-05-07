@@ -34,48 +34,4 @@ class ShowAlerts {
         }
         return alert
     }
-    
 }
-
-
-//func presentAlertwithYesNoPrompt(title: String, message: String, complete: @escaping (Bool) -> Void) {
-//func presentAlert               (title: String, message: String, completion: @escaping (UIAlertAction) -> Void = {_ in }) {
-
-//self.presentAlertWithYesNoPrompt(title: "Do you like cheese?", message: "We realize not everybody does") { (likesCheese) in
-//    print(likesCheese)
-//}
-
-
-//extension UIViewController {
-//    func showAlert(title: String, message: String, titleButton: String) {
-//        let dialogMessage = UIAlertController(title: title, message: message, preferredStyle: .alert)
-//        let ok = UIAlertAction(title: titleButton, style: .default, handler: { (action) -> Void in
-//            print("Ok button tapped")
-//         })
-//        dialogMessage.addAction(ok)
-//        self.present(dialogMessage, animated: true, completion: nil)
-//    }
-//}
-
-
-//enum PopoverAnchor {
-//    case barButton(button: UIBarButtonItem)
-//    case view(view: UIView)
-//}
-//And the method to present action sheet would look like this:
-//
-//static func showActionSheet(title: String, anchor: PopoverAnchor, over viewController: UIViewController) {
-//    let ac = UIAlertController(title: title, message: nil, preferredStyle: .actionSheet)
-//
-//    switch anchor {
-//    case .barButton(let button):
-//        ac.popoverPresentationController?.barButtonItem = button
-//    case .view(let view):
-//        ac.popoverPresentationController?.sourceView = view
-//        ac.popoverPresentationController?.sourceRect = view.bounds
-//    }
-//
-//    ac.addAction(.gotIt)
-//
-//    viewController.present(ac, animated: true)
-//}
