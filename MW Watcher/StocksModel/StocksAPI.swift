@@ -24,7 +24,7 @@ final class StocksAPI {
     //MARK: API call for search/add of single stock
     ///Input: ticker,
     ///output:  -> "TICKER" : ["Name Company", 344.3, 320.2, 2334533, UIImage]
-    func getPriceSingleStock(tickerSingle: String, completion: @escaping (Result<Tickers, Error>) -> Void) {
+    func getFeaturesTicker(tickerSingle: String, completion: @escaping (Result<TickersFeatures, Error>) -> Void) {
         let headers = [
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
             "x-rapidapi-host": "stock-data-yahoo-finance-alternative.p.rapidapi.com"
@@ -68,18 +68,18 @@ final class StocksAPI {
                     } else {
                         let resultArray = tickerDictionary["result"] as? [Any]
                         if let tickerValue = resultArray?.first as? [String: Any] {
-                            let marketPrice = tickerValue["regularMarketPrice"] as! Double
-                            let previousPrice = tickerValue["regularMarketPreviousClose"] as! Double
+//                            let marketPrice = tickerValue["regularMarketPrice"] as! Double
+//                            let previousPrice = tickerValue["regularMarketPreviousClose"] as! Double
                             let nameCompany = tickerValue["longName"] as! String
-                            let volume = tickerValue["regularMarketVolume"] as! Double
+//                            let volume = tickerValue["regularMarketVolume"] as! Double
                             
                             self.getLogoStock(ticker: tickerSingle) { result in
                                 switch result {
                                 case .failure(let error):
                                     completion(.failure(error))
                                 case .success(let imageCompany):
-                                    let values = Tickers(ticker: tickerSingle, tickerValues: TickerValues(nameCompany: nameCompany, marketPrice: marketPrice, previousPrice: previousPrice, volume: volume, imageCompany: imageCompany))
-                                    completion(.success(values))
+                                    let tickerFeatures = TickersFeatures(ticker: tickerSingle, nameTicker: nameCompany, imageTicker: imageCompany)
+                                    completion(.success(tickerFeatures))
                                 }
                             }
                         } else {
@@ -139,11 +139,68 @@ final class StocksAPI {
         task.resume()
     }
     
+    //MARK: API call for single stock with current price
+    func getPriceSingleTicker(ticker: String, timeRange: String, completion: @escaping (Result<TickersCurrentValues, Error>) -> Void) {
+        let headers = [
+            "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
+            "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
+        ]
+        
+        let url = "https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-spark?symbols=" + ticker + timeRange
+        var json: [String: Any]? = [:]
+        
+        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 10.0)
+        
+        request.httpMethod = "GET"
+        request.allHTTPHeaderFields = headers
+
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
+            if (error != nil) {
+                print(error!)
+                completion(.failure(error!))
+            } else {
+                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
+                if json == nil  {
+                    completion(.failure("JSON is Empty" as! Error))
+                }
+                
+                for tickerJSON in json! {
+                    print (tickerJSON.value) //json
+                    print (tickerJSON.key) //ticker
+                    
+                    let tickerDictionary = tickerJSON.value as? [String: Any]
+                    var previousClose = tickerDictionary!["chartPreviousClose"] as! Double
+                    let closePriceArray = tickerDictionary!["close"] as? [Any]
+                    let closePrice = closePriceArray!.last as! Double
+
+                    let percentageChange = (closePrice * 100) / previousClose
+                    var percentageRounded = 0.0
+                    if percentageChange < 100 {
+                        percentageRounded = 100 - percentageChange
+                    } else {
+                        percentageRounded = percentageChange - 100
+                    }
+                    percentageRounded = Double(round(100*percentageRounded)/100)
+                    previousClose = Double(round(100*previousClose)/100)
+
+                    let tickerCurrentValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
+                    completion(.success(tickerCurrentValues))
+                    break
+                }
+            }
+        })
+        dataTask.resume()
+    }
+    
+    
     
     //MARK: API call for GROUP of stocks with current price
     ///Input: no,more,than,ten,merged,tickers
     ///output:  ->  "indexTicker": "TICKER", "indexName": "Index Name", "indexPrice": 344.4, "changePercentage": 4.5, "exchange": "Exchange Source"
-    func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[TickersPriceGroup], Error>) -> Void) {
+    func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[TickersCurrentValues], Error>) -> Void) {
         let headers = [
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
             "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com"
@@ -170,23 +227,32 @@ final class StocksAPI {
                     completion(.failure("JSON is Empty" as! Error))
                 }
                 
-                var tickersWithoutSorting : [TickersPriceGroup] = []
+                var tickersArray : [TickersCurrentValues] = []
                 for tickerJSON in json! {
                     print (tickerJSON.value) //json
                     print (tickerJSON.key) //ticker
                     
                     let tickerDictionary = tickerJSON.value as? [String: Any]
-                    let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
+                    var previousClose = tickerDictionary!["chartPreviousClose"] as! Double
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
                     let closePrice = closePriceArray!.last as! Double
-                    
-                    let percentage = 3.4
-                    
-                    let tickerValues = TickersPriceGroup(ticker: tickerJSON.key, tickerPrices: TickerPrices(closePrice: closePrice, previousClosePrice: previousClose, changePercentagePrice: percentage))
-                    tickersWithoutSorting.append(tickerValues)
+
+                    let percentageChange = (closePrice * 100) / previousClose
+                    var percentageRounded = 0.0
+                    percentageRounded = percentageChange - 100
+
+//                    if percentageChange < 100 {
+//                        percentageRounded = percentageChange - 100
+//                    } else {
+//                        percentageRounded = 100 - percentageChange
+//                    }
+                    percentageRounded = Double(round(100*percentageRounded)/100)
+                    previousClose = Double(round(100*previousClose)/100)
+
+                    let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
+                    tickersArray.append(tickerValues)
                 }
-                
-                let tickersSorted = tickersWithoutSorting.sorted{ $0.ticker < $1.ticker }
+                let tickersSorted = tickersArray.sorted{ $0.ticker < $1.ticker }
                 completion(.success(tickersSorted))
             }
         })

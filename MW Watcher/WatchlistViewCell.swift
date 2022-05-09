@@ -9,25 +9,23 @@ import UIKit
 
 class WatchlistViewCell: UITableViewCell {
 
-    @IBOutlet var tickerLabel: UILabel!
-    @IBOutlet var changeLabel: UILabel!
+    @IBOutlet weak var tickerLabel: UILabel!
+    @IBOutlet weak var nameCompanyLabel: UILabel!
+    @IBOutlet weak var changeLabel: UILabel!
     @IBOutlet var currentPriceLabel: UILabel!
     @IBOutlet var previousPriceLabel: UILabel!
-    @IBOutlet var imageArrow: UIImageView!
-//    @IBOutlet weak var buttonTickerNews: UIButton!
-    @IBOutlet weak var buttonOpenChart: UIButton!
-    @IBOutlet weak var imageTicker: UIImageView!
+    @IBOutlet var arrowImageView: UIImageView!
+    @IBOutlet weak var openChartButton: UIButton!
+    @IBOutlet weak var imageCompanyImageView: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
-        // Configure the view for the selected state
-        buttonOpenChart.setTitle("", for: .normal)
+        openChartButton.setTitle("", for: .normal)
 
     }
 

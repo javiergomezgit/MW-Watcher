@@ -138,8 +138,8 @@ extension CryptosController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CryptosViewCell", for: indexPath) as! CryptosViewCell
         cell.configure(with: viewModels[indexPath.row])
         
-        cell.buttonCryptoChart.tag = indexPath.row
-        cell.buttonCryptoChart.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
+        cell.openCryptoChartButton.tag = indexPath.row
+        cell.openCryptoChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
         
         return cell
     }

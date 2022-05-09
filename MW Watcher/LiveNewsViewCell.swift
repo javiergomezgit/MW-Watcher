@@ -13,13 +13,13 @@ class LiveNewsViewCell: UITableViewCell {
     @IBOutlet weak var pubdateLabel: UILabel!
     @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var linkButton: UIButton!
-    @IBOutlet var imageViewFeed: UIImageView!
+    @IBOutlet weak var feedImageView: UIImageView!
     @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -27,11 +27,10 @@ class LiveNewsViewCell: UITableViewCell {
     }
     
     public func setNewsValues(headline: String, link: String, pubdate: String, author: String, imageFeed: UIImage) {
-        
         headlineLabel.text = headline
         linkButton.titleLabel?.text = link
         pubdateLabel.text = pubdate
-        imageViewFeed.image = imageFeed
+        feedImageView.image = imageFeed
         authorLabel.text = author
     }
 

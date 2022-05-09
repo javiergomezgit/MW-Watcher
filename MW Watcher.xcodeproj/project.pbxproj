@@ -241,7 +241,6 @@
 				22E783B82825C47F00A3420C /* NewsModel */,
 				2280C3D72825A67D00F7AAA2 /* ChartsAPI.swift */,
 				22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */,
-				223EF571265D867100160C8D /* SaveTickers.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -341,6 +340,7 @@
 			children = (
 				228451992803A99700FF0DF2 /* StocksAPI.swift */,
 				2284519B2803ABEA00FF0DF2 /* StockModel.swift */,
+				223EF571265D867100160C8D /* SaveTickers.swift */,
 			);
 			path = StocksModel;
 			sourceTree = "<group>";
@@ -372,11 +372,11 @@
 		22E783BA2825C54A00A3420C /* TabControlled */ = {
 			isa = PBXGroup;
 			children = (
+				220F4EA0265D314200106325 /* WatchlistController.swift */,
 				22D21C702675383300C2313E /* CryptosController.swift */,
 				227C38AB281EF3350073FC36 /* SettingsController.swift */,
 				221236AB263DA728007EA092 /* LiveNewsController.swift */,
 				220F4EA2265D318D00106325 /* MarketsController.swift */,
-				220F4EA0265D314200106325 /* WatchlistController.swift */,
 			);
 			name = TabControlled;
 			sourceTree = "<group>";

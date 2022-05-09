@@ -38,16 +38,18 @@ class ChartController: UIViewController, ChartViewDelegate {
     var indexMarket = false
     
     public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
-    public var informationStockTicker = Tickers(ticker: ["" : ValueTickers(marketPrice: 0, previousPrice: 0, nameCompany: nil, volume: nil, imageCompany: nil)])
-
-    public var indexName = ""
-
+    
+    public var informationStockTicker = TickersCurrentValues(ticker: "", marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
+    public var nameTicker = ""
+   
+    public var imageCompany = UIImage(named: "wm-logo")
+    
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
         let index = timeFrameSegmented.selectedSegmentIndex
         
         startStopSpinner(start: true)
         
-        if informationStockTicker.ticker.first?.key == "" {
+        if informationStockTicker.ticker == "" {
             switch index {
             case 0: self.interval = "900"
                 break
@@ -89,14 +91,13 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         startStopSpinner(start: true)
         
-        if informationStockTicker.ticker.first?.key == "" {
+        if informationStockTicker.ticker == "" {
             self.timeFrameSegmented.setEnabled(true, forSegmentAt: 4)
             selectedCryptoTicker()
         } else {
             self.timeFrameSegmented.setEnabled(false, forSegmentAt: 4)
             self.intervalStock = "15m"
             selectedStockTicker()
-            cryptoImage.image = UIImage(named: "logoWord")
         }
     }
     
@@ -115,23 +116,29 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     private func selectedStockTicker() {
-        let symbol = informationStockTicker.ticker.first!.key
-        let currentPrice = informationStockTicker.ticker.first!.value.marketPrice
-        let percentageChange = Float(informationStockTicker.ticker.first!.value.previousPrice!) //using previousPrice structure to store percentage change
+        let symbol = informationStockTicker.ticker
+        let currentPrice = informationStockTicker.marketPrice
+        let percentageChange = informationStockTicker.changePercent
+        let previousPrice = informationStockTicker.previousPrice
+        let nameCompany = nameTicker
         
-        if percentageChange < 0.000 {
+        if percentageChange < 0.0 {
             currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            volumeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
         } else {
             currentPercentageLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            volumeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
         }
         
         self.symbol = symbol
         tickerLabel.text = symbol
-        nameLabel.text = indexName
-        currentPriceLabel.text = String(currentPrice!)
-        currentPercentageLabel.text = "\(percentageChange)% For the day"
+        nameLabel.text = nameCompany//indexName
+        cryptoImage.image = imageCompany
+        currentPriceLabel.text = String(currentPrice)
+        currentPercentageLabel.text = "\(percentageChange)%"
+        volumeLabel.text = "$\(previousPrice) USD"
         
         loadStockPrices()
     }
@@ -316,10 +323,10 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         if !indexMarket {
             if let volumeRound = ChartController.volumeFormatter.string(from: volumeReduce) {
-                self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
+//                self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
             }
         } else {
-            self.volumeLabel.text = ""
+//            self.volumeLabel.text = ""
         }
         
         
@@ -556,4 +563,23 @@ class ChartController: UIViewController, ChartViewDelegate {
         data.setDrawValues(false)
         lineChartView.data = data
     }
+    
+    @IBAction func openNewsButton(_ sender: UIButton) {
+        if self.informationCryptoTicker.name == "" {
+            let ticker = informationStockTicker.ticker
+        
+                let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+                let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
+        
+            destination!.ticker = ticker
+        
+                destination!.modalTransitionStyle = .crossDissolve
+                self.present(destination!, animated: true, completion: nil)
+        //        self.show(destination!, sender: self)
+        } else {
+            sender.isEnabled = false
+        }
+        
+    }
+    
 }

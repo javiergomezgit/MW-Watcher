@@ -67,15 +67,17 @@ class Support {
     //MARK: Download image with and save in cache
     let imageCache = NSCache<NSString, UIImage>()
     func downloadImageFeed(URLImage: String) -> UIImage {
-        var image = UIImage()
-        let url = URL(string: URLImage)
-        do {
-            let data = try Data(contentsOf: url!)
-            let imageToCache = UIImage(data: data)!
-            imageCache.setObject(imageToCache, forKey: URLImage as NSString)
-            image = imageToCache
-        } catch {
-            image = UIImage(named: "mw-logo")!
+        var image = UIImage(named: "mw-logo")!
+        if URLImage.isValidURL {
+            let url = URL(string: URLImage)
+            do {
+                let data = try Data(contentsOf: url!)
+                let imageToCache = UIImage(data: data)!
+                imageCache.setObject(imageToCache, forKey: URLImage as NSString)
+                image = imageToCache
+            } catch {
+                image = UIImage(named: "mw-logo")!
+            }
         }
         return image
     }

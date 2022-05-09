@@ -89,8 +89,8 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
                 cell.currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
                 
-                cell.arrowImage.image = (UIImage.init(named: "arrow.down.app.fill"))
-                cell.arrowImage.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                cell.arrowImageView.image = (UIImage.init(named: "arrow.down.app.fill"))
+                cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             } else {
                 //positive day for market
                 let percentageRounded = round(100*percentageChanged)/100
@@ -101,8 +101,8 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
                 cell.currentPriceLabel.text = "$ " + String(currentPrice)
                 cell.currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
                 
-                cell.arrowImage.image = (UIImage.init(named: "arrow.up.square.fill"))
-                cell.arrowImage.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                cell.arrowImageView.image = (UIImage.init(named: "arrow.up.square.fill"))
+                cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             }
             
             cell.openChartButton.tag = indexPath.row
@@ -120,9 +120,10 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
-        let tickerWithChange = Tickers(ticker: [ticker.indexTicker : ValueTickers(marketPrice: ticker.indexPrice, previousPrice: percentageRounded, nameCompany: nil, volume: nil, imageCompany: nil)])
-        destination?.informationStockTicker = tickerWithChange
-        destination?.indexName = ticker.indexName
+        
+//        let tickerWithChange = TickerValues(ticker: ticker.indexTicker, nameCompany: "", marketPrice: ticker.indexPrice, previousPrice: percentageRounded, volume: "", imageCompany: nil)
+//        destination?.informationStockTicker = tickerWithChange
+//        destination?.indexName = ticker.indexName
         destination?.indexMarket = true
         
         destination!.modalTransitionStyle = .crossDissolve

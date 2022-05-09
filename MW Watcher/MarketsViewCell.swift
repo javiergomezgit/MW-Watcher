@@ -12,7 +12,7 @@ class MarketsViewCell: UICollectionViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var currentPriceLabel: UILabel!
     @IBOutlet weak var changeLabel: UILabel!
-    @IBOutlet var arrowImage: UIImageView!
+    @IBOutlet weak var arrowImageView: UIImageView!
     @IBOutlet weak var openChartButton: UIButton!
     
     override func awakeFromNib() {

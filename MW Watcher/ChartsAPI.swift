@@ -22,6 +22,8 @@ final class ChartsAPI {
     }
 
     //MARK: API call for STOCKS chart
+    ///Input: 1day, TICKER
+    ///Output: -> ["timeStamp": "20-10-2021, "open":34,5, "high":36, "low":32.2, "close":33.1,"volume":233343]
     public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
         
         struct Constant {
@@ -98,6 +100,8 @@ final class ChartsAPI {
     }
     
     //MARK: API Call for chart for general markets
+    ///Input: 1day, TICKER
+    ///Output: -> ["timeStamp": "20-10-2021, "open":34,5, "high":36, "low":32.2, "close":33.1,"volume":233343]
     func getMarketValues(intervalTime: String, symbol: String, completion: @escaping(Result<[ValueStock], Error>) -> Void) {
        
         let headers = [
