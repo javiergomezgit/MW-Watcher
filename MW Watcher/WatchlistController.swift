@@ -159,6 +159,7 @@ class WatchlistController: UIViewController {
                 print (error)
                 DispatchQueue.main.async {
                     ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
+                    self.startStopSpinner(start: false)
                 }
             }
         }
@@ -189,6 +190,7 @@ class WatchlistController: UIViewController {
                         
                     case .failure(let error):
                         print (error.localizedDescription)
+                        ShowAlerts.showSimpleAlert(title: "Error", message: "Limited features.", titleButton: "Ok", over: self)
                     }
                 }
 
@@ -197,6 +199,7 @@ class WatchlistController: UIViewController {
                 print (error)
                 DispatchQueue.main.async {
                     ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find the ticker", titleButton: "Ok", over: self)
+                    self.startStopSpinner(start: false)
                 }
             }
         }
@@ -225,13 +228,12 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         var percentage = tickersValues[indexPath.row].changePercent
         previousPrice = Double(round(100*previousPrice)/100)
         percentage = Double(round(100*percentage)/100)
-
         
         cell.tickerLabel.text = ticker
         cell.currentPriceLabel.text = "$\(marketPrice)"
         cell.imageCompanyImageView.image = image
         cell.nameCompanyLabel.text = name
-                
+        
         cell.changeLabel.text = String(percentage) + "%"
         cell.previousPriceLabel.text = "$" + String(previousPrice)
 
@@ -240,11 +242,14 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.previousPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
             cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            cell.currentPriceLabel.backgroundColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 0.7)
         } else {
         cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
         cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
         cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
         cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.currentPriceLabel.backgroundColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+
         }
         
         cell.openChartButton.tag = indexPath.row

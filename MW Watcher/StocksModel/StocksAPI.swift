@@ -19,6 +19,7 @@ final class StocksAPI {
         case tickerNotFound
         case invalidJSON
         case invalidTicker
+        case freeVersion
     }
         
     //MARK: API call for search/add of single stock
@@ -70,15 +71,20 @@ final class StocksAPI {
                         if let tickerValue = resultArray?.first as? [String: Any] {
 //                            let marketPrice = tickerValue["regularMarketPrice"] as! Double
 //                            let previousPrice = tickerValue["regularMarketPreviousClose"] as! Double
-                            let nameCompany = tickerValue["longName"] as! String
+                            let nameCompany = tickerValue["longName"] as? String
 //                            let volume = tickerValue["regularMarketVolume"] as! Double
+                            
+                            if nameCompany == nil {
+                                completion(.failure(APIError.freeVersion))
+                                return
+                            }
                             
                             self.getLogoStock(ticker: tickerSingle) { result in
                                 switch result {
                                 case .failure(let error):
                                     completion(.failure(error))
                                 case .success(let imageCompany):
-                                    let tickerFeatures = TickersFeatures(ticker: tickerSingle, nameTicker: nameCompany, imageTicker: imageCompany)
+                                    let tickerFeatures = TickersFeatures(ticker: tickerSingle, nameTicker: nameCompany!, imageTicker: imageCompany)
                                     completion(.success(tickerFeatures))
                                 }
                             }
@@ -172,9 +178,9 @@ final class StocksAPI {
                     print (tickerJSON.key) //ticker
                     
                     let tickerDictionary = tickerJSON.value as? [String: Any]
-                    var previousClose = tickerDictionary!["chartPreviousClose"] as! Double
+                    var previousClose = tickerDictionary!["chartPreviousClose"] as? Double ?? 0.0
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
-                    let closePrice = closePriceArray!.last as! Double
+                    let closePrice = closePriceArray!.last as? Double ?? 0.0
 
                     let percentageChange = (closePrice * 100) / previousClose
                     var percentageRounded = 0.0

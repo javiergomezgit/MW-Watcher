@@ -31,87 +31,102 @@
                                             <rect key="frame" x="0.0" y="0.0" width="360" height="75"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tesla.com" translatesAutoresizingMaskIntoConstraints="NO" id="2X2-fl-KHa">
-                                                    <rect key="frame" x="0.0" y="5" width="36" height="36"/>
-                                                    <color key="backgroundColor" systemColor="labelColor"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" secondItem="2X2-fl-KHa" secondAttribute="height" multiplier="1:1" id="ODP-Ny-bhq"/>
-                                                    </constraints>
-                                                </imageView>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="FrameFeedImageCircle" translatesAutoresizingMaskIntoConstraints="NO" id="a2z-lc-wpH">
-                                                    <rect key="frame" x="0.0" y="5" width="36" height="36"/>
-                                                </imageView>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow.down.app.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="zPK-rw-3Bo">
-                                                    <rect key="frame" x="9" y="42.666666666666657" width="18" height="12.333333333333336"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" secondItem="zPK-rw-3Bo" secondAttribute="height" multiplier="7:6" id="4Fh-1U-71J"/>
-                                                    </constraints>
-                                                </imageView>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="HECOT" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O19-uM-WAO">
-                                                    <rect key="frame" x="46" y="9.3333333333333339" width="126" height="18.666666666666664"/>
-                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="20"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Marathon Oil Corporation INC. Industry" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999999999999996" translatesAutoresizingMaskIntoConstraints="NO" id="28W-vu-H94">
-                                                    <rect key="frame" x="46" y="33" width="216" height="25"/>
-                                                    <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="18"/>
-                                                    <color key="textColor" systemColor="systemGrayColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$1.11" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="V3L-mm-5zq">
-                                                    <rect key="frame" x="307" y="9.3333333333333339" width="48" height="18.666666666666664"/>
-                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="18"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$157.28" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="nsp-M7-cSR">
-                                                    <rect key="frame" x="259.66666666666669" y="12.666666666666664" width="42.333333333333314" height="15.333333333333336"/>
-                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="11"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+2.86%" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="C5a-Th-JRe">
-                                                    <rect key="frame" x="314.66666666666669" y="27.999999999999996" width="40.333333333333314" height="15.333333333333332"/>
-                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="11"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xkg-4J-wYC">
                                                     <rect key="frame" x="0.0" y="0.0" width="360" height="75"/>
                                                     <state key="normal" title="Button"/>
                                                     <buttonConfiguration key="configuration" style="plain"/>
                                                 </button>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tesla.com" translatesAutoresizingMaskIntoConstraints="NO" id="2X2-fl-KHa">
+                                                    <rect key="frame" x="0.0" y="5" width="36" height="36"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" secondItem="2X2-fl-KHa" secondAttribute="height" multiplier="1:1" id="ODP-Ny-bhq"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="HECOT" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O19-uM-WAO">
+                                                    <rect key="frame" x="46" y="9.3333333333333339" width="126" height="18.666666666666664"/>
+                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="18"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Marathon Oil Corporation INC. Industry" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.69999999999999996" translatesAutoresizingMaskIntoConstraints="NO" id="28W-vu-H94">
+                                                    <rect key="frame" x="46" y="33" width="180" height="22"/>
+                                                    <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="16"/>
+                                                    <color key="textColor" systemColor="systemGrayColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e5S-FU-kNM">
+                                                    <rect key="frame" x="260.66666666666669" y="8.3333333333333339" width="99" height="20.666666666666664"/>
+                                                    <color key="backgroundColor" red="0.60784313729999995" green="0.74117647060000003" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="16"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="FrameFeedImageRectangle" translatesAutoresizingMaskIntoConstraints="NO" id="v2A-6i-3LE">
+                                                    <rect key="frame" x="260.66666666666669" y="8.3333333333333339" width="99" height="20.666666666666664"/>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$471,300.00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="V3L-mm-5zq">
+                                                    <rect key="frame" x="265" y="9.3333333333333339" width="90" height="18.666666666666664"/>
+                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="16"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$157.28" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="nsp-M7-cSR">
+                                                    <rect key="frame" x="265" y="33" width="45" height="15"/>
+                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="11"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+2.86%" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="C5a-Th-JRe">
+                                                    <rect key="frame" x="310" y="33" width="45" height="15"/>
+                                                    <fontDescription key="fontDescription" name="Avenir-Heavy" family="Avenir" pointSize="11"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow.down.app.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="zPK-rw-3Bo">
+                                                    <rect key="frame" x="238.33333333333334" y="11.999999999999998" width="19.666666666666657" height="14"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" secondItem="zPK-rw-3Bo" secondAttribute="height" multiplier="7:6" id="4Fh-1U-71J"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <constraints>
+                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="leading" secondItem="zPK-rw-3Bo" secondAttribute="trailing" constant="7" id="0YR-tK-A6Q"/>
                                                 <constraint firstAttribute="trailing" secondItem="V3L-mm-5zq" secondAttribute="trailing" constant="5" id="0ZS-Ed-XSq"/>
-                                                <constraint firstItem="a2z-lc-wpH" firstAttribute="width" secondItem="2X2-fl-KHa" secondAttribute="width" id="0sX-UE-2qX"/>
+                                                <constraint firstItem="v2A-6i-3LE" firstAttribute="centerY" secondItem="e5S-FU-kNM" secondAttribute="centerY" id="1iP-4r-Wg8"/>
                                                 <constraint firstItem="V3L-mm-5zq" firstAttribute="height" secondItem="O19-uM-WAO" secondAttribute="height" id="3xr-zP-WU0"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="leading" secondItem="2X2-fl-KHa" secondAttribute="trailing" constant="10" id="459-Vl-Mnc"/>
                                                 <constraint firstItem="28W-vu-H94" firstAttribute="leading" secondItem="O19-uM-WAO" secondAttribute="leading" id="4nl-Xm-yAy"/>
-                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="top" secondItem="V3L-mm-5zq" secondAttribute="bottom" id="57d-o3-Edv"/>
-                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="bottom" secondItem="V3L-mm-5zq" secondAttribute="bottom" id="Dro-LQ-LkX"/>
-                                                <constraint firstItem="a2z-lc-wpH" firstAttribute="centerY" secondItem="2X2-fl-KHa" secondAttribute="centerY" id="F1y-xP-oe0"/>
+                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="top" secondItem="V3L-mm-5zq" secondAttribute="bottom" constant="5" id="57d-o3-Edv"/>
+                                                <constraint firstItem="e5S-FU-kNM" firstAttribute="width" secondItem="V3L-mm-5zq" secondAttribute="width" multiplier="1.1" id="BSM-Bt-SPB"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="centerY" secondItem="V88-Z2-oSX" secondAttribute="centerY" multiplier="0.5" id="I1H-z6-iVc"/>
+                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.25" id="Iy6-qC-wRj"/>
+                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="height" secondItem="V3L-mm-5zq" secondAttribute="height" multiplier="0.8" id="JKs-3l-pcd"/>
                                                 <constraint firstItem="xkg-4J-wYC" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" id="JNa-qB-XXU"/>
-                                                <constraint firstItem="zPK-rw-3Bo" firstAttribute="top" secondItem="2X2-fl-KHa" secondAttribute="bottom" id="JVa-W9-EfM"/>
                                                 <constraint firstItem="V3L-mm-5zq" firstAttribute="top" secondItem="O19-uM-WAO" secondAttribute="top" id="Jtn-Fa-xYi"/>
+                                                <constraint firstItem="zPK-rw-3Bo" firstAttribute="centerY" secondItem="V3L-mm-5zq" secondAttribute="centerY" id="MO5-c6-Wfw"/>
                                                 <constraint firstAttribute="trailing" secondItem="xkg-4J-wYC" secondAttribute="trailing" id="NM6-HD-spy"/>
-                                                <constraint firstItem="a2z-lc-wpH" firstAttribute="centerX" secondItem="2X2-fl-KHa" secondAttribute="centerX" id="NZn-gy-sEu"/>
-                                                <constraint firstItem="28W-vu-H94" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.6" id="Pud-1B-k6y"/>
+                                                <constraint firstItem="e5S-FU-kNM" firstAttribute="height" secondItem="V3L-mm-5zq" secondAttribute="height" multiplier="1.1" id="Psw-vv-0M9"/>
+                                                <constraint firstItem="28W-vu-H94" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.5" id="Pud-1B-k6y"/>
+                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="height" secondItem="C5a-Th-JRe" secondAttribute="height" id="Qai-HW-x1w"/>
+                                                <constraint firstItem="C5a-Th-JRe" firstAttribute="width" secondItem="V3L-mm-5zq" secondAttribute="width" multiplier="0.5" id="TgM-yG-DFj"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="height" secondItem="V88-Z2-oSX" secondAttribute="height" multiplier="0.25" id="VEN-tm-Hr3"/>
-                                                <constraint firstItem="zPK-rw-3Bo" firstAttribute="centerX" secondItem="2X2-fl-KHa" secondAttribute="centerX" id="Wtb-j3-KvC"/>
+                                                <constraint firstItem="zPK-rw-3Bo" firstAttribute="height" secondItem="V3L-mm-5zq" secondAttribute="height" multiplier="0.9" id="VR3-Jk-fEW"/>
                                                 <constraint firstItem="xkg-4J-wYC" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="Wya-iJ-0or"/>
+                                                <constraint firstItem="v2A-6i-3LE" firstAttribute="width" secondItem="e5S-FU-kNM" secondAttribute="width" id="YX6-DK-rDA"/>
+                                                <constraint firstItem="v2A-6i-3LE" firstAttribute="height" secondItem="e5S-FU-kNM" secondAttribute="height" id="c7B-hK-vjI"/>
+                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="top" secondItem="C5a-Th-JRe" secondAttribute="top" id="efZ-q6-1FV"/>
                                                 <constraint firstItem="O19-uM-WAO" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.35" id="fKp-kr-wWd"/>
                                                 <constraint firstAttribute="trailing" secondItem="C5a-Th-JRe" secondAttribute="trailing" constant="5" id="gcG-4f-e7R"/>
+                                                <constraint firstItem="e5S-FU-kNM" firstAttribute="centerX" secondItem="V3L-mm-5zq" secondAttribute="centerX" id="gzX-Pe-Tim"/>
+                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="leading" secondItem="V3L-mm-5zq" secondAttribute="leading" id="iDs-kA-dhk"/>
                                                 <constraint firstItem="2X2-fl-KHa" firstAttribute="width" secondItem="V88-Z2-oSX" secondAttribute="width" multiplier="0.1" id="kN3-Vi-Tbb"/>
                                                 <constraint firstAttribute="bottom" secondItem="xkg-4J-wYC" secondAttribute="bottom" id="mRe-AD-asO"/>
                                                 <constraint firstItem="2X2-fl-KHa" firstAttribute="leading" secondItem="V88-Z2-oSX" secondAttribute="leading" id="nbj-v0-O6K"/>
-                                                <constraint firstItem="a2z-lc-wpH" firstAttribute="height" secondItem="2X2-fl-KHa" secondAttribute="height" id="qp8-wv-kR2"/>
-                                                <constraint firstItem="zPK-rw-3Bo" firstAttribute="width" secondItem="2X2-fl-KHa" secondAttribute="width" multiplier="0.5" id="uNN-9Z-xFj"/>
+                                                <constraint firstItem="nsp-M7-cSR" firstAttribute="width" secondItem="C5a-Th-JRe" secondAttribute="width" id="onH-Yk-U2b"/>
+                                                <constraint firstItem="e5S-FU-kNM" firstAttribute="centerY" secondItem="V3L-mm-5zq" secondAttribute="centerY" id="pa2-mF-2L5"/>
+                                                <constraint firstItem="v2A-6i-3LE" firstAttribute="centerX" secondItem="e5S-FU-kNM" secondAttribute="centerX" id="tiK-j7-3OY"/>
                                                 <constraint firstItem="2X2-fl-KHa" firstAttribute="top" secondItem="V88-Z2-oSX" secondAttribute="top" constant="5" id="urD-Ug-BN0"/>
                                                 <constraint firstItem="28W-vu-H94" firstAttribute="top" secondItem="O19-uM-WAO" secondAttribute="bottom" constant="5" id="usr-2l-YUh"/>
-                                                <constraint firstItem="V3L-mm-5zq" firstAttribute="leading" secondItem="nsp-M7-cSR" secondAttribute="trailing" constant="5" id="z50-Pa-FFt"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
@@ -1556,6 +1571,7 @@
     <resources>
         <image name="FrameFeedImage" width="1500" height="1500"/>
         <image name="FrameFeedImageCircle" width="1500" height="1500"/>
+        <image name="FrameFeedImageRectangle" width="6480" height="1500"/>
         <image name="Image" width="2000" height="1000"/>
         <image name="arrow.down.app.fill" width="10" height="10"/>
         <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
@@ -1567,8 +1583,8 @@
         <image name="logoTransparent" width="1500" height="1500"/>
         <image name="mw-logo" width="1500" height="1500"/>
         <image name="network" width="13" height="13"/>
-        <image name="newspaper" width="15" height="14"/>
         <image name="newspaper" catalog="system" width="128" height="111"/>
+        <image name="newspaper" width="15" height="14"/>
         <image name="number" catalog="system" width="128" height="124"/>
         <image name="person.badge.plus" catalog="system" width="128" height="124"/>
         <image name="square.and.arrow.up" catalog="system" width="115" height="128"/>
