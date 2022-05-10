@@ -178,11 +178,8 @@ final class StocksAPI {
 
                     let percentageChange = (closePrice * 100) / previousClose
                     var percentageRounded = 0.0
-                    if percentageChange < 100 {
-                        percentageRounded = 100 - percentageChange
-                    } else {
-                        percentageRounded = percentageChange - 100
-                    }
+                    percentageRounded = percentageChange - 100
+                    
                     percentageRounded = Double(round(100*percentageRounded)/100)
                     previousClose = Double(round(100*previousClose)/100)
 
