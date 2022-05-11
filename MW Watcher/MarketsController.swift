@@ -13,19 +13,25 @@ class MarketsController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     var sizeOfCell = CGFloat(0)
     
-    var marketsPrices = [
-        GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0, exchange: ""),
-        GeneralMarkets(indexTicker: "^GSPC", indexName: "S&P 500", indexPrice: 0.0, changePercentage: 0.0, exchange: ""),
-        GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0, exchange: ""),
-        GeneralMarkets(indexTicker: "^W5000", indexName: "Wilshire 5000 Total Market Index", indexPrice: 0.0, changePercentage: 0.0, exchange: ""),
-        GeneralMarkets(indexTicker: "^RUA", indexName: "Russell 3000", indexPrice: 0.0, changePercentage: 0.0, exchange: ""),
-        GeneralMarkets(indexTicker: "^SP400", indexName: "S&P 400", indexPrice:  0.0, changePercentage: 0.0, exchange: ""),
-        GeneralMarkets(indexTicker: "^RUT", indexName: "Russell 2000", indexPrice: 0.0, changePercentage: 0.0, exchange: ""),
-        GeneralMarkets(indexTicker:  "^VIX", indexName: "CBOE Volatility Index", indexPrice:  0.0, changePercentage: 0.0, exchange: "")
+//    var marketsPrices = [
+//        GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0),
+//        GeneralMarkets(indexTicker: "^GSPC", indexName: "S&P 500", indexPrice: 0.0, changePercentage: 0.0),
+//        GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0),
+//        GeneralMarkets(indexTicker: "^W5000", indexName: "Wilshire 5000 Total Market Index", indexPrice: 0.0, changePercentage: 0.0),
+//        GeneralMarkets(indexTicker: "^RUA", indexName: "Russell 3000", indexPrice: 0.0, changePercentage: 0.0),
+//        GeneralMarkets(indexTicker: "^SP400", indexName: "S&P 400", indexPrice:  0.0, changePercentage: 0.0),
+//        GeneralMarkets(indexTicker: "^RUT", indexName: "Russell 2000", indexPrice: 0.0, changePercentage: 0.0),
+//        GeneralMarkets(indexTicker:  "^VIX", indexName: "CBOE Volatility Index", indexPrice:  0.0, changePercentage: 0.0)
+//    ]
+    
+    var mayorMarketsPrices = [
+        GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0),
+        GeneralMarkets(indexTicker: "^GSPC", indexName: "S&P 500", indexPrice: 0.0, changePercentage: 0.0),
+        GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0)
     ]
     
     var selectedIndex = ""
-    var marketNames = ["^DJI","^GSPC","^IXIC","^W5000","^RUA","^SP400","^RUT","^VIX"]
+//    var marketNames = ["^DJI","^GSPC","^IXIC","^W5000","^RUA","^SP400","^RUT","^VIX"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +42,7 @@ class MarketsController: UIViewController {
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         collectionView.addSubview(refreshControl) // not required when using UITableViewController
         
-        sizeOfCell = (view.frame.width/2) - (view.frame.width/20)
+        sizeOfCell = (view.frame.width/3) - (view.frame.width/20)
     }
     
     @objc func refresh(_ sender: AnyObject) {
@@ -50,9 +56,22 @@ class MarketsController: UIViewController {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
             } else {
                 let marketsValues = markets!
-                self.marketsPrices.removeAll()
+                self.mayorMarketsPrices.removeAll()
+                
                 for market in marketsValues {
-                    self.marketsPrices.append(market)
+                    let ticker = market.indexTicker
+                    if ticker == "^DJI" {
+                        let newName = GeneralMarkets(indexTicker: ticker, indexName: "DOW JONES", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
+                        self.mayorMarketsPrices.append(newName)
+                    }
+                    if ticker == "^GSPC" {
+                        let newName = GeneralMarkets(indexTicker: ticker, indexName: "S&P 500", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
+                        self.mayorMarketsPrices.append(newName)
+                    }
+                    if ticker == "^IXIC" {
+                        let newName = GeneralMarkets(indexTicker: ticker, indexName: "NASDAQ", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
+                        self.mayorMarketsPrices.append(newName)
+                    }
                 }
                 DispatchQueue.main.async {
                     self.refreshControl.endRefreshing()
@@ -67,15 +86,16 @@ class MarketsController: UIViewController {
 
 extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return marketNames.count
+        return 3
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MarketCell", for: indexPath) as! MarketsViewCell
         
-        let tickerValues = marketsPrices[indexPath.row]
+        let tickerValues = mayorMarketsPrices[indexPath.row]
 
-        cell.nameLabel.text = tickerValues.indexName
+        cell.nameLabel.text = tickerValues.indexName.uppercased()
+    
             
         var currentPrice = tickerValues.indexPrice
         let percentageChanged = tickerValues.changePercentage
@@ -112,7 +132,7 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
     }
     
     @objc func openChart(sender: UIButton) {
-        let ticker = self.marketsPrices[sender.tag]
+        let ticker = self.mayorMarketsPrices[sender.tag]
         
         let perChange = ticker.changePercentage
         let percentageRounded = round(100*perChange)/100
@@ -120,20 +140,20 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
-//        let tickerWithChange = TickerValues(ticker: ticker.indexTicker, nameCompany: "", marketPrice: ticker.indexPrice, previousPrice: percentageRounded, volume: "", imageCompany: nil)
-//        destination?.informationStockTicker = tickerWithChange
-//        destination?.indexName = ticker.indexName
+        let tickerWithChange = TickersCurrentValues(ticker: ticker.indexTicker, marketPrice: ticker.indexPrice, previousPrice: 0.0, changePercent: percentageRounded)
+        destination?.informationStockTicker = tickerWithChange
+        destination?.indexName = ticker.indexName
         destination?.indexMarket = true
         
-        destination!.modalTransitionStyle = .crossDissolve
-        self.present(destination!, animated: true, completion: nil)
+        destination?.modalPresentationStyle = .popover
+        destination?.modalTransitionStyle = .crossDissolve
         
-//        self.show(destination!, sender: self)
+        self.present(destination!, animated: true, completion: nil)
     }
 }
 
 extension MarketsController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: sizeOfCell, height: sizeOfCell)
+        return CGSize(width: sizeOfCell, height: (sizeOfCell * 0.80))
     }
 }

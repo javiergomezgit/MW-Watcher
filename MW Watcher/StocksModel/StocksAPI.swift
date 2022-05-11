@@ -285,13 +285,13 @@ final class StocksAPI {
                         let marketPrice = tickerDictionary!["regularMarketPrice"] as! Double
                         let changePercentage = tickerDictionary!["regularMarketChangePercent"] as! Double
                         let ticker = tickerDictionary!["symbol"] as! String
-                        let exchange = tickerDictionary!["exchange"] as! String
+//                        let exchange = tickerDictionary!["exchange"] as! String
                         let shortName = tickerDictionary!["shortName"] as! String
                         
-                        let marketIndex = GeneralMarkets(indexTicker: ticker, indexName: shortName, indexPrice: marketPrice, changePercentage: changePercentage, exchange: exchange)
+                        let marketIndex = GeneralMarkets(indexTicker: ticker, indexName: shortName, indexPrice: marketPrice, changePercentage: changePercentage)
                         marketsValues.append(marketIndex)
                     }
-                    marketsValues = marketsValues.sorted{ $0.changePercentage < $1.changePercentage }
+//                    marketsValues = marketsValues.sorted{ $0.changePercentage < $1.changePercentage }
                     completion(marketsValues)
                 } else {
                     completion(nil)

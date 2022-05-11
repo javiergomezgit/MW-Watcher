@@ -36,13 +36,14 @@ class ChartController: UIViewController, ChartViewDelegate {
     var symbol = "bit"
     var timeIntervals = ["old" : "1:2", "mid" : "1:2", "now" : "1:2"]
     var indexMarket = false
+    var indexName = ""
     
     public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
     
     public var informationStockTicker = TickersCurrentValues(ticker: "", marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
     public var nameTicker = ""
     
-    public var imageCompany = UIImage(named: "wm-logo")
+    public var imageCompany = UIImage(named: "mw-logo")
     
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
         let index = timeFrameSegmented.selectedSegmentIndex
@@ -99,6 +100,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             self.intervalStock = "15m"
             selectedStockTicker()
         }
+             
     }
     
     let child = Spinner()
@@ -134,11 +136,16 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         self.symbol = symbol
         tickerLabel.text = symbol
-        nameLabel.text = nameCompany//indexName
+        if indexMarket {
+            nameLabel.text = indexName
+            volumeLabel.text = ""
+        } else {
+            nameLabel.text = nameCompany
+            volumeLabel.text = "$\(previousPrice)"
+        }
         cryptoImage.image = imageCompany
         currentPriceLabel.text = String(currentPrice)
         currentPercentageLabel.text = "\(percentageChange)%"
-        volumeLabel.text = "$\(previousPrice)"
         
         loadStockPrices()
     }

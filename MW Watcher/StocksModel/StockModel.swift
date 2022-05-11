@@ -38,5 +38,4 @@ struct GeneralMarkets {
     let indexName: String
     let indexPrice: Double
     let changePercentage: Double
-    let exchange: String
 }
