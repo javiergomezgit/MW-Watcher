@@ -31,7 +31,7 @@ class WatchlistController: UIViewController {
         super.viewDidLoad()
         
         setupUI()
-           
+        
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.synchronize()
@@ -43,18 +43,18 @@ class WatchlistController: UIViewController {
             alreadyLaunched = true
         }
         
-//        let font = UIFont.boldSystemFont(ofSize: 16)
-//        let titleTextAttributes: [NSAttributedString.Key: Any] = [
-//            .font: font,
-//            .foregroundColor: UIColor.white,
-//        ]
+        //        let font = UIFont.boldSystemFont(ofSize: 16)
+        //        let titleTextAttributes: [NSAttributedString.Key: Any] = [
+        //            .font: font,
+        //            .foregroundColor: UIColor.white,
+        //        ]
         
         refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl) // not required when using UITableViewController
-                
+        
         startStopSpinner(start: true)
-           
+        
         loadInitialStocks()
     }
     
@@ -139,7 +139,7 @@ class WatchlistController: UIViewController {
                 mergedTickers = mergedTickers + "," + ticker
             }
         }
-
+        
         StocksAPI.shared.getPriceMultipleStocks(tickersGroup: mergedTickers, timeRange: timeRange) { result in
             switch result {
                 
@@ -169,7 +169,7 @@ class WatchlistController: UIViewController {
         StocksAPI.shared.getFeaturesTicker(tickerSingle: individualTicker) { result in
             switch result {
             case .success(let tickerFeatures):
-               
+                
                 StocksAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { result in
                     switch result {
                     case .success(let tickerCurrentValues):
@@ -193,7 +193,7 @@ class WatchlistController: UIViewController {
                         ShowAlerts.showSimpleAlert(title: "Error", message: "Limited features.", titleButton: "Ok", over: self)
                     }
                 }
-
+                
             case .failure(let error):
                 print (error.localizedDescription)
                 print (error)
@@ -236,20 +236,20 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         
         cell.changeLabel.text = String(percentage) + "%"
         cell.previousPriceLabel.text = "$" + String(previousPrice)
-
+        
         if percentage < 0 {
             cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             cell.previousPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
             cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            cell.currentPriceLabel.backgroundColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 0.7)
+            cell.frameCoverLabel.backgroundColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
         } else {
-        cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-        cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-        cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
-        cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            cell.currentPriceLabel.backgroundColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
-
+            cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
+            cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.frameCoverLabel.backgroundColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+            
         }
         
         cell.openChartButton.tag = indexPath.row
@@ -261,10 +261,10 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     @objc func openChart(sender: UIButton) {
         let tickerFeatures = tickersFeatures[sender.tag]
         let tickkerValues = tickersValues[sender.tag]
-
+        
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
-
+        
         let tickerCurrentValues = TickersCurrentValues(ticker: tickkerValues.ticker, marketPrice: tickkerValues.marketPrice, previousPrice: tickkerValues.previousPrice, changePercent: tickkerValues.changePercent)
         
         destination?.informationStockTicker = tickerCurrentValues
@@ -283,7 +283,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         if editingStyle == .delete{
             let tickerFeatures = tickersFeatures[indexPath.row]
             savedTickers.deleteTicker(tickerFeatures: tickerFeatures)
-
+            
             tickersValues.remove(at: indexPath.row)
             tickersFeatures.remove(at: indexPath.row)
             
@@ -327,24 +327,24 @@ extension WatchlistController {
     }
     
     private func setupUI() {
-//        navigationController?.navigationBar.prefersLargeTitles = true
-
+        //        navigationController?.navigationBar.prefersLargeTitles = true
+        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
-            imageView.isUserInteractionEnabled = true
-            imageView.addGestureRecognizer(tapGestureRecognizer)
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(tapGestureRecognizer)
         
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
         guard let navigationBar = self.navigationController?.navigationBar else { return }
         navigationBar.addSubview(imageView)
-//        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
-//        imageView.clipsToBounds = true
+        //        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
+        //        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             imageView.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
             imageView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
             imageView.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
             imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor)
-            ])
+        ])
     }
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
@@ -355,12 +355,12 @@ extension WatchlistController {
         super.viewWillDisappear(animated)
         showImage(false)
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         showImage(true)
     }
-
+    
     /// Show or hide the image from NavBar while going to next screen or back to initial screen
     /// - Parameter show: show or hide the image from NavBar
     private func showImage(_ show: Bool) {

@@ -57,7 +57,6 @@
 		229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229A2F1D27F8ED3300A05EE1 /* ChartController.swift */; };
 		22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
 		22AD1A45264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
-		22AD1A47264B381C001A5362 /* SystemSaveNews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A46264B381C001A5362 /* SystemSaveNews.swift */; };
 		22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C6E26750DBC00C2313E /* CryptosAPI.swift */; };
 		22D21C712675383300C2313E /* CryptosController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C702675383300C2313E /* CryptosController.swift */; };
 		22D21C73267538EA00C2313E /* CryptosViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C72267538EA00C2313E /* CryptosViewCell.swift */; };
@@ -145,7 +144,6 @@
 		229554F3267A3FAD0082235C /* ShowAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAlerts.swift; sourceTree = "<group>"; };
 		229A2F1D27F8ED3300A05EE1 /* ChartController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartController.swift; sourceTree = "<group>"; };
 		22AD1A43264B36FA001A5362 /* SavingFeeds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SavingFeeds.xcdatamodel; sourceTree = "<group>"; };
-		22AD1A46264B381C001A5362 /* SystemSaveNews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemSaveNews.swift; sourceTree = "<group>"; };
 		22D21C6E26750DBC00C2313E /* CryptosAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosAPI.swift; sourceTree = "<group>"; };
 		22D21C702675383300C2313E /* CryptosController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosController.swift; sourceTree = "<group>"; };
 		22D21C72267538EA00C2313E /* CryptosViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosViewCell.swift; sourceTree = "<group>"; };
@@ -350,7 +348,6 @@
 			children = (
 				2280C3D92825A6D900F7AAA2 /* NewsAPI.swift */,
 				22EFA843266D8CAE004D0856 /* NewsItem.swift */,
-				22AD1A46264B381C001A5362 /* SystemSaveNews.swift */,
 				22F8F32E265C5FC50084C98F /* UserSaveNews.swift */,
 			);
 			path = NewsModel;
@@ -601,7 +598,6 @@
 				22F8F333265C6C240084C98F /* SavedNewsController.swift in Sources */,
 				227C7E692808931500A9E158 /* Support.swift in Sources */,
 				226CEA57266BD6EA002E44E3 /* TickerNewsController.swift in Sources */,
-				22AD1A47264B381C001A5362 /* SystemSaveNews.swift in Sources */,
 				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
 				220235EF280CCC8300882206 /* Spinner.swift in Sources */,
 				223EF570265D858700160C8D /* WatchlistViewCell.swift in Sources */,

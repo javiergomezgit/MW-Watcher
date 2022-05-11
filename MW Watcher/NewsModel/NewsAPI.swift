@@ -29,25 +29,25 @@ final class NewsAPI {
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
             "x-rapidapi-host": "bing-news-search1.p.rapidapi.com"
         ]
-
+        
         let request = NSMutableURLRequest(url:
                                             NSURL(string: "https://bing-news-search1.p.rapidapi.com/news?safeSearch=Off&category=Business")! as URL,
-                                            cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 10.0)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
+        
         let session = URLSession.shared
         
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
                 completion(nil)
             } else {
-            
+                
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
                 dump (json!)
                 let jsonNews = json!["value"] as! [Any]
-                     
+                
                 var newsItems = [NewsItem]()
                 for jsonNew in jsonNews {
                     
@@ -59,7 +59,7 @@ final class NewsAPI {
                     let link = dictionaryNew["url"] as! String
                     
                     let imageDictionary = dictionaryNew["image"] as? [String : Any]
-
+                    
                     var downloadedImage = UIImage()
                     if imageDictionary != nil {
                         let imageJSON = imageDictionary?["thumbnail"] as? [String: Any]
@@ -91,29 +91,29 @@ final class NewsAPI {
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
             "x-rapidapi-host": "bing-news-search1.p.rapidapi.com"
         ]
-
+        
         //let request = NSMutableURLRequest(url: NSURL(string: "https://bing-news-search1.p.rapidapi.com/news/search?q=AAPL&freshness=Day&textFormat=Raw&safeSearch=Off")! as URL,
-
+        
         let urlString = "https://bing-news-search1.p.rapidapi.com/news/search?q=\(ticker)&freshness=Day&textFormat=Raw&safeSearch=Off"
         
         let request = NSMutableURLRequest(url:
                                             NSURL(string: urlString)! as URL,
-                                            cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 10.0)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
+        
         let session = URLSession.shared
         
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
                 completion(nil)
             } else {
-            
+                
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
                 dump (json!)
                 let jsonNews = json!["value"] as! [Any]
-                     
+                
                 var newsItems = [TickerNews]()
                 for jsonNew in jsonNews {
                     
@@ -125,7 +125,7 @@ final class NewsAPI {
                     let link = dictionaryNew["url"] as! String
                     
                     let imageDictionary = dictionaryNew["image"] as? [String : Any]
-
+                    
                     var downloadedImage = UIImage()
                     if imageDictionary != nil {
                         let imageJSON = imageDictionary?["thumbnail"] as? [String: Any]
@@ -138,7 +138,7 @@ final class NewsAPI {
                     let authorDictionary = dictionaryNew["provider"] as! [Any]
                     let authorArray = authorDictionary.first as! [String: Any]
                     let author = authorArray["name"] as! String
-
+                    
                     let newsItem = TickerNews.init(headline: headline, pubDate: pubDate, linkHeadline: link, author: author, image: downloadedImage)
                     newsItems.append(newsItem)
                 }

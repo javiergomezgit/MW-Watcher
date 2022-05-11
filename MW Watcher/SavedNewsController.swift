@@ -11,7 +11,7 @@ import AMPopTip
 
 
 class SavedNewsController: UIViewController {
-
+    
     @IBOutlet var tableView: UITableView!
     
     let savedNews = UserSaveNews()
@@ -31,7 +31,7 @@ class SavedNewsController: UIViewController {
         
         //change to true for testing
         if !isFirstLaunch {
-           alreadyLaunched = false
+            alreadyLaunched = false
         } else {
             alreadyLaunched = true
         }
@@ -54,7 +54,7 @@ class SavedNewsController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         showImage(true)
-
+        
         newsItems = savedNews.loadNews()
         if !newsItems.isEmpty {
             tableView.reloadData()
@@ -62,7 +62,7 @@ class SavedNewsController: UIViewController {
     }
     
     @IBAction func shareHeadline(_ sender: UIButton) {
-
+        
         sender.animateButton(sender: sender, duration: 0.1)
         let index = sender.tag
         let headline = newsItems[index].headline
@@ -106,12 +106,12 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
         }
         
         return cell
-
+        
     }
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
-            return .delete
-        }
+        return .delete
+    }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
@@ -144,24 +144,22 @@ extension SavedNewsController {
     }
     
     private func setupUI() {
-//        navigationController?.navigationBar.prefersLargeTitles = true
-
+        //        navigationController?.navigationBar.prefersLargeTitles = true
+        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
-            imageView.isUserInteractionEnabled = true
-            imageView.addGestureRecognizer(tapGestureRecognizer)
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(tapGestureRecognizer)
         
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
         guard let navigationBar = self.navigationController?.navigationBar else { return }
         navigationBar.addSubview(imageView)
-//        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
-//        imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             imageView.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
             imageView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
             imageView.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
             imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor)
-            ])
+        ])
     }
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
@@ -174,7 +172,7 @@ extension SavedNewsController {
         super.viewWillDisappear(animated)
         showImage(false)
     }
-
+    
     /// Show or hide the image from NavBar while going to next screen or back to initial screen
     /// - Parameter show: show or hide the image from NavBar
     private func showImage(_ show: Bool) {

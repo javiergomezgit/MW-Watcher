@@ -19,7 +19,7 @@ struct CryptosViewCellModel {
 
 class CryptosViewCell: UITableViewCell {
     static let identifier = "CryptosViewCell"
-
+    
     private let cryptoImageImageView: UIImageView = {
         let image = UIImageView()
         image.contentMode = .scaleToFill
@@ -71,7 +71,7 @@ class CryptosViewCell: UITableViewCell {
         let button = UIButton()
         return button
     }()
-        
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         nameLabel.text = nil
@@ -93,7 +93,7 @@ class CryptosViewCell: UITableViewCell {
         contentView.addSubview(volume24hrLabel)
         contentView.addSubview(openCryptoChartButton)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError()
     }
@@ -115,13 +115,13 @@ class CryptosViewCell: UITableViewCell {
         symbolLabel.frame = CGRect(x: size-5, y: 0, width: contentView.frame.size.width/2, height: contentView.frame.size.height/2)
         nameLabel.frame = CGRect(x: size-5, y: contentView.frame.size.height/4, width: contentView.frame.size.width/2, height: contentView.frame.size.height/2)
         volume24hrLabel.frame = CGRect(x: size-5, y: contentView.frame.size.height/2, width: contentView.frame.size.width/2, height: contentView.frame.size.height/2)
-
+        
         priceLabel.frame = CGRect(x: contentView.frame.size.width/2, y: 0, width: (contentView.frame.size.width/2)-15, height: contentView.frame.size.height/2)
         changePercentageDayLabel.frame = CGRect(x: contentView.frame.size.width/2, y: contentView.frame.size.height/4, width: (contentView.frame.size.width/2)-15, height: contentView.frame.size.height/2)
         changePercentageMonthLabel.frame = CGRect(x: contentView.frame.size.width/2, y: contentView.frame.size.height/2, width: (contentView.frame.size.width/2)-15, height: contentView.frame.size.height/2)
         
         openCryptoChartButton.frame = CGRect(x: 0, y: 0, width: contentView.frame.width, height: contentView.frame.height)
-
+        
     }
     
     func configure(with viewModel: CryptosViewCellModel) {
@@ -144,7 +144,7 @@ class CryptosViewCell: UITableViewCell {
         changePercentageMonthLabel.text = "\(viewModel.changeMonth)% Month"
         cryptoImageImageView.image = viewModel.cryptoImage
     }
-
+    
 }
 
 

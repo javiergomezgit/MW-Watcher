@@ -40,11 +40,11 @@ class CostCalculatorController: UIViewController {
         super.viewDidLoad()
         self.hideKeyboardWhenTappedAround()
         
-//        let imageButton = UIImage(systemName: "arrow.triangle.2.circlepath")
-//        resetButton.setImage(imageButton?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal), for: .normal)
-//        resetButton.tintColor = .label
-//        resetButton.setTitleColor(.blue, for: .normal)
-//        resetButton.backgroundColor = .gray
+        //        let imageButton = UIImage(systemName: "arrow.triangle.2.circlepath")
+        //        resetButton.setImage(imageButton?.withRenderingMode(UIImage.RenderingMode.alwaysOriginal), for: .normal)
+        //        resetButton.tintColor = .label
+        //        resetButton.setTitleColor(.blue, for: .normal)
+        //        resetButton.backgroundColor = .gray
         
     }
     
@@ -73,7 +73,7 @@ class CostCalculatorController: UIViewController {
                 }
             }
         }
-    
+        
         if !priceOwnedText.text!.isEmpty {
             if let price = Double(priceOwnedText.text!.cleanNumber) {
                 priceOwned = price

@@ -22,7 +22,7 @@ class SaveTickers {
             tickerObject.setValue(tickerFeatures.ticker, forKey: "ticker")
             tickerObject.setValue(tickerFeatures.nameTicker, forKey: "nameCompany")
             
-            guard let imageToData = tickerFeatures.imageTicker.jpegData(compressionQuality: 1) else {
+            guard let imageToData = tickerFeatures.imageTicker.pngData() else {
                 print("jpg error")
                 return
             }
@@ -35,37 +35,37 @@ class SaveTickers {
                 print("Could not save. \(error), \(error.userInfo)")
             }
         }
-     }
-
+    }
+    
     func deleteTicker(tickerFeatures: TickersFeatures) {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         let managedContext = appDelegate.persistentContainer.viewContext
-            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
-            do {
-                tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
-
-                for tickerManagedObject in tickerManagedObjectArray {
-                    let localTicker = tickerManagedObject.value(forKey: "ticker") as! String
-                    let localNameCompany = tickerManagedObject.value(forKey: "nameCompany") as! String
-                    let localImageData = tickerManagedObject.value(forKey: "imageCompany") as! Data
-                    let localImage = tickerFeatures.imageTicker.jpegData(compressionQuality: 1)
-
-                    if localTicker == tickerFeatures.ticker {
-                        managedContext.delete(tickerManagedObject)
-                        try managedContext.save()
-                    }
-                    if localNameCompany == tickerFeatures.nameTicker {
-                        managedContext.delete(tickerManagedObject)
-                        try managedContext.save()
-                    }
-                    if localImageData == localImage {
-                        managedContext.delete(tickerManagedObject)
-                        try managedContext.save()
-                    }
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+        do {
+            tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
+            
+            for tickerManagedObject in tickerManagedObjectArray {
+                let localTicker = tickerManagedObject.value(forKey: "ticker") as! String
+                let localNameCompany = tickerManagedObject.value(forKey: "nameCompany") as! String
+                let localImageData = tickerManagedObject.value(forKey: "imageCompany") as! Data
+                let localImage = tickerFeatures.imageTicker.pngData()
+                
+                if localTicker == tickerFeatures.ticker {
+                    managedContext.delete(tickerManagedObject)
+                    try managedContext.save()
                 }
-            } catch let error as NSError {
-                print("Could not fetch. \(error), \(error.userInfo)")
+                if localNameCompany == tickerFeatures.nameTicker {
+                    managedContext.delete(tickerManagedObject)
+                    try managedContext.save()
+                }
+                if localImageData == localImage {
+                    managedContext.delete(tickerManagedObject)
+                    try managedContext.save()
+                }
             }
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
     }
     
     func loadTickers() -> [TickersFeatures] {
@@ -77,7 +77,7 @@ class SaveTickers {
         
         do {
             tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
-
+            
             for tickerObject in tickerManagedObjectArray {
                 var imageFromData = UIImage()
                 let ticker = tickerObject.value(forKey: "ticker") as! String
@@ -98,7 +98,7 @@ class SaveTickers {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
         let tickersSortedItems = tickerItems.sorted{ $0.ticker < $1.ticker }
-
+        
         return tickersSortedItems
     }
 }

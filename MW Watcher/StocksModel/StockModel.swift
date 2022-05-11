@@ -8,26 +8,6 @@
 import Foundation
 import UIKit
 
-
-//struct TickerValues {
-//    let ticker: String?
-//    let nameCompany: String?
-//    let marketPrice: Double?
-//    let previousPrice: Double?
-//    let volume: Double?
-//    let imageCompany: UIImage?
-//}
-//
-//
-//
-//
-//struct TickersPriceGroup {
-//    let ticker: String
-//    let closePrice: Double
-//    let previousClosePrice: Double
-//    let changePercentagePrice: Double
-//}
-
 struct TickersFeatures {
     let ticker: String
     let nameTicker: String
@@ -39,7 +19,6 @@ struct TickersCurrentValues {
     let marketPrice: Double
     let previousPrice: Double
     let changePercent: Double
-//    let volume: Double?
 }
 
 

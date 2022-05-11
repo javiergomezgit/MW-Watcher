@@ -59,7 +59,6 @@ class UserSaveNews {
                 newsManagedObjectArray = try managedContext.fetch(fetchRequest)
                 for newsManagedObject in newsManagedObjectArray {
                     let localHeadline = newsManagedObject.value(forKey: "headline") as! String
-                    //let date = headlineManagedObject.value(forKey: "date") as! String
                     if localHeadline == headline {
                         managedContext.delete(newsManagedObject)
                         try managedContext.save()

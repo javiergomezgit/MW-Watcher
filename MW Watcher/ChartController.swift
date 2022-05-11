@@ -41,7 +41,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     public var informationStockTicker = TickersCurrentValues(ticker: "", marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
     public var nameTicker = ""
-   
+    
     public var imageCompany = UIImage(named: "wm-logo")
     
     @IBAction func timeFrameChange(_ sender: UISegmentedControl) {
@@ -138,7 +138,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         cryptoImage.image = imageCompany
         currentPriceLabel.text = String(currentPrice)
         currentPercentageLabel.text = "\(percentageChange)%"
-        volumeLabel.text = "$\(previousPrice) USD"
+        volumeLabel.text = "$\(previousPrice)"
         
         loadStockPrices()
     }
@@ -171,35 +171,35 @@ class ChartController: UIViewController, ChartViewDelegate {
             }
         } else {
             ChartsAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
-            switch result {
-                
-            case .success(let data):
-                if data.count != 0  {
-                    self?.stockData = data
-                    DispatchQueue.main.async {
-                        self?.startStopSpinner(start: false)
-                        self?.setUpStockModel()
+                switch result {
+                    
+                case .success(let data):
+                    if data.count != 0  {
+                        self?.stockData = data
+                        DispatchQueue.main.async {
+                            self?.startStopSpinner(start: false)
+                            self?.setUpStockModel()
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self?.startStopSpinner(start: false)
+                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                        }
+                        print ("no more API")
                     }
-                } else {
+                case .failure(let error):
                     DispatchQueue.main.async {
-                        self?.startStopSpinner(start: false)
-                        ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                        ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
                     }
-                    print ("no more API")
+                    print (error)
                 }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
-                }
-                print (error)
             }
-        }
         }
         
     }
     
     private func selectedCryptoTicker(){
-     
+        
         let symbol = informationCryptoTicker.symbol
         
         if Float(informationCryptoTicker.change)! < 0.000 {
@@ -266,7 +266,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                     } else {
                         ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
                     }
-
+                    
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
@@ -291,7 +291,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         guard let modelCandles = stockData else { return }
         self.candleValues.removeAll()
         self.linearValues.removeAll()
-
+        
         var volumeReduce = NSNumber()
         for (index, candleValue) in modelCandles.enumerated() {
             let startingAt = candleValue.start_timestamp
@@ -305,7 +305,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
             
             volumeReduce = NSNumber(value: (volume/1000))
-           
+            
             
             self.candleValues.append(candleValueEntry)
             self.linearValues.append(linearValueEntry)
@@ -323,10 +323,10 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         if !indexMarket {
             if let volumeRound = ChartController.volumeFormatter.string(from: volumeReduce) {
-//                self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
+                //                self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
             }
         } else {
-//            self.volumeLabel.text = ""
+            //            self.volumeLabel.text = ""
         }
         
         
@@ -335,11 +335,11 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     private func setUpCryptoModel() {
-
+        
         guard let modelCandles = cryptoData else { return }
         self.candleValues.removeAll()
         self.linearValues.removeAll()
-
+        
         for (index, candleValue) in modelCandles.enumerated() {
             let startingAt = candleValue.start_timestamp
             guard let openPrice = Double(candleValue.open) else { return }
@@ -400,7 +400,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         for timeInterval in timeIntervals {
             let time = timeInterval.value
             let strDate = Support.sharedSupport.convertTimeStampToDate(timeString: time, dateFormat: dateFormat)
-           
+            
             if timeInterval.key == "old" {
                 oldestTimeLabel.text = strDate
             } else if timeInterval.key == "mid" {
@@ -474,16 +474,16 @@ class ChartController: UIViewController, ChartViewDelegate {
         candleView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
         candleView.xAxis.labelTextColor = .label
         candleView.xAxis.setLabelCount(5, force: true)
-
+        
         return candleView
     }()
     
     func setDataCandleChart() {
         let set1 = CandleChartDataSet(entries: candleValues, label: "1 Hour Time Frame")
-                
+        
         set1.axisDependency = .left
         set1.setColor(UIColor(white: 80/255, alpha: 1))
-       
+        
         set1.drawHorizontalHighlightIndicatorEnabled = true
         set1.highlightColor = .systemRed
         set1.drawValuesEnabled = false
@@ -498,7 +498,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         let data = CandleChartData(dataSet: set1)
         candleView.data = data
     }
-       
+    
     
     //MARK: Linear Chart
     lazy var lineChartView: LineChartView = {
@@ -535,10 +535,10 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         return lineChartView
     }()
-
+    
     func setDataLineChart() {
         let set1 = LineChartDataSet(entries: linearValues, label: "Subscribs")
-
+        
         set1.mode = .cubicBezier
         set1.drawCirclesEnabled = false
         set1.lineWidth = 3
@@ -553,12 +553,12 @@ class ChartController: UIViewController, ChartViewDelegate {
             set1.fill = Fill(color: .red)
             set1.fillAlpha = 0.2
         }
-
+        
         set1.drawFilledEnabled = true
-
+        
         set1.drawHorizontalHighlightIndicatorEnabled = false
         set1.highlightColor = .systemRed
-
+        
         let data = LineChartData(dataSet: set1)
         data.setDrawValues(false)
         lineChartView.data = data
@@ -567,15 +567,15 @@ class ChartController: UIViewController, ChartViewDelegate {
     @IBAction func openNewsButton(_ sender: UIButton) {
         if self.informationCryptoTicker.name == "" {
             let ticker = informationStockTicker.ticker
-        
-                let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
-                let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
-        
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+            let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
+            
             destination!.ticker = ticker
-        
-                destination!.modalTransitionStyle = .crossDissolve
-                self.present(destination!, animated: true, completion: nil)
-        //        self.show(destination!, sender: self)
+            
+            destination!.modalTransitionStyle = .crossDissolve
+            self.present(destination!, animated: true, completion: nil)
+            //        self.show(destination!, sender: self)
         } else {
             sender.isEnabled = false
         }

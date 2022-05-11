@@ -120,7 +120,6 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
-        
 //        let tickerWithChange = TickerValues(ticker: ticker.indexTicker, nameCompany: "", marketPrice: ticker.indexPrice, previousPrice: percentageRounded, volume: "", imageCompany: nil)
 //        destination?.informationStockTicker = tickerWithChange
 //        destination?.indexName = ticker.indexName

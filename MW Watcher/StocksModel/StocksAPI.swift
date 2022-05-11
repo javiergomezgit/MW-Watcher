@@ -21,7 +21,7 @@ final class StocksAPI {
         case invalidTicker
         case freeVersion
     }
-        
+    
     //MARK: API call for search/add of single stock
     ///Input: ticker,
     ///output:  -> "TICKER" : ["Name Company", 344.3, 320.2, 2334533, UIImage]
@@ -46,7 +46,7 @@ final class StocksAPI {
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
+        
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
@@ -69,11 +69,7 @@ final class StocksAPI {
                     } else {
                         let resultArray = tickerDictionary["result"] as? [Any]
                         if let tickerValue = resultArray?.first as? [String: Any] {
-//                            let marketPrice = tickerValue["regularMarketPrice"] as! Double
-//                            let previousPrice = tickerValue["regularMarketPreviousClose"] as! Double
                             let nameCompany = tickerValue["longName"] as? String
-//                            let volume = tickerValue["regularMarketVolume"] as! Double
-                            
                             if nameCompany == nil {
                                 completion(.failure(APIError.freeVersion))
                                 return
@@ -106,14 +102,14 @@ final class StocksAPI {
             "X-RapidAPI-Host": "twelve-data1.p.rapidapi.com",
             "X-RapidAPI-Key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148"
         ]
-                
+        
         let urlString = "https://twelve-data1.p.rapidapi.com/logo?symbol=\(ticker)"
         let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
         
         dump (request.url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-                
+        
         let session = URLSession.shared
         let task = session.dataTask(with: request as URLRequest) { data, response, error in
             if let error = error {
@@ -124,7 +120,7 @@ final class StocksAPI {
             guard let data = data else {
                 return
             }
-                    
+            
             do {
                 let json = try JSON(data: data)
                 var downloadedImage = UIImage(named: "mw-logo")!
@@ -161,7 +157,7 @@ final class StocksAPI {
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
+        
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
@@ -181,14 +177,14 @@ final class StocksAPI {
                     var previousClose = tickerDictionary!["chartPreviousClose"] as? Double ?? 0.0
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
                     let closePrice = closePriceArray!.last as? Double ?? 0.0
-
+                    
                     let percentageChange = (closePrice * 100) / previousClose
                     var percentageRounded = 0.0
                     percentageRounded = percentageChange - 100
                     
                     percentageRounded = Double(round(100*percentageRounded)/100)
                     previousClose = Double(round(100*previousClose)/100)
-
+                    
                     let tickerCurrentValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
                     completion(.success(tickerCurrentValues))
                     break
@@ -201,8 +197,6 @@ final class StocksAPI {
     
     
     //MARK: API call for GROUP of stocks with current price
-    ///Input: no,more,than,ten,merged,tickers
-    ///output:  ->  "indexTicker": "TICKER", "indexName": "Index Name", "indexPrice": 344.4, "changePercentage": 4.5, "exchange": "Exchange Source"
     func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[TickersCurrentValues], Error>) -> Void) {
         let headers = [
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
@@ -218,7 +212,7 @@ final class StocksAPI {
         
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
+        
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
@@ -239,19 +233,13 @@ final class StocksAPI {
                     var previousClose = tickerDictionary!["chartPreviousClose"] as! Double
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
                     let closePrice = closePriceArray!.last as! Double
-
+                    
                     let percentageChange = (closePrice * 100) / previousClose
                     var percentageRounded = 0.0
                     percentageRounded = percentageChange - 100
-
-//                    if percentageChange < 100 {
-//                        percentageRounded = percentageChange - 100
-//                    } else {
-//                        percentageRounded = 100 - percentageChange
-//                    }
                     percentageRounded = Double(round(100*percentageRounded)/100)
                     previousClose = Double(round(100*previousClose)/100)
-
+                    
                     let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
                     tickersArray.append(tickerValues)
                 }
@@ -264,20 +252,19 @@ final class StocksAPI {
     
     
     //MARK: API call for general markets
-    ///output:  ->  ["TICKER" : [344.3, 320.2, 4.5]]
     func getPriceGeneralMarkets(completion: @escaping([GeneralMarkets]?) -> Void) {
         let headers = [
             "x-api-key": "oFf1Q9pDzb6LovcGuCciz1ngVdnCN04J1FGi2fLa",
             "x-rapidapi-host": "yfapi.net"
         ]
-
+        
         let urlString = "https://yfapi.net/v6/finance/quote?region=US&lang=en&symbols=%5EDJI%2C%5EGSPC%2C%5EIXIC%2C%5EW5000%2C%5ERUA%2C%5ESP400%2C%5ERUT%2C%5EVIX"
         let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
-                                            cachePolicy: .useProtocolCachePolicy,
-                                            timeoutInterval: 10.0)
+                                          cachePolicy: .useProtocolCachePolicy,
+                                          timeoutInterval: 10.0)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
-
+        
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
@@ -313,12 +300,4 @@ final class StocksAPI {
         })
         dataTask.resume()
     }
-
-    
-    
-    
-
-    
-
-    
 }

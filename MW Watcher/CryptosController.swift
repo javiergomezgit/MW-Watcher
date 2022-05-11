@@ -8,7 +8,7 @@
 import UIKit
 
 class CryptosController: UIViewController {
-        
+    
     private var cryptoData: [CryptoData]?
     private var viewModels = [CryptosViewCellModel]()
     
@@ -42,7 +42,7 @@ class CryptosController: UIViewController {
     }()
     
     override func viewDidLoad() {
-
+        
         tableView.register(CryptosViewCell.self, forCellReuseIdentifier: "CryptosViewCell")
         
         tableView.dataSource = self
@@ -54,7 +54,7 @@ class CryptosController: UIViewController {
         
         loadCryptoPrices()
     }
-
+    
     @objc func refresh(_ sender: AnyObject) {
         loadCryptoPrices()
     }
@@ -62,7 +62,7 @@ class CryptosController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
     }
-     
+    
     private func loadCryptoPrices() {
         CryptosAPI.shared.getAllCryptosData { [weak self] result in
             switch result {
@@ -82,7 +82,7 @@ class CryptosController: UIViewController {
     }
     
     private func setUpViewModel() {
-
+        
         guard let models = cryptoData else { return }
         
         let cryptosSortedByVolume = models.sorted { first, second -> Bool in
@@ -122,7 +122,7 @@ class CryptosController: UIViewController {
         destination!.modalTransitionStyle = .crossDissolve
         self.present(destination!, animated: true, completion: nil)
         //    nextViewController.modalTransitionStyle = .crossDissolve
-
+        
     }
 }
 
@@ -147,5 +147,5 @@ extension CryptosController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         100
     }
-
+    
 }

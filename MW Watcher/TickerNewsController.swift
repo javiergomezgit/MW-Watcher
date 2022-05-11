@@ -16,7 +16,7 @@ struct TickerNews {
 }
 
 class TickerNewsController: UIViewController {
-
+    
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet var tableView: UITableView!
     
@@ -46,17 +46,6 @@ class TickerNewsController: UIViewController {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
             }
         }
-        
-//        StocksAPI.shared.loadTickerNews(ticker: ticker) { loadedNewsArray in
-//            if loadedNewsArray != nil {
-//                self.tickerNewsArray = loadedNewsArray!
-//                DispatchQueue.main.async {
-//                    self.tableView.reloadData()
-//                }
-//            } else {
-//                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
-//            }
-//        }
     }
 }
 
@@ -74,16 +63,16 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.dateLabel.text = tickerNewsArray[indexPath.row].pubDate
         cell.newsImageView.image = tickerNewsArray[indexPath.row].image
         cell.authorLabel.text = tickerNewsArray[indexPath.row].author
-       
+        
         cell.linkButton.titleLabel?.text = tickerNewsArray[indexPath.row].linkHeadline
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
         cell.saveButton.tag = indexPath.row
         cell.saveButton.addTarget(self, action: #selector(saveHeadline(sender:)), for: .touchUpInside)
-
+        
         cell.shareButton.tag = indexPath.row
         cell.shareButton.addTarget(self, action: #selector(shareTitle(sender:)), for: .touchUpInside)
-
+        
         return cell
     }
     
@@ -94,13 +83,13 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         let headline = self.tickerNewsArray[index].headline
         let link = tickerNewsArray[index].linkHeadline
         let dateOfNew = tickerNewsArray[index].pubDate
-
+        
         let configurationButton = sender.currentImage?.configuration
         var boldSearch = UIImage()
         
         let currentImageData = sender.currentImage
         let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
-
+        
         if currentImageData?.pngData() == imageData?.pngData() {
             if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
                 sender.tintColor = .red
@@ -129,17 +118,17 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         let index = sender.tag
         let headline = self.tickerNewsArray[index].headline
         let link = self.tickerNewsArray[index].linkHeadline
-
+        
         let objectsToShare = [headline, link] as [Any]
         let activityVC = UIActivityViewController(activityItems: objectsToShare, applicationActivities: nil)
         self.present(activityVC, animated: true, completion: nil)
     }
-
+    
     @objc func connected(sender: UIButton){
         guard let urlString = sender.titleLabel?.text else { return }
         guard let url = URL(string: urlString) else { return }
         
         UIApplication.shared.open(url)
     }
-
+    
 }
