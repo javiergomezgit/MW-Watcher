@@ -23,8 +23,6 @@ final class StocksAPI {
     }
     
     //MARK: API call for search/add of single stock
-    ///Input: ticker,
-    ///output:  -> "TICKER" : ["Name Company", 344.3, 320.2, 2334533, UIImage]
     func getFeaturesTicker(tickerSingle: String, completion: @escaping (Result<TickersFeatures, Error>) -> Void) {
         let headers = [
             "x-rapidapi-key": "a0ff2468bbmsh246d9d651a69c21p1a186bjsn6b734187f148",
@@ -96,7 +94,7 @@ final class StocksAPI {
         })
         dataTask.resume()
     }
-    //MARK: API Call for getting logo for specific stock
+    //API Call for getting logo for specific stock
     func getLogoStock(ticker: String, completion: @escaping(Result<UIImage, Error>) -> Void) {
         let headers = [
             "X-RapidAPI-Host": "twelve-data1.p.rapidapi.com",
@@ -140,6 +138,7 @@ final class StocksAPI {
         }
         task.resume()
     }
+    
     
     //MARK: API call for single stock with current price
     func getPriceSingleTicker(ticker: String, timeRange: String, completion: @escaping (Result<TickersCurrentValues, Error>) -> Void) {
@@ -193,7 +192,6 @@ final class StocksAPI {
         })
         dataTask.resume()
     }
-    
     
     
     //MARK: API call for GROUP of stocks with current price
@@ -285,7 +283,6 @@ final class StocksAPI {
                         let marketPrice = tickerDictionary!["regularMarketPrice"] as! Double
                         let changePercentage = tickerDictionary!["regularMarketChangePercent"] as! Double
                         let ticker = tickerDictionary!["symbol"] as! String
-//                        let exchange = tickerDictionary!["exchange"] as! String
                         let shortName = tickerDictionary!["shortName"] as! String
                         
                         let marketIndex = GeneralMarkets(indexTicker: ticker, indexName: shortName, indexPrice: marketPrice, changePercentage: changePercentage)
@@ -300,4 +297,5 @@ final class StocksAPI {
         })
         dataTask.resume()
     }
+    
 }

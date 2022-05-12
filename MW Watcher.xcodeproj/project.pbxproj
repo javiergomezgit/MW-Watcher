@@ -10,6 +10,7 @@
 		029EBE570F9544CD98C9D66A /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6D31FD11CE62FC5F953C9C15 /* Pods_MW_Watcher.framework */; };
 		220235EF280CCC8300882206 /* Spinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220235EE280CCC8300882206 /* Spinner.swift */; };
 		220300BC265FDF7E008BAB70 /* MarketsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */; };
+		22034887282D9D3A00C384E0 /* ChartsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22034886282D9D3A00C384E0 /* ChartsModel.swift */; };
 		220F4EA1265D314200106325 /* WatchlistController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA0265D314200106325 /* WatchlistController.swift */; };
 		220F4EA3265D318D00106325 /* MarketsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA2265D318D00106325 /* MarketsController.swift */; };
 		220F4EA5265D324800106325 /* SavedNewsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220F4EA4265D324800106325 /* SavedNewsViewCell.swift */; };
@@ -97,6 +98,7 @@
 		07BEE81066EA37E4B1B9539D /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
 		220235EE280CCC8300882206 /* Spinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spinner.swift; sourceTree = "<group>"; };
 		220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsViewCell.swift; sourceTree = "<group>"; };
+		22034886282D9D3A00C384E0 /* ChartsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsModel.swift; sourceTree = "<group>"; };
 		220F4EA0265D314200106325 /* WatchlistController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistController.swift; sourceTree = "<group>"; };
 		220F4EA2265D318D00106325 /* MarketsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsController.swift; sourceTree = "<group>"; };
 		220F4EA4265D324800106325 /* SavedNewsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedNewsViewCell.swift; sourceTree = "<group>"; };
@@ -198,6 +200,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		22034885282D9D1F00C384E0 /* ChartsModel */ = {
+			isa = PBXGroup;
+			children = (
+				2280C3D72825A67D00F7AAA2 /* ChartsAPI.swift */,
+				22034886282D9D3A00C384E0 /* ChartsModel.swift */,
+			);
+			path = ChartsModel;
+			sourceTree = "<group>";
+		};
 		2212369B263DA728007EA092 = {
 			isa = PBXGroup;
 			children = (
@@ -239,7 +250,7 @@
 				22E783B52825C41A00A3420C /* CryptoModel */,
 				22E783B72825C45000A3420C /* StocksModel */,
 				22E783B82825C47F00A3420C /* NewsModel */,
-				2280C3D72825A67D00F7AAA2 /* ChartsAPI.swift */,
+				22034885282D9D1F00C384E0 /* ChartsModel */,
 				22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */,
 			);
 			name = Model;
@@ -615,6 +626,7 @@
 				220F4EA1265D314200106325 /* WatchlistController.swift in Sources */,
 				22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
 				2284519C2803ABEA00FF0DF2 /* StockModel.swift in Sources */,
+				22034887282D9D3A00C384E0 /* ChartsModel.swift in Sources */,
 				22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */,
 				22F8F32F265C5FC50084C98F /* UserSaveNews.swift in Sources */,
 				227C38AE281F31910073FC36 /* BrowserController.swift in Sources */,
