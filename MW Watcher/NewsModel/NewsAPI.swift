@@ -84,7 +84,7 @@ final class NewsAPI {
     
     
     //MARK: API call for news on specific stock
-    func loadStockNews(ticker: String, completion: @escaping([TickerNews]?) -> Void){
+    func loadStockNews(ticker: String, name: String, completion: @escaping([TickerNews]?) -> Void){
         
         let headers = [
             "x-bingapis-sdk": "true",
@@ -94,7 +94,10 @@ final class NewsAPI {
         
         //let request = NSMutableURLRequest(url: NSURL(string: "https://bing-news-search1.p.rapidapi.com/news/search?q=AAPL&freshness=Day&textFormat=Raw&safeSearch=Off")! as URL,
         
-        let urlString = "https://bing-news-search1.p.rapidapi.com/news/search?q=\(ticker)&freshness=Day&textFormat=Raw&safeSearch=Off"
+        let urlStringSpaces = "https://bing-news-search1.p.rapidapi.com/news/search?q=\(ticker)&freshness=Day&textFormat=Raw&safeSearch=Off"
+        
+        var urlString = urlStringSpaces.replacingOccurrences(of: " ", with: "%20")
+        urlString = urlString.replacingOccurrences(of: "^", with: "%5E")
         
         let request = NSMutableURLRequest(url:
                                             NSURL(string: urlString)! as URL,

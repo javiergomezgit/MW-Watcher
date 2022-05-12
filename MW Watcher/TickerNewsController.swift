@@ -21,6 +21,7 @@ class TickerNewsController: UIViewController {
     @IBOutlet var tableView: UITableView!
     
     var ticker = ""
+    var name = ""
     var tickerNewsArray: [TickerNews] = []
     let saveHeadlines = UserSaveNews()
     var savedRows : [Int: Bool] = [:]
@@ -36,7 +37,7 @@ class TickerNewsController: UIViewController {
     }
     
     func loadTickerNews() {
-        NewsAPI.shared.loadStockNews(ticker: ticker) { loadedNewsArray in
+        NewsAPI.shared.loadStockNews(ticker: ticker, name: self.name) { loadedNewsArray in
             if loadedNewsArray != nil {
                 self.tickerNewsArray = loadedNewsArray!
                 DispatchQueue.main.async {

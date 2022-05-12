@@ -11,6 +11,8 @@ class MarketsController: UIViewController {
 
     let refreshControl = UIRefreshControl()
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var tableView: UITableView!
+    
     var sizeOfCell = CGFloat(0)
     
 //    var marketsPrices = [
@@ -30,7 +32,9 @@ class MarketsController: UIViewController {
         GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0)
     ]
     
-    var selectedIndex = ""
+//    var minorMarketPrices : [GeneralMarkets] = []
+     var minorMarketPrices = [GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0)]
+    
 //    var marketNames = ["^DJI","^GSPC","^IXIC","^W5000","^RUA","^SP400","^RUT","^VIX"]
     
     override func viewDidLoad() {
@@ -58,21 +62,10 @@ class MarketsController: UIViewController {
                 let marketsValues = markets!
                 self.mayorMarketsPrices.removeAll()
                 
-                for market in marketsValues {
-                    let ticker = market.indexTicker
-                    if ticker == "^DJI" {
-                        let newName = GeneralMarkets(indexTicker: ticker, indexName: "DOW JONES", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                        self.mayorMarketsPrices.append(newName)
-                    }
-                    if ticker == "^GSPC" {
-                        let newName = GeneralMarkets(indexTicker: ticker, indexName: "S&P 500", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                        self.mayorMarketsPrices.append(newName)
-                    }
-                    if ticker == "^IXIC" {
-                        let newName = GeneralMarkets(indexTicker: ticker, indexName: "NASDAQ", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                        self.mayorMarketsPrices.append(newName)
-                    }
-                }
+                self.loadMayorMarkets(marketsValues: marketsValues)
+                
+                self.loadMinorMarkets(marketsValues: marketsValues)
+                
                 DispatchQueue.main.async {
                     self.refreshControl.endRefreshing()
                     self.collectionView.reloadData()
@@ -80,11 +73,37 @@ class MarketsController: UIViewController {
             }
         }
     }
+    
+    func loadMayorMarkets(marketsValues: [GeneralMarkets]){
+        
+        for market in marketsValues {
+            let ticker = market.indexTicker
+            if ticker == "^DJI" {
+                let newName = GeneralMarkets(indexTicker: ticker, indexName: "DOW JONES", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
+                self.mayorMarketsPrices.append(newName)
+            }
+            if ticker == "^GSPC" {
+                let newName = GeneralMarkets(indexTicker: ticker, indexName: "S&P 500", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
+                self.mayorMarketsPrices.append(newName)
+            }
+            if ticker == "^IXIC" {
+                let newName = GeneralMarkets(indexTicker: ticker, indexName: "NASDAQ", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
+                self.mayorMarketsPrices.append(newName)
+            }
+        }
+    }
+    func loadMinorMarkets(marketsValues: [GeneralMarkets]){
+        for market in marketsValues {
+            let ticker = market.indexTicker
+            if ticker == "^VIX" {
+                let newName = GeneralMarkets(indexTicker: ticker, indexName: "CBOE Volatility Index", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
+                self.minorMarketPrices.append(newName)
+            }
+        }
+    }
 }
 
-
-
-extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 3
     }
@@ -150,10 +169,26 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         
         self.present(destination!, animated: true, completion: nil)
     }
-}
-
-extension MarketsController: UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: sizeOfCell, height: (sizeOfCell * 0.80))
     }
+}
+
+
+extension MarketsController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return minorMarketPrices.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "MinorMarketsViewCell", for: indexPath) as! MinorMarketsViewCell
+
+        
+        cell.textLabel?.text = "SHEll"
+        
+        return cell
+    }
+    
+    
 }

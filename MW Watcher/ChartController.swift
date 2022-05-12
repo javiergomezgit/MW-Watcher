@@ -578,13 +578,30 @@ class ChartController: UIViewController, ChartViewDelegate {
             let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
             let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
             
-            destination!.ticker = ticker
-            
+            if indexMarket {
+                destination!.ticker = indexName
+                destination!.name = indexName
+            } else {
+                destination!.ticker = ticker
+                destination!.name = nameTicker
+            }
+                        
             destination!.modalTransitionStyle = .crossDissolve
             self.present(destination!, animated: true, completion: nil)
             //        self.show(destination!, sender: self)
         } else {
-            sender.isEnabled = false
+            //sender.isEnabled = false
+            let ticker = informationCryptoTicker.symbol
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+            let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
+            
+            destination!.ticker = ticker
+            destination!.name = informationCryptoTicker.name
+           
+            destination!.modalTransitionStyle = .crossDissolve
+            self.present(destination!, animated: true, completion: nil)
+            
         }
         
     }
