@@ -30,8 +30,8 @@
             filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "137"
-            endingLineNumber = "137"
+            startingLineNumber = "174"
+            endingLineNumber = "174"
             landmarkName = "loadCurrentPrices()"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "168"
-            endingLineNumber = "168"
+            startingLineNumber = "205"
+            endingLineNumber = "205"
             landmarkName = "loadMinorMarkets(marketsValues:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -62,8 +62,8 @@
             filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "169"
-            endingLineNumber = "169"
+            startingLineNumber = "206"
+            endingLineNumber = "206"
             landmarkName = "loadMinorMarkets(marketsValues:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -71,63 +71,47 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "1AD5AB75-EB20-47A3-A6D9-A79F7090399E"
+            uuid = "A5A662EE-C083-42C6-B1CB-FD66D9750205"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
+            filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "227"
-            endingLineNumber = "227"
-            landmarkName = "getMarketValues(symbol:completion:)"
+            startingLineNumber = "470"
+            endingLineNumber = "470"
+            landmarkName = "setData(lineChartSP500:lineChartDJI:lineChartIXIC:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "A5AB884B-83EA-437A-8002-04EEC259539B"
+            uuid = "96C4B440-1000-4D54-832A-B645EED2EDC1"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "241"
-            endingLineNumber = "241"
-            landmarkName = "getMarketValues(symbol:completion:)"
+            startingLineNumber = "209"
+            endingLineNumber = "209"
+            landmarkName = "getMayorMarketsValues(symbol:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "CD203701-E4AE-4FCE-98FE-AB673D0A6966"
+            uuid = "62889C11-C336-4E3B-BA8D-5619E24FFBC9"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "356"
-            endingLineNumber = "356"
-            landmarkName = "setUpMarketModel()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "9E61806A-5053-4BFC-9959-4BBFC673A35A"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/MarketsController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "342"
-            endingLineNumber = "342"
+            startingLineNumber = "378"
+            endingLineNumber = "378"
             landmarkName = "loadMayorMarketsChart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -135,15 +119,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C1932D32-9145-4619-885E-925E9BFB4281"
+            uuid = "0017C7D9-00F4-42B7-88F1-390073932E9F"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "340"
-            endingLineNumber = "340"
+            startingLineNumber = "386"
+            endingLineNumber = "386"
             landmarkName = "loadMayorMarketsChart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -151,31 +135,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "8B097FDB-1E2E-4ED6-A540-AE55B95D9A23"
+            uuid = "4EF620FC-B7B6-4DC4-B88E-1B72A317135D"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "360"
-            endingLineNumber = "360"
-            landmarkName = "setUpMarketModel()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B11F24CC-4669-47E9-907B-7F5ECAC87B38"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/MarketsController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "346"
-            endingLineNumber = "346"
+            startingLineNumber = "394"
+            endingLineNumber = "394"
             landmarkName = "loadMayorMarketsChart()"
             landmarkType = "7">
          </BreakpointContent>
@@ -183,97 +151,97 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7D4CBD0F-4FFA-4010-BF30-C9E213010677"
+            uuid = "9C6CA0FE-B024-4A70-AA15-6BE7A99309CC"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
+            filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "177"
-            endingLineNumber = "177"
-            landmarkName = "getMayorMarketsValues(completion:)"
+            startingLineNumber = "380"
+            endingLineNumber = "380"
+            landmarkName = "loadMayorMarketsChart()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "7E2DB358-0E87-4BC7-B92A-90A6F53CB80E"
+            uuid = "9670CDC0-4CDF-4E28-A031-ECAFD5F546EA"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
+            filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
-            landmarkName = "getMayorMarketsValues(completion:)"
+            startingLineNumber = "388"
+            endingLineNumber = "388"
+            landmarkName = "loadMayorMarketsChart()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "37F59142-054D-4BAB-BF9C-E7D85AE39239"
+            uuid = "17AE1C03-5026-485F-8664-77A3C54613C2"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
+            filePath = "MW Watcher/MarketsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "182"
-            endingLineNumber = "182"
-            landmarkName = "getMayorMarketsValues(completion:)"
+            startingLineNumber = "396"
+            endingLineNumber = "396"
+            landmarkName = "loadMayorMarketsChart()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "24455220-F63C-4A5B-BBF4-371A7AD9D896"
+            uuid = "323D7431-FC89-45A8-AADA-DEDF8C2B592B"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "204"
-            endingLineNumber = "204"
-            landmarkName = "getMarketValues(symbol:completion:)"
+            startingLineNumber = "217"
+            endingLineNumber = "217"
+            landmarkName = "getMayorMarketsValues(symbol:completion:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "24455220-F63C-4A5B-BBF4-371A7AD9D896 - 7ce30dafe65730f2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MW_Watcher.ChartsAPI.getMarketValues(symbol: Swift.String, completion: (Swift.Result&lt;Swift.Array&lt;MW_Watcher.MarketsCandles&gt;, Swift.Error&gt;) -&gt; ()) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/ChartsModel/ChartsAPI.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "204"
-                  endingLineNumber = "204"
-                  offsetFromSymbolStart = "1741">
-               </Location>
-               <Location
-                  uuid = "24455220-F63C-4A5B-BBF4-371A7AD9D896 - 7ce30dafe65730f2"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "MW_Watcher.ChartsAPI.getMarketValues(symbol: Swift.String, completion: (Swift.Result&lt;Swift.Array&lt;MW_Watcher.MarketsCandles&gt;, Swift.Error&gt;) -&gt; ()) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/ChartsModel/ChartsAPI.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "204"
-                  endingLineNumber = "204"
-                  offsetFromSymbolStart = "1809">
-               </Location>
-            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5D548497-1E57-4335-90DB-074E8680ADCA"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
+            landmarkName = "getMayorMarketsValues(symbol:completion:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F52467B5-F911-4AB5-98D4-027AE22104BA"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "236"
+            endingLineNumber = "236"
+            landmarkName = "getMayorMarketsValues(symbol:completion:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

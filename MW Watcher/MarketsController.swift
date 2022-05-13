@@ -13,14 +13,21 @@ class MarketsController: UIViewController {
     let refreshControl = UIRefreshControl()
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var chartView: UIView!
+    @IBOutlet weak var chartViewSP500: UIView!
+    @IBOutlet weak var chartViewDJI: UIView!
+    @IBOutlet weak var chartViewIXIC: UIView!
+    
     
     var sizeOfCell = CGFloat(0)
 
-    private var marketsData: [[MarketsCandles]] = [[]]
-    var linearValues = [ChartDataEntry]()
-    
-    //MARK: Linear Chart
+    private var marketsDataSP500: [MarketsCandles] = []
+    private var marketsDataDJI: [MarketsCandles] = []
+    private var marketsDataIXIC: [MarketsCandles] = []
+
+    private var linearValuesSP500 = [ChartDataEntry]()
+    private var linearValuesDJI = [ChartDataEntry]()
+    private var linearValuesIXIC = [ChartDataEntry]()
+
     lazy var lineChartViewSP500: LineChartView = {
         let lineChartView = LineChartView()
         lineChartView.delegate = self
@@ -53,13 +60,12 @@ class MarketsController: UIViewController {
         
         return lineChartView
     }()
-    
     lazy var lineChartViewDJI: LineChartView = {
         let lineChartView = LineChartView()
         lineChartView.delegate = self
         
         lineChartView.leftAxis.enabled = false
-        lineChartView.rightAxis.enabled = true
+        lineChartView.rightAxis.enabled = false
         
         lineChartView.dragEnabled = true
         lineChartView.setScaleEnabled(true)
@@ -77,7 +83,7 @@ class MarketsController: UIViewController {
         lineChartView.rightAxis.axisLineColor = .label
         lineChartView.rightAxis.labelPosition = .outsideChart
         
-        lineChartView.xAxis.enabled = true
+        lineChartView.xAxis.enabled = false
         lineChartView.xAxis.labelPosition = .top
         lineChartView.xAxis.yOffset = 10
         lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
@@ -86,9 +92,40 @@ class MarketsController: UIViewController {
         
         return lineChartView
     }()
-    
+    lazy var lineChartViewIXIC: LineChartView = {
+        let lineChartView = LineChartView()
+        lineChartView.delegate = self
+        
+        lineChartView.leftAxis.enabled = false
+        lineChartView.rightAxis.enabled = false
+        
+        lineChartView.dragEnabled = true
+        lineChartView.setScaleEnabled(true)
+        lineChartView.pinchZoomEnabled = true
+        lineChartView.doubleTapToZoomEnabled = true
+        lineChartView.dragXEnabled = true
+        lineChartView.autoScaleMinMaxEnabled = true
+        lineChartView.legend.enabled = false
+        
+        lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
+        lineChartView.rightAxis.labelTextColor = .label
+        lineChartView.rightAxis.spaceTop = 0.3
+        lineChartView.rightAxis.spaceBottom = 0.3
+        lineChartView.rightAxis.setLabelCount(8, force: true)
+        lineChartView.rightAxis.axisLineColor = .label
+        lineChartView.rightAxis.labelPosition = .outsideChart
+        
+        lineChartView.xAxis.enabled = false
+        lineChartView.xAxis.labelPosition = .top
+        lineChartView.xAxis.yOffset = 10
+        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
+        lineChartView.xAxis.labelTextColor = .label
+        lineChartView.xAxis.setLabelCount(4, force: true)
+        
+        return lineChartView
+    }()
 
-    
+
 //    var marketsPrices = [
 //        GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0),
 //        GeneralMarkets(indexTicker: "^GSPC", indexName: "S&P 500", indexPrice: 0.0, changePercentage: 0.0),
@@ -329,87 +366,157 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
 
 
 
-
 extension MarketsController: ChartViewDelegate {
-    
     
     func loadMayorMarketsChart() {
 
-            ChartsAPI.shared.getMayorMarketsValues { result in
+        let tickers = ["^DJI", "^GSPC", "^IXIC"]
+        
+            ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[0]) { result in
                 switch result {
-                case .success(let marketsValues):
-                    
-                    self.marketsData = marketsValues
-                    
-                    DispatchQueue.main.async {
-//                        self?.startStopSpinner(start: false)
-                        self.setUpMarketModel()
+                case .success(let marketsValuesDJI):
+                    self.marketsDataDJI = marketsValuesDJI
+//                    DispatchQueue.main.async {
+//                        self.setUpMarketModel(ticker: tickers[0])
+//                    }
+                    ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[1]) { result in
+                        switch result {
+                            
+                        case .success(let marketsValuesSP500):
+                            self.marketsDataSP500 = marketsValuesSP500
+//                            DispatchQueue.main.async {
+//                                self.setUpMarketModel(ticker: tickers[1])
+//                            }
+                            ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[2]) { result in
+                                switch result {
+                                    
+                                case .success(let marketsValuesIXIC):
+                                    self.marketsDataIXIC = marketsValuesIXIC
+                                    DispatchQueue.main.async {
+                                        self.setUpMarketModel()
+                                    }
+                                case .failure(_):
+                                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
+                                }
+                            }
+                        case .failure(_):
+                            ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
+                        }
                     }
                     
+                    
+//                    self.marketsDataDJI = marketsValues
+//                    DispatchQueue.main.async {
+                        //self?.startStopSpinner(start: false)
+//                        self.setUpMarketModel(ticker: ticker)
+//                    }
                 case .failure(_):
                     ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                 }
             }
-
     }
+   
     private func setUpMarketModel(){
-        guard let modelCandles = marketsData.first else { return }
+        var lineChartDataSetSP500 = LineChartDataSet()
+        var lineChartDataSetDJI = LineChartDataSet()
+        var lineChartDataSetIXIC = LineChartDataSet()
 
-        self.linearValues.removeAll()
         
-        for (index, candleValue) in modelCandles.enumerated() {
-//            let startingAt = candleValue.start_timestamp
-//            let openPrice = candleValue.open
-//            let highPrice = candleValue.high
-            let closePrice = candleValue.close
-//            let lowPrice = candleValue.low
+            self.linearValuesSP500.removeAll()
+            for (index, candleValue) in self.marketsDataSP500.enumerated() {
+                let closePrice = candleValue.close
+                self.linearValuesSP500.append(ChartDataEntry(x: Double(index), y: closePrice))
+            }
+            chartViewSP500.addSubview(lineChartViewSP500)
+            lineChartViewSP500.centerInSuperview()
+            lineChartViewSP500.width(to: chartViewSP500)
+            lineChartViewSP500.height(to: chartViewSP500)
             
-            let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
-            
-            self.linearValues.append(linearValueEntry)
-        }
+            lineChartDataSetSP500 = LineChartDataSet(entries: linearValuesSP500, label: "SP500")
+
         
-        setupLineChart()
+        self.linearValuesDJI .removeAll()
+            for (index, candleValue) in self.marketsDataDJI.enumerated() {
+                let closePrice = candleValue.close
+                self.linearValuesDJI.append(ChartDataEntry(x: Double(index), y: closePrice))
+            }
+            chartViewDJI.addSubview(lineChartViewDJI)
+            lineChartViewDJI.centerInSuperview()
+            lineChartViewDJI.width(to: chartViewDJI)
+            lineChartViewDJI.height(to: chartViewDJI)
+            
+            lineChartDataSetDJI = LineChartDataSet(entries: linearValuesDJI, label: "DJI")
+
+        
+        
+        self.linearValuesIXIC.removeAll()
+            for (index, candleValue) in self.marketsDataIXIC.enumerated() {
+                let closePrice = candleValue.close
+                self.linearValuesIXIC.append(ChartDataEntry(x: Double(index), y: closePrice))
+            }
+            chartViewIXIC.addSubview(lineChartViewIXIC)
+            lineChartViewIXIC.centerInSuperview()
+            lineChartViewIXIC.width(to: chartViewIXIC)
+            lineChartViewIXIC.height(to: chartViewIXIC)
+            
+            lineChartDataSetIXIC = LineChartDataSet(entries: linearValuesIXIC, label: "NASDAQ")
+
+        
+        self.setData(lineChartSP500: lineChartDataSetSP500, lineChartDJI: lineChartDataSetDJI, lineChartIXIC: lineChartDataSetIXIC)
         
     }
-    
-    
-    func setupLineChart(){
-        chartView.addSubview(lineChartViewSP500)
-        lineChartViewSP500.centerInSuperview()
-        lineChartViewSP500.width(to: chartView)
-        lineChartViewSP500.height(to: chartView)
-        
-        setDataSP500()
-    }
-    
-    func setDataSP500() {
-        let set1 = LineChartDataSet(entries: linearValues, label: "Subscribs")
+      
+    func setData(lineChartSP500: LineChartDataSet, lineChartDJI: LineChartDataSet, lineChartIXIC: LineChartDataSet) {
+        let set1 = lineChartSP500
         
         set1.mode = .linear//.cubicBezier
         set1.drawCirclesEnabled = false
         set1.lineWidth = 2
-        set1.setColor(.yellow)
-//        let v1 = linearValues.first!.y
-//        let v2 = linearValues.last!.y
-//        if v1 < v2 {
-//            set1.setColor(UIColor(named: "uptrend")!)
-//            set1.fill = Fill(color: UIColor(named: "uptrend")!)
-//            set1.fillAlpha = 0.1
-//        } else {
-//            set1.setColor(.red.withAlphaComponent(0.7))
-//            set1.fill = Fill(color: .red)
-//            set1.fillAlpha = 0.2
-//        }
-        
+        set1.setColor(.systemOrange)
+
         set1.drawFilledEnabled = false
         
         set1.drawHorizontalHighlightIndicatorEnabled = false
         set1.highlightColor = .systemRed
         
-        let data = LineChartData(dataSet: set1)
+        
+        
+        
+        let set2 = lineChartDJI
+        
+        set2.mode = .linear//.cubicBezier
+        set2.drawCirclesEnabled = false
+        set2.lineWidth = 2
+        set2.setColor(.systemBrown)
+
+        set2.drawFilledEnabled = false
+        
+        set2.drawHorizontalHighlightIndicatorEnabled = false
+        set2.highlightColor = .systemRed
+        
+        
+        
+        let set3 = lineChartIXIC
+        
+        set3.mode = .linear//.cubicBezier
+        set3.drawCirclesEnabled = false
+        set3.lineWidth = 2
+        set3.setColor(.systemBlue)
+
+        set3.drawFilledEnabled = false
+        
+        set3.drawHorizontalHighlightIndicatorEnabled = false
+        set3.highlightColor = .systemRed
+        
+        
+//        let data = LineChartData(dataSet: set1)
+        let data = LineChartData(dataSets: [set1, set2, set3])
+
         data.setDrawValues(false)
+        
         lineChartViewSP500.data = data
+
+        
     }
     
 
