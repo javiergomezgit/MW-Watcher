@@ -81,17 +81,23 @@ class SaveTickers {
             for tickerObject in tickerManagedObjectArray {
                 var imageFromData = UIImage()
                 let ticker = tickerObject.value(forKey: "ticker") as! String
-                let name = tickerObject.value(forKey: "nameCompany") as! String
-                let imageData = tickerObject.value(forKey: "imageCompany") as! Data
-                
-                do {
-                    if let image = UIImage(data: imageData) {
-                        imageFromData = image
-                    } else {
-                        imageFromData = UIImage(named: "mw-logo")!
-                    }
+                var name = tickerObject.value(forKey: "nameCompany") as? String
+                if name == nil {
+                    name = "n/a"
                 }
-                let tickerItem = TickersFeatures(ticker: ticker, nameTicker: name, imageTicker: imageFromData)
+                if let imageData = tickerObject.value(forKey: "imageCompany") as? Data {
+                    do {
+                        if let image = UIImage(data: imageData) {
+                            imageFromData = image
+                        } else {
+                            imageFromData = UIImage(named: "mw-logo")!
+                        }
+                    }
+                } else {
+                    imageFromData = UIImage(named: "mw-logo")!
+                }
+
+                let tickerItem = TickersFeatures(ticker: ticker, nameTicker: name!, imageTicker: imageFromData)
                 tickerItems.append(tickerItem)
             }
         } catch let error as NSError {

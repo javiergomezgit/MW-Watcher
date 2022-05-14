@@ -18,6 +18,7 @@ class MarketsViewCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         openChartButton.setTitle("", for: .normal)
+        self.contentView.backgroundColor = UIColor(named: "customCellCollection")
     }
     
     

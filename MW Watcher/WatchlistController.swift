@@ -21,7 +21,7 @@ class WatchlistController: UIViewController {
     var alreadyLaunched = false
     var percentageChg = 0.0
     var spinner = UIActivityIndicatorView(style: .large)
-    private let imageView = UIImageView(image: UIImage(named: "plus.square.on.square"))
+    private let imageViewTopRightButton = UIImageView(image: UIImage(named: "plus.square.on.square"))
     
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
@@ -30,7 +30,7 @@ class WatchlistController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupUI()
+        setupUITopRightButton()
         
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
@@ -74,15 +74,38 @@ class WatchlistController: UIViewController {
     
     func loadInitialStocks(){
         if !self.alreadyLaunched {
-            self.showFirstTimeNotification(whereView: self.imageView)
+            self.showFirstTimeNotification(whereView: self.imageViewTopRightButton)
         }
         
-        let loadSavedTickers = self.savedTickers.loadTickers()
-        if !loadSavedTickers.isEmpty {
-            self.loadMultipleStocks(savedTickers: loadSavedTickers)
+        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
+        let versionWithoutDots = appVersion.replacingOccurrences(of: ".", with: "")
+        
+        if Int(versionWithoutDots)! >= 1212 {
+            let loadSavedTickers = self.savedTickers.loadTickers()
+            if !loadSavedTickers.isEmpty {
+                self.loadMultipleStocks(savedTickers: loadSavedTickers)
+            } else {
+                self.startStopSpinner(start: false)
+            }
         } else {
-            self.startStopSpinner(start: false)
+                // Create the alert controller
+            let alertController = UIAlertController(title: "Reinstall", message: "Uninstall App and download again!", preferredStyle: .alert)
+
+                // Create the actions
+            let okAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default) {
+                    UIAlertAction in
+                    exit(0)
+                }
+
+                // Add the actions
+                alertController.addAction(okAction)
+
+                // Present the controller
+            self.present(alertController, animated: true, completion: nil)
+
+
         }
+       
     }
     
     func addingTicker() {
@@ -125,6 +148,17 @@ class WatchlistController: UIViewController {
         
         let positionPoptip = CGRect(x: whereView.frame.maxX - 70, y: whereView.frame.minY - 30, width: 100, height: 100)
         popTip.show(text: "Add your favorite stocks", direction: .left, maxWidth: 100, in: view, from: positionPoptip)
+        
+        popTip.bubbleColor = UIColor(named: "onboardingNotification")!
+    }
+    
+    func showNotificationOldVersionApp(whereView: UIView) {
+        let popTip = PopTip()
+        popTip.delayIn = TimeInterval(1)
+        popTip.actionAnimation = .bounce(2)
+        
+        let positionPoptip = CGRect(x: whereView.frame.maxX - 70, y: whereView.frame.minY - 30, width: 100, height: 100)
+        popTip.show(text: "Uninstall App and Update it", direction: .left, maxWidth: 100, in: view, from: positionPoptip)
         
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
     }
@@ -309,7 +343,7 @@ extension WatchlistController {
 
 //MARK: Right top button in navigation controller
 extension WatchlistController {
-    private struct Const {
+    private struct ConstTopRightButton {
         /// Image height/width for Large NavBar state
         static let ImageSizeForLargeState: CGFloat = 36
         /// Margin from right anchor of safe area to right anchor of Image
@@ -326,31 +360,31 @@ extension WatchlistController {
         static let NavBarHeightLargeState: CGFloat = 96.5
     }
     
-    private func setupUI() {
+    private func setupUITopRightButton() {
         //        navigationController?.navigationBar.prefersLargeTitles = true
-        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
-        imageView.isUserInteractionEnabled = true
-        imageView.addGestureRecognizer(tapGestureRecognizer)
+        imageViewTopRightButton.isUserInteractionEnabled = true
+        imageViewTopRightButton.tintColor = .label
+
+        imageViewTopRightButton.addGestureRecognizer(tapGestureRecognizer)
         
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
         guard let navigationBar = self.navigationController?.navigationBar else { return }
-        navigationBar.addSubview(imageView)
+        navigationBar.addSubview(imageViewTopRightButton)
         //        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
         //        imageView.clipsToBounds = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageViewTopRightButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            imageView.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
-            imageView.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
-            imageView.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
-            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor)
+            imageViewTopRightButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -ConstTopRightButton.ImageRightMargin),
+            imageViewTopRightButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
+            imageViewTopRightButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
+            imageViewTopRightButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor)
         ])
     }
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
         addingTicker()
     }
-    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         showImage(false)
@@ -365,8 +399,7 @@ extension WatchlistController {
     /// - Parameter show: show or hide the image from NavBar
     private func showImage(_ show: Bool) {
         UIView.animate(withDuration: 0.2) {
-            self.imageView.alpha = show ? 1.0 : 0.0
+            self.imageViewTopRightButton.alpha = show ? 1.0 : 0.0
         }
     }
-    
 }

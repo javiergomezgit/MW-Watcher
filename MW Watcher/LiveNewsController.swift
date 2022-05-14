@@ -127,6 +127,7 @@ extension LiveNewsController {
 
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
             imageView.isUserInteractionEnabled = true
+        imageView.tintColor = .label
             imageView.addGestureRecognizer(tapGestureRecognizer)
         
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened

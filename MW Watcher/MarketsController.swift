@@ -9,159 +9,104 @@ import UIKit
 import Charts
 
 class MarketsController: UIViewController {
-
-    let refreshControl = UIRefreshControl()
+    
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var chartViewSP500: UIView!
-    @IBOutlet weak var chartViewDJI: UIView!
-    @IBOutlet weak var chartViewIXIC: UIView!
-    
-    
-    var sizeOfCell = CGFloat(0)
+    @IBOutlet weak var chartView: UIView!
+    private let imageViewTopRightButton = UIImageView(image: UIImage(named: "arrow.triangle.2.circlepath.circle"))
 
+    var sizeOfCell = CGFloat(0)
+    
     private var marketsDataSP500: [MarketsCandles] = []
     private var marketsDataDJI: [MarketsCandles] = []
     private var marketsDataIXIC: [MarketsCandles] = []
-
+    
     private var linearValuesSP500 = [ChartDataEntry]()
     private var linearValuesDJI = [ChartDataEntry]()
     private var linearValuesIXIC = [ChartDataEntry]()
-
-    lazy var lineChartViewSP500: LineChartView = {
+    
+    lazy var lineChartView: LineChartView = {
         let lineChartView = LineChartView()
         lineChartView.delegate = self
         
         lineChartView.leftAxis.enabled = false
         lineChartView.rightAxis.enabled = true
         
-        lineChartView.dragEnabled = true
+        lineChartView.dragEnabled = false
         lineChartView.setScaleEnabled(true)
-        lineChartView.pinchZoomEnabled = true
-        lineChartView.doubleTapToZoomEnabled = true
-        lineChartView.dragXEnabled = true
+        lineChartView.pinchZoomEnabled = false
+        lineChartView.doubleTapToZoomEnabled = false
+        lineChartView.dragXEnabled = false
         lineChartView.autoScaleMinMaxEnabled = true
-        lineChartView.legend.enabled = false
+        lineChartView.legend.enabled = true
+        lineChartView.legend.textColor = .label
         
         lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
         lineChartView.rightAxis.labelTextColor = .label
-        lineChartView.rightAxis.spaceTop = 0.3
-        lineChartView.rightAxis.spaceBottom = 0.3
-        lineChartView.rightAxis.setLabelCount(8, force: true)
-        lineChartView.rightAxis.axisLineColor = .label
-        lineChartView.rightAxis.labelPosition = .outsideChart
-        
-        lineChartView.xAxis.enabled = true
-        lineChartView.xAxis.labelPosition = .top
-        lineChartView.xAxis.yOffset = 10
-        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.xAxis.labelTextColor = .label
-        lineChartView.xAxis.setLabelCount(4, force: true)
-        
-        return lineChartView
-    }()
-    lazy var lineChartViewDJI: LineChartView = {
-        let lineChartView = LineChartView()
-        lineChartView.delegate = self
-        
-        lineChartView.leftAxis.enabled = false
-        lineChartView.rightAxis.enabled = false
-        
-        lineChartView.dragEnabled = true
-        lineChartView.setScaleEnabled(true)
-        lineChartView.pinchZoomEnabled = true
-        lineChartView.doubleTapToZoomEnabled = true
-        lineChartView.dragXEnabled = true
-        lineChartView.autoScaleMinMaxEnabled = true
-        lineChartView.legend.enabled = false
-        
-        lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.rightAxis.labelTextColor = .label
-        lineChartView.rightAxis.spaceTop = 0.3
-        lineChartView.rightAxis.spaceBottom = 0.3
+        //        lineChartView.rightAxis.spaceTop = 0.5
+        //        lineChartView.rightAxis.spaceBottom = 0.3
         lineChartView.rightAxis.setLabelCount(8, force: true)
         lineChartView.rightAxis.axisLineColor = .label
         lineChartView.rightAxis.labelPosition = .outsideChart
         
         lineChartView.xAxis.enabled = false
-        lineChartView.xAxis.labelPosition = .top
-        lineChartView.xAxis.yOffset = 10
-        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.xAxis.labelTextColor = .label
-        lineChartView.xAxis.setLabelCount(4, force: true)
+//        lineChartView.xAxis.labelPosition = .top
+//        lineChartView.xAxis.yOffset = 5
+//        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 9)!
+//        lineChartView.xAxis.labelTextColor = .label
+//        lineChartView.xAxis.setLabelCount(5, force: true)
         
         return lineChartView
     }()
-    lazy var lineChartViewIXIC: LineChartView = {
-        let lineChartView = LineChartView()
-        lineChartView.delegate = self
-        
-        lineChartView.leftAxis.enabled = false
-        lineChartView.rightAxis.enabled = false
-        
-        lineChartView.dragEnabled = true
-        lineChartView.setScaleEnabled(true)
-        lineChartView.pinchZoomEnabled = true
-        lineChartView.doubleTapToZoomEnabled = true
-        lineChartView.dragXEnabled = true
-        lineChartView.autoScaleMinMaxEnabled = true
-        lineChartView.legend.enabled = false
-        
-        lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.rightAxis.labelTextColor = .label
-        lineChartView.rightAxis.spaceTop = 0.3
-        lineChartView.rightAxis.spaceBottom = 0.3
-        lineChartView.rightAxis.setLabelCount(8, force: true)
-        lineChartView.rightAxis.axisLineColor = .label
-        lineChartView.rightAxis.labelPosition = .outsideChart
-        
-        lineChartView.xAxis.enabled = false
-        lineChartView.xAxis.labelPosition = .top
-        lineChartView.xAxis.yOffset = 10
-        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.xAxis.labelTextColor = .label
-        lineChartView.xAxis.setLabelCount(4, force: true)
-        
-        return lineChartView
-    }()
-
-
-//    var marketsPrices = [
-//        GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0),
-//        GeneralMarkets(indexTicker: "^GSPC", indexName: "S&P 500", indexPrice: 0.0, changePercentage: 0.0),
-//        GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0),
-//        GeneralMarkets(indexTicker: "^W5000", indexName: "Wilshire 5000 Total Market Index", indexPrice: 0.0, changePercentage: 0.0),
-//        GeneralMarkets(indexTicker: "^RUA", indexName: "Russell 3000", indexPrice: 0.0, changePercentage: 0.0),
-//        GeneralMarkets(indexTicker: "^SP400", indexName: "S&P 400", indexPrice:  0.0, changePercentage: 0.0),
-//        GeneralMarkets(indexTicker: "^RUT", indexName: "Russell 2000", indexPrice: 0.0, changePercentage: 0.0),
-//        GeneralMarkets(indexTicker:  "^VIX", indexName: "CBOE Volatility Index", indexPrice:  0.0, changePercentage: 0.0)
-//    ]
+    
+    //    var marketsPrices = [
+    //        GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0),
+    //        GeneralMarkets(indexTicker: "^GSPC", indexName: "S&P 500", indexPrice: 0.0, changePercentage: 0.0),
+    //        GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0),
+    //        GeneralMarkets(indexTicker: "^W5000", indexName: "Wilshire 5000 Total Market Index", indexPrice: 0.0, changePercentage: 0.0),
+    //        GeneralMarkets(indexTicker: "^RUA", indexName: "Russell 3000", indexPrice: 0.0, changePercentage: 0.0),
+    //        GeneralMarkets(indexTicker: "^SP400", indexName: "S&P 400", indexPrice:  0.0, changePercentage: 0.0),
+    //        GeneralMarkets(indexTicker: "^RUT", indexName: "Russell 2000", indexPrice: 0.0, changePercentage: 0.0),
+    //        GeneralMarkets(indexTicker:  "^VIX", indexName: "CBOE Volatility Index", indexPrice:  0.0, changePercentage: 0.0)
+    //    ]
     
     var mayorMarketsPrices = [GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0)]
     
     var minorMarketPrices : [GeneralMarkets] = []
-//     var minorMarketPrices = [GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0)]
-        
+    //     var minorMarketPrices = [GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0)]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupUITopRightButton()
+        startStopSpinner(start: true)
         loadMayorMarketsChart()
-        
         loadCurrentPrices()
-        
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
-        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        collectionView.addSubview(refreshControl) // not required when using UITableViewController
-        
+                
         sizeOfCell = (view.frame.width/3) - (view.frame.width/20)
     }
     
-    @objc func refresh(_ sender: AnyObject) {
+    func updateAllData() {
+        startStopSpinner(start: true)
+        loadMayorMarketsChart()
         loadCurrentPrices()
     }
     
+    let child = Spinner()
+    func startStopSpinner(start: Bool){
+        if start {
+            addChild(child)
+            child.view.frame = view.frame
+            view.addSubview(child.view)
+            child.didMove(toParent: self)
+        } else {
+            child.willMove(toParent: nil)
+            child.view.removeFromSuperview()
+            child.removeFromParent()
+        }
+    }
+    
     func loadCurrentPrices() {
-        
         StocksAPI.shared.getPriceGeneralMarkets { markets in
             if markets == nil {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
@@ -174,7 +119,6 @@ class MarketsController: UIViewController {
                 self.loadMinorMarkets(marketsValues: marketsValues)
                 
                 DispatchQueue.main.async {
-                    self.refreshControl.endRefreshing()
                     self.tableView.reloadData()
                     self.collectionView.reloadData()
                 }
@@ -183,7 +127,6 @@ class MarketsController: UIViewController {
     }
     
     func loadMayorMarkets(marketsValues: [GeneralMarkets]){
-        
         for market in marketsValues {
             let ticker = market.indexTicker
             if ticker == "^DJI" {
@@ -237,39 +180,39 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MarketCell", for: indexPath) as! MarketsViewCell
         
         let tickerValues = mayorMarketsPrices[indexPath.row]
-
+        
         cell.nameLabel.text = tickerValues.indexName.uppercased()
-    
+        
         var currentPrice = tickerValues.indexPrice
         let percentageChanged = tickerValues.changePercentage
+        
+        if percentageChanged < 0 {
+            let percentageRounded = round(100*percentageChanged)/100
+            cell.changeLabel.text = String(percentageRounded) + "%"
+            cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
-            if percentageChanged < 0 {
-                let percentageRounded = round(100*percentageChanged)/100
-                cell.changeLabel.text = String(percentageRounded) + "%"
-                cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                
-                currentPrice = round(100*currentPrice)/100
-                cell.currentPriceLabel.text = "$ " + String(currentPrice)
-                cell.currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                
-                cell.arrowImageView.image = (UIImage.init(named: "arrow.down.app.fill"))
-                cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            } else {
-                //positive day for market
-                let percentageRounded = round(100*percentageChanged)/100
-                cell.changeLabel.text = String(percentageRounded) + "%"
-                cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                
-                currentPrice = round(100*currentPrice)/100
-                cell.currentPriceLabel.text = "$ " + String(currentPrice)
-                cell.currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                
-                cell.arrowImageView.image = (UIImage.init(named: "arrow.up.square.fill"))
-                cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            }
+            currentPrice = round(100*currentPrice)/100
+            cell.currentPriceLabel.text = "$ " + String(currentPrice)
+            cell.currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
-            cell.openChartButton.tag = indexPath.row
-            cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
+            cell.arrowImageView.image = (UIImage.init(named: "arrow.down.app.fill"))
+            cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+        } else {
+            //positive day for market
+            let percentageRounded = round(100*percentageChanged)/100
+            cell.changeLabel.text = String(percentageRounded) + "%"
+            cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            
+            currentPrice = round(100*currentPrice)/100
+            cell.currentPriceLabel.text = "$ " + String(currentPrice)
+            cell.currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            
+            cell.arrowImageView.image = (UIImage.init(named: "arrow.up.square.fill"))
+            cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+        }
+        
+        cell.openChartButton.tag = indexPath.row
+        cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
         
         return cell
     }
@@ -301,7 +244,6 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
 
 
 
-
 extension MarketsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return minorMarketPrices.count
@@ -309,7 +251,7 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MinorMarketsViewCell", for: indexPath) as! MinorMarketsViewCell
-
+        
         
         let ticker = minorMarketPrices[indexPath.row].indexTicker
         let name = minorMarketPrices[indexPath.row].indexName
@@ -339,7 +281,7 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
         
         cell.openChartButton.tag = indexPath.row
         cell.openChartButton.addTarget(self, action: #selector(openChartMinorMarket(sender:)), for: .touchUpInside)
-              
+        
         return cell
     }
     
@@ -369,155 +311,163 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
 extension MarketsController: ChartViewDelegate {
     
     func loadMayorMarketsChart() {
-
         let tickers = ["^DJI", "^GSPC", "^IXIC"]
-        
-            ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[0]) { result in
-                switch result {
-                case .success(let marketsValuesDJI):
-                    self.marketsDataDJI = marketsValuesDJI
-//                    DispatchQueue.main.async {
-//                        self.setUpMarketModel(ticker: tickers[0])
-//                    }
-                    ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[1]) { result in
-                        switch result {
-                            
-                        case .success(let marketsValuesSP500):
-                            self.marketsDataSP500 = marketsValuesSP500
-//                            DispatchQueue.main.async {
-//                                self.setUpMarketModel(ticker: tickers[1])
-//                            }
-                            ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[2]) { result in
-                                switch result {
-                                    
-                                case .success(let marketsValuesIXIC):
-                                    self.marketsDataIXIC = marketsValuesIXIC
-                                    DispatchQueue.main.async {
-                                        self.setUpMarketModel()
-                                    }
-                                case .failure(_):
-                                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
+        ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[0]) { result in
+            switch result {
+            case .success(let marketsValuesDJI):
+                self.marketsDataDJI = marketsValuesDJI
+                ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[1]) { result in
+                    switch result {
+                    case .success(let marketsValuesSP500):
+                        self.marketsDataSP500 = marketsValuesSP500
+                        ChartsAPI.shared.getMayorMarketsValues(symbol: tickers[2]) { result in
+                            switch result {
+                            case .success(let marketsValuesIXIC):
+                                self.marketsDataIXIC = marketsValuesIXIC
+                                DispatchQueue.main.async {
+                                    self.startStopSpinner(start: false)
+                                    self.setUpMarketModel()
                                 }
+                            case .failure(_):
+                                self.startStopSpinner(start: false)
+                                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                             }
-                        case .failure(_):
-                            ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                         }
+                    case .failure(_):
+                        self.startStopSpinner(start: false)
+                        ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                     }
-                    
-                    
-//                    self.marketsDataDJI = marketsValues
-//                    DispatchQueue.main.async {
-                        //self?.startStopSpinner(start: false)
-//                        self.setUpMarketModel(ticker: ticker)
-//                    }
-                case .failure(_):
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                 }
+            case .failure(_):
+                self.startStopSpinner(start: false)
+                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
             }
-    }
-   
-    private func setUpMarketModel(){
-        var lineChartDataSetSP500 = LineChartDataSet()
-        var lineChartDataSetDJI = LineChartDataSet()
-        var lineChartDataSetIXIC = LineChartDataSet()
-
-        
-            self.linearValuesSP500.removeAll()
-            for (index, candleValue) in self.marketsDataSP500.enumerated() {
-                let closePrice = candleValue.close
-                self.linearValuesSP500.append(ChartDataEntry(x: Double(index), y: closePrice))
-            }
-            chartViewSP500.addSubview(lineChartViewSP500)
-            lineChartViewSP500.centerInSuperview()
-            lineChartViewSP500.width(to: chartViewSP500)
-            lineChartViewSP500.height(to: chartViewSP500)
-            
-            lineChartDataSetSP500 = LineChartDataSet(entries: linearValuesSP500, label: "SP500")
-
-        
-        self.linearValuesDJI .removeAll()
-            for (index, candleValue) in self.marketsDataDJI.enumerated() {
-                let closePrice = candleValue.close
-                self.linearValuesDJI.append(ChartDataEntry(x: Double(index), y: closePrice))
-            }
-            chartViewDJI.addSubview(lineChartViewDJI)
-            lineChartViewDJI.centerInSuperview()
-            lineChartViewDJI.width(to: chartViewDJI)
-            lineChartViewDJI.height(to: chartViewDJI)
-            
-            lineChartDataSetDJI = LineChartDataSet(entries: linearValuesDJI, label: "DJI")
-
-        
-        
-        self.linearValuesIXIC.removeAll()
-            for (index, candleValue) in self.marketsDataIXIC.enumerated() {
-                let closePrice = candleValue.close
-                self.linearValuesIXIC.append(ChartDataEntry(x: Double(index), y: closePrice))
-            }
-            chartViewIXIC.addSubview(lineChartViewIXIC)
-            lineChartViewIXIC.centerInSuperview()
-            lineChartViewIXIC.width(to: chartViewIXIC)
-            lineChartViewIXIC.height(to: chartViewIXIC)
-            
-            lineChartDataSetIXIC = LineChartDataSet(entries: linearValuesIXIC, label: "NASDAQ")
-
-        
-        self.setData(lineChartSP500: lineChartDataSetSP500, lineChartDJI: lineChartDataSetDJI, lineChartIXIC: lineChartDataSetIXIC)
-        
-    }
-      
-    func setData(lineChartSP500: LineChartDataSet, lineChartDJI: LineChartDataSet, lineChartIXIC: LineChartDataSet) {
-        let set1 = lineChartSP500
-        
-        set1.mode = .linear//.cubicBezier
-        set1.drawCirclesEnabled = false
-        set1.lineWidth = 2
-        set1.setColor(.systemOrange)
-
-        set1.drawFilledEnabled = false
-        
-        set1.drawHorizontalHighlightIndicatorEnabled = false
-        set1.highlightColor = .systemRed
-        
-        
-        
-        
-        let set2 = lineChartDJI
-        
-        set2.mode = .linear//.cubicBezier
-        set2.drawCirclesEnabled = false
-        set2.lineWidth = 2
-        set2.setColor(.systemBrown)
-
-        set2.drawFilledEnabled = false
-        
-        set2.drawHorizontalHighlightIndicatorEnabled = false
-        set2.highlightColor = .systemRed
-        
-        
-        
-        let set3 = lineChartIXIC
-        
-        set3.mode = .linear//.cubicBezier
-        set3.drawCirclesEnabled = false
-        set3.lineWidth = 2
-        set3.setColor(.systemBlue)
-
-        set3.drawFilledEnabled = false
-        
-        set3.drawHorizontalHighlightIndicatorEnabled = false
-        set3.highlightColor = .systemRed
-        
-        
-//        let data = LineChartData(dataSet: set1)
-        let data = LineChartData(dataSets: [set1, set2, set3])
-
-        data.setDrawValues(false)
-        
-        lineChartViewSP500.data = data
-
-        
+        }
     }
     
+    private func setUpMarketModel(){
+        
+        self.linearValuesSP500.removeAll()
+        self.linearValuesDJI .removeAll()
+        self.linearValuesIXIC.removeAll()
 
+        for (index, candleValue) in self.marketsDataSP500.enumerated() {
+            let closePrice = candleValue.close
+            self.linearValuesSP500.append(ChartDataEntry(x: Double(index), y: closePrice))
+        }
+        let lineChartDataSetSP500 = LineChartDataSet(entries: linearValuesSP500, label: "SP500")
+        
+        for (index, candleValue) in self.marketsDataDJI.enumerated() {
+            let closePrice = candleValue.close
+            self.linearValuesDJI.append(ChartDataEntry(x: Double(index), y: closePrice))
+        }
+        let lineChartDataSetDJI = LineChartDataSet(entries: linearValuesDJI, label: "DJI")
+        
+        for (index, candleValue) in self.marketsDataIXIC.enumerated() {
+            let closePrice = candleValue.close
+            self.linearValuesIXIC.append(ChartDataEntry(x: Double(index), y: closePrice))
+        }
+        let lineChartDataSetIXIC = LineChartDataSet(entries: linearValuesIXIC, label: "NASDAQ")
+        
+        chartView.addSubview(lineChartView)
+        lineChartView.centerInSuperview()
+        lineChartView.width(to: chartView)
+        lineChartView.height(to: chartView)
+        
+        self.setData(lineChartSP500: lineChartDataSetSP500, lineChartDJI: lineChartDataSetDJI, lineChartIXIC: lineChartDataSetIXIC)
+    }
+    
+    func setData(lineChartSP500: LineChartDataSet, lineChartDJI: LineChartDataSet, lineChartIXIC: LineChartDataSet) {
+        let set1 = lineChartSP500
+        set1.mode = .linear
+        set1.drawCirclesEnabled = false
+        set1.lineWidth = 3
+        set1.setColor(.systemOrange)
+        set1.drawFilledEnabled = false
+        set1.drawHorizontalHighlightIndicatorEnabled = false
+//        set1.highlightColor = .systemRed
+        
+        let set2 = lineChartDJI
+        set2.mode = .linear
+        set2.drawCirclesEnabled = false
+        set2.lineWidth = 3
+        set2.setColor(.systemBrown)
+        set2.drawFilledEnabled = false
+        set2.drawHorizontalHighlightIndicatorEnabled = false
+
+        let set3 = lineChartIXIC
+        set3.mode = .linear
+        set3.drawCirclesEnabled = false
+        set3.lineWidth = 3
+        set3.setColor(.systemBlue)
+        set3.drawFilledEnabled = false
+        set3.drawHorizontalHighlightIndicatorEnabled = false
+        
+        let data = LineChartData(dataSets: [set1, set2, set3])
+        data.setDrawValues(false)
+        lineChartView.data = data
+    }
+}
+
+
+
+//MARK: Right top button in navigation controller
+extension MarketsController {
+    private struct ConstTopRightButton {
+        /// Image height/width for Large NavBar state
+        static let ImageSizeForLargeState: CGFloat = 36
+        /// Margin from right anchor of safe area to right anchor of Image
+        static let ImageRightMargin: CGFloat = 18
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
+        static let ImageBottomMarginForLargeState: CGFloat = 14
+        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
+        static let ImageBottomMarginForSmallState: CGFloat = 5
+        /// Image height/width for Small NavBar state
+        static let ImageSizeForSmallState: CGFloat = 28
+        /// Height of NavBar for Small state. Usually it's just 44
+        static let NavBarHeightSmallState: CGFloat = 44
+        /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
+        static let NavBarHeightLargeState: CGFloat = 96.5
+    }
+    
+    private func setupUITopRightButton() {
+        //        navigationController?.navigationBar.prefersLargeTitles = true
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
+        imageViewTopRightButton.isUserInteractionEnabled = true
+        imageViewTopRightButton.tintColor = .label
+        imageViewTopRightButton.addGestureRecognizer(tapGestureRecognizer)
+        
+        // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
+        guard let navigationBar = self.navigationController?.navigationBar else { return }
+        navigationBar.addSubview(imageViewTopRightButton)
+        //        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
+        //        imageView.clipsToBounds = true
+        imageViewTopRightButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageViewTopRightButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -ConstTopRightButton.ImageRightMargin),
+            imageViewTopRightButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
+            imageViewTopRightButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
+            imageViewTopRightButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor)
+        ])
+    }
+    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer) {
+        updateAllData()
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showImage(false)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        showImage(true)
+    }
+    
+    /// Show or hide the image from NavBar while going to next screen or back to initial screen
+    /// - Parameter show: show or hide the image from NavBar
+    private func showImage(_ show: Bool) {
+        UIView.animate(withDuration: 0.2) {
+            self.imageViewTopRightButton.alpha = show ? 1.0 : 0.0
+        }
+    }
 }
