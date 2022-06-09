@@ -982,3 +982,38 @@ Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/Charts.xcscheme
 .DS_Store
 .DS_Store
 .DS_Store
+Pods/Target Support Files/RealmSwift/RealmSwift.release.xcconfig
+Pods/Target Support Files/RealmSwift/RealmSwift.debug.xcconfig
+Pods/Target Support Files/ChartsRealm/ChartsRealm.release.xcconfig
+Pods/Target Support Files/ChartsRealm/ChartsRealm.debug.xcconfig
+Pods/RealmSwift/RealmSwift/SwiftVersion.swift
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/TinyConstraints.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/SwiftyJSON.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/RealmSwift.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/Realm.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/ChartsRealm.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/Charts.xcscheme
+Podfile.lock
+.DS_Store
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/Charts.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/ChartsRealm.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/Realm.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/RealmSwift.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/SwiftyJSON.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/TinyConstraints.xcscheme
+Pods/RealmSwift/RealmSwift/SwiftVersion.swift
+Pods/Target Support Files/ChartsRealm/ChartsRealm.debug.xcconfig
+Pods/Target Support Files/ChartsRealm/ChartsRealm.release.xcconfig
+Pods/Target Support Files/RealmSwift/RealmSwift.debug.xcconfig
+Pods/Target Support Files/RealmSwift/RealmSwift.release.xcconfig
+Pods/Target Support Files/RealmSwift/RealmSwift.release.xcconfig
+Pods/Target Support Files/RealmSwift/RealmSwift.debug.xcconfig
+Pods/Target Support Files/ChartsRealm/ChartsRealm.release.xcconfig
+Pods/Target Support Files/ChartsRealm/ChartsRealm.debug.xcconfig
+Pods/RealmSwift/RealmSwift/SwiftVersion.swift
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/TinyConstraints.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/SwiftyJSON.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/RealmSwift.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/Realm.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/ChartsRealm.xcscheme
+Pods/Pods.xcodeproj/xcuserdata/javiergomez.xcuserdatad/xcschemes/Charts.xcscheme
