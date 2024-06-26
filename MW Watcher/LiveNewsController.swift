@@ -282,7 +282,22 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         cell.saveButton.tag = indexPath.row
         cell.saveButton.addTarget(self, action: #selector(saveTitle(sender:)), for: .touchUpInside)
         
+        //cell.shareButton.tag = indexPath.row
+        cell.shareButton.addTarget(self, action: #selector(shareTitle(sender: )), for: .touchUpInside)
+        
         return cell
+    }
+    
+    @objc func shareTitle(sender: UIButton) {
+        sender.animateButton(sender: sender, duration: 0.1)
+        let headline = self.newsItems[sender.tag].headline
+        let date = self.newsItems[sender.tag].pubDate
+        let author = self.newsItems[sender.tag].author
+        print (headline)
+        
+        let objectToShare = [headline, "|| ", date, "|| ", "|| ", author] as [Any]
+        let activityVC = UIActivityViewController(activityItems: objectToShare, applicationActivities: nil)
+        self.present(activityVC, animated: true, completion: nil)
     }
     
     @objc func saveTitle(sender: UIButton) {

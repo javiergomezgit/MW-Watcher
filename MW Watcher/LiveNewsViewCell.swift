@@ -15,6 +15,7 @@ class LiveNewsViewCell: UITableViewCell {
     @IBOutlet weak var linkButton: UIButton!
     @IBOutlet weak var feedImageView: UIImageView!
     @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var shareButton: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()
