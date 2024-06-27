@@ -84,6 +84,8 @@ class CryptosViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        contentView.backgroundColor = .background4
+        
         contentView.addSubview(cryptoImageImageView)
         contentView.addSubview(nameLabel)
         contentView.addSubview(symbolLabel)
