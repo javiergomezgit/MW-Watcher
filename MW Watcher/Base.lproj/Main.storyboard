@@ -488,7 +488,6 @@
                                     <constraint firstAttribute="height" constant="60" id="PSC-mq-n63"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Optima-Bold" family="Optima" pointSize="34"/>
-                                <color key="textColor" systemColor="systemBrownColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="130" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ga4-FZ-mKY">
@@ -502,17 +501,17 @@
                                             <rect key="frame" x="0.0" y="0.0" width="360" height="130"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mw-logo" translatesAutoresizingMaskIntoConstraints="NO" id="sB0-uG-zfi">
-                                                    <rect key="frame" x="0.0" y="10" width="72" height="72"/>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mw-logo" translatesAutoresizingMaskIntoConstraints="NO" id="sB0-uG-zfi">
+                                                    <rect key="frame" x="0.0" y="10" width="90" height="90"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" secondItem="sB0-uG-zfi" secondAttribute="height" multiplier="1:1" id="8bK-4L-4rb"/>
                                                     </constraints>
                                                 </imageView>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="FrameSquare10" translatesAutoresizingMaskIntoConstraints="NO" id="vPL-qM-bWF">
-                                                    <rect key="frame" x="0.0" y="10" width="72" height="72"/>
+                                                    <rect key="frame" x="0.0" y="10" width="90" height="90"/>
                                                 </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" minimumFontSize="15" translatesAutoresizingMaskIntoConstraints="NO" id="H4I-FZ-mhb">
-                                                    <rect key="frame" x="77" y="0.0" width="242" height="82"/>
+                                                    <rect key="frame" x="98" y="0.0" width="221" height="82"/>
                                                     <string key="text">Where crypto maket goes here completly dependent stock tycoon bil something else asset market goes and all the markets ETF are the best thing to do during the non stop times for crisis </string>
                                                     <fontDescription key="fontDescription" name="Avenir-Medium" family="Avenir" pointSize="18"/>
                                                     <nil key="textColor"/>
@@ -540,7 +539,7 @@
                                                     </constraints>
                                                 </view>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5mT-dT-XT9">
-                                                    <rect key="frame" x="77" y="85" width="242" height="32.666666666666657"/>
+                                                    <rect key="frame" x="120" y="85" width="177" height="32.666666666666657"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Investing.com" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fSH-xT-paJ">
                                                             <rect key="frame" x="0.0" y="0.0" width="98" height="13"/>
@@ -573,8 +572,8 @@
                                             <constraints>
                                                 <constraint firstItem="vPL-qM-bWF" firstAttribute="leading" secondItem="sB0-uG-zfi" secondAttribute="leading" id="4KR-hT-HVM"/>
                                                 <constraint firstItem="sB0-uG-zfi" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="4v6-yK-v79"/>
-                                                <constraint firstItem="H4I-FZ-mhb" firstAttribute="leading" secondItem="sB0-uG-zfi" secondAttribute="trailing" constant="5" id="9O3-5i-zJs"/>
-                                                <constraint firstItem="5mT-dT-XT9" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" id="9oq-ZY-I5L"/>
+                                                <constraint firstItem="H4I-FZ-mhb" firstAttribute="leading" secondItem="sB0-uG-zfi" secondAttribute="trailing" constant="8" id="9O3-5i-zJs"/>
+                                                <constraint firstItem="5mT-dT-XT9" firstAttribute="width" secondItem="H4I-FZ-mhb" secondAttribute="width" multiplier="0.8" id="9oq-ZY-I5L"/>
                                                 <constraint firstItem="5mT-dT-XT9" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.25" id="EE3-tX-bbZ"/>
                                                 <constraint firstItem="vPL-qM-bWF" firstAttribute="height" secondItem="sB0-uG-zfi" secondAttribute="height" id="F0D-If-FVT"/>
                                                 <constraint firstItem="vPL-qM-bWF" firstAttribute="width" secondItem="sB0-uG-zfi" secondAttribute="width" id="F8Z-Do-YdQ"/>
@@ -590,7 +589,7 @@
                                                 <constraint firstItem="5mT-dT-XT9" firstAttribute="top" secondItem="H4I-FZ-mhb" secondAttribute="bottom" constant="3" id="eNI-g7-qoQ"/>
                                                 <constraint firstItem="6PI-7c-Pnu" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="f4Q-Jk-WEx"/>
                                                 <constraint firstItem="6PI-7c-Pnu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="lEx-Cu-bGk"/>
-                                                <constraint firstItem="sB0-uG-zfi" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" multiplier="0.2" id="pAw-x9-bKg"/>
+                                                <constraint firstItem="sB0-uG-zfi" firstAttribute="width" secondItem="H2p-sc-9uM" secondAttribute="width" multiplier="0.25" id="pAw-x9-bKg"/>
                                                 <constraint firstItem="Xuu-z2-TEc" firstAttribute="leading" secondItem="6PI-7c-Pnu" secondAttribute="trailing" id="tIp-hR-j5Q"/>
                                                 <constraint firstItem="Xuu-z2-TEc" firstAttribute="height" secondItem="H2p-sc-9uM" secondAttribute="height" multiplier="0.7" id="tPd-oU-X5B"/>
                                                 <constraint firstItem="sB0-uG-zfi" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="umu-JC-C1j"/>
@@ -1200,7 +1199,8 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="AccentColor"/>
+                                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="tintColor" systemColor="systemBackgroundColor"/>
                                         <connections>
                                             <segue destination="DZx-RA-0sP" kind="popoverPresentation" popoverAnchorView="Zjk-pd-riF" id="YVO-7P-z8w">
                                                 <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
@@ -1228,6 +1228,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" systemColor="systemGray3Color"/>
+                                        <color key="tintColor" systemColor="systemBackgroundColor"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" textLabel="t4S-iX-tMb" style="IBUITableViewCellStyleDefault" id="NlS-kw-5dY">
                                         <rect key="frame" x="20" y="185.33333587646484" width="350" height="43.666667938232422"/>
@@ -1246,6 +1247,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" systemColor="systemGray3Color"/>
+                                        <color key="tintColor" systemColor="systemBackgroundColor"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" textLabel="XSC-Hf-zGy" style="IBUITableViewCellStyleDefault" id="uLw-kL-c9m">
                                         <rect key="frame" x="20" y="229.00000381469727" width="350" height="43.666667938232422"/>
@@ -1264,6 +1266,7 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" systemColor="systemGray3Color"/>
+                                        <color key="tintColor" systemColor="systemBackgroundColor"/>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -2142,8 +2145,8 @@
         <image name="gearshape" catalog="system" width="128" height="123"/>
         <image name="mw-logo" width="1500" height="1500"/>
         <image name="network" width="13" height="13"/>
-        <image name="newspaper" width="15" height="14"/>
         <image name="newspaper" catalog="system" width="128" height="111"/>
+        <image name="newspaper" width="15" height="14"/>
         <image name="number" catalog="system" width="128" height="123"/>
         <image name="person.badge.plus" catalog="system" width="128" height="124"/>
         <image name="square.and.arrow.up" catalog="system" width="108" height="128"/>
@@ -2152,7 +2155,7 @@
             <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="background4">
-            <color red="1" green="1" blue="0.29399999976158142" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <namedColor name="customBackgroundColor">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
