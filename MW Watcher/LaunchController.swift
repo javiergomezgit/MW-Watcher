@@ -33,6 +33,11 @@ class LaunchController: UIViewController {
             view.addSubview(swiftyOnboard)
             swiftyOnboard.dataSource = self
             swiftyOnboard.delegate = self
+
+            let imageCompany = UIImage(named: "appleStock")
+            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: imageCompany!)
+            let savedTickers = SaveTickers()
+            savedTickers.saveTicker(tickerFeatures: tickerFeatures)
         }
     }
     

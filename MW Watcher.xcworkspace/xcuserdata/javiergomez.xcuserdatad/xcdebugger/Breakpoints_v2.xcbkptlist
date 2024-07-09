@@ -39,216 +39,112 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C0A4E589-A936-4776-A600-5DDE42D838CA"
+            uuid = "59A5F0AD-9765-48CA-A56B-0D0E54121A44"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MW Watcher/WatchlistController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "203"
-            endingLineNumber = "203"
-            landmarkName = "loadIndividualStock(individualTicker:)"
+            startingLineNumber = "212"
+            endingLineNumber = "212"
+            landmarkName = "loadIndividualStock(individualTicker:nameTicker:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "C0A4E589-A936-4776-A600-5DDE42D838CA - c8213f1fa87d0e9b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;MW_Watcher.TickersFeatures, Swift.Error&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "204"
-                  endingLineNumber = "204">
-               </Location>
-               <Location
-                  uuid = "C0A4E589-A936-4776-A600-5DDE42D838CA - c8213f1fa87d0e9b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;MW_Watcher.TickersFeatures, Swift.Error&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "204"
-                  endingLineNumber = "204">
-               </Location>
-               <Location
-                  uuid = "C0A4E589-A936-4776-A600-5DDE42D838CA - c8213f1fa87d0e9b"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;MW_Watcher.TickersFeatures, Swift.Error&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "204"
-                  endingLineNumber = "204">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "850EE24A-DBCF-402A-9E98-98471D61D1C9"
+            uuid = "9233414E-4EFB-4F0E-B6F4-E06AFCCC88FF"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "MW Watcher/WatchlistController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "207"
-            endingLineNumber = "207"
-            landmarkName = "loadIndividualStock(individualTicker:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "850EE24A-DBCF-402A-9E98-98471D61D1C9 - 132a7b44fabdb611"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;) -&gt; () in closure #1 (Swift.Result&lt;MW_Watcher.TickersFeatures, Swift.Error&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "208"
-                  endingLineNumber = "208">
-               </Location>
-               <Location
-                  uuid = "850EE24A-DBCF-402A-9E98-98471D61D1C9 - 132a7b44fabdb611"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;) -&gt; () in closure #1 (Swift.Result&lt;MW_Watcher.TickersFeatures, Swift.Error&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "208"
-                  endingLineNumber = "208">
-               </Location>
-               <Location
-                  uuid = "850EE24A-DBCF-402A-9E98-98471D61D1C9 - 132a7b44fabdb611"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;) -&gt; () in closure #1 (Swift.Result&lt;MW_Watcher.TickersFeatures, Swift.Error&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/javiergomez/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "208"
-                  endingLineNumber = "208">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "6B213CCE-D708-4A42-B79E-5F7D6ED5141A"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/WatchlistController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "231"
-            endingLineNumber = "231"
-            landmarkName = "loadIndividualStock(individualTicker:)"
+            startingLineNumber = "208"
+            endingLineNumber = "208"
+            landmarkName = "loadIndividualStock(individualTicker:nameTicker:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5EBA2041-412C-48D7-9FBD-97B4AFD12CC7"
+            uuid = "A50B7DED-FA8C-4F3C-9D4F-C2D6F0CC06F4"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksModel/StocksAPI.swift"
+            filePath = "MW Watcher/LaunchController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "36"
-            endingLineNumber = "36"
-            landmarkName = "getFeaturesTicker(tickerSingle:completion:)"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
+            landmarkName = "viewWillAppear(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "FD339113-6AE3-4F0F-900C-8A5C5AAC2514"
+            uuid = "61AFA7EB-6200-4C73-BACD-C2862E31B727"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksModel/StocksAPI.swift"
+            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "41"
-            endingLineNumber = "41"
-            landmarkName = "getFeaturesTicker(tickerSingle:completion:)"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
+            landmarkName = "getStockValues(intervalTime:symbol:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "C4C5C38A-CB1E-4AF9-BB78-D7FC5D900D9C"
+            uuid = "975EA056-0E95-499D-8C41-ED688CC4A641"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksModel/StocksAPI.swift"
+            filePath = "MW Watcher/NewsModel/NewsAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "45"
-            endingLineNumber = "45"
-            landmarkName = "getFeaturesTicker(tickerSingle:completion:)"
+            startingLineNumber = "190"
+            endingLineNumber = "190"
+            landmarkName = "loadCryptoNews(ticker:name:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "3002FA4F-110F-4C6D-B260-37D320DF0B25"
+            uuid = "F427188F-734A-439A-84CD-4A6E583111DC"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksModel/StocksAPI.swift"
+            filePath = "MW Watcher/NewsModel/NewsAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "50"
-            endingLineNumber = "50"
-            landmarkName = "getFeaturesTicker(tickerSingle:completion:)"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
+            landmarkName = "loadCryptoNews(ticker:name:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BEAFA63F-1798-47E9-B1C8-6D61E6C180BF"
+            uuid = "AFD0D084-4489-4997-B0D0-53C568278757"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksModel/StocksAPI.swift"
+            filePath = "MW Watcher/NewsModel/NewsAPI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "54"
-            endingLineNumber = "54"
-            landmarkName = "getFeaturesTicker(tickerSingle:completion:)"
+            startingLineNumber = "174"
+            endingLineNumber = "174"
+            landmarkName = "loadCryptoNews(ticker:name:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

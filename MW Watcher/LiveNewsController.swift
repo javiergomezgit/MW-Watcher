@@ -216,13 +216,13 @@ extension LiveNewsController {
     @objc func imageSearchNewsTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         let vc = SearchNewsController()
         vc.completion = { [weak self] tickerTyped in
-            let ticker = tickerTyped
+            let ticker = tickerTyped.first?.key
             print (ticker)
             //self.startStopSpinner(start: true)
             DispatchQueue.main.async {
                 let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
                 let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
-                destination!.ticker = ticker
+                destination!.ticker = ticker!
                 destination!.modalTransitionStyle = .crossDissolve
                 self?.present(destination!, animated: true, completion: nil)
             }

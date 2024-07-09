@@ -113,9 +113,10 @@ class WatchlistController: UIViewController {
         
         let vc = SearchNewsController()
         vc.completion = { [weak self] tickerTyped in
-            //self.startStopSpinner(start: true)
-            if tickerTyped != "" {
-                let ticker = tickerTyped.uppercased()
+            self!.startStopSpinner(start: true)
+            if tickerTyped.first?.key != "" && tickerTyped.first?.value != "" {
+                let ticker = tickerTyped.first?.key.uppercased()
+                let name = tickerTyped.first?.value
                 DispatchQueue.main.async {
                     var alreadyOnList = false
                     for tick in self!.tickersValues {
@@ -124,7 +125,7 @@ class WatchlistController: UIViewController {
                         }
                     }
                     if !alreadyOnList {
-                        self!.loadIndividualStock(individualTicker: ticker)
+                        self!.loadIndividualStock(individualTicker: ticker!, nameTicker: name!)
                     } else {
                         ShowAlerts.showSimpleAlert(title: "Already added", message: "Your stock was already added", titleButton: "Ok", over: self!)
                     }
@@ -162,7 +163,7 @@ class WatchlistController: UIViewController {
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
     }
     
-    func loadMultipleStocks(savedTickers: [TickersFeatures]){
+    func loadMultipleStocks(savedTickers: [TickersFeatures]) {
         var mergedTickers = ""
         for (index, savedTicker) in savedTickers.enumerated() {
             let ticker = savedTicker.ticker
@@ -198,21 +199,22 @@ class WatchlistController: UIViewController {
         }
     }
     
-    func loadIndividualStock(individualTicker: String) {
-        StocksAPI.shared.getFeaturesTicker(tickerSingle: individualTicker) { result in
+    func loadIndividualStock(individualTicker: String, nameTicker: String) {
+        
+        StocksAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { result in
             switch result {
-            case .success(let tickerFeatures):
-                
-                StocksAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { result in
+            case .success(let tickerCurrentValues):
+                StocksAPI.shared.getLogoStock(ticker: individualTicker) { result in
                     switch result {
-                    case .success(let tickerCurrentValues):
-                        let features = TickersFeatures(ticker: individualTicker, nameTicker: tickerFeatures.nameTicker, imageTicker: tickerFeatures.imageTicker)
+                    case .failure(let error):
+                        print (error)
+                    case .success(let imageCompany):
+                        let tickerFeatures = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: imageCompany)
+                        self.tickersFeatures.append(tickerFeatures)
+                        self.savedTickers.saveTicker(tickerFeatures: tickerFeatures)
+                        
                         let values = TickersCurrentValues(ticker: individualTicker, marketPrice: tickerCurrentValues.marketPrice, previousPrice: tickerCurrentValues.previousPrice, changePercent: tickerCurrentValues.changePercent)
-                        
-                        self.tickersFeatures.append(features)
                         self.tickersValues.append(values)
-                        
-                        self.savedTickers.saveTicker(tickerFeatures: features)
                         
                         DispatchQueue.main.async {
                             ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(individualTicker) to the watchlist", titleButton: "Ok", over: self)
@@ -220,18 +222,14 @@ class WatchlistController: UIViewController {
                             self.refreshControl.endRefreshing()
                             self.startStopSpinner(start: false)
                         }
-                        
-                    case .failure(let error):
-                        print (error.localizedDescription)
-                        ShowAlerts.showSimpleAlert(title: "Error", message: "Limited features.", titleButton: "Ok", over: self)
                     }
                 }
                 
+                
             case .failure(let error):
                 print (error.localizedDescription)
-                print (error)
                 DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find the ticker", titleButton: "Ok", over: self)
+                    ShowAlerts.showSimpleAlert(title: "Error", message: "Limited features.", titleButton: "Ok", over: self)
                     self.startStopSpinner(start: false)
                 }
             }

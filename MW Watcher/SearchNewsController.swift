@@ -9,7 +9,7 @@ import UIKit
 
 class SearchNewsController: UIViewController {
     
-    public var completion: ((String) -> (Void))?
+    public var completion: (([String: String]) -> (Void))?
     private var stocks = [Stock]()
     private var filteredStocks = [Stock]()
     
@@ -95,7 +95,8 @@ extension SearchNewsController: UITableViewDataSource, UITableViewDelegate {
         
         let stock = filteredStocks[indexPath.row]
         self.dismiss(animated: true, completion: { [weak self] in
-            self?.completion?(stock.ticker)
+            let tickerAndName = [stock.ticker : stock.nameTicker]
+            self?.completion?(tickerAndName)
         })
     }
 }

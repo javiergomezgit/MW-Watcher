@@ -22,6 +22,7 @@ class TickerNewsController: UIViewController {
     
     var ticker = ""
     var name = ""
+    var cryptoCoin = false
     var tickerNewsArray: [TickerNews] = []
     let saveHeadlines = UserSaveNews()
     var savedRows : [Int: Bool] = [:]
@@ -38,11 +39,37 @@ class TickerNewsController: UIViewController {
         tableView.addSubview(refreshControl)
         
         tickerLabel.text = ticker
-        loadTickerNews()
+        if cryptoCoin {
+            loadCryptoNews()
+        } else {
+            loadTickerNews()
+        }
     }
     
     @objc func refresh(_ sender: AnyObject) {
-        loadTickerNews()
+        if cryptoCoin {
+            loadCryptoNews()
+        } else {
+            loadTickerNews()
+        }    }
+    
+    func loadCryptoNews() {
+        refreshControl.beginRefreshing()
+        
+        NewsAPI.shared.loadCryptoNews(ticker: ticker, name: self.name) { loadedCryptoNewsArray in
+            if loadedCryptoNewsArray != nil {
+                self.tickerNewsArray = loadedCryptoNewsArray!
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    self.refreshControl.endRefreshing()
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.refreshControl.endRefreshing()
+                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
+                }
+            }
+        }
     }
     
     func loadTickerNews() {

@@ -21,10 +21,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         
         //Never launched before changes to false
-        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunching")
-        UserDefaults.standard.set(true, forKey: "firstLaunching")
-        UserDefaults.standard.synchronize()
-        alreadyLaunched = isFirstLaunch
+//        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunching")
+//        UserDefaults.standard.set(true, forKey: "firstLaunching")
+//        UserDefaults.standard.synchronize()
+//        alreadyLaunched = isFirstLaunch
 
         return true
     }

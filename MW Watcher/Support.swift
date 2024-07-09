@@ -50,6 +50,28 @@ class Support {
         }
     }
     
+    //MARK: Change date format News specific crypto
+    func newLocalTimeCrypto(timeString: String) -> String {
+        //Get date and format
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatterGet.timeZone = TimeZone(identifier: "UTC")
+
+        //Convert format
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .medium
+        dateFormatter.timeZone = TimeZone.current
+
+        let dateObj: Date? = dateFormatterGet.date(from: timeString)
+        if dateObj != nil {
+            let newLocalTime = dateFormatter.string(from: dateObj!)
+            return newLocalTime
+        } else {
+            return ""
+        }
+    }
+    
     
     //MARK: Change date format for time stamp format in chart stock/crypto screen
     func convertTimeStampToDate(timeString: String, dateFormat: String) -> String{

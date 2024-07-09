@@ -728,11 +728,11 @@ class ChartController: UIViewController, ChartViewDelegate {
             let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
             
             destination!.ticker = ticker
+            destination!.cryptoCoin = true
             destination!.name = informationCryptoTicker.name
            
             destination!.modalTransitionStyle = .crossDissolve
             self.present(destination!, animated: true, completion: nil)
-            
         }
     }
 }
