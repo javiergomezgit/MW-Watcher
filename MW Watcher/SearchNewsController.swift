@@ -62,15 +62,13 @@ class SearchNewsController: UIViewController {
                 
                 self.stocks = stocks!
                 self.filteredStocks = stocks!
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
+                if stocks!.count != 0 {
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
                 }
             } else {
                 print (error as Any)
-                
-//                DispatchQueue.main.async { //error.debugDescription
-//                    ShowAlerts.showSimpleAlert(title: "Not found" , message: "Couldn't find any symbol related", titleButton: "Ok", over: self)
-//                }
             }
         }
     }
@@ -83,21 +81,26 @@ extension SearchNewsController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchNewsViewCell.identifier, for: indexPath) as! SearchNewsViewCell
-        let ticker = filteredStocks[indexPath.row]
-        cell.configure(ticker: ticker.ticker, name: ticker.nameTicker)
-        
+        if filteredStocks.count > 0 {
+            let ticker = filteredStocks[indexPath.row]
+            cell.configure(ticker: ticker.ticker, name: ticker.nameTicker)
+        }
         return cell
+
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         searchBar.resignFirstResponder()
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let stock = filteredStocks[indexPath.row]
-        self.dismiss(animated: true, completion: { [weak self] in
-            let tickerAndName = [stock.ticker : stock.nameTicker]
-            self?.completion?(tickerAndName)
-        })
+        if filteredStocks.count > 0 {
+            let stock = filteredStocks[indexPath.row]
+            self.dismiss(animated: true, completion: { [weak self] in
+                let tickerAndName = [stock.ticker : stock.nameTicker]
+                self?.completion?(tickerAndName)
+            })
+        }
+        
     }
 }
 

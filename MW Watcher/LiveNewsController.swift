@@ -21,7 +21,9 @@ class LiveNewsController: UIViewController {
     var refreshControl = UIRefreshControl()
     var overlay : UIView!
     var alert : UIAlertController!
-    var activityIndicator : UIActivityIndicatorView!
+//    var activityIndicator : UIActivityIndicatorView!
+    let child = Spinner()
+
     var loadedTimes = 0
     var alreadyLaunched = false
     var savedRows : [Int: Bool] = [:]
@@ -100,6 +102,7 @@ class LiveNewsController: UIViewController {
     var sources = ["ALL"]
     func loadNews(){
         refreshControl.beginRefreshing()
+        startStopSpinner(start: true)
         
         let selectedSources = ["business", "world", "general"]
         var error = false
@@ -133,6 +136,7 @@ class LiveNewsController: UIViewController {
                             self.tableView.reloadData()
                             self.collectionView.reloadData()
                             self.refreshControl.endRefreshing()
+                            self.startStopSpinner(start: false)
                         }
                     }
                 }
@@ -169,6 +173,19 @@ extension LiveNewsController {
         static let NavBarHeightSmallState: CGFloat = 44
         /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
         static let NavBarHeightLargeState: CGFloat = 96.5
+    }
+    
+    func startStopSpinner(start: Bool){
+        if start {
+            addChild(child)
+            child.view.frame = view.frame
+            view.addSubview(child.view)
+            child.didMove(toParent: self)
+        } else {
+            child.willMove(toParent: nil)
+            child.view.removeFromSuperview()
+            child.removeFromParent()
+        }
     }
     
     private func setupUI() {
@@ -217,14 +234,16 @@ extension LiveNewsController {
         let vc = SearchNewsController()
         vc.completion = { [weak self] tickerTyped in
             let ticker = tickerTyped.first?.key
-            print (ticker)
+            dump (ticker)
             //self.startStopSpinner(start: true)
             DispatchQueue.main.async {
                 let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
                 let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
                 destination!.ticker = ticker!
                 destination!.modalTransitionStyle = .crossDissolve
-                self?.present(destination!, animated: true, completion: nil)
+                self?.present(destination!, animated: true) {
+                    ShowAlerts.showSimpleAlert(title: "Error", message: "Didn't find any related news", titleButton: "OK", over: self!)
+                }
             }
             
         }

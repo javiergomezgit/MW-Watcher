@@ -27,6 +27,7 @@ class TickerNewsController: UIViewController {
     let saveHeadlines = UserSaveNews()
     var savedRows : [Int: Bool] = [:]
     var refreshControl = UIRefreshControl()
+    var notFound = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -66,7 +67,10 @@ class TickerNewsController: UIViewController {
             } else {
                 DispatchQueue.main.async {
                     self.refreshControl.endRefreshing()
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
+                    self.notFound = true
+                    //ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find any news about it", titleButton: "OK", over: self)
+                    self.dismiss(animated: true, completion: nil)
+
                 }
             }
         }
@@ -83,15 +87,32 @@ class TickerNewsController: UIViewController {
                         self.refreshControl.endRefreshing()
                     }
                 if loadedNewsArray?.count == 0 {
-                    ShowAlerts.showSimpleAlert(title: "Warning", message: "Didn't find any related news", titleButton: "OK", over: self)
+//                    ShowAlerts.showSimpleAlert(title: "Warning", message: "Didn't find any related news", titleButton: "OK", over: self)
+                    self.notFound = true
+                    self.dismiss(animated: true, completion: nil)
                 }
             } else {
                 DispatchQueue.main.async {
                     self.refreshControl.endRefreshing()
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "OK", over: self)
+                    self.notFound = true
+                    self.dismiss(animated: true) {
+                        ShowAlerts.showSimpleAlert(title: "Error", message: "Didn't find any related news", titleButton: "OK", over: self)
+                    }
+//                    ShowAlerts.showSimpleAlert(title: "Error", message: "Didn't find any related news", titleButton: "OK", over: self)
                 }
             }
         }
+    }
+        
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+            if isBeingDismissed {
+                if self.notFound == true {
+                    DispatchQueue.main.async {
+                        ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find any news about it", titleButton: "OK", over: self)
+                    }
+                }
+            }
     }
 }
 

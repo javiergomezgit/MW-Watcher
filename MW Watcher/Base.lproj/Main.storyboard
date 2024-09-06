@@ -482,16 +482,16 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="bottom" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="AAPL" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h7m-WC-jST">
-                                <rect key="frame" x="0.0" y="47" width="390" height="60"/>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.038661100426498722" colorSpace="custom" customColorSpace="sRGB"/>
+                                <rect key="frame" x="0.0" y="47" width="390" height="90"/>
+                                <color key="backgroundColor" systemColor="systemGray6Color"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="PSC-mq-n63"/>
+                                    <constraint firstAttribute="height" constant="90" id="PSC-mq-n63"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="Optima-Bold" family="Optima" pointSize="34"/>
+                                <fontDescription key="fontDescription" name="Optima-Regular" family="Optima" pointSize="34"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="130" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ga4-FZ-mKY">
-                                <rect key="frame" x="15" y="127" width="360" height="683"/>
+                                <rect key="frame" x="15" y="157" width="360" height="653"/>
                                 <color key="backgroundColor" name="background4"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="TickerNewsCell" rowHeight="130" id="KGk-i7-Jjw" customClass="TickerNewsViewCell" customModule="MW_Watcher" customModuleProvider="target">

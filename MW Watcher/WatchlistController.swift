@@ -20,7 +20,7 @@ class WatchlistController: UIViewController {
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
     var percentageChg = 0.0
-    var spinner = UIActivityIndicatorView(style: .large)
+//    var spinner = UIActivityIndicatorView(style: .large)
     private let imageViewTopRightButton = UIImageView(image: UIImage(named: "plus.square.on.square"))
     private let imageViewPerformanceButton = UIImageView(image: UIImage(named: "chart.line.uptrend.xyaxis.circle"))
     
@@ -224,12 +224,16 @@ class WatchlistController: UIViewController {
                         }
                     }
                 }
-                
-                
+            
             case .failure(let error):
                 print (error.localizedDescription)
                 DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Limited features.", titleButton: "Ok", over: self)
+                    ShowAlerts.showSimpleAlert(title: "Error", message: error.localizedDescription, titleButton: "Ok", over: self)
+                    self.startStopSpinner(start: false)
+                }
+            case .none:
+                DispatchQueue.main.async {
+                    ShowAlerts.showSimpleAlert(title: "Error", message: "Ticker not supported", titleButton: "Ok", over: self)
                     self.startStopSpinner(start: false)
                 }
             }
@@ -250,41 +254,53 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "myTickersCell", for: indexPath) as! WatchlistViewCell
         
+        cell.tickerLabel.text = " "
+        cell.currentPriceLabel.text = "$0.0"
+        cell.nameCompanyLabel.text = " "
+        
+        cell.changeLabel.text = "%"
+        cell.previousPriceLabel.text = "$0.0"
+        
         let ticker = tickersFeatures[indexPath.row].ticker
-        let name = tickersFeatures[indexPath.row].nameTicker
-        let image = tickersFeatures[indexPath.row].imageTicker
-        
-        let marketPrice = tickersValues[indexPath.row].marketPrice
-        var previousPrice = tickersValues[indexPath.row].previousPrice
-        var percentage = tickersValues[indexPath.row].changePercent
-        previousPrice = Double(round(100*previousPrice)/100)
-        percentage = Double(round(100*percentage)/100)
-        
-        cell.tickerLabel.text = ticker
-        cell.currentPriceLabel.text = "$\(marketPrice)"
-        cell.imageCompanyImageView.image = image
-        cell.nameCompanyLabel.text = name
-        
-        cell.changeLabel.text = String(percentage) + "%"
-        cell.previousPriceLabel.text = "$" + String(previousPrice)
-        
-        if percentage < 0 {
-            cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            cell.previousPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
-            cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            cell.frameCoverLabel.backgroundColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
-        } else {
-            cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
-            cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            cell.frameCoverLabel.backgroundColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+        if ticker != "" {
             
+            let name = tickersFeatures[indexPath.row].nameTicker
+            let image = tickersFeatures[indexPath.row].imageTicker
+            let marketPrice = tickersValues[indexPath.row].marketPrice
+            if marketPrice != 0.0  {
+                cell.currentPriceLabel.text = "$\(marketPrice)"
+            }
+            
+            var previousPrice = tickersValues[indexPath.row].previousPrice
+            var percentage = tickersValues[indexPath.row].changePercent
+            previousPrice = Double(round(100*previousPrice)/100)
+            percentage = Double(round(100*percentage)/100)
+            
+            cell.tickerLabel.text = ticker
+            cell.imageCompanyImageView.image = image
+            cell.nameCompanyLabel.text = name
+            
+            cell.changeLabel.text = String(percentage) + "%"
+            cell.previousPriceLabel.text = "$" + String(previousPrice)
+            
+            if percentage < 0 {
+                cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                cell.previousPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
+                cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                cell.frameCoverLabel.backgroundColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
+            } else {
+                cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
+                cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                cell.frameCoverLabel.backgroundColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+                
+            }
+            
+            cell.openChartButton.tag = indexPath.row
+            cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
         }
-        
-        cell.openChartButton.tag = indexPath.row
-        cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
         
         return cell
     }
