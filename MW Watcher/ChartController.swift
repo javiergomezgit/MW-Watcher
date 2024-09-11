@@ -324,21 +324,16 @@ class ChartController: UIViewController, ChartViewDelegate {
         self.candleValues.removeAll()
         self.linearValues.removeAll()
         
-//        var volumeReduce = NSNumber()
         for (index, candleValue) in modelCandles.enumerated() {
             let startingAt = candleValue.start_timestamp
             let openPrice = candleValue.open
             let highPrice = candleValue.high
             let closePrice = candleValue.close
             let lowPrice = candleValue.low
-//            let volume = candleValue.volume
             
             let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
             let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
             let CLOHValue = MarketsCandles(start_timestamp: startingAt, open: openPrice, high: highPrice, low: lowPrice, close: closePrice)
-            
-//            volumeReduce = NSNumber(value: (volume/1000))
-            
             
             self.candleValues.append(candleValueEntry)
             self.linearValues.append(linearValueEntry)
@@ -356,14 +351,6 @@ class ChartController: UIViewController, ChartViewDelegate {
             
             times[index] = String(startingAt)
         }
-        
-//        if !indexMarket {
-//            if let volumeRound = ChartController.volumeFormatter.string(from: volumeReduce) {
-//                //self.volumeLabel.text = "Vol. \(volumeRound) MM" //22866
-//            }
-//        } else {
-//            //self.volumeLabel.text = ""
-//        }
         
         printCLOH(entry: 59)
         setupDateLabel()
@@ -409,94 +396,76 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight) {
-//        print(entry)
-//        let timeIndex = entry.x
-//        let stringTime = transformTime(entry: timeIndex)
-//        let open = candleValues[Int(entry.x)].open
-//        let low = candleValues[Int(entry.x)].low
-//        let close = candleValues[Int(entry.x)].close //same as current price for the current candle
-//        let high = candleValues[Int(entry.x)].high
-//
-//        pointingDateLabel.text = "Date/Time: \(stringTime)"
-//        pointingOpenLabel.text = "Open: $\(open)"
-//        pointingLowLabel.text = "Low: $\(low)"
-//        pointingHighLabel.text = "High: $\(high)"
-//        pointingCloseLabel.text = "Close: $\(close)"
-//
-//        pointingChangeLabel.text = "Change: N/A"
-//        if Int(entry.x) > 0 {
-//            let previousClose = candleValues[Int(entry.x)-1].close
-//            let changePercentage = ((previousClose * 100) / close) - 100
-//
-//            let rounded = Double(round(100*changePercentage)/100)
-//            if rounded < 0  {
-//                pointingChangeLabel.textColor = UIColor(named: "downtrend")!
-//            } else {
-//                pointingChangeLabel.textColor = UIColor(named: "uptrend")!
-//            }
-//            pointingChangeLabel.text = "Change: \(rounded)%"
-//        }
         printCLOH(entry: Int(entry.x))
     }
     
     private func printCLOH(entry: Int) {
         let timeIndex = entry
-        let stringTime = transformTime(entry: Double(timeIndex))
-        let open = candleValues[Int(entry)].open
-        let low = candleValues[Int(entry)].low
-        let close = candleValues[Int(entry)].close //same as current price for the current candle
-        let high = candleValues[Int(entry)].high
-
-        pointingDateLabel.text = "Date/Time: \(stringTime)"
-        pointingOpenLabel.text = "Open: $\(open)"
-        pointingLowLabel.text = "Low: $\(low)"
-        pointingHighLabel.text = "High: $\(high)"
-        pointingCloseLabel.text = "Close: $\(close)"
-        
-        pointingChangeLabel.text = "Change: N/A"
-        if Int(entry) > 0 {
-            let previousClose = candleValues[Int(entry)-1].close
-            let changePercentage = ((previousClose * 100) / close) - 100
+        if let stringTime = transformTime(entry: Double(timeIndex)) {
             
-            let rounded = Double(round(100*changePercentage)/100)
-            if rounded < 0  {
-                pointingChangeLabel.textColor = UIColor(named: "downtrend")!
-            } else {
-                pointingChangeLabel.textColor = UIColor(named: "uptrend")!
+            let open = candleValues[Int(entry)].open
+            let low = candleValues[Int(entry)].low
+            let close = candleValues[Int(entry)].close //same as current price for the current candle
+            let high = candleValues[Int(entry)].high
+            
+            pointingDateLabel.text = "Date/Time: \(stringTime)"
+            pointingOpenLabel.text = "Open: $\(open)"
+            pointingLowLabel.text = "Low: $\(low)"
+            pointingHighLabel.text = "High: $\(high)"
+            pointingCloseLabel.text = "Close: $\(close)"
+            
+            pointingChangeLabel.text = "Change: N/A"
+            if Int(entry) > 0 {
+                let previousClose = candleValues[Int(entry)-1].close
+                let changePercentage = ((previousClose * 100) / close) - 100
+                
+                let rounded = Double(round(100*changePercentage)/100)
+                if rounded < 0  {
+                    pointingChangeLabel.textColor = UIColor(named: "downtrend")!
+                } else {
+                    pointingChangeLabel.textColor = UIColor(named: "uptrend")!
+                }
+                pointingChangeLabel.text = "Change: \(rounded)%"
             }
-            pointingChangeLabel.text = "Change: \(rounded)%"
         }
     }
-
     
-    func transformTime(entry: Double) -> String {
-        var dateFormat = "HH:mm"
-        let index = segmentControl.selectedIndex //timeFrameSegmented.selectedSegmentIndex
-        switch index {
-        case 0:
-            dateFormat = "HH:mm"
-            break
-        case 1:
-            dateFormat = "HH:mm"
-            break
-        case 2:
-            dateFormat =  "MM/dd"
-            break
-        case 3:
-            dateFormat =  "yyyy/MM/dd"
-            break
-        case 4:
-            dateFormat =  "yyyy/MM/dd"
-            break
-        case 5:
-            dateFormat =  "yyyy/MM"
-            break
-        default:
-            dateFormat =  "yyyy-MM-dd HH:mm"
+    
+    func transformTime(entry: Double) -> String? {
+        let timeString = self.times[Int(entry)]
+        var strDate: String?
+        if timeString != nil {
+            
+            var dateFormat = "HH:mm"
+            let index = segmentControl.selectedIndex //timeFrameSegmented.selectedSegmentIndex
+            switch index {
+            case 0:
+                dateFormat = "HH:mm"
+                break
+            case 1:
+                dateFormat = "HH:mm"
+                break
+            case 2:
+                dateFormat =  "MM/dd"
+                break
+            case 3:
+                dateFormat =  "yyyy/MM/dd"
+                break
+            case 4:
+                dateFormat =  "yyyy/MM/dd"
+                break
+            case 5:
+                dateFormat =  "yyyy/MM"
+                break
+            default:
+                dateFormat =  "yyyy-MM-dd HH:mm"
+            }
+            
+            strDate = Support.sharedSupport.convertTimeStampToDate(timeString: timeString!, dateFormat: dateFormat)
+
+        } else {
+            strDate = nil
         }
-        
-        let timeString = self.times[Int(entry)]!
-        let strDate = Support.sharedSupport.convertTimeStampToDate(timeString: timeString, dateFormat: dateFormat)
 
         return strDate
     }

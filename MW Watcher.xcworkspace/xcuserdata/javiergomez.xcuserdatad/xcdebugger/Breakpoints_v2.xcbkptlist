@@ -66,52 +66,6 @@
             endingLineNumber = "208"
             landmarkName = "loadIndividualStock(individualTicker:nameTicker:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "9233414E-4EFB-4F0E-B6F4-E06AFCCC88FF - ef053cfcffa49a95"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;__C.UIImage, Swift.Error&gt;) -&gt; () in closure #1 (Swift.Optional&lt;Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String, nameTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/EZDrop/EZ%20Inflatables%20Dropbox/Javier%20Gomez/JDevProjects/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "209"
-                  endingLineNumber = "209">
-               </Location>
-               <Location
-                  uuid = "9233414E-4EFB-4F0E-B6F4-E06AFCCC88FF - ef053cfcffa49a95"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Result&lt;__C.UIImage, Swift.Error&gt;) -&gt; () in closure #1 (Swift.Optional&lt;Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String, nameTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/EZDrop/EZ%20Inflatables%20Dropbox/Javier%20Gomez/JDevProjects/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "209"
-                  endingLineNumber = "209">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "61AFA7EB-6200-4C73-BACD-C2862E31B727"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/ChartsModel/ChartsAPI.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "94"
-            endingLineNumber = "94"
-            landmarkName = "getStockValues(intervalTime:symbol:completion:)"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -236,8 +190,8 @@
             filePath = "MW Watcher/SearchNewsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "110"
-            endingLineNumber = "110"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
             landmarkName = "searchBar(_:textDidChange:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -252,25 +206,9 @@
             filePath = "MW Watcher/SearchNewsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "118"
-            endingLineNumber = "118"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
             landmarkName = "filterContentForSearchText(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "A0536F79-ABAA-4685-9016-C2913DFEAC6F"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksModel/StocksAPI.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "108"
-            endingLineNumber = "108"
-            landmarkName = "getPriceSingleTicker(ticker:timeRange:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -284,25 +222,9 @@
             filePath = "MW Watcher/SearchNewsController.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "96"
-            endingLineNumber = "96"
+            startingLineNumber = "102"
+            endingLineNumber = "102"
             landmarkName = "tableView(_:didSelectRowAt:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "63919882-E7B0-43D4-A2E8-AE7C06236F10"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "MW Watcher/StocksModel/StocksAPI.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "121"
-            endingLineNumber = "121"
-            landmarkName = "getPriceSingleTicker(ticker:timeRange:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -320,50 +242,6 @@
             endingLineNumber = "205"
             landmarkName = "loadIndividualStock(individualTicker:nameTicker:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "3DB02AE0-2326-4282-8881-8E8311CA10DC - 53bc5c3f6a49ac9a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String, nameTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/EZDrop/EZ%20Inflatables%20Dropbox/Javier%20Gomez/JDevProjects/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "206"
-                  endingLineNumber = "206">
-               </Location>
-               <Location
-                  uuid = "3DB02AE0-2326-4282-8881-8E8311CA10DC - 53bc5c3f6a49ac9a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String, nameTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/EZDrop/EZ%20Inflatables%20Dropbox/Javier%20Gomez/JDevProjects/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "206"
-                  endingLineNumber = "206">
-               </Location>
-               <Location
-                  uuid = "3DB02AE0-2326-4282-8881-8E8311CA10DC - 53bc5c3f6a49ac9a"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 (Swift.Optional&lt;Swift.Result&lt;MW_Watcher.TickersCurrentValues, Swift.Error&gt;&gt;) -&gt; () in MW_Watcher.WatchlistController.loadIndividualStock(individualTicker: Swift.String, nameTicker: Swift.String) -&gt; ()"
-                  moduleName = "MW Watcher"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Volumes/EZDrop/EZ%20Inflatables%20Dropbox/Javier%20Gomez/JDevProjects/iOS%20Apps/MW-Watcher/MW%20Watcher/WatchlistController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "206"
-                  endingLineNumber = "206">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

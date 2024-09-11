@@ -81,6 +81,12 @@ extension SearchNewsController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchNewsViewCell.identifier, for: indexPath) as! SearchNewsViewCell
+        if (indexPath.row % 2 == 0) {
+            cell.backgroundColor = UIColor.systemYellow.withAlphaComponent(0.05)
+        } else {
+            cell.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.05)
+        }
+        
         if filteredStocks.count > 0 {
             let ticker = filteredStocks[indexPath.row]
             cell.configure(ticker: ticker.ticker, name: ticker.nameTicker)
@@ -100,7 +106,10 @@ extension SearchNewsController: UITableViewDataSource, UITableViewDelegate {
                 self?.completion?(tickerAndName)
             })
         }
-        
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
     }
 }
 

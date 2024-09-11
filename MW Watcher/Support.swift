@@ -75,15 +75,24 @@ class Support {
     
     //MARK: Change date format for time stamp format in chart stock/crypto screen
     func convertTimeStampToDate(timeString: String, dateFormat: String) -> String{
-        let time = timeString
-        let date = Date(timeIntervalSince1970: Double(time)!)
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
-        dateFormatter.locale = NSLocale.current
-        dateFormatter.dateFormat = dateFormat
-        let newFormatDate = dateFormatter.string(from: date)
-        return newFormatDate
+        let time = Double(timeString)
+        if time != nil {
+            let date = Date(timeIntervalSince1970: time!)
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = dateFormat
+            let newFormatDate = dateFormatter.string(from: date)
+            return newFormatDate
+        } else {
+            let date = Date()
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+            dateFormatter.locale = NSLocale.current
+            dateFormatter.dateFormat = dateFormat
+            let newFormatDate = dateFormatter.string(from: date)
+            return newFormatDate
+        }
     }
     
     

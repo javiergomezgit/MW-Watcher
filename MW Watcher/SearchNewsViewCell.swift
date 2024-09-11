@@ -29,6 +29,7 @@ class SearchNewsViewCell: UITableViewCell {
     private let newsNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
+        label.textColor = .systemGray
         return label
     }()
     
