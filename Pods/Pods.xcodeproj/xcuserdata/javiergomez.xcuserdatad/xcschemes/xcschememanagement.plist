@@ -119,11 +119,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-WidgetExtension.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>PromisesObjC-FBLPromises_Privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -140,11 +135,6 @@
 			<false/>
 		</dict>
 		<key>PromisesSwift.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
-		<key>SwiftSoup-SwiftSoup.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

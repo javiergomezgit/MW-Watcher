@@ -231,11 +231,11 @@ class WatchlistController: UIViewController {
                     ShowAlerts.showSimpleAlert(title: "Error", message: error.localizedDescription, titleButton: "Ok", over: self)
                     self.startStopSpinner(start: false)
                 }
-            case .none:
-                DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Ticker not supported", titleButton: "Ok", over: self)
-                    self.startStopSpinner(start: false)
-                }
+//            case .none:
+//                DispatchQueue.main.async {
+//                    ShowAlerts.showSimpleAlert(title: "Error", message: "Ticker not supported", titleButton: "Ok", over: self)
+//                    self.startStopSpinner(start: false)
+//                }
             }
         }
     }

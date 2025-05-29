@@ -22,26 +22,13 @@
 		221236B1263DA72A007EA092 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 221236B0263DA72A007EA092 /* Assets.xcassets */; };
 		221236B4263DA72A007EA092 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 221236B2263DA72A007EA092 /* LaunchScreen.storyboard */; };
 		2218158D282D4FE2002DE782 /* MinorMarketsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2218158C282D4FE2002DE782 /* MinorMarketsViewCell.swift */; };
-		2219565D266E641800DDDB93 /* NewsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EFA843266D8CAE004D0856 /* NewsItem.swift */; };
 		221BCFCF29CFE476001790F2 /* SimulatedPortfolioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 221BCFCE29CFE476001790F2 /* SimulatedPortfolioController.swift */; };
 		222394A527405E6100C544BB /* CostCalculatorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222394A427405E6100C544BB /* CostCalculatorController.swift */; };
 		22334B6429A1776F00FE3A86 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 22334B6329A1776F00FE3A86 /* Algorithms */; };
-		223A03E226548926005BE1D8 /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D6354F2653778F00EAD8ED /* HTMLParser.swift */; };
 		223B377B266ED82900526E46 /* LiveNewsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223B377A266ED82900526E46 /* LiveNewsViewCell.swift */; };
 		223EF570265D858700160C8D /* WatchlistViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223EF56F265D858700160C8D /* WatchlistViewCell.swift */; };
 		223EF572265D867100160C8D /* SaveTickers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223EF571265D867100160C8D /* SaveTickers.swift */; };
 		2245E3712640C01D00D340DE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2245E3702640C01D00D340DE /* Podfile */; };
-		224FC168264DCB570014867C /* WidgetEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224FC167264DCB570014867C /* WidgetEntryView.swift */; };
-		224FC16B264DCBBA0014867C /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224FC16A264DCBBA0014867C /* Provider.swift */; };
-		224FC16F264DCC440014867C /* SimpleEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224FC16E264DCC440014867C /* SimpleEntry.swift */; };
-		224FC173264DD4770014867C /* SaveFeedsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 224FC172264DD4770014867C /* SaveFeedsWidget.swift */; };
-		225CF9A6264216A400D19929 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 225CF9A5264216A400D19929 /* WidgetKit.framework */; };
-		225CF9A8264216A400D19929 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 225CF9A7264216A400D19929 /* SwiftUI.framework */; };
-		225CF9AB264216A400D19929 /* MWWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AA264216A400D19929 /* MWWidget.swift */; };
-		225CF9AE264216A600D19929 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 225CF9AD264216A600D19929 /* Assets.xcassets */; };
-		225CF9B0264216A600D19929 /* MWWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AC264216A400D19929 /* MWWidget.intentdefinition */; };
-		225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 225CF9AC264216A400D19929 /* MWWidget.intentdefinition */; };
-		225CF9B4264216A600D19929 /* WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 225CF9A4264216A400D19929 /* WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		225E81DA27FF9571006387B4 /* CryptoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 225E81D927FF9571006387B4 /* CryptoModel.swift */; };
 		226463EA26691EEE00A915D2 /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 226463E926691EEE00A915D2 /* LocalAuthentication.framework */; };
 		226CEA57266BD6EA002E44E3 /* TickerNewsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */; };
@@ -62,7 +49,6 @@
 		229554F4267A3FAD0082235C /* ShowAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229554F3267A3FAD0082235C /* ShowAlerts.swift */; };
 		229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229A2F1D27F8ED3300A05EE1 /* ChartController.swift */; };
 		22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
-		22AD1A45264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
 		22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C6E26750DBC00C2313E /* CryptosAPI.swift */; };
 		22D21C712675383300C2313E /* CryptosController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C702675383300C2313E /* CryptosController.swift */; };
 		22D21C73267538EA00C2313E /* CryptosViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C72267538EA00C2313E /* CryptosViewCell.swift */; };
@@ -73,35 +59,11 @@
 		22EFA844266D8CAE004D0856 /* NewsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EFA843266D8CAE004D0856 /* NewsItem.swift */; };
 		22F8F32F265C5FC50084C98F /* UserSaveNews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F32E265C5FC50084C98F /* UserSaveNews.swift */; };
 		22F8F333265C6C240084C98F /* SavedNewsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F332265C6C240084C98F /* SavedNewsController.swift */; };
-		3289F41B78902A9F32BC95F7 /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68285B5C1F0E4A23A2D44638 /* Pods_MW_Watcher.framework */; };
-		5704C39058ED423998F76933 /* Pods_WidgetExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6917F7B11B05817902DC4A2 /* Pods_WidgetExtension.framework */; };
+		56ABB3983807148741F9DB0C /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 271B604CBE529C1A75AC6373 /* Pods_MW_Watcher.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		225CF9B2264216A600D19929 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2212369C263DA728007EA092 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 225CF9A3264216A400D19929;
-			remoteInfo = WidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		225CF9B5264216A600D19929 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				225CF9B4264216A600D19929 /* WidgetExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
+		1C443AB85792D38A18077AEF /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
 		220021CF29B69ABB0022FD6E /* HBSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HBSegmentedControl.swift; sourceTree = "<group>"; };
 		220235EE280CCC8300882206 /* Spinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spinner.swift; sourceTree = "<group>"; };
 		220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsViewCell.swift; sourceTree = "<group>"; };
@@ -128,19 +90,8 @@
 		223EF56F265D858700160C8D /* WatchlistViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchlistViewCell.swift; sourceTree = "<group>"; };
 		223EF571265D867100160C8D /* SaveTickers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveTickers.swift; sourceTree = "<group>"; };
 		2245E3702640C01D00D340DE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
-		224FC167264DCB570014867C /* WidgetEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetEntryView.swift; sourceTree = "<group>"; };
-		224FC16A264DCBBA0014867C /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
-		224FC16E264DCC440014867C /* SimpleEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleEntry.swift; sourceTree = "<group>"; };
-		224FC172264DD4770014867C /* SaveFeedsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveFeedsWidget.swift; sourceTree = "<group>"; };
-		224FC174264DDB270014867C /* MW Watcher.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "MW Watcher.entitlements"; sourceTree = "<group>"; };
-		224FC175264DDB4D0014867C /* WidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WidgetExtension.entitlements; sourceTree = "<group>"; };
-		225CF9A4264216A400D19929 /* WidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		225CF9A5264216A400D19929 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		225CF9A7264216A400D19929 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		225CF9AA264216A400D19929 /* MWWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MWWidget.swift; sourceTree = "<group>"; };
-		225CF9AC264216A400D19929 /* MWWidget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = MWWidget.intentdefinition; sourceTree = "<group>"; };
-		225CF9AD264216A600D19929 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		225CF9AF264216A600D19929 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		225E81D927FF9571006387B4 /* CryptoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoModel.swift; sourceTree = "<group>"; };
 		226463E926691EEE00A915D2 /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
 		226CEA56266BD6EA002E44E3 /* TickerNewsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerNewsController.swift; sourceTree = "<group>"; };
@@ -171,12 +122,11 @@
 		22EFA843266D8CAE004D0856 /* NewsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsItem.swift; sourceTree = "<group>"; };
 		22F8F32E265C5FC50084C98F /* UserSaveNews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSaveNews.swift; sourceTree = "<group>"; };
 		22F8F332265C6C240084C98F /* SavedNewsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedNewsController.swift; sourceTree = "<group>"; };
-		3A496EC3A8441B419FBE1B42 /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
-		68285B5C1F0E4A23A2D44638 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		6D6FAC8CB13CDC74DA03F2F3 /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
-		704AC23AFC91DB3E0DB4BEA0 /* Pods-WidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
-		B6917F7B11B05817902DC4A2 /* Pods_WidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FF25596CE41EA3915C19FBF4 /* Pods-WidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		271B604CBE529C1A75AC6373 /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C468BDC36594BEE2EF7E5B3 /* Pods_WidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		82E99BB0FC436BDDB64FF851 /* Pods-WidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
+		9E8EAC855893551591F577C7 /* Pods-WidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
+		AFB7F80F97200F835F8D5C55 /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,17 +137,7 @@
 				22334B6429A1776F00FE3A86 /* Algorithms in Frameworks */,
 				229554F2267A3C260082235C /* CloudKit.framework in Frameworks */,
 				226463EA26691EEE00A915D2 /* LocalAuthentication.framework in Frameworks */,
-				3289F41B78902A9F32BC95F7 /* Pods_MW_Watcher.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		225CF9A1264216A400D19929 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				225CF9A8264216A400D19929 /* SwiftUI.framework in Frameworks */,
-				225CF9A6264216A400D19929 /* WidgetKit.framework in Frameworks */,
-				5704C39058ED423998F76933 /* Pods_WidgetExtension.framework in Frameworks */,
+				56ABB3983807148741F9DB0C /* Pods_MW_Watcher.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,8 +154,8 @@
 				226463E926691EEE00A915D2 /* LocalAuthentication.framework */,
 				225CF9A5264216A400D19929 /* WidgetKit.framework */,
 				225CF9A7264216A400D19929 /* SwiftUI.framework */,
-				68285B5C1F0E4A23A2D44638 /* Pods_MW_Watcher.framework */,
-				B6917F7B11B05817902DC4A2 /* Pods_WidgetExtension.framework */,
+				271B604CBE529C1A75AC6373 /* Pods_MW_Watcher.framework */,
+				5C468BDC36594BEE2EF7E5B3 /* Pods_WidgetExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -232,10 +172,8 @@
 		2212369B263DA728007EA092 = {
 			isa = PBXGroup;
 			children = (
-				224FC175264DDB4D0014867C /* WidgetExtension.entitlements */,
 				221236A6263DA728007EA092 /* MW Watcher */,
 				2245E3702640C01D00D340DE /* Podfile */,
-				225CF9A9264216A400D19929 /* Widget */,
 				221236A5263DA728007EA092 /* Products */,
 				C658810D9F34D18312E4133B /* Pods */,
 				1D8F698238A814FDA53540B3 /* Frameworks */,
@@ -246,7 +184,6 @@
 			isa = PBXGroup;
 			children = (
 				221236A4263DA728007EA092 /* MW Watcher.app */,
-				225CF9A4264216A400D19929 /* WidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -254,7 +191,6 @@
 		221236A6263DA728007EA092 /* MW Watcher */ = {
 			isa = PBXGroup;
 			children = (
-				224FC174264DDB270014867C /* MW Watcher.entitlements */,
 				221236CA263DAA99007EA092 /* Support */,
 				221236BB263DA94E007EA092 /* Model */,
 				221236C8263DAA6B007EA092 /* View */,
@@ -322,45 +258,6 @@
 			name = Support;
 			sourceTree = "<group>";
 		};
-		224FC166264DCB420014867C /* View */ = {
-			isa = PBXGroup;
-			children = (
-				224FC167264DCB570014867C /* WidgetEntryView.swift */,
-			);
-			name = View;
-			sourceTree = "<group>";
-		};
-		224FC169264DCB930014867C /* Provider */ = {
-			isa = PBXGroup;
-			children = (
-				224FC16A264DCBBA0014867C /* Provider.swift */,
-				224FC172264DD4770014867C /* SaveFeedsWidget.swift */,
-			);
-			name = Provider;
-			sourceTree = "<group>";
-		};
-		224FC16D264DCC320014867C /* Entry */ = {
-			isa = PBXGroup;
-			children = (
-				224FC16E264DCC440014867C /* SimpleEntry.swift */,
-			);
-			name = Entry;
-			sourceTree = "<group>";
-		};
-		225CF9A9264216A400D19929 /* Widget */ = {
-			isa = PBXGroup;
-			children = (
-				224FC16D264DCC320014867C /* Entry */,
-				224FC166264DCB420014867C /* View */,
-				224FC169264DCB930014867C /* Provider */,
-				225CF9AA264216A400D19929 /* MWWidget.swift */,
-				225CF9AC264216A400D19929 /* MWWidget.intentdefinition */,
-				225CF9AD264216A600D19929 /* Assets.xcassets */,
-				225CF9AF264216A600D19929 /* Info.plist */,
-			);
-			path = Widget;
-			sourceTree = "<group>";
-		};
 		22E783B52825C41A00A3420C /* CryptoModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -421,10 +318,10 @@
 		C658810D9F34D18312E4133B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3A496EC3A8441B419FBE1B42 /* Pods-MW Watcher.debug.xcconfig */,
-				6D6FAC8CB13CDC74DA03F2F3 /* Pods-MW Watcher.release.xcconfig */,
-				FF25596CE41EA3915C19FBF4 /* Pods-WidgetExtension.debug.xcconfig */,
-				704AC23AFC91DB3E0DB4BEA0 /* Pods-WidgetExtension.release.xcconfig */,
+				1C443AB85792D38A18077AEF /* Pods-MW Watcher.debug.xcconfig */,
+				AFB7F80F97200F835F8D5C55 /* Pods-MW Watcher.release.xcconfig */,
+				82E99BB0FC436BDDB64FF851 /* Pods-WidgetExtension.debug.xcconfig */,
+				9E8EAC855893551591F577C7 /* Pods-WidgetExtension.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -436,18 +333,16 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 221236B8263DA72A007EA092 /* Build configuration list for PBXNativeTarget "MW Watcher" */;
 			buildPhases = (
-				55A4C690DB333F9F87C929FB /* [CP] Check Pods Manifest.lock */,
+				30B69005FCD740175125B817 /* [CP] Check Pods Manifest.lock */,
 				221236A0263DA728007EA092 /* Sources */,
 				221236A1263DA728007EA092 /* Frameworks */,
 				221236A2263DA728007EA092 /* Resources */,
-				225CF9B5264216A600D19929 /* Embed Foundation Extensions */,
 				2211BDB126B6E7E2009CC8E0 /* ShellScript */,
-				77A2077FC86C43BD8B1763A6 /* [CP] Embed Pods Frameworks */,
+				0E37F6D6DD3024FDA440A720 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				225CF9B3264216A600D19929 /* PBXTargetDependency */,
 			);
 			name = "MW Watcher";
 			packageProductDependencies = (
@@ -456,24 +351,6 @@
 			productName = "MW Watcher";
 			productReference = 221236A4263DA728007EA092 /* MW Watcher.app */;
 			productType = "com.apple.product-type.application";
-		};
-		225CF9A3264216A400D19929 /* WidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 225CF9B8264216A600D19929 /* Build configuration list for PBXNativeTarget "WidgetExtension" */;
-			buildPhases = (
-				3992D7E65322987D10772B30 /* [CP] Check Pods Manifest.lock */,
-				225CF9A0264216A400D19929 /* Sources */,
-				225CF9A1264216A400D19929 /* Frameworks */,
-				225CF9A2264216A400D19929 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = WidgetExtension;
-			productName = WidgetExtension;
-			productReference = 225CF9A4264216A400D19929 /* WidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -486,9 +363,6 @@
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					221236A3263DA728007EA092 = {
-						CreatedOnToolsVersion = 12.5;
-					};
-					225CF9A3264216A400D19929 = {
 						CreatedOnToolsVersion = 12.5;
 					};
 				};
@@ -510,7 +384,6 @@
 			projectRoot = "";
 			targets = (
 				221236A3263DA728007EA092 /* MW Watcher */,
-				225CF9A3264216A400D19929 /* WidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -531,17 +404,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		225CF9A2264216A400D19929 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				225CF9AE264216A600D19929 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0E37F6D6DD3024FDA440A720 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		2211BDB126B6E7E2009CC8E0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -562,29 +444,7 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
 		};
-		3992D7E65322987D10772B30 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-WidgetExtension-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		55A4C690DB333F9F87C929FB /* [CP] Check Pods Manifest.lock */ = {
+		30B69005FCD740175125B817 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -604,23 +464,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		77A2077FC86C43BD8B1763A6 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -648,7 +491,6 @@
 				227AAD1728A43B7C00313DDB /* BallonMarker.swift in Sources */,
 				227C7E692808931500A9E158 /* Support.swift in Sources */,
 				226CEA57266BD6EA002E44E3 /* TickerNewsController.swift in Sources */,
-				225CF9B1264216A600D19929 /* MWWidget.intentdefinition in Sources */,
 				220235EF280CCC8300882206 /* Spinner.swift in Sources */,
 				223EF570265D858700160C8D /* WatchlistViewCell.swift in Sources */,
 				222394A527405E6100C544BB /* CostCalculatorController.swift in Sources */,
@@ -675,31 +517,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		225CF9A0264216A400D19929 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				224FC16F264DCC440014867C /* SimpleEntry.swift in Sources */,
-				2219565D266E641800DDDB93 /* NewsItem.swift in Sources */,
-				224FC173264DD4770014867C /* SaveFeedsWidget.swift in Sources */,
-				224FC168264DCB570014867C /* WidgetEntryView.swift in Sources */,
-				224FC16B264DCBBA0014867C /* Provider.swift in Sources */,
-				22AD1A45264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
-				225CF9B0264216A600D19929 /* MWWidget.intentdefinition in Sources */,
-				225CF9AB264216A400D19929 /* MWWidget.swift in Sources */,
-				223A03E226548926005BE1D8 /* HTMLParser.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		225CF9B3264216A600D19929 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 225CF9A3264216A400D19929 /* WidgetExtension */;
-			targetProxy = 225CF9B2264216A600D19929 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		221236AD263DA728007EA092 /* Main.storyboard */ = {
@@ -843,15 +661,14 @@
 		};
 		221236B9263DA72A007EA092 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3A496EC3A8441B419FBE1B42 /* Pods-MW Watcher.debug.xcconfig */;
+			baseConfigurationReference = 1C443AB85792D38A18077AEF /* Pods-MW Watcher.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "MW Watcher/MW Watcher.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.20;
+				CURRENT_PROJECT_VERSION = 1.2.21;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -863,12 +680,12 @@
 				INFOPLIST_FILE = "MW Watcher/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Market News and Charts";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.18;
+				MARKETING_VERSION = 1.2.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -879,15 +696,14 @@
 		};
 		221236BA263DA72A007EA092 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6D6FAC8CB13CDC74DA03F2F3 /* Pods-MW Watcher.release.xcconfig */;
+			baseConfigurationReference = AFB7F80F97200F835F8D5C55 /* Pods-MW Watcher.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "MW Watcher/MW Watcher.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.20;
+				CURRENT_PROJECT_VERSION = 1.2.21;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -898,74 +714,16 @@
 				INFOPLIST_FILE = "MW Watcher/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Market News and Charts";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.18;
+				MARKETING_VERSION = 1.2.21;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Release;
-		};
-		225CF9B6264216A600D19929 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = FF25596CE41EA3915C19FBF4 /* Pods-WidgetExtension.debug.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = WidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.18;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = SJK4QJY486;
-				EXCLUDED_ARCHS = "";
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
-				INFOPLIST_FILE = Widget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.2.18;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		225CF9B7264216A600D19929 /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 704AC23AFC91DB3E0DB4BEA0 /* Pods-WidgetExtension.release.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = WidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.2.18;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = SJK4QJY486;
-				INFOPLIST_FILE = Widget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.2.18;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.jdev.MW-Watcher.Widget";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -988,15 +746,6 @@
 			buildConfigurations = (
 				221236B9263DA72A007EA092 /* Debug */,
 				221236BA263DA72A007EA092 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		225CF9B8264216A600D19929 /* Build configuration list for PBXNativeTarget "WidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				225CF9B6264216A600D19929 /* Debug */,
-				225CF9B7264216A600D19929 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

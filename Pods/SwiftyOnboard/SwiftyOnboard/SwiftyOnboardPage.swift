@@ -62,9 +62,9 @@ open class SwiftyOnboardPage: UIView {
         let margin = self.layoutMarginsGuide
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.leftAnchor.constraint(equalTo: margin.leftAnchor, constant: 30).isActive = true
-        imageView.rightAnchor.constraint(equalTo: margin.rightAnchor, constant: -5).isActive = true
-        imageView.topAnchor.constraint(equalTo: margin.topAnchor, constant: 5).isActive = true
-        imageView.heightAnchor.constraint(equalTo: margin.heightAnchor, multiplier: 0.8).isActive = true
+        imageView.rightAnchor.constraint(equalTo: margin.rightAnchor, constant: -30).isActive = true
+        imageView.topAnchor.constraint(equalTo: margin.topAnchor, constant: 10).isActive = true
+        imageView.heightAnchor.constraint(equalTo: margin.heightAnchor, multiplier: 0.5).isActive = true
         
         self.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
@@ -81,13 +81,3 @@ open class SwiftyOnboardPage: UIView {
         subTitle.heightAnchor.constraint(equalToConstant: 100).isActive = true
     }
 }
-
-
-/* Original Code
-let margin = self.layoutMarginsGuide
-imageView.translatesAutoresizingMaskIntoConstraints = false
-imageView.leftAnchor.constraint(equalTo: margin.leftAnchor, constant: 30).isActive = true
-imageView.rightAnchor.constraint(equalTo: margin.rightAnchor, constant: -30).isActive = true
-imageView.topAnchor.constraint(equalTo: margin.topAnchor, constant: 10).isActive = true
-imageView.heightAnchor.constraint(equalTo: margin.heightAnchor, multiplier: 0.5).isActive = true
- */

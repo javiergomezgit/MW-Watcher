@@ -57,23 +57,23 @@ class TickerNewsController: UIViewController {
     func loadCryptoNews() {
         refreshControl.beginRefreshing()
         
-        NewsAPI.shared.loadCryptoNews(ticker: ticker, name: self.name) { loadedCryptoNewsArray in
-            if loadedCryptoNewsArray != nil {
-                self.tickerNewsArray = loadedCryptoNewsArray!
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                    self.refreshControl.endRefreshing()
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.refreshControl.endRefreshing()
-                    self.notFound = true
-                    //ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find any news about it", titleButton: "OK", over: self)
-                    self.dismiss(animated: true, completion: nil)
-
-                }
-            }
-        }
+//        NewsAPI.shared.loadCryptoNews(ticker: ticker, name: self.name) { loadedCryptoNewsArray in
+//            if loadedCryptoNewsArray != nil {
+//                self.tickerNewsArray = loadedCryptoNewsArray!
+//                DispatchQueue.main.async {
+//                    self.tableView.reloadData()
+//                    self.refreshControl.endRefreshing()
+//                }
+//            } else {
+//                DispatchQueue.main.async {
+//                    self.refreshControl.endRefreshing()
+//                    self.notFound = true
+//                    //ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find any news about it", titleButton: "OK", over: self)
+//                    self.dismiss(animated: true, completion: nil)
+//
+//                }
+//            }
+//        }
     }
     
     func loadTickerNews() {

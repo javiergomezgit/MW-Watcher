@@ -79,9 +79,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "190"
-            endingLineNumber = "190"
-            landmarkName = "loadCryptoNews(ticker:name:completion:)"
-            landmarkType = "7">
+            endingLineNumber = "190">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -95,9 +93,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "184"
-            endingLineNumber = "184"
-            landmarkName = "loadCryptoNews(ticker:name:completion:)"
-            landmarkType = "7">
+            endingLineNumber = "184">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -111,9 +107,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "loadCryptoNews(ticker:name:completion:)"
-            landmarkType = "7">
+            endingLineNumber = "174">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
