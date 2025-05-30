@@ -286,7 +286,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     private func loadCryptoPrices() {
-        CryptosAPI.shared.getSelectedCrypto(interval: interval, symbol: symbol) { [weak self] result in
+        CryptoAPI.shared.getSelectedCrypto(interval: interval, symbol: symbol) { [weak self] result in
             switch result {
             case .success(let data):
                 

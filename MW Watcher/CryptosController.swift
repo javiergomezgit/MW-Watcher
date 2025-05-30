@@ -64,7 +64,7 @@ class CryptosController: UIViewController {
     }
     
     private func loadCryptoPrices() {
-        CryptosAPI.shared.getAllCryptosData { [weak self] result in
+        CryptoAPI.shared.getAllCryptosData { [weak self] result in
             switch result {
             case .success(let data):
                 

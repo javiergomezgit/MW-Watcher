@@ -7,6 +7,11 @@
 
 import SwiftSoup
 
+//Not used anywhere.
+//Was used to extract the news for the widget
+
+
+/*
 class HTMLParser {
 
     private var newsItems: [SystemSavedNewsItem] = []
@@ -159,3 +164,4 @@ extension String {
     }
 }
 
+*/
