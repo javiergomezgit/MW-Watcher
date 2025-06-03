@@ -79,7 +79,7 @@ class TickerNewsController: UIViewController {
     func loadTickerNews() {
         refreshControl.beginRefreshing()
 
-        NewsAPI.shared.loadStockNews(ticker: ticker, name: self.name) { loadedNewsArray in
+        NewsCallAPI.shared.loadStockNews(ticker: ticker, name: self.name) { loadedNewsArray in
             if loadedNewsArray != nil {
                 self.tickerNewsArray = loadedNewsArray!
                     DispatchQueue.main.async {

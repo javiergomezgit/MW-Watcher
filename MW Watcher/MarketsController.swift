@@ -114,7 +114,7 @@ class MarketsController: UIViewController {
     }
     
     func loadCurrentPrices() {
-        StocksAPI.shared.getPriceGeneralMarkets { markets in
+        StockAPI.shared.getPriceGeneralMarkets { markets in
             if markets == nil {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
             } else {
@@ -322,15 +322,15 @@ extension MarketsController: ChartViewDelegate {
     
     func loadMajorMarketsChart() {
         let tickers = ["^DJI", "^GSPC", "^IXIC"]
-        ChartsAPI.shared.getMajorMarketsValues(symbol: tickers[0]) { result in
+        ChartAPI.shared.getMajorMarketsValues(symbol: tickers[0]) { result in
             switch result {
             case .success(let marketsValuesDJI):
                 self.marketsDataDJI = marketsValuesDJI
-                ChartsAPI.shared.getMajorMarketsValues(symbol: tickers[1]) { result in
+                ChartAPI.shared.getMajorMarketsValues(symbol: tickers[1]) { result in
                     switch result {
                     case .success(let marketsValuesSP500):
                         self.marketsDataSP500 = marketsValuesSP500
-                        ChartsAPI.shared.getMajorMarketsValues(symbol: tickers[2]) { result in
+                        ChartAPI.shared.getMajorMarketsValues(symbol: tickers[2]) { result in
                             switch result {
                             case .success(let marketsValuesIXIC):
                                 self.marketsDataIXIC = marketsValuesIXIC

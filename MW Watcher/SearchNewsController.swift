@@ -54,7 +54,7 @@ class SearchNewsController: UIViewController {
     }
     
     private func searchStocks(ticker: String) {
-        StocksAPI.shared.searchStocks(ticker: ticker) { stocks, error in
+        StockAPI.shared.searchStocks(ticker: ticker) { stocks, error in
             if stocks != nil {
                 print (stocks as Any)
                 self.stocks.removeAll()

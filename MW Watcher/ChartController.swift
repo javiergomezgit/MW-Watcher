@@ -172,7 +172,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     private func loadStockPrices(){
         if indexMarket {
-            ChartsAPI.shared.getMarketValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
+            ChartAPI.shared.getMarketValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
                 switch result {
                     
                 case .success(let data):
@@ -197,7 +197,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                 }
             }
         } else {
-            ChartsAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
+            ChartAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
                 switch result {
                     
                 case .success(let data):

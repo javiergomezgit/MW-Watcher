@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		220021D029B69ABB0022FD6E /* HBSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220021CF29B69ABB0022FD6E /* HBSegmentedControl.swift */; };
+		2201CF182DEE7396000BE365 /* StockAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2201CF172DEE7391000BE365 /* StockAPI.swift */; };
 		220235EF280CCC8300882206 /* Spinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220235EE280CCC8300882206 /* Spinner.swift */; };
 		220300BC265FDF7E008BAB70 /* MarketsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */; };
 		22034887282D9D3A00C384E0 /* ChartsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22034886282D9D3A00C384E0 /* ChartsModel.swift */; };
@@ -56,6 +57,8 @@
 		22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D6354F2653778F00EAD8ED /* HTMLParser.swift */; };
 		22DED38C28A178960005ECD7 /* SearchNewsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DED38B28A178960005ECD7 /* SearchNewsController.swift */; };
 		22DED38E28A194120005ECD7 /* SearchNewsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DED38D28A194120005ECD7 /* SearchNewsViewCell.swift */; };
+		22E412B12DEFA9EA00C95585 /* NewsCallAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E412B02DEFA9D500C95585 /* NewsCallAPI.swift */; };
+		22E412B32DEFB0EA00C95585 /* ChartAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E412B22DEFB0E400C95585 /* ChartAPI.swift */; };
 		22EFA842266D172D004D0856 /* TickerNewsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EFA841266D172D004D0856 /* TickerNewsViewCell.swift */; };
 		22EFA844266D8CAE004D0856 /* NewsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EFA843266D8CAE004D0856 /* NewsItem.swift */; };
 		22F8F32F265C5FC50084C98F /* UserSaveNews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F32E265C5FC50084C98F /* UserSaveNews.swift */; };
@@ -66,6 +69,7 @@
 /* Begin PBXFileReference section */
 		1C443AB85792D38A18077AEF /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
 		220021CF29B69ABB0022FD6E /* HBSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HBSegmentedControl.swift; sourceTree = "<group>"; };
+		2201CF172DEE7391000BE365 /* StockAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockAPI.swift; sourceTree = "<group>"; };
 		220235EE280CCC8300882206 /* Spinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spinner.swift; sourceTree = "<group>"; };
 		220300BB265FDF7E008BAB70 /* MarketsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketsViewCell.swift; sourceTree = "<group>"; };
 		22034886282D9D3A00C384E0 /* ChartsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsModel.swift; sourceTree = "<group>"; };
@@ -120,6 +124,8 @@
 		22D6354F2653778F00EAD8ED /* HTMLParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLParser.swift; sourceTree = "<group>"; };
 		22DED38B28A178960005ECD7 /* SearchNewsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchNewsController.swift; sourceTree = "<group>"; };
 		22DED38D28A194120005ECD7 /* SearchNewsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchNewsViewCell.swift; sourceTree = "<group>"; };
+		22E412B02DEFA9D500C95585 /* NewsCallAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsCallAPI.swift; sourceTree = "<group>"; };
+		22E412B22DEFB0E400C95585 /* ChartAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartAPI.swift; sourceTree = "<group>"; };
 		22EFA841266D172D004D0856 /* TickerNewsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerNewsViewCell.swift; sourceTree = "<group>"; };
 		22EFA843266D8CAE004D0856 /* NewsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsItem.swift; sourceTree = "<group>"; };
 		22F8F32E265C5FC50084C98F /* UserSaveNews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSaveNews.swift; sourceTree = "<group>"; };
@@ -166,6 +172,7 @@
 			isa = PBXGroup;
 			children = (
 				2280C3D72825A67D00F7AAA2 /* ChartsAPI.swift */,
+				22E412B22DEFB0E400C95585 /* ChartAPI.swift */,
 				22034886282D9D3A00C384E0 /* ChartsModel.swift */,
 			);
 			path = ChartsModel;
@@ -274,6 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				228451992803A99700FF0DF2 /* StocksAPI.swift */,
+				2201CF172DEE7391000BE365 /* StockAPI.swift */,
 				2284519B2803ABEA00FF0DF2 /* StockModel.swift */,
 				223EF571265D867100160C8D /* SaveTickers.swift */,
 			);
@@ -284,6 +292,7 @@
 			isa = PBXGroup;
 			children = (
 				2280C3D92825A6D900F7AAA2 /* NewsAPI.swift */,
+				22E412B02DEFA9D500C95585 /* NewsCallAPI.swift */,
 				22EFA843266D8CAE004D0856 /* NewsItem.swift */,
 				22F8F32E265C5FC50084C98F /* UserSaveNews.swift */,
 			);
@@ -494,10 +503,12 @@
 				221236A8263DA728007EA092 /* AppDelegate.swift in Sources */,
 				22D21C73267538EA00C2313E /* CryptosViewCell.swift in Sources */,
 				2280C3DA2825A6D900F7AAA2 /* NewsAPI.swift in Sources */,
+				2201CF182DEE7396000BE365 /* StockAPI.swift in Sources */,
 				22F8F333265C6C240084C98F /* SavedNewsController.swift in Sources */,
 				227AAD1728A43B7C00313DDB /* BallonMarker.swift in Sources */,
 				227C7E692808931500A9E158 /* Support.swift in Sources */,
 				226CEA57266BD6EA002E44E3 /* TickerNewsController.swift in Sources */,
+				22E412B12DEFA9EA00C95585 /* NewsCallAPI.swift in Sources */,
 				220235EF280CCC8300882206 /* Spinner.swift in Sources */,
 				223EF570265D858700160C8D /* WatchlistViewCell.swift in Sources */,
 				222394A527405E6100C544BB /* CostCalculatorController.swift in Sources */,
@@ -513,6 +524,7 @@
 				22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
 				2284519C2803ABEA00FF0DF2 /* StockModel.swift in Sources */,
 				22034887282D9D3A00C384E0 /* ChartsModel.swift in Sources */,
+				22E412B32DEFB0EA00C95585 /* ChartAPI.swift in Sources */,
 				221BCFCF29CFE476001790F2 /* SimulatedPortfolioController.swift in Sources */,
 				220021D029B69ABB0022FD6E /* HBSegmentedControl.swift in Sources */,
 				22D635502653778F00EAD8ED /* HTMLParser.swift in Sources */,

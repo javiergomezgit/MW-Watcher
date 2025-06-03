@@ -110,7 +110,7 @@ class LiveNewsController: UIViewController {
 
         var count = 0
         for source in selectedSources {
-            NewsAPI.shared.loadAllNews(keySource: source) { allNews in
+            NewsCallAPI.shared.loadAllNews(keySource: source) { allNews in
                 if allNews == nil {
                     print ("error getting from one of the sources")
                     error = true

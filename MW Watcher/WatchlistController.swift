@@ -174,7 +174,7 @@ class WatchlistController: UIViewController {
             }
         }
         
-        StocksAPI.shared.getPriceMultipleStocks(tickersGroup: mergedTickers, timeRange: timeRange) { result in
+        StockAPI.shared.getPriceMultipleStocks(tickersGroup: mergedTickers, timeRange: timeRange) { result in
             switch result {
                 
             case .success(let tickersGroupPrices):
@@ -201,10 +201,10 @@ class WatchlistController: UIViewController {
     
     func loadIndividualStock(individualTicker: String, nameTicker: String) {
         
-        StocksAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { result in
+        StockAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { result in
             switch result {
             case .success(let tickerCurrentValues):
-                StocksAPI.shared.getLogoStock(ticker: individualTicker) { result in
+                StockAPI.shared.getLogoStock(ticker: individualTicker) { result in
                     switch result {
                     case .failure(let error):
                         print (error)

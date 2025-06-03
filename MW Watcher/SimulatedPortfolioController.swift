@@ -132,7 +132,7 @@ class SimulatedPortfolioController: UIViewController {
     }
     
     func loadCurrentPrices(tickers: String) {
-        ChartsAPI.shared.getPricesMarketsAndWatchlist(tickersWatchlist: tickers, timeRange: timeRange) { markets in
+        ChartAPI.shared.getPricesMarketsAndWatchlist(tickersWatchlist: tickers, timeRange: timeRange) { markets in
             if markets == nil {
                 self.startStopSpinner(start: false)
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
