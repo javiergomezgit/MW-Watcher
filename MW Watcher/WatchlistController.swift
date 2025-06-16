@@ -309,7 +309,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         let tickerFeatures = tickersFeatures[sender.tag]
         let tickkerValues = tickersValues[sender.tag]
         
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
         let tickerCurrentValues = TickersCurrentValues(ticker: tickkerValues.ticker, marketPrice: tickkerValues.marketPrice, previousPrice: tickkerValues.previousPrice, changePercent: tickkerValues.changePercent)
@@ -404,7 +404,7 @@ extension WatchlistController {
     }
     
     @objc func imagePerformanceTapped(tapGestureRecognizer: UITapGestureRecognizer) {
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(identifier: "simulatedPortfolio") //as? UIViewController
         
         destination.modalTransitionStyle = .coverVertical//.crossDissolve

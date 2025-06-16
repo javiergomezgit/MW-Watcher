@@ -39,7 +39,7 @@ class SettingsController: UITableViewController {
             urlString = "https://www.jdevprojects.com/"
         }
         
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(identifier: "browser") as? BrowserController
         
         destination!.urlString = urlString

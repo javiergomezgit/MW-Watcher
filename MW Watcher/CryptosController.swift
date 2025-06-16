@@ -115,7 +115,7 @@ class CryptosController: UIViewController {
     
     @objc func openChart(sender: UIButton) {
         //let symbol = self.viewModels[sender.tag].symbol
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(identifier: "ChartController") as? ChartController
         
         destination!.informationCryptoTicker = self.viewModels[sender.tag]

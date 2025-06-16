@@ -233,7 +233,7 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let perChange = ticker.changePercentage
         let percentageRounded = round(100*perChange)/100
         
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
         let tickerWithChange = TickersCurrentValues(ticker: ticker.indexTicker, marketPrice: ticker.indexPrice, previousPrice: 0.0, changePercent: percentageRounded)
@@ -301,7 +301,7 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
         let perChange = ticker.changePercentage
         let percentageRounded = round(100*perChange)/100
         
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
         let tickerWithChange = TickersCurrentValues(ticker: ticker.indexTicker, marketPrice: ticker.indexPrice, previousPrice: 0.0, changePercent: percentageRounded)

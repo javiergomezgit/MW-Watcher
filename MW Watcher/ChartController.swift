@@ -675,7 +675,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         if self.informationCryptoTicker.name == "" {
             let ticker = informationStockTicker.ticker
             
-            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+            let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
             let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
             
             if indexMarket {
@@ -693,7 +693,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             //sender.isEnabled = false
             let ticker = informationCryptoTicker.symbol
             
-            let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+            let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
             let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
             
             destination!.ticker = ticker

@@ -222,7 +222,7 @@ extension LiveNewsController {
     }
     
     @objc func imageSavedNewsTapped(tapGestureRecognizer: UITapGestureRecognizer) {
-        let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(identifier: "savednews") as? SavedNewsController
         
         destination!.modalTransitionStyle = .coverVertical//.crossDissolve
@@ -237,7 +237,7 @@ extension LiveNewsController {
             dump (ticker)
             //self.startStopSpinner(start: true)
             DispatchQueue.main.async {
-                let storyboard = UIStoryboard(name: "Main", bundle: Bundle.main)
+                let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
                 let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
                 destination!.ticker = ticker!
                 destination!.modalTransitionStyle = .crossDissolve
