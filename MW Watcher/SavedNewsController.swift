@@ -62,15 +62,37 @@ class SavedNewsController: UIViewController {
     }
     
     @IBAction func shareHeadline(_ sender: UIButton) {
-        
         sender.animateButton(sender: sender, duration: 0.1)
-        let index = sender.tag
-        let headline = newsItems[index].headline
-        let date = newsItems[index].pubDate
         
-        let objectToShare = [headline, " | ", date] as [Any]
-        let activityVC = UIActivityViewController(activityItems: objectToShare, applicationActivities: nil)
-        self.present(activityVC, animated: true, completion: nil)
+        let newsItem = self.newsItems[sender.tag]
+        let headline = newsItem.headline
+        let date = newsItem.pubDate
+        //           let author = newsItem.author
+        let link = newsItem.link
+        let image = newsItem/*.image*/
+        
+        let formattedText = """
+            
+            📰 \(headline)
+                
+            📅 \(date)
+            Shared via Market Watch Social 📱
+            """
+        
+        // Create activity items array with both text and image
+        var activityItems: [Any] = [formattedText]
+        
+        // Add image if it's not a placeholder or empty image
+//        if image.size.width > 1 && image.size.height > 1 {
+//            activityItems.append(image)
+//        }
+        if let url = URL(string: link) {
+            activityItems.append(url)
+        }
+        
+        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        present(activityVC, animated: true)
+        
     }
     
     @IBAction func linkButton(_ sender: UIButton) {

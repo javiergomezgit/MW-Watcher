@@ -308,15 +308,37 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
     }
     
     @objc func shareTitle(sender: UIButton) {
-        sender.animateButton(sender: sender, duration: 0.1)
-        let headline = self.newsItems[sender.tag].headline
-        let date = self.newsItems[sender.tag].pubDate
-        let author = self.newsItems[sender.tag].author
-        print (headline)
+       sender.animateButton(sender: sender, duration: 0.1)
         
-        let objectToShare = [headline, "|| ", date, "|| ", "|| ", author] as [Any]
-        let activityVC = UIActivityViewController(activityItems: objectToShare, applicationActivities: nil)
-        self.present(activityVC, animated: true, completion: nil)
+       let newsItem = self.newsItems[sender.tag]
+       let headline = newsItem.headline
+       let date = newsItem.pubDate
+       let author = newsItem.author
+       let link = newsItem.link
+       let image = newsItem.image
+        
+       let formattedText = """
+        
+        📰 \(headline)
+            
+        📅 \(date)
+        👤 Source: \(author)
+            
+        🔗 Read more: \(link)
+        
+        Shared via Market Watch Social 📱
+        """
+        
+        // Create activity items array with both text and image
+        var activityItems: [Any] = [formattedText]
+        
+        // Add image if it's not a placeholder or empty image
+        if image.size.width > 1 && image.size.height > 1 {
+                activityItems.append(image)
+        }
+        
+        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        present(activityVC, animated: true)
     }
     
     @objc func saveTitle(sender: UIButton) {

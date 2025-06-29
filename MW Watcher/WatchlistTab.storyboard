@@ -171,12 +171,11 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8MK-aQ-QLt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1704.6153846153845" y="1604.5023696682463"/>
+            <point key="canvasLocation" x="2498" y="879"/>
         </scene>
         <!--Watchlist-->
         <scene sceneID="g9l-YE-O4U">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="bR7-iS-HXC" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <navigationController storyboardIdentifier="WatchlistTab" automaticallyAdjustsScrollViewInsets="NO" id="Pwe-bo-3gj" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" tag="1" title="Watchlist" id="mqh-NQ-bJl">
                         <imageReference key="image" image="person.badge.plus" catalog="system" symbolScale="large" renderingMode="template"/>
@@ -191,6 +190,7 @@
                         <segue destination="Oab-fQ-tRN" kind="relationship" relationship="rootViewController" id="znf-gd-ejK"/>
                     </connections>
                 </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bR7-iS-HXC" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1705" y="879"/>
         </scene>

@@ -40,7 +40,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZDh-EW-yBF" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2457" y="1605"/>
+            <point key="canvasLocation" x="3248" y="879"/>
         </scene>
         <!--Crypto Coins-->
         <scene sceneID="cnA-vC-laR">

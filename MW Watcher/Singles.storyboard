@@ -292,7 +292,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lda-3l-X7u" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2368" y="1066"/>
+            <point key="canvasLocation" x="2356" y="1065"/>
         </scene>
         <!--Saved News-->
         <scene sceneID="tLs-7E-mbg">
@@ -401,7 +401,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eua-kP-xRy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1165" y="1066"/>
+            <point key="canvasLocation" x="1599" y="1065"/>
         </scene>
         <!--Ticker News-->
         <scene sceneID="CiU-te-5QU">
@@ -459,6 +459,16 @@
                                                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" weight="regular"/>
                                                             </state>
                                                         </button>
+                                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CQP-6p-87r">
+                                                            <rect key="frame" x="-9" y="41" width="54.33333333333303" height="49.666666666666742"/>
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                            <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                                            <color key="tintColor" name="onboardingNotification"/>
+                                                            <state key="normal">
+                                                                <imageReference key="image" image="square.and.arrow.up" catalog="system" symbolScale="large" renderingMode="template"/>
+                                                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default" weight="regular"/>
+                                                            </state>
+                                                        </button>
                                                     </subviews>
                                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                     <constraints>
@@ -469,7 +479,7 @@
                                                     </constraints>
                                                 </view>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3VP-rU-DbF">
-                                                    <rect key="frame" x="121.00000000000001" y="85" width="178.33333333333337" height="32.666666666666657"/>
+                                                    <rect key="frame" x="98.666666666666686" y="85" width="223" height="32.666666666666657"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Investing.com" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="55s-aq-KDW">
                                                             <rect key="frame" x="0.0" y="0.0" width="98" height="13"/>
@@ -515,7 +525,7 @@
                                                 <constraint firstAttribute="trailing" secondItem="Nmg-7y-TzL" secondAttribute="trailing" id="f00-Gt-oko"/>
                                                 <constraint firstItem="Hdc-Tg-Ukj" firstAttribute="top" secondItem="A5U-AS-eKZ" secondAttribute="top" id="fg4-i1-2gc"/>
                                                 <constraint firstItem="riQ-wR-XZs" firstAttribute="height" secondItem="iL9-V4-Toq" secondAttribute="height" multiplier="0.630769" id="fjT-ys-OEC"/>
-                                                <constraint firstItem="3VP-rU-DbF" firstAttribute="width" secondItem="riQ-wR-XZs" secondAttribute="width" multiplier="0.8" id="hCz-ZH-ri4"/>
+                                                <constraint firstItem="3VP-rU-DbF" firstAttribute="width" secondItem="riQ-wR-XZs" secondAttribute="width" id="hCz-ZH-ri4"/>
                                                 <constraint firstItem="riQ-wR-XZs" firstAttribute="top" secondItem="iL9-V4-Toq" secondAttribute="top" id="jk7-d9-J5I"/>
                                                 <constraint firstItem="Nmg-7y-TzL" firstAttribute="width" secondItem="iL9-V4-Toq" secondAttribute="width" multiplier="0.1" id="nTG-d9-GAU"/>
                                                 <constraint firstItem="3VP-rU-DbF" firstAttribute="centerX" secondItem="riQ-wR-XZs" secondAttribute="centerX" id="oBi-g8-eec"/>
@@ -561,7 +571,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iWo-Vc-jrZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3940" y="1043"/>
+            <point key="canvasLocation" x="3098" y="1065"/>
         </scene>
         <!--Chart Controller-->
         <scene sceneID="bX1-Ip-Nxp">
@@ -840,7 +850,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Lvr-Fe-OTX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="5406" y="1066"/>
+            <point key="canvasLocation" x="4587" y="1065"/>
         </scene>
         <!--Browser-->
         <scene sceneID="SWq-cR-4jE">
@@ -856,7 +866,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3fy-5G-zD9" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4740" y="1066"/>
+            <point key="canvasLocation" x="3836" y="1065"/>
         </scene>
     </scenes>
     <resources>
@@ -871,6 +881,9 @@
         <namedColor name="background4">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
+        <namedColor name="onboardingNotification">
+            <color red="0.3411764705882353" green="0.6470588235294118" blue="0.28627450980392155" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
@@ -878,22 +891,22 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemBlueColor">
-            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBrownColor">
-            <color red="0.63529411759999999" green="0.51764705879999995" blue="0.36862745099999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.63529411764705879" green="0.51764705882352946" blue="0.36862745098039218" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGray6Color">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGrayColor">
-            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
-            <color red="1" green="0.58431372550000005" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.58431372549019611" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemPurpleColor">
-            <color red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
