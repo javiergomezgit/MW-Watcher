@@ -28,6 +28,7 @@ class TickerNewsController: UIViewController {
     var savedRows : [Int: Bool] = [:]
     var refreshControl = UIRefreshControl()
     var notFound = false
+    let child = Spinner()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,28 +56,37 @@ class TickerNewsController: UIViewController {
         }    }
     
     func loadCryptoNews() {
+        startStopSpinner(start: true)
         refreshControl.beginRefreshing()
-        
-//        NewsAPI.shared.loadCryptoNews(ticker: ticker, name: self.name) { loadedCryptoNewsArray in
-//            if loadedCryptoNewsArray != nil {
-//                self.tickerNewsArray = loadedCryptoNewsArray!
-//                DispatchQueue.main.async {
-//                    self.tableView.reloadData()
-//                    self.refreshControl.endRefreshing()
-//                }
-//            } else {
-//                DispatchQueue.main.async {
-//                    self.refreshControl.endRefreshing()
-//                    self.notFound = true
-//                    //ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find any news about it", titleButton: "OK", over: self)
-//                    self.dismiss(animated: true, completion: nil)
-//
-//                }
-//            }
-//        }
+
+        NewsCallAPI.shared.loadStockNews(ticker: ticker, name: self.name) { loadedCryptoNewsArray in
+            if loadedCryptoNewsArray != nil && loadedCryptoNewsArray?.count != 0{
+                self.tickerNewsArray = loadedCryptoNewsArray!
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                    self.refreshControl.endRefreshing()
+                    self.startStopSpinner(start: false)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.refreshControl.endRefreshing()
+                    self.startStopSpinner(start: false)
+                    self.notFound = true
+                    
+                    // Create custom alert with completion handler
+                    let alertController = UIAlertController(title: "Error", message: "We couldn't find any news about it", preferredStyle: .alert)
+                    let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+                        self.dismiss(animated: true, completion: nil)
+                    }
+                    alertController.addAction(okAction)
+                    self.present(alertController, animated: true, completion: nil)
+                }
+            }
+        }
     }
     
     func loadTickerNews() {
+        startStopSpinner(start: true)
         refreshControl.beginRefreshing()
 
         NewsCallAPI.shared.loadStockNews(ticker: ticker, name: self.name) { loadedNewsArray in
@@ -85,34 +95,51 @@ class TickerNewsController: UIViewController {
                     DispatchQueue.main.async {
                         self.tableView.reloadData()
                         self.refreshControl.endRefreshing()
+                        self.startStopSpinner(start: false)
                     }
                 if loadedNewsArray?.count == 0 {
-//                    ShowAlerts.showSimpleAlert(title: "Warning", message: "Didn't find any related news", titleButton: "OK", over: self)
-                    self.notFound = true
-                    self.dismiss(animated: true, completion: nil)
+                    DispatchQueue.main.async {
+                        self.startStopSpinner(start: false)
+                        self.notFound = true
+                        
+                        // Create custom alert with completion handler
+                        let alertController = UIAlertController(title: "Warning", message: "Didn't find any related news", preferredStyle: .alert)
+                        let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+                            self.dismiss(animated: true, completion: nil)
+                        }
+                        alertController.addAction(okAction)
+                        self.present(alertController, animated: true, completion: nil)
+                    }
                 }
             } else {
                 DispatchQueue.main.async {
                     self.refreshControl.endRefreshing()
+                    self.startStopSpinner(start: false)
                     self.notFound = true
-                    self.dismiss(animated: true) {
-                        ShowAlerts.showSimpleAlert(title: "Error", message: "Didn't find any related news", titleButton: "OK", over: self)
+                    
+                    // Create custom alert with completion handler
+                    let alertController = UIAlertController(title: "Error", message: "Didn't find any related news", preferredStyle: .alert)
+                    let okAction = UIAlertAction(title: "OK", style: .default) { _ in
+                        self.dismiss(animated: true, completion: nil)
                     }
-//                    ShowAlerts.showSimpleAlert(title: "Error", message: "Didn't find any related news", titleButton: "OK", over: self)
+                    alertController.addAction(okAction)
+                    self.present(alertController, animated: true, completion: nil)
                 }
             }
         }
     }
-        
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-            if isBeingDismissed {
-                if self.notFound == true {
-                    DispatchQueue.main.async {
-                        ShowAlerts.showSimpleAlert(title: "Error", message: "We couldn't find any news about it", titleButton: "OK", over: self)
-                    }
-                }
-            }
+    
+    func startStopSpinner(start: Bool){
+        if start {
+            addChild(child)
+            child.view.frame = view.frame
+            view.addSubview(child.view)
+            child.didMove(toParent: self)
+        } else {
+            child.willMove(toParent: nil)
+            child.view.removeFromSuperview()
+            child.removeFromParent()
+        }
     }
 }
 

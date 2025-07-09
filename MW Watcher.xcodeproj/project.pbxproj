@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -49,10 +49,12 @@
 		2280C3DA2825A6D900F7AAA2 /* NewsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2280C3D92825A6D900F7AAA2 /* NewsAPI.swift */; };
 		2284519A2803A99700FF0DF2 /* StocksAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228451992803A99700FF0DF2 /* StocksAPI.swift */; };
 		2284519C2803ABEA00FF0DF2 /* StockModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2284519B2803ABEA00FF0DF2 /* StockModel.swift */; };
+		2285100B2E1CCCEA005F1249 /* SecuritySettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2286CC7E2E1CC9D300836EBC /* SecuritySettingsController.swift */; };
 		2286501926680BC200769EB2 /* LaunchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2286501826680BC200769EB2 /* LaunchController.swift */; };
 		2286501E26681C4800769EB2 /* page1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2286501B26681C4800769EB2 /* page1.jpg */; };
 		2286501F26681C4800769EB2 /* page2.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2286501C26681C4800769EB2 /* page2.jpg */; };
 		2286502026681C4800769EB2 /* page3.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2286501D26681C4800769EB2 /* page3.jpg */; };
+		2286CC782E1CC61600836EBC /* EditProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2286CC772E1CC61600836EBC /* EditProfileController.swift */; };
 		228DD6EE28E487BE00BB52BA /* LiveNewsCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 228DD6ED28E487BE00BB52BA /* LiveNewsCollectionViewCell.swift */; };
 		229554F2267A3C260082235C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 229554F1267A3C260082235C /* CloudKit.framework */; };
 		229554F4267A3FAD0082235C /* ShowAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229554F3267A3FAD0082235C /* ShowAlerts.swift */; };
@@ -126,6 +128,8 @@
 		2286501B26681C4800769EB2 /* page1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = page1.jpg; sourceTree = "<group>"; };
 		2286501C26681C4800769EB2 /* page2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = page2.jpg; sourceTree = "<group>"; };
 		2286501D26681C4800769EB2 /* page3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = page3.jpg; sourceTree = "<group>"; };
+		2286CC772E1CC61600836EBC /* EditProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileController.swift; sourceTree = "<group>"; };
+		2286CC7E2E1CC9D300836EBC /* SecuritySettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecuritySettingsController.swift; sourceTree = "<group>"; };
 		228DD6ED28E487BE00BB52BA /* LiveNewsCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveNewsCollectionViewCell.swift; sourceTree = "<group>"; };
 		229554F1267A3C260082235C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		229554F3267A3FAD0082235C /* ShowAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAlerts.swift; sourceTree = "<group>"; };
@@ -150,6 +154,10 @@
 		9E8EAC855893551591F577C7 /* Pods-WidgetExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WidgetExtension.release.xcconfig"; path = "Target Support Files/Pods-WidgetExtension/Pods-WidgetExtension.release.xcconfig"; sourceTree = "<group>"; };
 		AFB7F80F97200F835F8D5C55 /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		2286CC792E1CC86000836EBC /* UserModel */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = UserModel; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		221236A1263DA728007EA092 /* Frameworks */ = {
@@ -227,6 +235,7 @@
 		221236BB263DA94E007EA092 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				2286CC792E1CC86000836EBC /* UserModel */,
 				22E783B52825C41A00A3420C /* CryptoModel */,
 				22E783B72825C45000A3420C /* StocksModel */,
 				22E783B82825C47F00A3420C /* NewsModel */,
@@ -263,6 +272,8 @@
 				227C38AD281F31910073FC36 /* BrowserController.swift */,
 				22F8F332265C6C240084C98F /* SavedNewsController.swift */,
 				222394A427405E6100C544BB /* CostCalculatorController.swift */,
+				2286CC772E1CC61600836EBC /* EditProfileController.swift */,
+				2286CC7E2E1CC9D300836EBC /* SecuritySettingsController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -378,6 +389,9 @@
 			);
 			dependencies = (
 			);
+			fileSystemSynchronizedGroups = (
+				2286CC792E1CC86000836EBC /* UserModel */,
+			);
 			name = "MW Watcher";
 			packageProductDependencies = (
 				22334B6329A1776F00FE3A86 /* Algorithms */,
@@ -457,9 +471,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -523,6 +541,7 @@
 				2280C3D82825A67D00F7AAA2 /* ChartsAPI.swift in Sources */,
 				22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */,
 				22DED38E28A194120005ECD7 /* SearchNewsViewCell.swift in Sources */,
+				2285100B2E1CCCEA005F1249 /* SecuritySettingsController.swift in Sources */,
 				22D21C712675383300C2313E /* CryptosController.swift in Sources */,
 				221236AC263DA728007EA092 /* LiveNewsController.swift in Sources */,
 				2284519A2803A99700FF0DF2 /* StocksAPI.swift in Sources */,
@@ -548,6 +567,7 @@
 				229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */,
 				220F4EA1265D314200106325 /* WatchlistController.swift in Sources */,
 				22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
+				2286CC782E1CC61600836EBC /* EditProfileController.swift in Sources */,
 				2284519C2803ABEA00FF0DF2 /* StockModel.swift in Sources */,
 				22034887282D9D3A00C384E0 /* ChartsModel.swift in Sources */,
 				22E412B32DEFB0EA00C95585 /* ChartAPI.swift in Sources */,

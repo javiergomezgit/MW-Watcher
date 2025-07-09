@@ -305,13 +305,13 @@ class SimulatedPortfolioController: UIViewController {
         lineChartView.pinchZoomEnabled = false
         lineChartView.doubleTapToZoomEnabled = false
         lineChartView.dragXEnabled = false
-        lineChartView.autoScaleMinMaxEnabled = true
+        lineChartView.autoScaleMinMaxEnabled = false  // ← CHANGED FROM true TO false
         lineChartView.legend.enabled = true
         lineChartView.legend.textColor = .label
         
         lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
         lineChartView.rightAxis.labelTextColor = .label
-        lineChartView.rightAxis.setLabelCount(8, force: true)
+        lineChartView.rightAxis.setLabelCount(6, force: false)  // ← CHANGED FROM (8, force: true) TO (6, force: false)
         lineChartView.rightAxis.axisLineColor = .label
         lineChartView.rightAxis.labelPosition = .outsideChart
         
@@ -320,6 +320,30 @@ class SimulatedPortfolioController: UIViewController {
         return lineChartView
     }()
     
+    private func setAxisRange() {
+        // Find the min and max values across all datasets
+        var minValue = Double.greatestFiniteMagnitude
+        var maxValue = -Double.greatestFiniteMagnitude
+        
+        // Check all data arrays
+        let allData = [linearValuesSP500, linearValuesDJI, linearValuesIXIC, linearValuesPortfolio]
+        
+        for dataArray in allData {
+            for entry in dataArray {
+                minValue = min(minValue, entry.y)
+                maxValue = max(maxValue, entry.y)
+            }
+        }
+        
+        // Add some padding (10% on each side)
+        let padding = (maxValue - minValue) * 0.1
+        let adjustedMin = minValue - padding
+        let adjustedMax = maxValue + padding
+        
+        // Set the axis range
+        lineChartView.rightAxis.axisMinimum = adjustedMin
+        lineChartView.rightAxis.axisMaximum = adjustedMax
+    }
 }
 
 extension SimulatedPortfolioController: ChartViewDelegate {
@@ -343,7 +367,10 @@ extension SimulatedPortfolioController: ChartViewDelegate {
         lineChartView.centerInSuperview()
         lineChartView.width(to: chartView)
         lineChartView.height(to: chartView)
-                
+        
+        // Set the axis range before setting data
+        setAxisRange()
+            
         self.setData(centerLine: centerLine, lineChartSP500: lineChartDataSetSP500, lineChartDJI: lineChartDataSetDJI, lineChartIXIC: lineChartDataSetIXIC, lineChartPortfolio: lineChartDataSetPortfolio)
     }
     

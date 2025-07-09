@@ -301,7 +301,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         cell.saveButton.tag = indexPath.row
         cell.saveButton.addTarget(self, action: #selector(saveTitle(sender:)), for: .touchUpInside)
         
-        //cell.shareButton.tag = indexPath.row
+        cell.shareButton.tag = indexPath.row
         cell.shareButton.addTarget(self, action: #selector(shareTitle(sender: )), for: .touchUpInside)
         
         return cell

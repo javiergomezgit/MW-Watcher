@@ -93,6 +93,8 @@ class SaveTickers {
                             imageFromData = UIImage(named: "mw-logo")!
                         }
                     }
+//                    when there is already apple saved and user adds again, then loads 3 saved stocks but the table has space for only 2 -> suspecting that
+                    //TODO: here aqui
                 } else {
                     imageFromData = UIImage(named: "mw-logo")!
                 }

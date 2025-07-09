@@ -13,6 +13,8 @@ class MarketsController: UIViewController {
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var chartView: UIView!
+    @IBOutlet weak var dateLatestDataLabel: UILabel!
+    
     private let imageViewTopRightButton = UIImageView(image: UIImage(named: "arrow.triangle.2.circlepath.circle"))
 
     var sizeOfCell = CGFloat(0)
@@ -142,6 +144,7 @@ class MarketsController: UIViewController {
             if ticker == "^DJI" {
                 let newName = GeneralMarkets(indexTicker: ticker, indexName: "DOW JONES", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
                 self.majorMarketsPrices.append(newName)
+                
             }
             if ticker == "^GSPC" {
                 let newName = GeneralMarkets(indexTicker: ticker, indexName: "S&P 500", indexPrice: market.indexPrice, changePercentage: market.changePercentage)

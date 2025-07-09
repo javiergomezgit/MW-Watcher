@@ -246,6 +246,18 @@ final class ChartAPI {
                                     let value = MarketsCandles(start_timestamp: dateTime!, open: open!, high: high!, low: low!, close: close)
                                     valuesStock.append(value)
                                 }
+                            } else { //added this else and the code, this created a messy chart, not sure what it created
+//                                here
+//                                let originalUnixTime = timeStartedMarket
+//                                let oneDayInSeconds = 24 * 60 * 60 //86400 seconds
+//                                let newTimeStarted = originalUnixTime - oneDayInSeconds
+//                                
+//                                if closePrice != 0.0 {
+//                                    close = ((closePrice! * 100) / previousClose) - 100
+//                                    let value = MarketsCandles(start_timestamp: Double(newTimeStarted), open: open!, high: high!, low: low!, close: close)
+//                                    valuesStock.append(value)
+//                                }
+                                
                             }
                         }
                         break
