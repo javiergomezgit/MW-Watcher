@@ -1,14 +1,13 @@
+
 import UIKit
 
 class SecuritySettingsController: UITableViewController {
     
     var currentSettings: SecuritySettings?
     
-//    @IBOutlet weak var biometricSwitch: UISwitch!
-//    @IBOutlet weak var passcodeSwitch: UISwitch!
-//    @IBOutlet weak var autoLockLabel: UILabel!
-    
-    @IBOutlet weak var passwordTextField: UITextField!
+    @IBOutlet weak var biometricSwitch: UISwitch!
+    @IBOutlet weak var passcodeSwitch: UISwitch!
+    @IBOutlet weak var autoLockLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,10 +32,9 @@ class SecuritySettingsController: UITableViewController {
     }
     
     private func populateFields() {
-//        biometricSwitch.isOn = currentSettings?.biometricEnabled ?? false
-//        passcodeSwitch.isOn = currentSettings?.requirePasscode ?? true
-//        autoLockLabel.text = "\(currentSettings?.autoLockTimeout ?? 5) minutes"
-        passwordTextField.text = "ººººººº"
+        biometricSwitch.isOn = currentSettings?.biometricEnabled ?? false
+        passcodeSwitch.isOn = currentSettings?.requirePasscode ?? true
+        autoLockLabel.text = "\(currentSettings?.autoLockTimeout ?? 5) minutes"
     }
     
     @objc private func cancelTapped() {
@@ -57,9 +55,11 @@ class SecuritySettingsController: UITableViewController {
     
     @IBAction func biometricSwitchChanged(_ sender: UISwitch) {
         // Handle biometric switch change
+        currentSettings?.biometricEnabled = sender.isOn
     }
     
     @IBAction func passcodeSwitchChanged(_ sender: UISwitch) {
         // Handle passcode switch change
+        currentSettings?.requirePasscode = sender.isOn
     }
 }

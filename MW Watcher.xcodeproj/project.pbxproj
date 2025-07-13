@@ -59,7 +59,9 @@
 		229554F2267A3C260082235C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 229554F1267A3C260082235C /* CloudKit.framework */; };
 		229554F4267A3FAD0082235C /* ShowAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229554F3267A3FAD0082235C /* ShowAlerts.swift */; };
 		229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229A2F1D27F8ED3300A05EE1 /* ChartController.swift */; };
+		229CCC192E1F633E0023D1DB /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 229CCC182E1F633E0023D1DB /* Login.storyboard */; };
 		22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
+		22B332FB2E1EAE66006EF14D /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B332FA2E1EAE66006EF14D /* SignInViewController.swift */; };
 		22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C6E26750DBC00C2313E /* CryptosAPI.swift */; };
 		22D21C712675383300C2313E /* CryptosController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C702675383300C2313E /* CryptosController.swift */; };
 		22D21C73267538EA00C2313E /* CryptosViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C72267538EA00C2313E /* CryptosViewCell.swift */; };
@@ -70,6 +72,7 @@
 		22E412B32DEFB0EA00C95585 /* ChartAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E412B22DEFB0E400C95585 /* ChartAPI.swift */; };
 		22EFA842266D172D004D0856 /* TickerNewsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EFA841266D172D004D0856 /* TickerNewsViewCell.swift */; };
 		22EFA844266D8CAE004D0856 /* NewsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EFA843266D8CAE004D0856 /* NewsItem.swift */; };
+		22F610652E2452AA00B77AC8 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F610642E2452A500B77AC8 /* SignUpViewController.swift */; };
 		22F8F32F265C5FC50084C98F /* UserSaveNews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F32E265C5FC50084C98F /* UserSaveNews.swift */; };
 		22F8F333265C6C240084C98F /* SavedNewsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22F8F332265C6C240084C98F /* SavedNewsController.swift */; };
 		56ABB3983807148741F9DB0C /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 271B604CBE529C1A75AC6373 /* Pods_MW_Watcher.framework */; };
@@ -134,7 +137,9 @@
 		229554F1267A3C260082235C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		229554F3267A3FAD0082235C /* ShowAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAlerts.swift; sourceTree = "<group>"; };
 		229A2F1D27F8ED3300A05EE1 /* ChartController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartController.swift; sourceTree = "<group>"; };
+		229CCC182E1F633E0023D1DB /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
 		22AD1A43264B36FA001A5362 /* SavingFeeds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SavingFeeds.xcdatamodel; sourceTree = "<group>"; };
+		22B332FA2E1EAE66006EF14D /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		22D21C6E26750DBC00C2313E /* CryptosAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosAPI.swift; sourceTree = "<group>"; };
 		22D21C702675383300C2313E /* CryptosController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosController.swift; sourceTree = "<group>"; };
 		22D21C72267538EA00C2313E /* CryptosViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosViewCell.swift; sourceTree = "<group>"; };
@@ -145,6 +150,7 @@
 		22E412B22DEFB0E400C95585 /* ChartAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartAPI.swift; sourceTree = "<group>"; };
 		22EFA841266D172D004D0856 /* TickerNewsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TickerNewsViewCell.swift; sourceTree = "<group>"; };
 		22EFA843266D8CAE004D0856 /* NewsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsItem.swift; sourceTree = "<group>"; };
+		22F610642E2452A500B77AC8 /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		22F8F32E265C5FC50084C98F /* UserSaveNews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSaveNews.swift; sourceTree = "<group>"; };
 		22F8F332265C6C240084C98F /* SavedNewsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedNewsController.swift; sourceTree = "<group>"; };
 		22FF59132E0497DC00B9B9D6 /* FirebaseAnalytics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseAnalytics.xcframework; path = Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.xcframework; sourceTree = "<group>"; };
@@ -249,6 +255,7 @@
 			isa = PBXGroup;
 			children = (
 				221236AD263DA728007EA092 /* Main.storyboard */,
+				229CCC182E1F633E0023D1DB /* Login.storyboard */,
 				226B4E692DFF8F4900292D4C /* Singles.storyboard */,
 				226B4E672DFF8CCC00292D4C /* NewsTab.storyboard */,
 				226B4E652DFF8CB400292D4C /* CryptoCoinsTab.storyboard */,
@@ -271,6 +278,8 @@
 				221BCFCE29CFE476001790F2 /* SimulatedPortfolioController.swift */,
 				227C38AD281F31910073FC36 /* BrowserController.swift */,
 				22F8F332265C6C240084C98F /* SavedNewsController.swift */,
+				22B332FA2E1EAE66006EF14D /* SignInViewController.swift */,
+				22F610642E2452A500B77AC8 /* SignUpViewController.swift */,
 				222394A427405E6100C544BB /* CostCalculatorController.swift */,
 				2286CC772E1CC61600836EBC /* EditProfileController.swift */,
 				2286CC7E2E1CC9D300836EBC /* SecuritySettingsController.swift */,
@@ -409,7 +418,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					221236A3263DA728007EA092 = {
 						CreatedOnToolsVersion = 12.5;
@@ -451,6 +460,7 @@
 				221236B4263DA72A007EA092 /* LaunchScreen.storyboard in Resources */,
 				2286501F26681C4800769EB2 /* page2.jpg in Resources */,
 				2286501E26681C4800769EB2 /* page1.jpg in Resources */,
+				229CCC192E1F633E0023D1DB /* Login.storyboard in Resources */,
 				226B4E642DFF8C9A00292D4C /* MarketsTab.storyboard in Resources */,
 				221656E72DFF854D00A38914 /* WatchlistTab.storyboard in Resources */,
 				221236B1263DA72A007EA092 /* Assets.xcassets in Resources */,
@@ -541,6 +551,7 @@
 				2280C3D82825A67D00F7AAA2 /* ChartsAPI.swift in Sources */,
 				22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */,
 				22DED38E28A194120005ECD7 /* SearchNewsViewCell.swift in Sources */,
+				22B332FB2E1EAE66006EF14D /* SignInViewController.swift in Sources */,
 				2285100B2E1CCCEA005F1249 /* SecuritySettingsController.swift in Sources */,
 				22D21C712675383300C2313E /* CryptosController.swift in Sources */,
 				221236AC263DA728007EA092 /* LiveNewsController.swift in Sources */,
@@ -569,6 +580,7 @@
 				22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */,
 				2286CC782E1CC61600836EBC /* EditProfileController.swift in Sources */,
 				2284519C2803ABEA00FF0DF2 /* StockModel.swift in Sources */,
+				22F610652E2452AA00B77AC8 /* SignUpViewController.swift in Sources */,
 				22034887282D9D3A00C384E0 /* ChartsModel.swift in Sources */,
 				22E412B32DEFB0EA00C95585 /* ChartAPI.swift in Sources */,
 				221BCFCF29CFE476001790F2 /* SimulatedPortfolioController.swift in Sources */,
@@ -641,6 +653,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -704,6 +717,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -736,7 +750,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.2.21;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -834,7 +847,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.2.21;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
