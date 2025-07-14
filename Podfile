@@ -11,6 +11,8 @@ target 'MW Watcher' do
 #    pod 'AMPopTip'
     pod 'Firebase/Analytics'
     pod 'Firebase/Crashlytics'
+    pod 'FirebaseAuth'
+    pod 'FirebaseFirestore'
     pod 'DGCharts'
     pod 'TinyConstraints'
     pod 'SwiftyJSON', '~> 4.0'

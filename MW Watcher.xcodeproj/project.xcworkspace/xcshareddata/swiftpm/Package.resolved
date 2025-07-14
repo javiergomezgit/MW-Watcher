@@ -1,5 +1,15 @@
 {
+  "originHash" : "a35104c01fbbb6b64ccd6ff2297b43ab842b79de9652cd02737306da8b1ee843",
   "pins" : [
+    {
+      "identity" : "ampoptip",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/andreamazz/AMPopTip",
+      "state" : {
+        "revision" : "db495eea0747a3493ca8b3c737d037c0090973db",
+        "version" : "4.12.0"
+      }
+    },
     {
       "identity" : "swift-algorithms",
       "kind" : "remoteSourceControl",
@@ -19,5 +29,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

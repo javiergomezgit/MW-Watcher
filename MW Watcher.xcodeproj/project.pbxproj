@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -60,6 +60,7 @@
 		229554F4267A3FAD0082235C /* ShowAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229554F3267A3FAD0082235C /* ShowAlerts.swift */; };
 		229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 229A2F1D27F8ED3300A05EE1 /* ChartController.swift */; };
 		229CCC192E1F633E0023D1DB /* Login.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 229CCC182E1F633E0023D1DB /* Login.storyboard */; };
+		22A877D12E24688900089845 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A877D02E24688600089845 /* Utilities.swift */; };
 		22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
 		22B332FB2E1EAE66006EF14D /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B332FA2E1EAE66006EF14D /* SignInViewController.swift */; };
 		22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C6E26750DBC00C2313E /* CryptosAPI.swift */; };
@@ -138,6 +139,7 @@
 		229554F3267A3FAD0082235C /* ShowAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAlerts.swift; sourceTree = "<group>"; };
 		229A2F1D27F8ED3300A05EE1 /* ChartController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartController.swift; sourceTree = "<group>"; };
 		229CCC182E1F633E0023D1DB /* Login.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Login.storyboard; sourceTree = "<group>"; };
+		22A877D02E24688600089845 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		22AD1A43264B36FA001A5362 /* SavingFeeds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SavingFeeds.xcdatamodel; sourceTree = "<group>"; };
 		22B332FA2E1EAE66006EF14D /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		22D21C6E26750DBC00C2313E /* CryptosAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosAPI.swift; sourceTree = "<group>"; };
@@ -162,7 +164,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2286CC792E1CC86000836EBC /* UserModel */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = UserModel; sourceTree = "<group>"; };
+		2286CC792E1CC86000836EBC /* UserModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = UserModel;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -302,6 +310,7 @@
 				229554F3267A3FAD0082235C /* ShowAlerts.swift */,
 				220235EE280CCC8300882206 /* Spinner.swift */,
 				227AAD1628A43B7C00313DDB /* BallonMarker.swift */,
+				22A877D02E24688600089845 /* Utilities.swift */,
 				227C7E682808931500A9E158 /* Support.swift */,
 				220021CF29B69ABB0022FD6E /* HBSegmentedControl.swift */,
 				22D6354F2653778F00EAD8ED /* HTMLParser.swift */,
@@ -426,7 +435,6 @@
 				};
 			};
 			buildConfigurationList = 2212369F263DA728007EA092 /* Build configuration list for PBXProject "MW Watcher" */;
-			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -438,6 +446,7 @@
 				22334B6229A1776F00FE3A86 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				221656E32DFF81A300A38914 /* XCRemoteSwiftPackageReference "AMPopTip" */,
 			);
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 221236A5263DA728007EA092 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -481,13 +490,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -573,6 +578,7 @@
 				220F4EA5265D324800106325 /* SavedNewsViewCell.swift in Sources */,
 				229554F4267A3FAD0082235C /* ShowAlerts.swift in Sources */,
 				220F4EA3265D318D00106325 /* MarketsController.swift in Sources */,
+				22A877D12E24688900089845 /* Utilities.swift in Sources */,
 				2286501926680BC200769EB2 /* LaunchController.swift in Sources */,
 				220300BC265FDF7E008BAB70 /* MarketsViewCell.swift in Sources */,
 				229A2F1E27F8ED3300A05EE1 /* ChartController.swift in Sources */,

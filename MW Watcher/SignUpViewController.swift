@@ -6,6 +6,8 @@
 //
 
 import UIKit
+import FirebaseAuth
+import FirebaseCore
 
 class SignUpViewController: UIViewController {
     @IBOutlet weak var emailTextField: UITextField!
@@ -32,8 +34,73 @@ class SignUpViewController: UIViewController {
         view.endEditing(true)
     }
     
+    @IBAction func emailTextFieldChanged(_ sender: UITextField) {
+        activateSignUpButton()
+
+    }
+    
+    @IBAction func passwordTextFieldChanged(_ sender: UITextField) {
+       activateSignUpButton()
+    }
+    
+    
+    @IBAction func verifyTextFieldChanged(_ sender: UITextField) {
+        activateSignUpButton()
+    }
+    
+    func activateSignUpButton() {
+        if emailTextField.text!.isEmpty || passwordTextField.text!.isEmpty || verifyTextField.text!.isEmpty {
+            signUpButton.isEnabled = false
+        } else {
+            signUpButton.isEnabled = true
+        }
+    }
+    
     @IBAction func signUpButtonTapped(_ sender: UIButton) {
         print("sign up with firebase authentication")
+        
+        if !verifyFields() {
+            return
+        } else {
+            let email = emailTextField.text!
+            let password = passwordTextField.text!
+            print ("creating account")
+            createAccount(email: email, password: password)
+        }
+    }
+    
+    
+    func verifyFields() -> Bool {
+        if !Utilities.isValidEmail(emailTextField.text!) {
+            Utilities.showAlert(on: self, title: "Error", message: "Invalid email format")
+            return false
+        }  else if passwordTextField.text!.count < 6 {
+            Utilities.showAlert(on: self, title: "Error", message: "Password must be at least 6 characters long")
+            return false
+        } else if passwordTextField.text! != verifyTextField.text! {
+            print ("Passwords do not match")
+            Utilities.showAlert(on: self, title: "Error", message: "Passwords do not match")
+            return false
+        } else if emailTextField.text!.isEmpty || passwordTextField.text!.isEmpty || verifyTextField.text!.isEmpty {
+            Utilities.showAlert(on: self, title: "Error", message: "Please fill in all fields")
+            return false
+        }
+        
+        return true
+    }
+    
+    func createAccount(email: String, password: String) {
+        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+            if let error = error {
+                print("Error creating user: \(error.localizedDescription)")
+                // Handle error, e.g., show an alert to the user
+                Utilities.showAlert(on: self, title: "Error", message: error.localizedDescription)
+                return
+            }
+            // User created successfully!
+            print("User signed up: \(authResult?.user.email ?? "N/A")")
+            // You can now navigate the user to the main part of your app
+        }
     }
     
     @IBAction func appleButtonTappe(_ sender: UIButton) {
