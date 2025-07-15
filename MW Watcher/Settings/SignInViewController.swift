@@ -51,7 +51,9 @@ class SignInViewController: UIViewController {
     }
     
     @IBAction func appleButtonTapped(_ sender: UIButton) {
-        print ("call apple sign in/up")
+        // Call Apple authentication
+        print("call apple sign in/up")
+        AppleAuthManager.shared.handleAppleIDRequest() // Calls the @objc method, no closure
     }
     
     @IBAction func signUpButtonTapped(_ sender: UIButton) {
