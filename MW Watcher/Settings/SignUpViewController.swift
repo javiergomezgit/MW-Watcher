@@ -100,7 +100,20 @@ class SignUpViewController: UIViewController {
             // User created successfully!
             print("User signed up: \(authResult?.user.email ?? "N/A")")
             // You can now navigate the user to the main part of your app
+            self.navigateToMainInterface()
         }
+    }
+    
+    func navigateToMainInterface() {
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        // Change to your actual VC ID
+        let mainVC = mainStoryboard.instantiateViewController(withIdentifier: "MarketWatcher")
+        
+        mainVC.modalPresentationStyle = .fullScreen
+        mainVC.modalTransitionStyle = .crossDissolve
+        
+        self.present(mainVC, animated: true, completion: nil)
     }
     
     @IBAction func appleButtonTappe(_ sender: UIButton) {

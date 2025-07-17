@@ -1,0 +1,22 @@
+{
+  "images" : [
+    {
+      "filename" : "appleid_button@4x-3.png",
+      "idiom" : "iphone"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "appleid_button@4x-2.png",
+      "idiom" : "iphone"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

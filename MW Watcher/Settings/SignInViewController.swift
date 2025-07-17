@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class SignInViewController: UIViewController {
     
@@ -35,11 +36,19 @@ class SignInViewController: UIViewController {
     }
     
     @IBAction func passwordTextFieldChanged(_ sender: UITextField) {
-        signInButton.isEnabled = !emailTextField.text!.isEmpty && !passwordTextField.text!.isEmpty
+        activateSignInButton()
     }
     
     @IBAction func emailTextFieldChanged(_ sender: UITextField) {
-        signInButton.isEnabled = !emailTextField.text!.isEmpty && !passwordTextField.text!.isEmpty
+        activateSignInButton()
+    }
+    
+    func activateSignInButton() {
+        if emailTextField.text!.isEmpty || passwordTextField.text!.isEmpty {
+            signInButton.isEnabled = false
+        } else {
+            signInButton.isEnabled = true
+        }
     }
     
     
@@ -48,12 +57,41 @@ class SignInViewController: UIViewController {
         sender.clipsToBounds = true
         // For gradient, use CAGradientLayer as sublayer of button
         print ("sign in with email into with firebase authentication")
+        
+        guard let email = emailTextField.text, let password = passwordTextField.text, !email.isEmpty, !password.isEmpty else {
+            // Show an alert if fields are empty
+            print("Email or password is empty")
+            return
+        }
+        
+        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+            if let error = error {
+                print("❌ Email sign-in failed: \(error.localizedDescription)")
+                // Optional: Show alert to user
+                Utilities.showAlert(on: self!, title: "Error", message: error.localizedDescription)
+                return
+            }
+            
+            print("✅ Email sign-in successful")
+            self?.navigateToMainInterface()
+        }
     }
     
     @IBAction func appleButtonTapped(_ sender: UIButton) {
         // Call Apple authentication
         print("call apple sign in/up")
-        AppleAuthManager.shared.handleAppleIDRequest() // Calls the @objc method, no closure
+        //AppleAuthManager.shared.handleAppleIDRequest() // Calls the @objc method, no closure
+        
+        AppleAuthManager.shared.signInWithApple { [weak self] result in
+            switch result {
+            case .success(_):
+                print("✅ Apple sign-in successful")
+                self?.navigateToMainInterface()
+            case .failure(let error):
+                print("❌ Apple sign-in failed: \(error.localizedDescription)")
+                // Optional: Show alert
+            }
+        }
     }
     
     @IBAction func signUpButtonTapped(_ sender: UIButton) {
@@ -63,6 +101,27 @@ class SignInViewController: UIViewController {
         signUpVC.modalPresentationStyle = .fullScreen
         signUpVC.modalTransitionStyle = .crossDissolve
         present(signUpVC, animated: true, completion: nil)
+    }
+    
+    func navigateToMainInterface() {
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        // Change to your actual VC ID
+        let mainVC = mainStoryboard.instantiateViewController(withIdentifier: "MarketWatcher")
+        
+        mainVC.modalPresentationStyle = .fullScreen
+        mainVC.modalTransitionStyle = .crossDissolve
+        
+        self.present(mainVC, animated: true, completion: nil)
+    }
+    
+    func handleLoginSuccess(token: String) {
+        UserDefaults.standard.set(token, forKey: "authToken")
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let mainTabBar = storyboard.instantiateInitialViewController()!
+        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+            sceneDelegate.window?.rootViewController = mainTabBar
+        }
     }
 }
 

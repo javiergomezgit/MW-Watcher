@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class SettingsController: UITableViewController {
 
@@ -129,4 +130,25 @@ class SettingsController: UITableViewController {
 //        destination!.modalPresentationStyle = .overCurrentContext
         self.present(destination!, animated: true, completion: nil)
     }
+    
+    @IBAction func logoutButtonTapped(_ sender: UIButton) {
+        do {
+            try Auth.auth().signOut()
+            print("User logged out successfully")
+            
+            handleLogout()
+        } catch let signOutError as NSError {
+            print("Error signing out: \(signOutError.localizedDescription)")
+        }
+    }
+    
+    private func handleLogout() {
+        UserDefaults.standard.removeObject(forKey: "authToken")
+        let storyboard = UIStoryboard(name: "Login", bundle: nil)
+        let loginVC = storyboard.instantiateInitialViewController()!
+        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+            sceneDelegate.window?.rootViewController = loginVC
+        }
+    }
+
 }

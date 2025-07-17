@@ -4,7 +4,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
-        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -61,7 +60,7 @@
                                         </connections>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W91-sT-UxJ">
-                                        <rect key="frame" x="56" y="184.99999999999997" width="261.66666666666669" height="57"/>
+                                        <rect key="frame" x="56" y="184.99999999999997" width="183" height="57"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Continue" cornerStyle="medium">
                                             <color key="baseForegroundColor" systemColor="systemBackgroundColor"/>
                                             <color key="baseBackgroundColor" systemColor="labelColor"/>
@@ -79,8 +78,8 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gju-Vi-Uh0">
-                                        <rect key="frame" x="56" y="267" width="261.66666666666669" height="57"/>
+                                    <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gju-Vi-Uh0">
+                                        <rect key="frame" x="238.99999999999997" y="184.99999999999997" width="78.666666666666657" height="57"/>
                                         <color key="tintColor" systemColor="systemBackgroundColor"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="Continue with Apple" image="appleStock">
@@ -88,7 +87,7 @@
                                             <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="small"/>
                                         </state>
                                         <buttonConfiguration key="configuration" style="filled" cornerStyle="medium">
-                                            <backgroundConfiguration key="background" image="appleStock" imageContentMode="scaleAspectFit"/>
+                                            <backgroundConfiguration key="background" image="appleid_button" imageContentMode="scaleAspectFit"/>
                                             <color key="baseBackgroundColor" systemColor="systemBackgroundColor"/>
                                         </buttonConfiguration>
                                         <connections>
@@ -97,7 +96,6 @@
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tNZ-DJ-Hvj">
                                         <rect key="frame" x="249.66666666666663" y="518.66666666666663" width="84" height="35"/>
-                                        <color key="backgroundColor" name="downtrend"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="35" id="Van-aL-15P"/>
                                         </constraints>
@@ -108,22 +106,21 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.75805412371134018" green="0.69490390981263972" blue="0.36672626213279702" alpha="0.15229060374149661" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="tNZ-DJ-Hvj" secondAttribute="trailing" constant="40" id="00W-Tv-qVu"/>
                                     <constraint firstItem="oIq-0a-JFG" firstAttribute="width" secondItem="uf4-vL-EcP" secondAttribute="width" id="64h-YR-ZyU"/>
-                                    <constraint firstItem="Gju-Vi-Uh0" firstAttribute="top" secondItem="W91-sT-UxJ" secondAttribute="bottom" constant="25" id="84T-6M-AbJ"/>
                                     <constraint firstItem="W91-sT-UxJ" firstAttribute="top" secondItem="oIq-0a-JFG" secondAttribute="bottom" constant="25" id="8fl-VN-igl"/>
-                                    <constraint firstItem="Gju-Vi-Uh0" firstAttribute="width" secondItem="W91-sT-UxJ" secondAttribute="width" id="9aw-gV-KiQ"/>
                                     <constraint firstItem="W91-sT-UxJ" firstAttribute="leading" secondItem="oIq-0a-JFG" secondAttribute="leading" id="A2h-f1-bet"/>
                                     <constraint firstItem="oIq-0a-JFG" firstAttribute="top" secondItem="uf4-vL-EcP" secondAttribute="bottom" constant="25" id="Ac3-LQ-LGx"/>
                                     <constraint firstItem="K5f-zU-y78" firstAttribute="leading" secondItem="D6v-WJ-fXd" secondAttribute="leading" constant="28" id="FJo-G9-snE"/>
                                     <constraint firstItem="oIq-0a-JFG" firstAttribute="centerX" secondItem="uf4-vL-EcP" secondAttribute="centerX" id="G8Q-EP-ifw"/>
                                     <constraint firstAttribute="bottom" secondItem="tNZ-DJ-Hvj" secondAttribute="bottom" id="NrP-BX-Rqh"/>
                                     <constraint firstItem="oIq-0a-JFG" firstAttribute="height" secondItem="uf4-vL-EcP" secondAttribute="height" id="WMq-LM-ZCv"/>
+                                    <constraint firstItem="Gju-Vi-Uh0" firstAttribute="width" secondItem="oIq-0a-JFG" secondAttribute="width" multiplier="0.3" id="Z8B-m3-Nyc"/>
                                     <constraint firstAttribute="bottom" secondItem="K5f-zU-y78" secondAttribute="bottom" id="m7C-6w-cwr"/>
-                                    <constraint firstItem="Gju-Vi-Uh0" firstAttribute="leading" secondItem="W91-sT-UxJ" secondAttribute="leading" id="nmD-N1-pMo"/>
-                                    <constraint firstItem="W91-sT-UxJ" firstAttribute="width" secondItem="oIq-0a-JFG" secondAttribute="width" id="ofz-dQ-h9t"/>
+                                    <constraint firstItem="Gju-Vi-Uh0" firstAttribute="top" secondItem="W91-sT-UxJ" secondAttribute="top" id="mwA-NY-P4G"/>
+                                    <constraint firstItem="W91-sT-UxJ" firstAttribute="width" secondItem="oIq-0a-JFG" secondAttribute="width" multiplier="0.7" id="ofz-dQ-h9t"/>
+                                    <constraint firstItem="Gju-Vi-Uh0" firstAttribute="trailing" secondItem="oIq-0a-JFG" secondAttribute="trailing" id="qFM-wf-Aqk"/>
                                     <constraint firstItem="W91-sT-UxJ" firstAttribute="height" secondItem="oIq-0a-JFG" secondAttribute="height" multiplier="1.14" id="r2N-jb-fbM"/>
                                     <constraint firstItem="uf4-vL-EcP" firstAttribute="width" secondItem="D6v-WJ-fXd" secondAttribute="width" multiplier="0.7" id="w3y-Y9-8iQ"/>
                                     <constraint firstItem="Gju-Vi-Uh0" firstAttribute="height" secondItem="W91-sT-UxJ" secondAttribute="height" id="wlT-eu-sZC"/>
@@ -217,7 +214,6 @@
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Fiq-lH-jT6">
                                         <rect key="frame" x="267.66666666666663" y="518.66666666666663" width="76" height="35"/>
-                                        <color key="backgroundColor" name="uptrend"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="35" id="V4i-Ke-cew"/>
                                         </constraints>
@@ -240,7 +236,7 @@
                                         </connections>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wzy-Pl-oAs">
-                                        <rect key="frame" x="56" y="230" width="261.66666666666669" height="57"/>
+                                        <rect key="frame" x="56" y="230" width="183" height="57"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Continue" cornerStyle="medium">
                                             <color key="baseForegroundColor" systemColor="systemBackgroundColor"/>
                                             <color key="baseBackgroundColor" systemColor="labelColor"/>
@@ -250,7 +246,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LEj-nI-1xx">
-                                        <rect key="frame" x="56" y="307" width="261.66666666666669" height="57"/>
+                                        <rect key="frame" x="238.99999999999997" y="230" width="78.666666666666657" height="57"/>
                                         <color key="tintColor" systemColor="systemBackgroundColor"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="Continue with Apple" image="appleStock">
@@ -258,7 +254,7 @@
                                             <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="small"/>
                                         </state>
                                         <buttonConfiguration key="configuration" style="filled" cornerStyle="medium">
-                                            <backgroundConfiguration key="background" image="appleStock" imageContentMode="scaleAspectFit"/>
+                                            <backgroundConfiguration key="background" image="appleid_button" imageContentMode="scaleAspectFit"/>
                                             <color key="baseBackgroundColor" systemColor="systemBackgroundColor"/>
                                         </buttonConfiguration>
                                         <connections>
@@ -266,28 +262,27 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.75805412370000003" green="0.69490390980000005" blue="0.36672626209999998" alpha="0.1522906037" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstItem="cSw-Lc-8HP" firstAttribute="width" secondItem="h3p-VY-ilI" secondAttribute="width" id="4ti-b8-hdo"/>
-                                    <constraint firstItem="wzy-Pl-oAs" firstAttribute="width" secondItem="h3p-VY-ilI" secondAttribute="width" id="69C-F3-thA"/>
-                                    <constraint firstItem="LEj-nI-1xx" firstAttribute="top" secondItem="wzy-Pl-oAs" secondAttribute="bottom" constant="20" id="6mF-lF-cqU"/>
+                                    <constraint firstItem="wzy-Pl-oAs" firstAttribute="width" secondItem="h3p-VY-ilI" secondAttribute="width" multiplier="0.7" id="69C-F3-thA"/>
                                     <constraint firstAttribute="trailing" secondItem="Fiq-lH-jT6" secondAttribute="trailing" constant="30" id="752-we-rKm"/>
                                     <constraint firstItem="4Lt-7a-8r7" firstAttribute="leading" secondItem="ayD-oQ-2ra" secondAttribute="leading" constant="28" id="BuC-gB-aOc"/>
                                     <constraint firstItem="cSw-Lc-8HP" firstAttribute="top" secondItem="h3p-VY-ilI" secondAttribute="bottom" constant="20" id="Dft-lU-tXx"/>
                                     <constraint firstItem="h3p-VY-ilI" firstAttribute="centerX" secondItem="cON-j1-qCE" secondAttribute="centerX" id="Fbv-nF-K2y"/>
                                     <constraint firstItem="wzy-Pl-oAs" firstAttribute="leading" secondItem="h3p-VY-ilI" secondAttribute="leading" id="I8U-v4-qDI"/>
+                                    <constraint firstItem="LEj-nI-1xx" firstAttribute="top" secondItem="wzy-Pl-oAs" secondAttribute="top" id="LEU-xe-yUa"/>
                                     <constraint firstItem="wzy-Pl-oAs" firstAttribute="height" secondItem="h3p-VY-ilI" secondAttribute="height" multiplier="1.14" id="ODd-ru-pUk"/>
                                     <constraint firstItem="cON-j1-qCE" firstAttribute="width" secondItem="ayD-oQ-2ra" secondAttribute="width" multiplier="0.7" id="OVl-76-w3l"/>
                                     <constraint firstItem="wzy-Pl-oAs" firstAttribute="top" secondItem="cSw-Lc-8HP" secondAttribute="bottom" constant="20" id="P6x-AT-mYc"/>
-                                    <constraint firstItem="LEj-nI-1xx" firstAttribute="width" secondItem="wzy-Pl-oAs" secondAttribute="width" id="R4C-qh-Vih"/>
-                                    <constraint firstItem="LEj-nI-1xx" firstAttribute="leading" secondItem="wzy-Pl-oAs" secondAttribute="leading" id="R58-Aa-36s"/>
                                     <constraint firstAttribute="bottom" secondItem="Fiq-lH-jT6" secondAttribute="bottom" id="RKd-V1-WCN"/>
                                     <constraint firstItem="h3p-VY-ilI" firstAttribute="top" secondItem="cON-j1-qCE" secondAttribute="bottom" constant="20" id="SuK-im-MmP"/>
                                     <constraint firstItem="LEj-nI-1xx" firstAttribute="height" secondItem="wzy-Pl-oAs" secondAttribute="height" id="VTe-c2-wRD"/>
                                     <constraint firstItem="h3p-VY-ilI" firstAttribute="width" secondItem="cON-j1-qCE" secondAttribute="width" id="awB-4w-JP2"/>
+                                    <constraint firstItem="LEj-nI-1xx" firstAttribute="trailing" secondItem="cSw-Lc-8HP" secondAttribute="trailing" id="bdu-5R-quJ"/>
                                     <constraint firstItem="h3p-VY-ilI" firstAttribute="height" secondItem="cON-j1-qCE" secondAttribute="height" id="dZu-gb-9VR"/>
                                     <constraint firstItem="cON-j1-qCE" firstAttribute="centerX" secondItem="ayD-oQ-2ra" secondAttribute="centerX" id="nl7-HG-WCJ"/>
                                     <constraint firstAttribute="bottom" secondItem="4Lt-7a-8r7" secondAttribute="bottom" id="oaf-ew-qhd"/>
+                                    <constraint firstItem="LEj-nI-1xx" firstAttribute="width" secondItem="cSw-Lc-8HP" secondAttribute="width" multiplier="0.3" id="rmc-eB-2ep"/>
                                     <constraint firstItem="cON-j1-qCE" firstAttribute="top" secondItem="ayD-oQ-2ra" secondAttribute="top" constant="20" id="sFZ-rD-vTK"/>
                                     <constraint firstItem="cSw-Lc-8HP" firstAttribute="leading" secondItem="h3p-VY-ilI" secondAttribute="leading" id="upd-ZA-c3j"/>
                                 </constraints>
@@ -322,13 +317,8 @@
     </scenes>
     <resources>
         <image name="appleStock" width="128" height="128"/>
+        <image name="appleid_button" width="200" height="200"/>
         <image name="logoWord" width="1954" height="1954"/>
-        <namedColor name="downtrend">
-            <color red="0.89300000667572021" green="0.045000001788139343" blue="0.02199999988079071" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="uptrend">
-            <color red="0.32400000095367432" green="0.70599997043609619" blue="0.56499999761581421" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
