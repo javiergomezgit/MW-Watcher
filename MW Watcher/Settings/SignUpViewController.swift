@@ -36,11 +36,11 @@ class SignUpViewController: UIViewController {
     
     @IBAction func emailTextFieldChanged(_ sender: UITextField) {
         activateSignUpButton()
-
+        
     }
     
     @IBAction func passwordTextFieldChanged(_ sender: UITextField) {
-       activateSignUpButton()
+        activateSignUpButton()
     }
     
     
@@ -99,6 +99,10 @@ class SignUpViewController: UIViewController {
             }
             // User created successfully!
             print("User signed up: \(authResult?.user.email ?? "N/A")")
+            
+            let token = authResult!.user.uid
+            UserDefaults.standard.set(token, forKey: "authToken")
+            
             // You can now navigate the user to the main part of your app
             self.navigateToMainInterface()
         }
@@ -116,8 +120,25 @@ class SignUpViewController: UIViewController {
         self.present(mainVC, animated: true, completion: nil)
     }
     
-    @IBAction func appleButtonTappe(_ sender: UIButton) {
-        print ("sign up with apple authentication")
+    @IBAction func appleButtonTapped(_ sender: UIButton) {
+        // Call Apple authentication
+        print("call apple sign in/up")
+        //AppleAuthManager.shared.handleAppleIDRequest() // Calls the @objc method, no closure
+        
+        AppleAuthManager.shared.signInWithApple { [weak self] result in
+            switch result {
+            case .success(let resultToken):
+                
+                let token = resultToken.user.uid
+                UserDefaults.standard.set(token, forKey: "authToken")
+                
+                print("✅ Apple sign-in successful")
+                self?.navigateToMainInterface()
+            case .failure(let error):
+                print("❌ Apple sign-in failed: \(error.localizedDescription)")
+                // Optional: Show alert
+            }
+        }
     }
     
     @IBAction func signInButtonTapped(_ sender: UIButton) {

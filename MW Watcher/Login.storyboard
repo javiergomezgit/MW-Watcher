@@ -258,7 +258,7 @@
                                             <color key="baseBackgroundColor" systemColor="systemBackgroundColor"/>
                                         </buttonConfiguration>
                                         <connections>
-                                            <action selector="appleButtonTappe:" destination="hom-rV-f8g" eventType="touchUpInside" id="yiH-EH-LV2"/>
+                                            <action selector="appleButtonTapped:" destination="hom-rV-f8g" eventType="touchUpInside" id="yiH-EH-LV2"/>
                                         </connections>
                                     </button>
                                 </subviews>

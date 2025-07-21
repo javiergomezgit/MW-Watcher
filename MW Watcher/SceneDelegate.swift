@@ -21,8 +21,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         
         if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
-            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
-            // Assuming LaunchController is in Main.storyboard with Storyboard ID "LaunchController"
+            let imageCompany = UIImage(named: "appleStock")
+            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: imageCompany!)
+            let savedTickers = SaveTickers()
+            savedTickers.saveTicker(tickerFeatures: tickerFeatures)
+            
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let launchVC = storyboard.instantiateViewController(withIdentifier: "LaunchController")
             window.rootViewController = launchVC

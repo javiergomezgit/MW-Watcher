@@ -16,40 +16,36 @@ class LaunchController: UIViewController {
     @IBOutlet var logoImage: UIImageView!
     
     override func viewWillAppear(_ animated: Bool) {
-        //MARK: Change to FALSE for testing
-        if launchedBefore() {
-            //If launched then go to mmw news
-            if Auth.auth().currentUser != nil {
-                // ✅ User is logged in, go to main tab bar
-                goToMainApp()
-            } else {
-                // 🔐 User not logged in, show login storyboard
-                goToLogin()
-            }
-            
-            
-        } else {
-            self.logoImage.alpha = 0
-            swiftyOnboard = SwiftyOnboard(frame: view.frame)
-            view.addSubview(swiftyOnboard)
-            swiftyOnboard.dataSource = self
-            swiftyOnboard.delegate = self
-            
-            let imageCompany = UIImage(named: "appleStock")
-            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: imageCompany!)
-            let savedTickers = SaveTickers()
-            savedTickers.saveTicker(tickerFeatures: tickerFeatures)
-        }
+        
+        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+        
+        self.logoImage.alpha = 0
+        swiftyOnboard = SwiftyOnboard(frame: view.frame)
+        view.addSubview(swiftyOnboard)
+        swiftyOnboard.dataSource = self
+        swiftyOnboard.delegate = self
+        
     }
     
-    func goToMainApp() {
-        DispatchQueue.main.async {
-            let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
-            let nextViewController = storyBoard.instantiateViewController(withIdentifier: "MarketWatcher")
-            
-            nextViewController.modalPresentationStyle = .fullScreen
-            nextViewController.modalTransitionStyle = .crossDissolve
-            self.show(nextViewController, sender: self)
+    //Function to use later
+//    func goToMainApp() {
+//        DispatchQueue.main.async {
+//            let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+//            let nextViewController = storyBoard.instantiateViewController(withIdentifier: "MarketWatcher")
+//            
+//            nextViewController.modalPresentationStyle = .fullScreen
+//            nextViewController.modalTransitionStyle = .crossDissolve
+//            self.show(nextViewController, sender: self)
+//        }
+//    }
+
+    
+    @objc func handleContinue(sender: UIButton) {
+        let index = sender.tag
+        swiftyOnboard?.goToPage(index: index + 1, animated: true)
+        
+        if index == 2 {
+            goToLogin()
         }
     }
     
@@ -61,31 +57,9 @@ class LaunchController: UIViewController {
         }
     }
     
-    func launchedBefore() -> Bool {
-        return UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
-    }
-    
-    @objc func handleContinue(sender: UIButton) {
-        let index = sender.tag
-        swiftyOnboard?.goToPage(index: index + 1, animated: true)
-        
-        if index == 2 {
-            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
-            goToLogin()
-        }
-    }
-    
     @objc func handleSkip() {
         swiftyOnboard?.goToPage(index: 2, animated: true)
     }
-    
-    // func finishWalkthrough() {
-    //     let storyboard = UIStoryboard(name: "Login", bundle: nil)
-    //     let loginVC = storyboard.instantiateInitialViewController()!
-    //     if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
-    //         sceneDelegate.window?.rootViewController = loginVC
-    //     }
-    // }
 }
 
 extension LaunchController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {

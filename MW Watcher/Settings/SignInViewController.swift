@@ -73,6 +73,8 @@ class SignInViewController: UIViewController {
             }
             
             print("✅ Email sign-in successful")
+            let token = result?.user.uid
+            UserDefaults.standard.set(token, forKey: "authToken")
             self?.navigateToMainInterface()
         }
     }
@@ -80,16 +82,17 @@ class SignInViewController: UIViewController {
     @IBAction func appleButtonTapped(_ sender: UIButton) {
         // Call Apple authentication
         print("call apple sign in/up")
-        //AppleAuthManager.shared.handleAppleIDRequest() // Calls the @objc method, no closure
         
         AppleAuthManager.shared.signInWithApple { [weak self] result in
             switch result {
-            case .success(_):
+            case .success(let resultToken):
                 print("✅ Apple sign-in successful")
+                let token = resultToken.user.uid
+                UserDefaults.standard.set(token, forKey: "authToken")
                 self?.navigateToMainInterface()
             case .failure(let error):
                 print("❌ Apple sign-in failed: \(error.localizedDescription)")
-                // Optional: Show alert
+                Utilities.showAlert(on: self!, title: "Error", message: error.localizedDescription)
             }
         }
     }
@@ -115,14 +118,14 @@ class SignInViewController: UIViewController {
         self.present(mainVC, animated: true, completion: nil)
     }
     
-    func handleLoginSuccess(token: String) {
-        UserDefaults.standard.set(token, forKey: "authToken")
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let mainTabBar = storyboard.instantiateInitialViewController()!
-        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
-            sceneDelegate.window?.rootViewController = mainTabBar
-        }
-    }
+    //    func handleLoginSuccess(token: String) {
+    //        UserDefaults.standard.set(token, forKey: "authToken")
+    //        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+    //        let mainTabBar = storyboard.instantiateInitialViewController()!
+    //        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+    //            sceneDelegate.window?.rootViewController = mainTabBar
+    //        }
+    //    }
 }
 
 

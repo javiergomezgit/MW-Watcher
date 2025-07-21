@@ -24,7 +24,7 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
         appleButton.addTarget(self, action: #selector(handleAppleIDRequest), for: .touchUpInside)
         return appleButton // Add this to your view in a UIViewController
     }
-
+    
     // Called when the Apple Sign In button is tapped
     @objc func handleAppleIDRequest() {
         // Starts the sign-in process (no result handling needed here)
@@ -45,7 +45,7 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
             authorizationController.performRequests() // Shows Apple’s sign-in popup
         }
     }
-
+    
     // Handles successful sign-in with Apple
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
@@ -61,11 +61,11 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
                 completionHandler?(.failure(NSError(domain: "", code: -2, userInfo: [NSLocalizedDescriptionKey: "Failed to serialize token"])))
                 return
             }
-
+            
             // Use Apple’s token to log in with Firebase
             let firebaseCredential = OAuthProvider.credential(providerID: AuthProviderID.apple,
-                                                            idToken: idTokenString,
-                                                            rawNonce: nonce)
+                                                              idToken: idTokenString,
+                                                              rawNonce: nonce)
             
             // Log in to Firebase
             Auth.auth().signIn(with: firebaseCredential) { (authResult, error) in
@@ -96,7 +96,7 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
             }
         }
     }
-
+    
     // Handles errors, like if the user cancels sign-in
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
         print("Apple sign-in failed: \(error.localizedDescription)")
@@ -125,17 +125,17 @@ extension String {
         if errorCode != errSecSuccess {
             fatalError("Failed to generate random string: OSStatus \(errorCode)")
         }
-
+        
         let charset: [Character] =
-            Array("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._")
-
+        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._")
+        
         let result = randomBytes.map { byte -> Character in
             guard Int(byte) < charset.count else {
                 return charset[Int(byte) % charset.count]
             }
             return charset[Int(byte)]
         }
-
+        
         return String(result)
     }
 }
