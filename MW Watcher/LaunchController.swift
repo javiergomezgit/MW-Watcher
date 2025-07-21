@@ -16,9 +16,7 @@ class LaunchController: UIViewController {
     @IBOutlet var logoImage: UIImageView!
     
     override func viewWillAppear(_ animated: Bool) {
-        
-        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
-        
+                
         self.logoImage.alpha = 0
         swiftyOnboard = SwiftyOnboard(frame: view.frame)
         view.addSubview(swiftyOnboard)
@@ -50,10 +48,23 @@ class LaunchController: UIViewController {
     }
     
     private func goToLogin() {
-        let storyboard = UIStoryboard(name: "Login", bundle: nil)
-        let loginVC = storyboard.instantiateViewController(withIdentifier: "SignInViewController")
-        if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
-            sceneDelegate.window?.rootViewController = loginVC
+        let signedInBefore = UserDefaults.standard.bool(forKey: "signedInBefore")
+        if signedInBefore {
+            let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+            
+            // Change to your actual VC ID
+            let mainVC = mainStoryboard.instantiateViewController(withIdentifier: "MarketWatcher")
+            
+            mainVC.modalPresentationStyle = .fullScreen
+            mainVC.modalTransitionStyle = .crossDissolve
+            
+            self.present(mainVC, animated: true, completion: nil)
+        } else {
+            let storyboard = UIStoryboard(name: "Login", bundle: nil)
+            let loginVC = storyboard.instantiateViewController(withIdentifier: "SignInViewController")
+            if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
+                sceneDelegate.window?.rootViewController = loginVC
+            }
         }
     }
     

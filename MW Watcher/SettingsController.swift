@@ -134,7 +134,14 @@ class SettingsController: UITableViewController {
     @IBAction func logoutButtonTapped(_ sender: UIButton) {
         do {
             try Auth.auth().signOut()
-            print("User logged out successfully")
+            print("User logged out successfully from firebase")
+            
+            // Remove UID from Keychain
+            if KeychainManager.deleteUID() {
+                print("Removed UID from Keychain")
+            } else {
+                print("No UID found in Keychain to remove")
+            }
             
             handleLogout()
         } catch let signOutError as NSError {
@@ -143,7 +150,7 @@ class SettingsController: UITableViewController {
     }
     
     private func handleLogout() {
-        UserDefaults.standard.removeObject(forKey: "authToken")
+        UserDefaults.standard.removeObject(forKey: "authToken") //check
         let storyboard = UIStoryboard(name: "Login", bundle: nil)
         let loginVC = storyboard.instantiateInitialViewController()!
         if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {

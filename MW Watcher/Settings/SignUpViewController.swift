@@ -101,7 +101,12 @@ class SignUpViewController: UIViewController {
             print("User signed up: \(authResult?.user.email ?? "N/A")")
             
             let token = authResult!.user.uid
-            UserDefaults.standard.set(token, forKey: "authToken")
+//            UserDefaults.standard.set(token, forKey: "authToken")
+            if KeychainManager.saveUID(token) {
+                print ("Saved UID to Keychain")
+            } else {
+                print ("Failed to save UID to Keychain")
+            }
             
             // You can now navigate the user to the main part of your app
             self.navigateToMainInterface()
@@ -130,7 +135,12 @@ class SignUpViewController: UIViewController {
             case .success(let resultToken):
                 
                 let token = resultToken.user.uid
-                UserDefaults.standard.set(token, forKey: "authToken")
+    //            UserDefaults.standard.set(token, forKey: "authToken")
+                if KeychainManager.saveUID(token) {
+                    print ("Saved UID to Keychain")
+                } else {
+                    print ("Failed to save UID to Keychain")
+                }
                 
                 print("✅ Apple sign-in successful")
                 self?.navigateToMainInterface()

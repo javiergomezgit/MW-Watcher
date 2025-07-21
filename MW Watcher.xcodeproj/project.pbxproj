@@ -64,6 +64,7 @@
 		22A877D12E24688900089845 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A877D02E24688600089845 /* Utilities.swift */; };
 		22AD1A44264B36FA001A5362 /* SavingFeeds.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 22AD1A42264B36FA001A5362 /* SavingFeeds.xcdatamodeld */; };
 		22B332FB2E1EAE66006EF14D /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22B332FA2E1EAE66006EF14D /* SignInViewController.swift */; };
+		22C67E0E2E2DCE5A0047B834 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22C67E0D2E2DCE500047B834 /* KeychainManager.swift */; };
 		22D21C6F26750DBC00C2313E /* CryptosAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C6E26750DBC00C2313E /* CryptosAPI.swift */; };
 		22D21C712675383300C2313E /* CryptosController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C702675383300C2313E /* CryptosController.swift */; };
 		22D21C73267538EA00C2313E /* CryptosViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22D21C72267538EA00C2313E /* CryptosViewCell.swift */; };
@@ -144,6 +145,7 @@
 		22A877D02E24688600089845 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
 		22AD1A43264B36FA001A5362 /* SavingFeeds.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SavingFeeds.xcdatamodel; sourceTree = "<group>"; };
 		22B332FA2E1EAE66006EF14D /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
+		22C67E0D2E2DCE500047B834 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		22D21C6E26750DBC00C2313E /* CryptosAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosAPI.swift; sourceTree = "<group>"; };
 		22D21C702675383300C2313E /* CryptosController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosController.swift; sourceTree = "<group>"; };
 		22D21C72267538EA00C2313E /* CryptosViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptosViewCell.swift; sourceTree = "<group>"; };
@@ -165,8 +167,6 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2286CC792E1CC86000836EBC /* UserModel */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = UserModel;
 			sourceTree = "<group>";
 		};
@@ -293,6 +293,7 @@
 		221236CA263DAA99007EA092 /* Support */ = {
 			isa = PBXGroup;
 			children = (
+				22C67E0D2E2DCE500047B834 /* KeychainManager.swift */,
 				2211BDAF26B6E796009CC8E0 /* GoogleService-Info.plist */,
 				221236A7263DA728007EA092 /* AppDelegate.swift */,
 				221236A9263DA728007EA092 /* SceneDelegate.swift */,
@@ -537,9 +538,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -566,6 +571,7 @@
 				22D21C712675383300C2313E /* CryptosController.swift in Sources */,
 				221236AC263DA728007EA092 /* LiveNewsController.swift in Sources */,
 				2284519A2803A99700FF0DF2 /* StocksAPI.swift in Sources */,
+				22C67E0E2E2DCE5A0047B834 /* KeychainManager.swift in Sources */,
 				2299BC572E24AAB100E5E777 /* AppleAuthManager.swift in Sources */,
 				221236A8263DA728007EA092 /* AppDelegate.swift in Sources */,
 				22D21C73267538EA00C2313E /* CryptosViewCell.swift in Sources */,

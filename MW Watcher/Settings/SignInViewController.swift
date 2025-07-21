@@ -73,8 +73,14 @@ class SignInViewController: UIViewController {
             }
             
             print("✅ Email sign-in successful")
-            let token = result?.user.uid
-            UserDefaults.standard.set(token, forKey: "authToken")
+            //Not a good practice, not safe
+            let token = result!.user.uid
+            //            UserDefaults.standard.set(token, forKey: "authToken")
+            if KeychainManager.saveUID(token) {
+                print ("Saved UID to Keychain")
+            } else {
+                print ("Failed to save UID to Keychain")
+            }
             self?.navigateToMainInterface()
         }
     }
@@ -87,8 +93,15 @@ class SignInViewController: UIViewController {
             switch result {
             case .success(let resultToken):
                 print("✅ Apple sign-in successful")
+                
                 let token = resultToken.user.uid
-                UserDefaults.standard.set(token, forKey: "authToken")
+                //            UserDefaults.standard.set(token, forKey: "authToken")
+                if KeychainManager.saveUID(token) {
+                    print ("Saved UID to Keychain")
+                } else {
+                    print ("Failed to save UID to Keychain")
+                }
+                
                 self?.navigateToMainInterface()
             case .failure(let error):
                 print("❌ Apple sign-in failed: \(error.localizedDescription)")
