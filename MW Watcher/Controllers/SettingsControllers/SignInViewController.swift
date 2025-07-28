@@ -55,35 +55,68 @@ class SignInViewController: UIViewController {
     @IBAction func signInButtonTapped(_ sender: UIButton) {
         sender.layer.cornerRadius = 8
         sender.clipsToBounds = true
-        // For gradient, use CAGradientLayer as sublayer of button
-        print ("sign in with email into with firebase authentication")
-        
+        print("Attempting sign-in with email and Firebase Authentication")
+
         guard let email = emailTextField.text, let password = passwordTextField.text, !email.isEmpty, !password.isEmpty else {
-            // Show an alert if fields are empty
             print("Email or password is empty")
+            Utilities.showAlert(on: self, title: "Missing Information", message: "Please enter both email and password.")
             return
         }
-        
+
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
-            if let error = error {
-                print("❌ Email sign-in failed: \(error.localizedDescription)")
-                // Optional: Show alert to user
-                Utilities.showAlert(on: self!, title: "Error", message: error.localizedDescription)
+            guard let self else { return }
+
+            if let error = error as NSError? {
+                print("❌ Email sign-in failed: Code=\(error.code), Domain=\(error.domain), Details=\(error.userInfo)")
+
+                // Ensure error is in FIRAuthErrorDomain
+                guard error.domain == AuthErrorDomain else {
+                    Utilities.showAlert(on: self, title: "Sign-In Error", message: "An unexpected error occurred. Please try again.")
+                    print("Non-Firebase error: \(error.localizedDescription)")
+                    return
+                }
+                // Map Firebase error codes to user-friendly messages
+                let errorMessage: String
+                switch error.code {
+                case AuthErrorCode.invalidEmail.rawValue: // 17008
+                    errorMessage = "The email address is invalid. Please check and try again."
+                case AuthErrorCode.userNotFound.rawValue: // 17011
+                    errorMessage = "This account does not exist. Please sign up or try a different account."
+                case AuthErrorCode.wrongPassword.rawValue: // 17009
+                    errorMessage = "The password is incorrect. Please try again."
+                case AuthErrorCode.invalidCredential.rawValue: // 17004
+                    errorMessage = "Your login credentials are invalid or have expired. Please try again."
+                case AuthErrorCode.userDisabled.rawValue: // 17009
+                    errorMessage = "This account has been disabled. Please contact support."
+                case AuthErrorCode.networkError.rawValue: // 17020
+                    errorMessage = "Network error. Please check your internet connection and try again."
+                case AuthErrorCode.userTokenExpired.rawValue, AuthErrorCode.invalidUserToken.rawValue: // 17012, 17005
+                    errorMessage = "Your session has expired. Please sign in again."
+                default:
+                    errorMessage = "An error occurred while signing in. Please try again."
+                    print("Unexpected auth error: Code=\(error.code), Domain=\(error.domain), Details=\(error.userInfo)")
+                }
+
+                Utilities.showAlert(on: self, title: "Sign-In Error", message: errorMessage)
                 return
             }
-            
-            print("✅ Email sign-in successful")
-            //Not a good practice, not safe
-            let token = result!.user.uid
-            //            UserDefaults.standard.set(token, forKey: "authToken")
-            if KeychainManager.saveUID(token) {
-                print ("Saved UID to Keychain")
-            } else {
-                print ("Failed to save UID to Keychain")
+
+            guard let user = result?.user else {
+                print("❌ No user returned after sign-in")
+                Utilities.showAlert(on: self, title: "Sign-In Error", message: "Failed to retrieve user information. Please try again.")
+                return
             }
-            self?.navigateToMainInterface()
+
+            print("✅ Email sign-in successful for user: \(user.uid)")
+            if KeychainManager.saveUID(user.uid) {
+                print("Saved UID to Keychain")
+            } else {
+                print("Failed to save UID to Keychain")
+            }
+            self.navigateToMainInterface()
         }
     }
+    
     
     @IBAction func appleButtonTapped(_ sender: UIButton) {
         // Call Apple authentication

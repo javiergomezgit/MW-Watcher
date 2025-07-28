@@ -8,6 +8,8 @@
 import UIKit
 import FirebaseAuth
 import FirebaseCore
+import FirebaseFirestore // Saves user info to Firestore
+
 
 class SignUpViewController: UIViewController {
     @IBOutlet weak var emailTextField: UITextField!
@@ -100,16 +102,32 @@ class SignUpViewController: UIViewController {
             // User created successfully!
             print("User signed up: \(authResult?.user.email ?? "N/A")")
             
-            let token = authResult!.user.uid
-//            UserDefaults.standard.set(token, forKey: "authToken")
-            if KeychainManager.saveUID(token) {
-                print ("Saved UID to Keychain")
-            } else {
-                print ("Failed to save UID to Keychain")
+            if let authResult = authResult {
+                // Save name and email to Firestore
+                let nameWithoutDomain = email.split(separator: "@")
+                
+                let db = Firestore.firestore()
+                let userData: [String: Any] = [
+                    "givenName": nameWithoutDomain[0],
+                    "familyName": "",
+                    "email": email
+                ]
+                // Save to Firestore under the user’s ID
+                db.collection("users").document(authResult.user.uid).setData(userData, merge: true) { error in
+                    if let error = error {
+                        print("Failed to save user data: \(error.localizedDescription)")
+                    }
+                }
+                
+                if KeychainManager.saveUID(authResult.user.uid) {
+                    print ("Saved UID to Keychain")
+                } else {
+                    print ("Failed to save UID to Keychain")
+                }
+                
+                // You can now navigate the user to the main part of your app
+                self.navigateToMainInterface()
             }
-            
-            // You can now navigate the user to the main part of your app
-            self.navigateToMainInterface()
         }
     }
     

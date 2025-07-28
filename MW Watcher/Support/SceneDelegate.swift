@@ -16,72 +16,83 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private var authStateHandle: AuthStateDidChangeListenerHandle?
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        
-        guard let windowScene = (scene as? UIWindowScene) else { return }
+        guard let windowScene = scene as? UIWindowScene else { return }
         let window = UIWindow(windowScene: windowScene)
+        self.window = window
         
-        
+        // Handle first launch
         if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
-            let imageCompany = UIImage(named: "appleStock")
-            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: imageCompany!)
-            let savedTickers = SaveTickers()
-            savedTickers.saveTicker(tickerFeatures: tickerFeatures)
             
-            UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+            //Add apple ticker when app is new
+            addStarterTicker()
+            logoutPossibleSessions()
             
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let launchVC = storyboard.instantiateViewController(withIdentifier: "LaunchController")
-            window.rootViewController = launchVC
+            //Got to onboarding screen
+            navigateToLaunchController()
         } else {
-            
-            //Listen for firebase auth state changes
-            authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] auth, user in
-                guard let self = self else { return }
-                
-                // Remove the listener to prevent multiple triggers
-                if let handle = self.authStateHandle {
-                    Auth.auth().removeStateDidChangeListener(handle)
-                    self.authStateHandle = nil
-                }
-                
-                if let user = user {
-                    //User is logged in
-                    print ("User logged \(user.uid)")
-                    
-                    //Save UID to keychain
-                    if KeychainManager.saveUID(user.uid) {
-                        print ("Saved UID to Keychain")
-                    }
-                    
-                    if !UserDefaults.standard.bool(forKey: "hasLaunchedBefore") {
-                        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
-                        UserDefaults.standard.set(true, forKey: "signedInBefore")
-                        
-                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                        let launchVC = storyboard.instantiateViewController(withIdentifier: "LaunchController")
-                        window.rootViewController = launchVC
-                    } else {
-                        UserDefaults.standard.set(true, forKey: "signedInBefore")
-                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                        let mainTabBar = storyboard.instantiateInitialViewController()!
-                        window.rootViewController = mainTabBar
-                    }
-                } else {
-                    //No user logged in
-                    let storyboard = UIStoryboard(name: "Login", bundle: nil)
-                    let loginVC = storyboard.instantiateInitialViewController()!
-                    window.rootViewController = loginVC
-                }
+            // Check if there's a current user cached locally
+            if let _ = Auth.auth().currentUser  {
+                self.navigateToMainController()
+            } else {
+                self.navigateToSignIn()
             }
-            
         }
         
-        self.window = window
         window.makeKeyAndVisible()
     }
+    
+    // Save default ticker for first launch
+    private func addStarterTicker() {
+        if let image = UIImage(named: "appleStock") {
+            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: image)
+            let savedTickers = SaveTickers()
+            savedTickers.saveTicker(tickerFeatures: tickerFeatures)
+        }
+        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+    }
+    
+    //If not found, then signout user
+    private func logoutPossibleSessions() {
+        do {
+            try Auth.auth().signOut()
+            if KeychainManager.deleteUID() {
+                print("Successfully deleted UID from Keychain")
+            } else {
+                print("Failed to delete UID from Keychain")
+            }
+            navigateToSignIn()
+        } catch {
+            print("Local sign-out failed: \(error.localizedDescription)")
+            if KeychainManager.deleteUID() {
+                print("Successfully deleted UID from Keychain after sign-out failure")
+            } else {
+                print("Failed to delete UID from Keychain after sign-out failure")
+            }
+            //navigateToSignIn() // Navigate even if sign-out fails
+        }
+    }
+    
+    
+    private func navigateToSignIn() {
+        let storyboard = UIStoryboard(name: "Login", bundle: nil)
+        let signInVC = storyboard.instantiateViewController(withIdentifier: "SignInViewController")
+        window?.rootViewController = signInVC
+    }
+    
+    private func navigateToLaunchController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let launchVC = storyboard.instantiateViewController(withIdentifier: "LaunchController")
+        window?.rootViewController = launchVC
+    }
+    
+    private func navigateToMainController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let launchVC = storyboard.instantiateViewController(withIdentifier: "MarketWatcher")
+        window?.rootViewController = launchVC
+    }
+    
+    
+    
     
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.

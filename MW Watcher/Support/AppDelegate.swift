@@ -19,12 +19,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
        
         FirebaseApp.configure()
-        
-        //Never launched before changes to false
-//        let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunching")
-//        UserDefaults.standard.set(true, forKey: "firstLaunching")
-//        UserDefaults.standard.synchronize()
-//        alreadyLaunched = isFirstLaunch
 
         return true
     }
