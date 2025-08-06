@@ -12,8 +12,15 @@ class SavedNewsViewCell: UITableViewCell {
     
     @IBOutlet weak var headlineLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet var shareButton: UIButton!
-    @IBOutlet var view: UIView!
+    @IBOutlet weak var shareButton: UIButton!
+    @IBOutlet weak var authorLabel: UILabel!
+    
+    @IBOutlet weak var linkButton: UIButton!
+    
+    @IBOutlet weak var imageNews: UIImageView!
+    @IBOutlet weak var viewHeadline: UIView!
+    @IBOutlet weak var viewImage: UIView!
+    @IBOutlet weak var view: UIView!
     
     var popTip = PopTip()
     
@@ -23,6 +30,29 @@ class SavedNewsViewCell: UITableViewCell {
         popTip.tapHandler = { popTip in
           print("tapped")
         }
+        
+        // Configure imageNews for rounded corners
+        setupImageView()
+        
+        // Configure view for rounded top corners
+        setupContainerView()
+    }
+    
+    func setupImageView() {
+            imageNews.layer.cornerRadius = 10.0
+            imageNews.clipsToBounds = true // Clip content to rounded corners
+    }
+    
+    func setupContainerView() {
+        viewHeadline.layer.cornerRadius = 10.0 // Adjust for desired roundness
+        viewHeadline.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+        viewHeadline.clipsToBounds = true // Ensure content is clipped to rounded corners
+        
+        viewImage.layer.cornerRadius = 10.0
+        viewImage.layer.maskedCorners = [ .layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        viewImage.clipsToBounds = true
+        
+//        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
     }
     
     func showFirstTimeNotification(whereView: UIView) {

@@ -326,7 +326,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
             
         🔗 Read more: \(link)
         
-        Shared via Market Watch Social 📱
+         Shared via Bullis Square 📱
         """
         
         // Create activity items array with both text and image
@@ -335,6 +335,8 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         // Add image if it's not a placeholder or empty image
         if image.size.width > 1 && image.size.height > 1 {
                 activityItems.append(image)
+        } else {
+            activityItems.append(UIImage(named: "mw-logo")!)
         }
         
         let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
@@ -347,6 +349,8 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         let headline = self.newsItems[sender.tag].headline
         let dateOfNew = self.newsItems[sender.tag].pubDate
         let link = self.newsItems[sender.tag].link
+        let source = self.newsItems[sender.tag].author
+        let imageNews = self.newsItems[sender.tag].image
         
         let configurationButton = sender.currentImage?.configuration //UIImage.SymbolConfiguration(pointSize: 22.0, weight: .bold)
         var boldSearch = UIImage()
@@ -355,7 +359,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
         
         if currentImageData?.pngData() == imageData?.pngData() {
-            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
+            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link, author: source, imageNews: imageNews) {
                 sender.tintColor = .red
                 boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: configurationButton)!
                 print ("\(headline) saved article")

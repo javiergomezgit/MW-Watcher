@@ -41,7 +41,7 @@ class SavedNewsController: UIViewController {
         
         refreshControl.attributedTitle = NSAttributedString(string: "Loading")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl)        
+        tableView.addSubview(refreshControl)
     }
     
     @objc func refresh(_ sender: AnyObject) {
@@ -60,50 +60,6 @@ class SavedNewsController: UIViewController {
             tableView.reloadData()
         }
     }
-    
-    @IBAction func shareHeadline(_ sender: UIButton) {
-        sender.animateButton(sender: sender, duration: 0.1)
-        
-        let newsItem = self.newsItems[sender.tag]
-        let headline = newsItem.headline
-        let date = newsItem.pubDate
-        //           let author = newsItem.author
-        let link = newsItem.link
-        let image = newsItem/*.image*/
-        
-        let formattedText = """
-            
-            📰 \(headline)
-                
-            📅 \(date)
-            Shared via Market Watch Social 📱
-            """
-        
-        // Create activity items array with both text and image
-        var activityItems: [Any] = [formattedText]
-        
-        // Add image if it's not a placeholder or empty image
-//        if image.size.width > 1 && image.size.height > 1 {
-//            activityItems.append(image)
-//        }
-        if let url = URL(string: link) {
-            activityItems.append(url)
-        }
-        
-        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-        present(activityVC, animated: true)
-        
-    }
-    
-    @IBAction func linkButton(_ sender: UIButton) {
-        //guard let urlString = sender.titleLabel?.text else { return }
-        let index = sender.tag
-        let urlString = newsItems[index].link
-        
-        guard let url = URL(string: urlString) else { return }
-        UIApplication.shared.open(url)
-    }
-    
 }
 
 
@@ -117,6 +73,9 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
         
         cell.headlineLabel.text = newsItems[indexPath.row].headline
         cell.dateLabel.text = newsItems[indexPath.row].pubDate
+        cell.authorLabel.text = newsItems[indexPath.row].author
+        let imageData = newsItems[indexPath.row].newsImageData
+        cell.imageNews.image = UIImage(data: imageData)
         
         if !alreadyLaunched {
             if indexPath.row == 0  {
@@ -127,8 +86,68 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
             }
         }
         
+        cell.linkButton.tag = indexPath.row
+        cell.linkButton.addTarget(self, action: #selector(linkButton(_:)), for: .touchUpInside)
+        
+        cell.shareButton.tag = indexPath.row
+        cell.shareButton.addTarget(self, action: #selector(shareHeadline(_: )), for: .touchUpInside)
+        
         return cell
         
+    }
+    
+    @objc func shareHeadline(_ sender: UIButton) {
+        sender.animateButton(sender: sender, duration: 0.1)
+         
+        let newsItem = self.newsItems[sender.tag]
+        let headline = newsItem.headline
+        let date = newsItem.pubDate
+        let author = newsItem.author
+        let link = newsItem.link
+        let imageData = newsItem.newsImageData
+        
+        let formattedText = """
+         
+         📰 \(headline)
+             
+         📅 \(date)
+         👤 Source: \(author)
+             
+         🔗 Read more: \(link)
+         
+         Shared via Bullis Square 📱
+         """
+         
+         // Create activity items array with both text and image
+         var activityItems: [Any] = [formattedText]
+         
+        if let image = UIImage(data: imageData) {
+            // imageData is a valid image
+            // Add image if it's not a placeholder or empty image
+            if image.size.width > 1 && image.size.height > 1 {
+                    activityItems.append(image)
+            } else {
+                activityItems.append(UIImage(named: "mw-logo")!)
+            }
+        } else {
+            // imageData is invalid or corrupted
+            activityItems.append(UIImage(named: "mw-logo")!)
+        }
+        
+         
+         
+         let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+         present(activityVC, animated: true)
+        
+    }
+    
+    @objc func linkButton(_ sender: UIButton) {
+        //guard let urlString = sender.titleLabel?.text else { return }
+        let index = sender.tag
+        let urlString = newsItems[index].link
+        
+        guard let url = URL(string: urlString) else { return }
+        UIApplication.shared.open(url)
     }
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
@@ -144,6 +163,15 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
             tableView.deleteRows(at: [indexPath], with: .left)
         }
     }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 160.0 // Adjust this value to your desired cell height
+        }
+    
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+            return UIView() // Empty view for transparent spacing
+        }
 }
 
 //MARK: Right top button in navigation controller
@@ -183,8 +211,8 @@ extension SavedNewsController {
             imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor)
         ])
     }
-    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
-    {
+    
+    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)  {
         _ = savedNews.deleteNews(headline: "", date: "", deleteAll: true)
         newsItems.removeAll()
         tableView.reloadData()

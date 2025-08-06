@@ -13,15 +13,19 @@ class UserSaveNews {
     var newsManagedObjectArray: [NSManagedObject] = []
     let entityName = "SavedNewsEntity"
     
-    func saveNews(headline: String, date: String, link: String) -> Bool {
+    func saveNews(headline: String, date: String, link: String, author: String, imageNews: UIImage) -> Bool {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return false }
         let managedContext = appDelegate.persistentContainer.viewContext
         let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
         let headlineObject = NSManagedObject(entity: entity, insertInto: managedContext)
         
+        let imageData = imageNews.pngData()
+        
         headlineObject.setValue(headline, forKey: "headline")
         headlineObject.setValue(date, forKey: "date")
         headlineObject.setValue(link, forKey: "link")
+        headlineObject.setValue(author, forKey: "author")
+        headlineObject.setValue(imageData, forKey: "imageNews")
         
         do {
             try managedContext.save()
@@ -87,8 +91,10 @@ class UserSaveNews {
                 let headline = newsManagedObject.value(forKey: "headline") as! String
                 let date = newsManagedObject.value(forKey: "date") as! String
                 let link = newsManagedObject.value(forKey: "link") as! String
+                let author = newsManagedObject.value(forKey: "author") as! String
+                let imageData = newsManagedObject.value(forKey: "imageNews") as! Data
                 
-                let newsItem = UserSavedNewsItem.init(headline: headline, link: link, pubDate: date)
+                let newsItem = UserSavedNewsItem.init(headline: headline, link: link, pubDate: date, author: author, newsImageData: imageData)
                 newsItemArray.append(newsItem)
             }
         } catch let error as NSError {

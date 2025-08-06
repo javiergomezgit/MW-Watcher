@@ -25,6 +25,8 @@ struct UserSavedNewsItem {
     var headline: String
     var link: String
     var pubDate: String
+    var author: String
+    var newsImageData: Data
 }
 
 struct SystemSavedNewsItem {

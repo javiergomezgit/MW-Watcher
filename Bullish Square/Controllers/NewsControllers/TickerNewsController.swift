@@ -174,6 +174,8 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         let headline = self.tickerNewsArray[index].headline
         let link = tickerNewsArray[index].linkHeadline
         let dateOfNew = tickerNewsArray[index].pubDate
+        let author = tickerNewsArray[index].author
+        let imageNews = tickerNewsArray[index].image
         
         let configurationButton = sender.currentImage?.configuration
         var boldSearch = UIImage()
@@ -182,7 +184,7 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
         
         if currentImageData?.pngData() == imageData?.pngData() {
-            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link) {
+            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link, author: author, imageNews: imageNews) {
                 sender.tintColor = .red
                 boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: configurationButton)!
                 print ("\(headline) saved article")
