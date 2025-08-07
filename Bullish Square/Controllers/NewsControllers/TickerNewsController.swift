@@ -19,7 +19,8 @@ class TickerNewsController: UIViewController {
     
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet var tableView: UITableView!
-    
+    @IBOutlet weak var nameStock: UILabel!
+
     var ticker = ""
     var name = ""
     var cryptoCoin = false
@@ -41,6 +42,8 @@ class TickerNewsController: UIViewController {
         tableView.addSubview(refreshControl)
         
         tickerLabel.text = ticker
+        nameStock.text = name
+        
         if cryptoCoin {
             loadCryptoNews()
         } else {
@@ -55,6 +58,9 @@ class TickerNewsController: UIViewController {
             loadTickerNews()
         }    }
     
+    @IBAction func closeButton(_ sender: UIButton) {
+        self.dismiss(animated: true, completion: nil)
+    }
     func loadCryptoNews() {
         startStopSpinner(start: true)
         refreshControl.beginRefreshing()
