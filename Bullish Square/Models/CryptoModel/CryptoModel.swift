@@ -26,6 +26,16 @@ struct Quote: Codable {
     let volume_24h: Float
 }
 
+struct CryptosViewCellModel {
+    let symbol: String
+    let name: String
+    let price: String
+    let change: String
+    let changeMonth: String
+    let volume: String
+    let cryptoImageName: String
+}
+
 //MARK: Individual Crypto coin
 struct CryptoIndividualAPIResponse: Codable {
     let quotes_data: [String: [QuoteInvidual]]

@@ -48,8 +48,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     var indexName = ""
     var currentPrice = 0.0
     
-    public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImage: UIImage())
-    
+    public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImageName: "")
     public var informationStockTicker = TickersCurrentValues(ticker: "", marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
     public var nameTicker = ""
     
@@ -247,7 +246,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         currentPercentageLabel.text = "\(informationCryptoTicker.change)% Day"
         nameLabel.text = informationCryptoTicker.name.uppercased()
         volumeLabel.text = "Vol.\(informationCryptoTicker.volume) MM"
-        cryptoImage.image = informationCryptoTicker.cryptoImage
+        cryptoImage.image = UIImage(named: informationCryptoTicker.cryptoImageName)
         
         //Will use pair ID instead of symbol/ticker
         switch symbol {

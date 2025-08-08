@@ -7,13 +7,13 @@
 
 import UIKit
 
-class MinorMarketsViewCell: UITableViewCell {
+class CryptoCoinsViewCell: UITableViewCell {
     
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet weak var nameCompanyLabel: UILabel!
     @IBOutlet weak var changeLabel: UILabel!
-    @IBOutlet var currentPriceLabel: UILabel!
-    @IBOutlet var arrowImageView: UIImageView!
+    @IBOutlet weak var currentPriceLabel: UILabel!
+    @IBOutlet weak var arrowImageView: UIImageView!
     @IBOutlet weak var openChartButton: UIButton!
     @IBOutlet weak var imageCompanyImageView: UIImageView!
     @IBOutlet weak var frameCoverLabel: UILabel!

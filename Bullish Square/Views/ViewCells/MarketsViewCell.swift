@@ -14,11 +14,12 @@ class MarketsViewCell: UICollectionViewCell {
     @IBOutlet weak var changeLabel: UILabel!
     @IBOutlet weak var arrowImageView: UIImageView!
     @IBOutlet weak var openChartButton: UIButton!
+    @IBOutlet weak var stockBackgroundView: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         openChartButton.setTitle("", for: .normal)
-        self.contentView.backgroundColor = UIColor(named: "customCellCollection")
+        //self.contentView.backgroundColor = UIColor(named: "customCellCollection")
     }
     
     

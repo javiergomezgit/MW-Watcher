@@ -12,7 +12,7 @@
         <!--Launch-->
         <scene sceneID="09B-KD-KJo">
             <objects>
-                <viewController storyboardIdentifier="LaunchController" title="Launch" id="pUw-t2-ZMF" customClass="LaunchController" customModule="MW_Watcher" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LaunchController" title="Launch" id="pUw-t2-ZMF" customClass="LaunchController" customModule="Bullish_Square" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="CH9-hF-UwJ">
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -57,7 +57,6 @@
                         <segue destination="eKt-SS-NX6" kind="relationship" relationship="viewControllers" id="Vpu-WV-jZV"/>
                         <segue destination="UvD-1m-1j3" kind="relationship" relationship="viewControllers" id="KpU-eG-Y7h"/>
                         <segue destination="vU4-ML-iWT" kind="relationship" relationship="viewControllers" id="hHN-4z-zE1"/>
-                        <segue destination="YJD-mb-4Ug" kind="relationship" relationship="viewControllers" id="kZG-27-DdO"/>
                         <segue destination="Jkl-DU-TWb" kind="relationship" relationship="viewControllers" id="BZ2-Pg-aFm"/>
                     </connections>
                 </tabBarController>
@@ -74,16 +73,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OUM-qm-fzE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2008" y="523"/>
-        </scene>
-        <!--CryptoCoinsTab-->
-        <scene sceneID="lyM-te-sq0">
-            <objects>
-                <viewControllerPlaceholder storyboardName="CryptoCoinsTab" referencedIdentifier="CryptoCoinsTab" id="YJD-mb-4Ug" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Crypto" id="RtL-k8-7Pl"/>
-                </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="NKN-gO-h1J" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1784" y="523"/>
         </scene>
         <!--NewsTab-->
         <scene sceneID="5Xl-QB-agn">
@@ -103,7 +92,7 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="LnR-5Q-fVZ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1338" y="523"/>
+            <point key="canvasLocation" x="1428" y="523"/>
         </scene>
         <!--WatchlistTab-->
         <scene sceneID="zkH-9u-5Qi">
@@ -113,7 +102,7 @@
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9Wy-yV-dC4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1562" y="523"/>
+            <point key="canvasLocation" x="1718" y="523"/>
         </scene>
     </scenes>
     <resources>

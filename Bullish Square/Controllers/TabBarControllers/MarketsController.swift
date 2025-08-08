@@ -16,7 +16,7 @@ class MarketsController: UIViewController {
     @IBOutlet weak var dateLatestDataLabel: UILabel!
     
     private let imageViewTopRightButton = UIImageView(image: UIImage(named: "arrow.triangle.2.circlepath.circle"))
-
+    
     var sizeOfCell = CGFloat(0)
     
     private var marketsDataSP500: [MarketsCandles] = []
@@ -45,10 +45,10 @@ class MarketsController: UIViewController {
         
         //TODO: Display value of the selected point in the chart
         //MARK: Display values on the tapped area of the line/candle
-//        let marker:BalloonMarker = BalloonMarker(color: UIColor.label, font: UIFont(name: "Helvetica", size: 12)!, textColor: UIColor.systemBackground, insets: UIEdgeInsets(top: 7.0, left: 7.0, bottom: 7.0, right: 7.0))
-//        marker.minimumSize = CGSize(width: 75.0, height: 35.0)
-//        lineChartView.marker = marker
-//        lineChartView.drawMarkers = true
+        //        let marker:BalloonMarker = BalloonMarker(color: UIColor.label, font: UIFont(name: "Helvetica", size: 12)!, textColor: UIColor.systemBackground, insets: UIEdgeInsets(top: 7.0, left: 7.0, bottom: 7.0, right: 7.0))
+        //        marker.minimumSize = CGSize(width: 75.0, height: 35.0)
+        //        lineChartView.marker = marker
+        //        lineChartView.drawMarkers = true
         
         lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
         lineChartView.rightAxis.labelTextColor = .label
@@ -59,31 +59,18 @@ class MarketsController: UIViewController {
         lineChartView.rightAxis.labelPosition = .outsideChart
         
         lineChartView.xAxis.enabled = false
-//        lineChartView.xAxis.labelPosition = .top
-//        lineChartView.xAxis.yOffset = 5
-//        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 9)!
-//        lineChartView.xAxis.labelTextColor = .label
-//        lineChartView.xAxis.setLabelCount(5, force: true)
+        //        lineChartView.xAxis.labelPosition = .top
+        //        lineChartView.xAxis.yOffset = 5
+        //        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 9)!
+        //        lineChartView.xAxis.labelTextColor = .label
+        //        lineChartView.xAxis.setLabelCount(5, force: true)
         
         return lineChartView
     }()
     
-    //    var marketsPrices = [
-    //        GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0),
-    //        GeneralMarkets(indexTicker: "^GSPC", indexName: "S&P 500", indexPrice: 0.0, changePercentage: 0.0),
-    //        GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0),
-    //        GeneralMarkets(indexTicker: "^W5000", indexName: "Wilshire 5000 Total Market Index", indexPrice: 0.0, changePercentage: 0.0),
-    //        GeneralMarkets(indexTicker: "^RUA", indexName: "Russell 3000", indexPrice: 0.0, changePercentage: 0.0),
-    //        GeneralMarkets(indexTicker: "^SP400", indexName: "S&P 400", indexPrice:  0.0, changePercentage: 0.0),
-    //        GeneralMarkets(indexTicker: "^RUT", indexName: "Russell 2000", indexPrice: 0.0, changePercentage: 0.0),
-    //        GeneralMarkets(indexTicker:  "^VIX", indexName: "CBOE Volatility Index", indexPrice:  0.0, changePercentage: 0.0)
-    //    ]
-    
-    var majorMarketsPrices = [GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0)]
-    
-    var minorMarketPrices : [GeneralMarkets] = []
-    //     var minorMarketPrices = [GeneralMarkets(indexTicker: "^IXIC", indexName: "Nasdaq Composite", indexPrice: 0.0, changePercentage: 0.0)]
-    
+    private var majorMarketsPrices = [GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0)]
+    private var cryptoCoins: [GeneralMarkets] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -91,7 +78,7 @@ class MarketsController: UIViewController {
         startStopSpinner(start: true)
         loadMajorMarketsChart()
         loadCurrentPrices()
-                
+        
         sizeOfCell = (view.frame.width/3) - (view.frame.width/20)
     }
     
@@ -125,13 +112,11 @@ class MarketsController: UIViewController {
                     return
                 }
                 self.majorMarketsPrices.removeAll()
-                self.minorMarketPrices.removeAll()
                 
                 self.loadMajorMarkets(marketsValues: marketsValues)
-                self.loadMinorMarkets(marketsValues: marketsValues)
+                self.loadMinorMarkets()
                 
                 DispatchQueue.main.async {
-                    self.tableView.reloadData()
                     self.collectionView.reloadData()
                 }
             }
@@ -144,7 +129,6 @@ class MarketsController: UIViewController {
             if ticker == "^DJI" {
                 let newName = GeneralMarkets(indexTicker: ticker, indexName: "DOW JONES", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
                 self.majorMarketsPrices.append(newName)
-                
             }
             if ticker == "^GSPC" {
                 let newName = GeneralMarkets(indexTicker: ticker, indexName: "S&P 500", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
@@ -157,33 +141,54 @@ class MarketsController: UIViewController {
         }
     }
     
-    func loadMinorMarkets(marketsValues: [GeneralMarkets]){
-        for market in marketsValues {
-            let ticker = market.indexTicker
-            if ticker == "^VIX" {
-                let newName = GeneralMarkets(indexTicker: ticker, indexName: "CBOE Volatility Index", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                self.minorMarketPrices.append(newName)
-            }
-            if ticker == "^RUT" {
-                let newName = GeneralMarkets(indexTicker: ticker, indexName: "Russell 2000", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                self.minorMarketPrices.append(newName)
-            }
-            if ticker == "^SP400" {
-                let newName = GeneralMarkets(indexTicker: ticker, indexName: "S&P 400", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                self.minorMarketPrices.append(newName)
-            }
-            if ticker == "^RUA" {
-                let newName = GeneralMarkets(indexTicker: ticker, indexName: "Russell 3000", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                self.minorMarketPrices.append(newName)
-            }
-            if ticker == "^W5000" {
-                let newName = GeneralMarkets(indexTicker: ticker, indexName: "Wilshire 5000 Total Market Index", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                self.minorMarketPrices.append(newName)
+    func loadMinorMarkets(){
+        CryptoAPI.shared.getAllCryptosData { [weak self] result in
+            switch result {
+            case .success(let data):
+                DispatchQueue.main.async {
+                    self?.cryptoCoins.removeAll()
+                    self?.setUpViewModel(cryptoValues: data)
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                }
+                print (error)
             }
         }
     }
+    
+    private func setUpViewModel(cryptoValues: [CryptoData]) {
+        
+        let models = cryptoValues
+        
+        let cryptosSortedByVolume = models.sorted { first, second -> Bool in
+            return first.quote["USD"]!.volume_24h > second.quote["USD"]!.volume_24h
+        }
+        
+        for model in cryptosSortedByVolume {
+            guard let price = model.quote["USD"]?.price else { return }
+            guard let change = model.quote["USD"]?.percent_change_24h else { return }
+//            guard let changeMonth = model.quote["USD"]?.percent_change_30d else { return }
+//            guard let volume = model.quote["USD"]?.volume_24h else { return }
+            
+            //TODO: add this information in table view (FUTURE)
+            //---//
+//            let percentM = NSNumber(value: changeMonth)
+//            let percentMonth = CryptosController.percentFormatter.string(from: percentM)
+//            let volumeReduce = NSNumber(value: (volume/1000000))
+//            let volume24hr = CryptosController.volumeFormatter.string(from: volumeReduce)
+            //---//
+            
+            let cryptoCoin = GeneralMarkets(indexTicker: model.symbol, indexName: model.name, indexPrice: Double(price), changePercentage: Double(change))
+            
+            self.cryptoCoins.append(cryptoCoin)
+        }
+        tableView.reloadData()
+    }
 }
 
+//MARK: Collection View for General Markets
 extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return majorMarketsPrices.count
@@ -195,6 +200,17 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let tickerValues = majorMarketsPrices[indexPath.row]
         
         cell.nameLabel.text = tickerValues.indexName.uppercased()
+       
+        switch tickerValues.indexTicker {
+        case "^DJI":
+            cell.stockBackgroundView.backgroundColor = .systemBrown.withAlphaComponent(0.5)
+        case "^GSPC":
+            cell.stockBackgroundView.backgroundColor = .systemOrange.withAlphaComponent(0.5)
+            case "^IXIC":
+            cell.stockBackgroundView.backgroundColor = UIColor(named: "nasdaqColor")
+        default:
+            break
+        }
         
         var currentPrice = tickerValues.indexPrice
         let percentageChanged = tickerValues.changePercentage
@@ -256,31 +272,32 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
 }
 
 
-
+//MARK: Table View for Minor Markets/Cryptos
 extension MarketsController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return minorMarketPrices.count
+        return cryptoCoins.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "MinorMarketsViewCell", for: indexPath) as! MinorMarketsViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CryptoCoinsViewCell", for: indexPath) as! CryptoCoinsViewCell
         
+        let ticker = cryptoCoins[indexPath.row].indexTicker
+        let name = cryptoCoins[indexPath.row].indexName
+        let image = UIImage(named:  ticker)
         
-        let ticker = minorMarketPrices[indexPath.row].indexTicker
-        let name = minorMarketPrices[indexPath.row].indexName
-        let image = UIImage(named: "mw-logo")
+        let price = NSNumber(value: cryptoCoins[indexPath.row].indexPrice)
+        let stringPrice = Utilities.numberFormatter.string(from: price)
         
-        let marketPrice = minorMarketPrices[indexPath.row].indexPrice
-        var percentage = minorMarketPrices[indexPath.row].changePercentage
-        percentage = Double(round(100*percentage)/100)
+        let percent = NSNumber(value: cryptoCoins[indexPath.row].changePercentage)
+        let percentDay = Utilities.percentFormatter.string(from: percent)
         
         cell.tickerLabel.text = ticker.replacingOccurrences(of: "^", with: "")
-        cell.currentPriceLabel.text = "$\(marketPrice)"
+        cell.currentPriceLabel.text = stringPrice
         cell.imageCompanyImageView.image = image
         cell.nameCompanyLabel.text = name
-        cell.changeLabel.text = String(percentage) + "%"
+        cell.changeLabel.text = percentDay
         
-        if percentage < 0 {
+        if cryptoCoins[indexPath.row].changePercentage < 0 {
             cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
             cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
@@ -299,16 +316,20 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
     }
     
     @objc func openChartMinorMarket(sender: UIButton) {
-        let ticker = self.minorMarketPrices[sender.tag]
+        
+        let ticker = self.cryptoCoins[sender.tag]
         
         let perChange = ticker.changePercentage
         let percentageRounded = round(100*perChange)/100
         
+        var price = ticker.indexPrice
+        price = round(100*price)/100
+        
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
         
-        let tickerWithChange = TickersCurrentValues(ticker: ticker.indexTicker, marketPrice: ticker.indexPrice, previousPrice: 0.0, changePercent: percentageRounded)
-        destination!.informationStockTicker = tickerWithChange
+        let cryptoInfoToPass = CryptosViewCellModel(symbol: ticker.indexTicker, name: ticker.indexName, price: String(price), change: String(percentageRounded), changeMonth: "", volume: "", cryptoImageName: ticker.indexTicker)
+        destination!.informationCryptoTicker = cryptoInfoToPass
         destination!.indexName = ticker.indexName
         destination!.indexMarket = true
         
@@ -320,7 +341,7 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
 }
 
 
-
+//MARK: Extension for the chart
 extension MarketsController: ChartViewDelegate {
     
     func loadMajorMarketsChart() {
@@ -450,7 +471,6 @@ extension MarketsController: ChartViewDelegate {
 }
 
 
-
 //MARK: Right top button in navigation controller
 extension MarketsController {
     private struct ConstTopRightButton {
@@ -490,6 +510,7 @@ extension MarketsController {
             imageViewTopRightButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor)
         ])
     }
+    
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         updateAllData()
     }
