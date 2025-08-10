@@ -361,10 +361,10 @@
                                                             </constraints>
                                                         </imageView>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="bottom" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HAs-Lz-2Zp">
-                                                            <rect key="frame" x="35.333333333333343" y="94" width="100" height="50"/>
+                                                            <rect key="frame" x="55.333333333333343" y="94" width="80" height="50"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="height" constant="50" id="KqR-qA-XlV"/>
-                                                                <constraint firstAttribute="width" constant="100" id="scl-qd-oTL"/>
+                                                                <constraint firstAttribute="width" constant="80" id="scl-qd-oTL"/>
                                                             </constraints>
                                                             <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
                                                             <state key="normal" title="...">
@@ -384,6 +384,16 @@
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fRi-uF-Iq6">
                                                     <rect key="frame" x="0.0" y="0.0" width="235.66666666666666" height="160"/>
                                                 </button>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pX9-V5-WML">
+                                                    <rect key="frame" x="283" y="0.0" width="80" height="50"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="50" id="bph-xW-Oxp"/>
+                                                        <constraint firstAttribute="width" constant="80" id="qAc-Wz-bHi"/>
+                                                    </constraints>
+                                                    <color key="tintColor" name="downtrend"/>
+                                                    <state key="normal" title="Button"/>
+                                                    <buttonConfiguration key="configuration" style="plain" image="play.rectangle" catalog="system"/>
+                                                </button>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Q0h-ul-udY">
                                                     <rect key="frame" x="0.0" y="144" width="363" height="16"/>
                                                     <color key="backgroundColor" name="background4"/>
@@ -392,6 +402,7 @@
                                             <constraints>
                                                 <constraint firstAttribute="bottom" secondItem="w6P-ar-6Pi" secondAttribute="bottom" constant="10" id="2BN-Sz-mxb"/>
                                                 <constraint firstItem="fRi-uF-Iq6" firstAttribute="top" secondItem="tLB-NT-Rhn" secondAttribute="top" id="55v-9B-ZQa"/>
+                                                <constraint firstItem="pX9-V5-WML" firstAttribute="top" secondItem="tLB-NT-Rhn" secondAttribute="top" id="BMB-Ds-5n9"/>
                                                 <constraint firstAttribute="trailing" secondItem="w6P-ar-6Pi" secondAttribute="trailing" id="Dhe-JN-K6O"/>
                                                 <constraint firstAttribute="trailing" secondItem="p4b-zx-BDS" secondAttribute="trailing" id="Drt-Z8-QdR"/>
                                                 <constraint firstItem="Q0h-ul-udY" firstAttribute="leading" secondItem="tLB-NT-Rhn" secondAttribute="leading" id="LNV-gz-Izi"/>
@@ -404,6 +415,7 @@
                                                 <constraint firstItem="Q0h-ul-udY" firstAttribute="height" secondItem="tLB-NT-Rhn" secondAttribute="height" multiplier="0.1" id="guU-Xc-RKe"/>
                                                 <constraint firstItem="Fjn-E3-KYT" firstAttribute="leading" secondItem="tLB-NT-Rhn" secondAttribute="leading" id="hZa-S2-q4f"/>
                                                 <constraint firstItem="p4b-zx-BDS" firstAttribute="height" secondItem="tLB-NT-Rhn" secondAttribute="height" multiplier="0.9" id="jQi-2t-Tze"/>
+                                                <constraint firstAttribute="trailing" secondItem="pX9-V5-WML" secondAttribute="trailing" id="oG7-Ns-VFa"/>
                                                 <constraint firstItem="Fjn-E3-KYT" firstAttribute="width" secondItem="tLB-NT-Rhn" secondAttribute="width" multiplier="0.6" id="qci-yx-ueE"/>
                                                 <constraint firstItem="fRi-uF-Iq6" firstAttribute="leading" secondItem="tLB-NT-Rhn" secondAttribute="leading" id="tDt-dl-thU"/>
                                                 <constraint firstItem="w6P-ar-6Pi" firstAttribute="leading" secondItem="tLB-NT-Rhn" secondAttribute="leading" id="tFY-3x-bsg"/>
@@ -418,6 +430,7 @@
                                             <outlet property="headlineLabel" destination="UgZ-sf-ezq" id="n0K-3F-6BP"/>
                                             <outlet property="imageNews" destination="Y8D-qn-r16" id="ztE-kp-Nee"/>
                                             <outlet property="linkButton" destination="fRi-uF-Iq6" id="bsb-8O-Wcl"/>
+                                            <outlet property="readButton" destination="pX9-V5-WML" id="gY6-xR-7dq"/>
                                             <outlet property="shareButton" destination="HAs-Lz-2Zp" id="ahN-kI-2ZT"/>
                                             <outlet property="view" destination="tLB-NT-Rhn" id="hzd-z6-Vwl"/>
                                             <outlet property="viewHeadline" destination="Fjn-E3-KYT" id="wfs-Zf-x7P"/>
@@ -1273,11 +1286,15 @@
         <image name="mw-logo" width="4096" height="4096"/>
         <image name="newspaper" catalog="system" width="128" height="111"/>
         <image name="number" catalog="system" width="128" height="123"/>
+        <image name="play.rectangle" catalog="system" width="128" height="93"/>
         <image name="square.and.arrow.up" catalog="system" width="110" height="128"/>
         <image name="tesla.com" width="128" height="128"/>
         <image name="xmark.circle" catalog="system" width="128" height="123"/>
         <namedColor name="background4">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="downtrend">
+            <color red="0.89300000667572021" green="0.045000001788139343" blue="0.02199999988079071" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="labelSavedNews">
             <color red="0.10199999809265137" green="0.093000002205371857" blue="0.11800000071525574" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

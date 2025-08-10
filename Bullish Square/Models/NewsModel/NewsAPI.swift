@@ -20,4 +20,9 @@ enum KeysNewsCallAPI {
     static let loadStockNewsHost = "cnbc.p.rapidapi.com"
     static let loadStockNewsbaseUrl = "https://cnbc.p.rapidapi.com/news/v2/list-by-symbol?page=1&pageSize=5&symbol="
     
+    //Constants for ElevenLabs text-to-speech
+    static let  elevenLabsAPIKey = "sk_c40b38111327abc20914168ed026003eedf486e1d30922c0"
+    static let elevenLabsBaseURL = "https://api.elevenlabs.io/v1/text-to-speech"
+    static let voiceID = "21m00Tcm4TlvDq8ikWAM" // Rachel
+    
 }

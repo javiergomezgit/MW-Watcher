@@ -13,6 +13,7 @@ class SavedNewsViewCell: UITableViewCell {
     @IBOutlet weak var headlineLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var shareButton: UIButton!
+    @IBOutlet weak var readButton: UIButton!
     @IBOutlet weak var authorLabel: UILabel!
     
     @IBOutlet weak var linkButton: UIButton!

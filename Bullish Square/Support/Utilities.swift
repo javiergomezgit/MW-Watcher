@@ -29,6 +29,13 @@ class Utilities {
         viewController.present(alert, animated: true)
     }
     
+    //Show Alert error
+    static func showErrorAlert(on viewController: UIViewController, message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        viewController.present(alert, animated: true)
+    }
+    
     // Format currency
     static func formatCurrency(_ amount: Double) -> String {
         let formatter = NumberFormatter()

@@ -8,7 +8,7 @@
 
 import UIKit
 import AMPopTip
-
+import AVFoundation
 
 class SavedNewsController: UIViewController {
     
@@ -19,6 +19,7 @@ class SavedNewsController: UIViewController {
     var alreadyLaunched = false
     let refreshControl = UIRefreshControl()
     private let imageView = UIImageView(image: UIImage(systemName: "trash.circle.fill"))
+    private var audioPlayer: AVAudioPlayer? // For playing ElevenLabs audio
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -85,12 +86,15 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
                 cell.showSecondTimeNotification(whereView: cell.headlineLabel)
             }
         }
-        
+        //sk_c57c7bf356fe2348a00f33b1b5969b31fc52a8fe7b97027b
         cell.linkButton.tag = indexPath.row
         cell.linkButton.addTarget(self, action: #selector(linkButton(_:)), for: .touchUpInside)
         
         cell.shareButton.tag = indexPath.row
         cell.shareButton.addTarget(self, action: #selector(shareHeadline(_: )), for: .touchUpInside)
+        
+        cell.readButton.tag = indexPath.row
+        cell.readButton.addTarget(self, action: #selector(readHeadline(_:)), for: .touchUpInside)
         
         return cell
         
@@ -98,7 +102,7 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
     
     @objc func shareHeadline(_ sender: UIButton) {
         sender.animateButton(sender: sender, duration: 0.1)
-         
+        
         let newsItem = self.newsItems[sender.tag]
         let headline = newsItem.headline
         let date = newsItem.pubDate
@@ -117,15 +121,15 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
          
          Shared via Bullis Square 📱
          """
-         
-         // Create activity items array with both text and image
-         var activityItems: [Any] = [formattedText]
-         
+        
+        // Create activity items array with both text and image
+        var activityItems: [Any] = [formattedText]
+        
         if let image = UIImage(data: imageData) {
             // imageData is a valid image
             // Add image if it's not a placeholder or empty image
             if image.size.width > 1 && image.size.height > 1 {
-                    activityItems.append(image)
+                activityItems.append(image)
             } else {
                 activityItems.append(UIImage(named: "mw-logo")!)
             }
@@ -134,10 +138,10 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
             activityItems.append(UIImage(named: "mw-logo")!)
         }
         
-         
-         
-         let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-         present(activityVC, animated: true)
+        
+        
+        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        present(activityVC, animated: true)
         
     }
     
@@ -149,6 +153,117 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
         guard let url = URL(string: urlString) else { return }
         UIApplication.shared.open(url)
     }
+    
+    @objc func readHeadline(_ sender: UIButton) {
+        // Stop any ongoing audio
+        audioPlayer?.stop()
+        
+        let index = sender.tag
+        let headline = newsItems[index].headline
+        
+        // Format headline for natural reading
+        let formattedHeadline = headline
+            .replacingOccurrences(of: ".", with: ". ")
+            .replacingOccurrences(of: "U.S.", with: "United States")
+        
+        
+        // ElevenLabs API request
+        guard let url = URL(string: "\(KeysNewsCallAPI.elevenLabsBaseURL)/\(KeysNewsCallAPI.voiceID)") else {
+            Utilities.showErrorAlert(on: self, message: "Invalid API URL.")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(KeysNewsCallAPI.elevenLabsAPIKey, forHTTPHeaderField: "xi-api-key")
+        
+        let parameters: [String: Any] = [
+            "text": formattedHeadline,
+            "voice_settings": [
+                "stability": 0.6,
+                "similarity_boost": 0.8,
+                "speed": 1.0
+            ],
+            "model_id": "eleven_monolingual_v1",
+            "output_format": "mp3"
+        ]
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+        } catch {
+            print("Error encoding JSON: \(error.localizedDescription)")
+            Utilities.showErrorAlert(on: self, message: "Failed to prepare headline audio.")
+            return
+        }
+        
+        // Debug: Log request details
+        print("Request URL: \(url.absoluteString)")
+        print("Request Headers: \(request.allHTTPHeaderFields ?? [:])")
+        print("Request Body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "No body")")
+        
+        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("API request failed: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    Utilities.showErrorAlert(on: self, message: "Unable to generate headline audio: \(error.localizedDescription)")
+                }
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("Invalid response: \(String(describing: response))")
+                DispatchQueue.main.async {
+                    Utilities.showErrorAlert(on: self, message: "Invalid server response.")
+                }
+                return
+            }
+            
+            if httpResponse.statusCode == 401 {
+                print("Unauthorized: Invalid or missing API key. Key used: \(KeysNewsCallAPI.elevenLabsAPIKey.prefix(4))... (length: \(KeysNewsCallAPI.elevenLabsAPIKey.count))")
+                if let data = data, let errorBody = try? JSONSerialization.jsonObject(with: data) {
+                    print("Error Response: \(errorBody)")
+                }
+                DispatchQueue.main.async {
+                    Utilities.showErrorAlert(on: self, message: "Invalid ElevenLabs API key. Please verify your API key in the ElevenLabs dashboard or generate a new one.")
+                }
+                return
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                print("HTTP Error: Status \(httpResponse.statusCode)")
+                if let data = data, let errorBody = try? JSONSerialization.jsonObject(with: data) {
+                    print("Error Response: \(errorBody)")
+                }
+                DispatchQueue.main.async {
+                    Utilities.showErrorAlert(on: self, message: "Failed to generate audio. HTTP Status: \(httpResponse.statusCode)")
+                }
+                return
+            }
+            
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    Utilities.showErrorAlert(on: self, message: "No audio data received.")
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                do {
+                    self.audioPlayer = try AVAudioPlayer(data: data)
+                    self.audioPlayer?.prepareToPlay()
+                    self.audioPlayer?.play()
+                } catch {
+                    print("Error playing audio: \(error.localizedDescription)")
+                    Utilities.showErrorAlert(on: self, message: "Failed to play headline audio.")
+                }
+            }
+        }
+        task.resume()
+    }
+    
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         return .delete
@@ -166,12 +281,12 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 160.0 // Adjust this value to your desired cell height
-        }
+    }
     
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-            return UIView() // Empty view for transparent spacing
-        }
+        return UIView() // Empty view for transparent spacing
+    }
 }
 
 //MARK: Right top button in navigation controller
