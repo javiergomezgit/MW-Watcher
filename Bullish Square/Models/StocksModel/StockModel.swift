@@ -12,11 +12,14 @@ struct TickersFeatures {
     let ticker: String
     let nameTicker: String
     let imageTicker: UIImage
+    let imageTickerName: String
 }
 
 struct Stock {
     let ticker: String
     let nameTicker: String
+    let exchange: String
+    let stockType: String
 }
 
 struct TickersCurrentValues {

@@ -21,6 +21,7 @@ class SaveTickers {
             
             tickerObject.setValue(tickerFeatures.ticker, forKey: "ticker")
             tickerObject.setValue(tickerFeatures.nameTicker, forKey: "nameCompany")
+            tickerObject.setValue(tickerFeatures.imageTickerName, forKey: "imageCompanyName")
             
             guard let imageToData = tickerFeatures.imageTicker.pngData() else {
                 print("jpg error")
@@ -38,38 +39,36 @@ class SaveTickers {
     }
     
     func deleteTicker(tickerFeatures: TickersFeatures) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
-        do {
-            tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
+        DispatchQueue.main.async {
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            let managedContext = appDelegate.persistentContainer.viewContext
             
-            for tickerManagedObject in tickerManagedObjectArray {
-                let localTicker = tickerManagedObject.value(forKey: "ticker") as! String
-                let localNameCompany = tickerManagedObject.value(forKey: "nameCompany") as! String
-                let localImageData = tickerManagedObject.value(forKey: "imageCompany") as! Data
-                let localImage = tickerFeatures.imageTicker.pngData()
-                
-                if localTicker == tickerFeatures.ticker {
-                    managedContext.delete(tickerManagedObject)
+            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
+            
+            // Match by any property you care about
+            fetchRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
+                NSPredicate(format: "ticker == %@", tickerFeatures.ticker),
+                NSPredicate(format: "nameCompany == %@", tickerFeatures.nameTicker),
+                NSPredicate(format: "imageCompanyName == %@", tickerFeatures.imageTickerName)
+            ])
+
+            do {
+                let results = try managedContext.fetch(fetchRequest)
+
+                for object in results {
+                    managedContext.delete(object)
+                }
+
+                if managedContext.hasChanges {
                     try managedContext.save()
                 }
-                if localNameCompany == tickerFeatures.nameTicker {
-                    managedContext.delete(tickerManagedObject)
-                    try managedContext.save()
-                }
-                if localImageData == localImage {
-                    managedContext.delete(tickerManagedObject)
-                    try managedContext.save()
-                }
+            } catch {
+                print("Failed to delete ticker: \(error)")
             }
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
         }
     }
     
     func loadTickers() -> [TickersFeatures] {
-        
         var tickerItems : [TickersFeatures] = []
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         let managedContext = appDelegate!.persistentContainer.viewContext
@@ -82,6 +81,7 @@ class SaveTickers {
                 var imageFromData = UIImage()
                 let ticker = tickerObject.value(forKey: "ticker") as! String
                 var name = tickerObject.value(forKey: "nameCompany") as? String
+                let imageName = tickerObject.value(forKey: "imageCompanyName") as? String
                 if name == nil {
                     name = "n/a"
                 }
@@ -93,13 +93,12 @@ class SaveTickers {
                             imageFromData = UIImage(named: "mw-logo")!
                         }
                     }
-//                    when there is already apple saved and user adds again, then loads 3 saved stocks but the table has space for only 2 -> suspecting that
-                    //TODO: here aqui
+
                 } else {
                     imageFromData = UIImage(named: "mw-logo")!
                 }
 
-                let tickerItem = TickersFeatures(ticker: ticker, nameTicker: name!, imageTicker: imageFromData)
+                let tickerItem = TickersFeatures(ticker: ticker, nameTicker: name!, imageTicker: imageFromData, imageTickerName: imageName!)
                 tickerItems.append(tickerItem)
             }
         } catch let error as NSError {

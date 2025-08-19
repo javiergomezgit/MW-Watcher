@@ -78,7 +78,7 @@ final class StockAPI {
                                 case .failure(let error):
                                     completion(.failure(error))
                                 case .success(let imageCompany):
-                                    let tickerFeatures = TickersFeatures(ticker: tickerSingle, nameTicker: nameCompany!, imageTicker: imageCompany)
+                                    let tickerFeatures = TickersFeatures(ticker: tickerSingle, nameTicker: nameCompany!, imageTicker: imageCompany, imageTickerName: tickerSingle)
                                     completion(.success(tickerFeatures))
                                 }
                             }
@@ -234,7 +234,9 @@ final class StockAPI {
                                         let symbol = symbolDictionary["symbol"] as? String
                                         let shortName = symbolDictionary["shortname"] as? String
                                         _ = symbolDictionary["longname"] as? String //Stores the long name of the stock
-                                        let stock = Stock(ticker: symbol!, nameTicker: shortName!)
+                                        let stockType = symbolDictionary["quoteType"] as? String
+                                        let exchange = symbolDictionary["exchDisp"] as? String
+                                        let stock = Stock(ticker: symbol!, nameTicker: shortName!, exchange: exchange!, stockType: stockType!)
                                         stocks.append(stock)
                                     }
                                 }

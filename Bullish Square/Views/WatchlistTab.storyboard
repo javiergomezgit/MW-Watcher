@@ -14,7 +14,7 @@
         <!--Watchlist-->
         <scene sceneID="MRf-dC-Ihz">
             <objects>
-                <viewController storyboardIdentifier="watchlist" title="Watchlist" id="Oab-fQ-tRN" customClass="WatchlistController" customModule="MW_Watcher" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="watchlist" title="Watchlist" id="Oab-fQ-tRN" customClass="WatchlistController" customModule="Bullish_Square" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="0Tb-cL-kKs">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -23,7 +23,7 @@
                                 <rect key="frame" x="15" y="118" width="363" height="666"/>
                                 <color key="backgroundColor" name="background4"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="myTickersCell" rowHeight="75" id="5Fq-vX-cZI" customClass="WatchlistViewCell" customModule="MW_Watcher" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="myTickersCell" rowHeight="75" id="5Fq-vX-cZI" customClass="WatchlistViewCell" customModule="Bullish_Square" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="363" height="75"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="5Fq-vX-cZI" id="AmH-Pw-e2T">
@@ -35,7 +35,7 @@
                                                     <state key="normal" title="Button"/>
                                                     <buttonConfiguration key="configuration" style="plain"/>
                                                 </button>
-                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tesla.com" translatesAutoresizingMaskIntoConstraints="NO" id="dSX-0K-ZNq">
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="checkmark" translatesAutoresizingMaskIntoConstraints="NO" id="dSX-0K-ZNq">
                                                     <rect key="frame" x="0.0" y="5" width="36.333333333333336" height="36.333333333333336"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" secondItem="dSX-0K-ZNq" secondAttribute="height" multiplier="1:1" id="owq-YJ-fVQ"/>
@@ -199,13 +199,13 @@
         <image name="FrameRectangle" width="6480" height="1500"/>
         <image name="FrameSquare20" width="1500" height="1500"/>
         <image name="arrow.down.app.fill" catalog="system" width="128" height="114"/>
+        <image name="checkmark" width="128" height="128"/>
         <image name="person.badge.plus" catalog="system" width="128" height="124"/>
-        <image name="tesla.com" width="128" height="128"/>
         <namedColor name="background4">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
         <systemColor name="systemGrayColor">
-            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

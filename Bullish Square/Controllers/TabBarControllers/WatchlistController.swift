@@ -111,27 +111,8 @@ class WatchlistController: UIViewController {
     
     func addingTicker() {
         
-        let vc = SearchNewsController()
-        vc.completion = { [weak self] tickerTyped in
-            self!.startStopSpinner(start: true)
-            if tickerTyped.first?.key != "" && tickerTyped.first?.value != "" {
-                let ticker = tickerTyped.first?.key.uppercased()
-                let name = tickerTyped.first?.value
-                DispatchQueue.main.async {
-                    var alreadyOnList = false
-                    for tick in self!.tickersValues {
-                        if tick.ticker == ticker {
-                            alreadyOnList = true
-                        }
-                    }
-                    if !alreadyOnList {
-                        self!.loadIndividualStock(individualTicker: ticker!, nameTicker: name!)
-                    } else {
-                        ShowAlerts.showSimpleAlert(title: "Already added", message: "Your stock was already added", titleButton: "Ok", over: self!)
-                    }
-                }
-            }
-        }
+        let vc = SearchStocksController()
+        vc.delegate = self
         let navVC = UINavigationController(rootViewController: vc)
         present(navVC, animated: true)
     }
@@ -165,7 +146,14 @@ class WatchlistController: UIViewController {
     
     func loadMultipleStocks(savedTickers: [TickersFeatures]) {
         var mergedTickers = ""
+        
         for (index, savedTicker) in savedTickers.enumerated() {
+           
+                if savedTicker.imageTickerName == "mw-logo" {
+                    loadImageStock(individualTicker: savedTicker.ticker, nameTicker: savedTicker.nameTicker)
+                }
+            
+            
             let ticker = savedTicker.ticker
             if index == 0 {
                 mergedTickers = ticker
@@ -199,48 +187,34 @@ class WatchlistController: UIViewController {
         }
     }
     
-    func loadIndividualStock(individualTicker: String, nameTicker: String) {
+    func loadImageStock(individualTicker: String, nameTicker: String) {
         
-        StockAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { result in
+        StockAPI.shared.getLogoStock(ticker: individualTicker) { result in
             switch result {
-            case .success(let tickerCurrentValues):
-                StockAPI.shared.getLogoStock(ticker: individualTicker) { result in
-                    switch result {
-                    case .failure(let error):
-                        print (error)
-                    case .success(let imageCompany):
-                        let tickerFeatures = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: imageCompany)
-                        self.tickersFeatures.append(tickerFeatures)
-                        self.savedTickers.saveTicker(tickerFeatures: tickerFeatures)
-                        
-                        let values = TickersCurrentValues(ticker: individualTicker, marketPrice: tickerCurrentValues.marketPrice, previousPrice: tickerCurrentValues.previousPrice, changePercent: tickerCurrentValues.changePercent)
-                        self.tickersValues.append(values)
-                        
-                        DispatchQueue.main.async {
-                            ShowAlerts.showSimpleAlert(title:  "Added", message: "We added \(individualTicker) to the watchlist", titleButton: "Ok", over: self)
-                            self.tableView.reloadData()
-                            self.refreshControl.endRefreshing()
-                            self.startStopSpinner(start: false)
-                        }
-                    }
-                }
-            
             case .failure(let error):
-                print (error.localizedDescription)
-                DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Error", message: error.localizedDescription, titleButton: "Ok", over: self)
-                    self.startStopSpinner(start: false)
-                }
-//            case .none:
-//                DispatchQueue.main.async {
-//                    ShowAlerts.showSimpleAlert(title: "Error", message: "Ticker not supported", titleButton: "Ok", over: self)
-//                    self.startStopSpinner(start: false)
-//                }
+                print (error)
+            case .success(let imageCompany):
+                
+                let tempTickerValues = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: imageCompany, imageTickerName: "mw-logo")
+                self.savedTickers.deleteTicker(tickerFeatures: tempTickerValues)
+                print ("deleted ticker temporal \(tempTickerValues)")
+                
+                let newTickerValues = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: imageCompany, imageTickerName: individualTicker)
+                self.savedTickers.saveTicker(tickerFeatures: newTickerValues)
+                print ("saved new ticker \(self.savedTickers.loadTickers())")
+                
             }
         }
     }
+
 }
 
+extension WatchlistController: SearchStocksControllerDelegate {
+    func searchStocksControllerDidDismiss(_ controller: SearchStocksController) {
+        let loadSavedTickers = savedTickers.loadTickers()
+        loadMultipleStocks(savedTickers: loadSavedTickers)
+    }
+}
 
 //Customs
 //Delegate for table view
@@ -424,6 +398,13 @@ extension WatchlistController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         showImage(true)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        let loadSavedTickers = savedTickers.loadTickers()
+        loadMultipleStocks(savedTickers: loadSavedTickers)
+        
+        self.tableView.reloadData()
     }
     
     /// Show or hide the image from NavBar while going to next screen or back to initial screen

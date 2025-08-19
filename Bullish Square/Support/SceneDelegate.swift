@@ -44,7 +44,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // Save default ticker for first launch
     private func addStarterTicker() {
         if let image = UIImage(named: "appleStock") {
-            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: image)
+            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: image, imageTickerName: "Apple Image")
             let savedTickers = SaveTickers()
             savedTickers.saveTicker(tickerFeatures: tickerFeatures)
         }
