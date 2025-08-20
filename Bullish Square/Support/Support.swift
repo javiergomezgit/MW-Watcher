@@ -11,6 +11,27 @@ import UIKit
 class Support {
     static let sharedSupport = Support()
     
+    //MARK: Change date format from UNIX to local
+    func dateFormatUnixToLocal(timeInt: Int) -> String {
+        // Validate timestamp
+        guard timeInt > 0 else {
+            return "Invalid timestamp"
+        }
+        
+        // Format the date to local time
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .medium
+        dateFormatter.timeZone = TimeZone.current
+            
+        // Create a Date object from the Unix timestamp
+        let dateObj = Date(timeIntervalSince1970: Double(timeInt))
+        
+        let newLocalTime = dateFormatter.string(from: dateObj)
+        print(newLocalTime) // Example output: Aug 20, 2025 at 1:12:26 PM (in PDT)
+        return newLocalTime
+    }
+    
     //MARK: Change date format for All live news
     func newLocalTimeNews(timeString: String) -> String {
         

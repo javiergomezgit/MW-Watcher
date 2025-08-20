@@ -15,6 +15,7 @@ class TickerNewsViewCell: UITableViewCell {
     @IBOutlet weak var linkButton: UIButton!
     @IBOutlet weak var newsImageView: UIImageView!
     @IBOutlet weak var authorLabel: UILabel!
+    @IBOutlet weak var shareButton: UIButton!
     
     
     override func awakeFromNib() {

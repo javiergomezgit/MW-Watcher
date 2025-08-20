@@ -170,14 +170,45 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.saveButton.tag = indexPath.row
         cell.saveButton.addTarget(self, action: #selector(saveHeadline(sender:)), for: .touchUpInside)
         
+        cell.shareButton.tag = indexPath.row
+        cell.shareButton.addTarget(self, action: #selector(shareHeadline(sender:)), for: .touchUpInside)
+        
         return cell
     }
+    @objc func shareHeadline(sender: UIButton) {
+        sender.animateButton(sender: sender, duration: 0.1)
+        
+        let newsItem = self.tickerNewsArray[sender.tag]
+        let headline = newsItem.headline
+        let date = newsItem.pubDate
+        let author = newsItem.author
+        let link = newsItem.linkHeadline
+        let image = newsItem.image
+        
+        let formattedText = """
+        📰 \(headline)
+        📅 \(date)
+        👤 Source: \(author)
+        🔗 Read more: \(link)
+        Shared via Bullis Square 📱
+        """
+        
+        var activityItems: [Any] = [formattedText]
+        if image.size.width > 1 && image.size.height > 1 {
+            activityItems.append(image)
+        } else {
+            activityItems.append(UIImage(named: "mw-logo")!)
+        }
+        
+        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        present(activityVC, animated: true)
+    }
+    
     
     @objc func saveHeadline(sender: UIButton) {
         let index = sender.tag
-        
         sender.animateButton(sender: sender, duration: 0.1)
-        let headline = self.tickerNewsArray[index].headline
+        let headline = tickerNewsArray[index].headline
         let link = tickerNewsArray[index].linkHeadline
         let dateOfNew = tickerNewsArray[index].pubDate
         let author = tickerNewsArray[index].author

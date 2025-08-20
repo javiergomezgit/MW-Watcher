@@ -551,7 +551,7 @@
                                                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" weight="regular"/>
                                                             </state>
                                                         </button>
-                                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CQP-6p-87r">
+                                                        <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CQP-6p-87r">
                                                             <rect key="frame" x="-9" y="41" width="54.33333333333303" height="49.666666666666742"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="20"/>
@@ -598,11 +598,11 @@
                                                     </constraints>
                                                 </view>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DZU-1B-aae">
-                                                    <rect key="frame" x="0.0" y="0.0" width="326.66666666666669" height="150"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="311.66666666666669" height="150"/>
                                                 </button>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="Nmg-7y-TzL" firstAttribute="leading" secondItem="DZU-1B-aae" secondAttribute="trailing" id="3kY-mC-AQr"/>
+                                                <constraint firstItem="Nmg-7y-TzL" firstAttribute="leading" secondItem="DZU-1B-aae" secondAttribute="trailing" constant="15" id="3kY-mC-AQr"/>
                                                 <constraint firstItem="DZU-1B-aae" firstAttribute="top" secondItem="iL9-V4-Toq" secondAttribute="top" id="BRE-SM-TCD"/>
                                                 <constraint firstItem="3VP-rU-DbF" firstAttribute="top" secondItem="riQ-wR-XZs" secondAttribute="bottom" constant="3" id="C7t-bt-L7v"/>
                                                 <constraint firstItem="Nmg-7y-TzL" firstAttribute="height" secondItem="iL9-V4-Toq" secondAttribute="height" multiplier="0.7" id="H1n-GJ-ZUJ"/>
@@ -634,6 +634,7 @@
                                             <outlet property="linkButton" destination="DZU-1B-aae" id="wkx-kC-GVh"/>
                                             <outlet property="newsImageView" destination="A5U-AS-eKZ" id="cLR-aq-yXO"/>
                                             <outlet property="saveButton" destination="BQ8-yl-Ij2" id="2Mg-aJ-PAl"/>
+                                            <outlet property="shareButton" destination="CQP-6p-87r" id="NKo-MI-5GS"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>

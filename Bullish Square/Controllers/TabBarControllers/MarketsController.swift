@@ -103,7 +103,7 @@ class MarketsController: UIViewController {
     }
     
     func loadCurrentPrices() {
-        StockAPI.shared.getPriceGeneralMarkets { markets in
+        StockAPI.shared.getPriceGeneralMarkets { markets,timeStamp  in
             if markets == nil {
                 ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
             } else {
@@ -112,11 +112,12 @@ class MarketsController: UIViewController {
                     return
                 }
                 self.majorMarketsPrices.removeAll()
-                
                 self.loadMajorMarkets(marketsValues: marketsValues)
                 self.loadMinorMarkets()
                 
                 DispatchQueue.main.async {
+                    let newTimeStamp = Support.sharedSupport.dateFormatUnixToLocal(timeInt: timeStamp)
+                    self.dateLatestDataLabel.text = newTimeStamp
                     self.collectionView.reloadData()
                 }
             }

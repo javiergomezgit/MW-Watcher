@@ -312,7 +312,7 @@ final class StockAPI {
     }
 
     //MARK: API call for general markets
-    func getPriceGeneralMarkets(completion: @escaping([GeneralMarkets]?) -> Void) {
+    func getPriceGeneralMarkets(completion: @escaping([GeneralMarkets]?, Int) -> Void) {
         let headers = [
             "x-api-key": KeysStocksAPI.generalMarketKey,
             "x-rapidapi-host": KeysStocksAPI.generalMarketHost
@@ -328,7 +328,7 @@ final class StockAPI {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
             if (error != nil) {
-                completion(nil)
+                completion(nil, 0)
             } else {
                 let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
                 print (json as Any)
@@ -338,10 +338,11 @@ final class StockAPI {
                 if let resultArray = resultJSON!["result"] as? [Any] {
                     
                     var marketsValues = [GeneralMarkets]()
+                    var timeStamp = 0
                     for tickerJSON in resultArray {
                         
                         let tickerDictionary = tickerJSON as? [String: Any]
-                        
+                        timeStamp = tickerDictionary!["regularMarketTime"] as! Int
                         let marketPrice = tickerDictionary!["regularMarketPrice"] as! Double
                         let changePercentage = tickerDictionary!["regularMarketChangePercent"] as! Double
                         let ticker = tickerDictionary!["symbol"] as! String
@@ -353,9 +354,9 @@ final class StockAPI {
                         marketsValues.append(marketIndex)
                     }
                     //                    marketsValues = marketsValues.sorted{ $0.changePercentage < $1.changePercentage }
-                    completion(marketsValues)
+                    completion(marketsValues, timeStamp)
                 } else {
-                    completion(nil)
+                    completion(nil, 0)
                 }
             }
         })
