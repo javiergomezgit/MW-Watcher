@@ -293,7 +293,7 @@ final class StockAPI {
                     let tickerDictionary = tickerJSON.value as? [String: Any]
                     var previousClose = tickerDictionary!["chartPreviousClose"] as! Double
                     let closePriceArray = tickerDictionary!["close"] as? [Any]
-                    let closePrice = closePriceArray!.last as! Double
+                    let closePrice = closePriceArray?.last as? Double ?? 0.0
                     
                     let percentageChange = (closePrice * 100) / previousClose
                     var percentageRounded = 0.0

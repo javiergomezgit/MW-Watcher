@@ -188,6 +188,7 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
                             let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
                             let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
                             
+                            destination?.exchangeSymbol = self.filteredStocks[index].exchange
                             destination?.informationStockTicker = tickerCurrentValues
                             destination?.nameTicker = tickerFeatures.nameTicker
                             destination?.imageCompany = tickerFeatures.imageTicker

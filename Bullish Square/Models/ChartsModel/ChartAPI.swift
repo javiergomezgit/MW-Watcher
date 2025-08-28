@@ -22,10 +22,16 @@ final class ChartAPI {
         case invalidTicker
     }
     
+    enum ResultStock<Success, Exchange, Failure> where Failure: Error {
+        case success(Success)
+        case exchangeName(Exchange)
+        case errorFailure(Failure)
+    }
+    
     //MARK: API call for STOCKS chart
     ///Input: 1day, TICKER
     ///Output: -> ["timeStamp": "20-10-2021, "open":34,5, "high":36, "low":32.2, "close":33.1,"volume":233343]
-    public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
+    public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (ResultStock<([ValueStock], String), String, Error>) -> Void) {
         
         let headers = [
             "X-RapidAPI-Host": KeysChartsAPI.getStockApiHost,
@@ -41,10 +47,12 @@ final class ChartAPI {
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
+        var exchangeName = ""
         let session = URLSession.shared
         let task = session.dataTask(with: request as URLRequest) { data, response, error in
             if let error = error {
-                completion(.failure(error))
+//                completion(.failure(error))
+                completion(.errorFailure(error))
                 return
             }
             
@@ -59,6 +67,10 @@ final class ChartAPI {
                 var valuesStock: [ValueStock] = []
                 
                 for (key, subJson):(String, JSON) in json {
+                    if key == "meta" {
+                        let so = subJson["fullExchangeName"].string
+                        exchangeName = so ?? ""
+                    }
                     if key == "body" {
                         for (_, subSubJSON):(String, JSON) in subJson {
                             let dateTime =  subSubJSON["date_utc"].double
@@ -84,10 +96,9 @@ final class ChartAPI {
                 valuesStock.reverse()
                 
                 dump (valuesStock)
-                
-                completion(.success(valuesStock))
+                completion(.success((valuesStock, exchangeName)))
             } catch {
-                completion(.failure(error))
+                completion(.errorFailure(error))
             }
         }
         task.resume()

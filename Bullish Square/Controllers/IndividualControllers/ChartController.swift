@@ -21,7 +21,6 @@ class ChartController: UIViewController, ChartViewDelegate {
     @IBOutlet weak var currentTimeLabel: UILabel!
     @IBOutlet weak var currentPriceLabel: UILabel!
     @IBOutlet weak var currentPercentageLabel: UILabel!
-    @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var volumeLabel: UILabel!
     @IBOutlet weak var cryptoImage: UIImageView!
     @IBOutlet weak var pointingOpenLabel: UILabel!
@@ -29,9 +28,8 @@ class ChartController: UIViewController, ChartViewDelegate {
     @IBOutlet weak var pointingDateLabel: UILabel!
     @IBOutlet weak var pointingCloseLabel: UILabel!
     @IBOutlet weak var pointingHighLabel: UILabel!
-    @IBOutlet weak var pointingChangeLabel: UILabel!
     @IBOutlet weak var pointingViewLabels: UIView!
-    
+    @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var segmentControl: HBSegmentedControl!
     
     var selectedCandleChart = false
@@ -46,6 +44,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     var times = [0 : ""]
     var indexMarket = false
     var indexName = ""
+    var exchangeSymbol = ""
     var currentPrice = 0.0
     
     public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImageName: "")
@@ -54,10 +53,19 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     public var imageCompany = UIImage(named: "mw-logo")
     
+//    override func loadView() {
+        //Testing values -- for visualizing chart
+//        let tickerCurrentValues = TickersCurrentValues(ticker: "AAPL", marketPrice: 154.23, previousPrice: 150.45, changePercent: 8.4)
+//        self.informationStockTicker = tickerCurrentValues
+//        self.nameTicker = "Apple, Inc."
+//        self.imageCompany = UIImage(named: "apple")
+        //-- Test values --//
+//    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        pointingChangeLabel.text = ""
         startStopSpinner(start: true)
         
         segmentControl.borderColor = .clear
@@ -67,6 +75,8 @@ class ChartController: UIViewController, ChartViewDelegate {
         segmentControl.thumbColor = .black
         segmentControl.selectedIndex = 0
         segmentControl.addTarget(self, action: #selector(segmentValueChanged(_:)), for: .valueChanged)
+        
+        navigationItem.title = nameTicker
         
         if informationStockTicker.ticker == "" {
             segmentControl.items = ["15 min", "1 hr", "Day", "Week", "Month"]
@@ -154,12 +164,14 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
         
         self.symbol = symbol
-        tickerLabel.text = symbol
+//        tickerLabel.text = symbol
         if indexMarket {
-            nameLabel.text = indexName
+//            nameLabel.text = "\(indexName) - \(exchangeSymbol)"
+            tickerLabel.text = "\(symbol)"
             volumeLabel.text = ""
         } else {
-            nameLabel.text = nameCompany
+//            nameLabel.text = nameCompany
+            tickerLabel.text = "\(symbol) - \(exchangeSymbol)"
             volumeLabel.text = "$\(previousPrice)"
         }
         cryptoImage.image = imageCompany
@@ -198,10 +210,11 @@ class ChartController: UIViewController, ChartViewDelegate {
         } else {
             ChartAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
                 switch result {
-                    
-                case .success(let data):
+                case .success(let dataFromAPI):
+                    let data = dataFromAPI.0
                     if data.count != 0  {
                         self?.stockData = data
+                        self?.exchangeSymbol = dataFromAPI.1
                         DispatchQueue.main.async {
                             self?.startStopSpinner(start: false)
                             self?.setUpStockModel()
@@ -213,7 +226,14 @@ class ChartController: UIViewController, ChartViewDelegate {
                         }
                         print ("no more API")
                     }
-                case .failure(let error):
+                case .exchangeName(let exchange):
+                        // Handle standalone exchange name (unlikely, as it's not used)
+                        DispatchQueue.main.async {
+                            self?.exchangeSymbol = exchange
+                            self?.tickerLabel.text = "\(self!.symbol) - \(self!.exchangeSymbol))"
+                        }
+                        print("Received exchange name: \(exchange)")
+                case .errorFailure(let error):
                     DispatchQueue.main.async {
                         ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
                     }
@@ -244,7 +264,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         self.currentPrice = Double(currentPrice) ?? 0.0
         currentPriceLabel.text = informationCryptoTicker.price
         currentPercentageLabel.text = "\(informationCryptoTicker.change)% Day"
-        nameLabel.text = informationCryptoTicker.name.uppercased()
+//        nameLabel.text = informationCryptoTicker.name.uppercased()
         volumeLabel.text = "Vol.\(informationCryptoTicker.volume) MM"
         cryptoImage.image = UIImage(named: informationCryptoTicker.cryptoImageName)
         
@@ -407,28 +427,80 @@ class ChartController: UIViewController, ChartViewDelegate {
             let close = candleValues[Int(entry)].close //same as current price for the current candle
             let high = candleValues[Int(entry)].high
             
-            pointingDateLabel.text = "Date/Time: \(stringTime)"
-            pointingOpenLabel.text = "Open: $\(open)"
-            pointingLowLabel.text = "Low: $\(low)"
-            pointingHighLabel.text = "High: $\(high)"
-            pointingCloseLabel.text = "Close: $\(close)"
+            pointingDateLabel.text = "Time: \(stringTime)"
+            pointingOpenLabel.text = "O: $\(open)"
+            pointingLowLabel.text = "L: $\(low)"
+            pointingHighLabel.text = "H: $\(high)"
+            pointingCloseLabel.text = "C: $\(close)"
             
-            pointingChangeLabel.text = "Change: N/A"
+            var colorToShow: UIColor!
+            
             if Int(entry) > 0 {
                 let previousClose = candleValues[Int(entry)-1].close
                 let changePercentage = ((previousClose * 100) / close) - 100
                 
                 let rounded = Double(round(100*changePercentage)/100)
-                if rounded < 0  {
-                    pointingChangeLabel.textColor = UIColor(named: "downtrend")!
+                if rounded > 0  {
+                    colorToShow = UIColor(named: "downtrend")!
                 } else {
-                    pointingChangeLabel.textColor = UIColor(named: "uptrend")!
+                    colorToShow = UIColor(named: "uptrend")!
                 }
-                pointingChangeLabel.text = "Change: \(rounded)%"
             }
+            pointingOpenLabel.textColor = colorToShow
+            pointingCloseLabel.textColor = colorToShow
         }
     }
     
+    @IBAction func shareButtonTapped(_ sender: UIButton) {
+        
+        var name = ""
+        var symbo = ""
+        var currentPrice = "0.0"
+        var percentageChange = "0.0"
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd 'at' h:mm a"
+        let currentDate = formatter.string(from: Date())
+                
+        //When it's a stock information
+        if !self.nameTicker.isEmpty {
+            name = self.nameTicker
+            symbo = self.informationStockTicker.ticker
+            currentPrice = String(format: "%.2f", self.informationStockTicker.marketPrice)
+            percentageChange = String(format: "%.2f", self.informationStockTicker.changePercent)
+            percentageChange = (self.informationStockTicker.changePercent >= 0 ? "📈 " : "📉 ") + String(format: "%.2f", self.informationStockTicker.changePercent)
+        } else if !self.indexName.isEmpty {
+            //When it's an INDEX
+            name = self.indexName
+            symbo = self.informationStockTicker.ticker
+            currentPrice = String(format: "%.2f", self.informationStockTicker.marketPrice)
+            percentageChange = String(format: "%.2f", self.informationStockTicker.changePercent)
+        } else if !self.informationCryptoTicker.name.isEmpty {
+            //When it's a crypto coin
+            name = self.indexName
+            symbo = self.informationCryptoTicker.symbol
+            currentPrice = String(format: "%.2f", self.informationCryptoTicker.price)
+            percentageChange = String(format: "%.2f", self.informationCryptoTicker.change)
+        }
+              
+//        let appURLString = "https://apps.apple.com/us/app/market-news-and-charts/id1568502942" // Replace with your App Store ID
+//        let appURL = URL(string: appURLString) ?? URL(string: "https://bullis-square.com")!
+        
+        let formattedText = """
+        🏪 \(symbo) - \(name)
+        Price: $\(currentPrice)
+        Changed:\(percentageChange)%
+
+        📅 Today: \(currentDate)
+        Shared via Bullish Square 📱 
+        """
+        
+        let activityItems: [Any] = [formattedText]
+        
+        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        present(activityVC, animated: true)
+        
+    }
     
     func transformTime(entry: Double) -> String? {
         let timeString = self.times[Int(entry)]
@@ -527,8 +599,8 @@ class ChartController: UIViewController, ChartViewDelegate {
             candleView.centerInSuperview()
             candleView.width(to: chartView)
             candleView.height(to: chartView)
-            
-            selectChartButton.setImage(UIImage(named: "candles"), for: .normal)
+            selectChartButton.setImage(UIImage(named: "chart.line.uptrend.xyaxis"), for: .normal)
+
             setDataCandleChart()
         } else {
             candleView.removeFromSuperview()
@@ -537,7 +609,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             lineChartView.width(to: chartView)
             lineChartView.height(to: chartView)
             
-            selectChartButton.setImage(UIImage(named: "chartline"), for: .normal)
+            selectChartButton.setImage(UIImage(named: "chart.bar.fill"), for: .normal)
             setDataLineChart()
         }
     }
@@ -546,16 +618,15 @@ class ChartController: UIViewController, ChartViewDelegate {
     lazy var candleView: CandleStickChartView = {
         let candleView = CandleStickChartView()
         candleView.delegate = self
-        
         candleView.leftAxis.enabled = false
         candleView.rightAxis.enabled = true
-        //candleView.animate(xAxisDuration: 3.5)
+        candleView.animate(xAxisDuration: 0.5)
         
-        candleView.dragEnabled = false
+        candleView.dragEnabled = true
         candleView.setScaleEnabled(true)
         candleView.maxVisibleCount = 60
-        candleView.pinchZoomEnabled = false
-        candleView.doubleTapToZoomEnabled = true
+        candleView.pinchZoomEnabled = true
+        candleView.doubleTapToZoomEnabled = false
         candleView.dragXEnabled = true
         candleView.autoScaleMinMaxEnabled = true
         candleView.legend.enabled = false
@@ -593,7 +664,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         set1.shadowColor = .label
         set1.shadowWidth = 1.0
         set1.decreasingColor = UIColor(named: "downtrend")!
-        set1.decreasingFilled = false
+        set1.decreasingFilled = true
         set1.increasingColor = UIColor(named: "uptrend")
         set1.increasingFilled = true
         
@@ -614,7 +685,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         lineChartView.setScaleEnabled(true)
         lineChartView.maxVisibleCount = 60
         lineChartView.pinchZoomEnabled = true
-        lineChartView.doubleTapToZoomEnabled = true
+        lineChartView.doubleTapToZoomEnabled = false
         lineChartView.dragXEnabled = true
         lineChartView.autoScaleMinMaxEnabled = true
         lineChartView.legend.enabled = false
@@ -639,34 +710,48 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     func setDataLineChart() {
         let set1 = LineChartDataSet(entries: linearValues, label: "Subscribs")
-        
         set1.mode = .cubicBezier
         set1.drawCirclesEnabled = false
         set1.lineWidth = 3
+
         let v1 = linearValues.first!.y
         let v2 = linearValues.last!.y
-        if v1 < v2 {
-            set1.setColor(UIColor(named: "uptrend")!)
-            set1.fill = ColorFill(color: UIColor(named: "uptrend")!)
-//            set1.fill = Fill(color: UIColor(named: "uptrend")!)
-            set1.fillAlpha = 0.1
-        } else {
-            set1.setColor(.red.withAlphaComponent(0.7))
-            set1.fill = ColorFill(color: .red)
-            set1.fillAlpha = 0.2
+
+        // Gradient helper
+        func makeGradient(colors: [UIColor], angle: CGFloat = 90.0) -> Fill {
+            let cgColors = colors.map { $0.cgColor } as CFArray
+            let locations: [CGFloat] = [0.0, 1.0]
+            let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                      colors: cgColors,
+                                      locations: locations)!
+
+            // ✅ Use LinearGradientFill instead of Fill.fillWithLinearGradient
+            return LinearGradientFill(gradient: gradient, angle: angle)
         }
-        
+
+        if v1 < v2 {
+            let gradientFill = makeGradient(colors: [UIColor(named: "uptrend")!, UIColor.systemBlue.withAlphaComponent(0.2)])
+            set1.fill = gradientFill
+            set1.setColor(UIColor(named: "uptrend")!)
+        } else {
+            let gradientFill = makeGradient(colors: [UIColor.orange.withAlphaComponent(0.2), UIColor(named: "downtrend")!])
+            set1.fill = gradientFill
+            set1.setColor(.red)
+        }
+
+
+        set1.fillAlpha = 1.0
         set1.drawFilledEnabled = true
-//        set1.setDrawHighlightIndicators(true)
+
+        // Highlight / indicator styles
         set1.drawVerticalHighlightIndicatorEnabled = true
         set1.drawHorizontalHighlightIndicatorEnabled = false
         set1.highlightLineWidth = 1
         set1.highlightColor = .systemBlue
-        set1.drawValuesEnabled = true
-        set1.drawIconsEnabled = true
-        
+        set1.drawValuesEnabled = false
+        set1.drawIconsEnabled = false
+
         let data = LineChartData(dataSet: set1)
-        data.setDrawValues(false)
         lineChartView.data = data
     }
     

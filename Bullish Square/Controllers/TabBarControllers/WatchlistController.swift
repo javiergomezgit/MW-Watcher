@@ -284,15 +284,18 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         let tickkerValues = tickersValues[sender.tag]
         
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
-        let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
-        
+        guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else {
+            print("Failed to instantiate ChartController")
+            return
+        }
         let tickerCurrentValues = TickersCurrentValues(ticker: tickkerValues.ticker, marketPrice: tickkerValues.marketPrice, previousPrice: tickkerValues.previousPrice, changePercent: tickkerValues.changePercent)
         
-        destination?.informationStockTicker = tickerCurrentValues
-        destination?.nameTicker = tickerFeatures.nameTicker
-        destination?.imageCompany = tickerFeatures.imageTicker
-        destination!.modalTransitionStyle = .crossDissolve
-        self.present(destination!, animated: true, completion: nil)
+        destination.informationStockTicker = TickersCurrentValues(ticker: tickkerValues.ticker, marketPrice: tickkerValues.marketPrice, previousPrice: tickkerValues.previousPrice, changePercent: tickkerValues.changePercent)
+        destination.nameTicker = tickerFeatures.nameTicker
+        destination.imageCompany = tickerFeatures.imageTicker
+//        destination!.modalTransitionStyle = .crossDissolve
+//        self.present(destination!, animated: true, completion: nil)
+        self.navigationController?.pushViewController(destination, animated: true)
         
     }
     
