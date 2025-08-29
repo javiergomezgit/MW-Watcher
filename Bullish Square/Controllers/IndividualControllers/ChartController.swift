@@ -14,6 +14,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     private var cryptoData: [QuoteInvidual]?
     private var stockData: [ValueStock]?
     @IBOutlet weak var chartView: UIView!
+    @IBOutlet weak var chartWithTimes: UIView!
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet weak var selectChartButton: UIButton!
     @IBOutlet weak var oldestTimeLabel: UILabel!
@@ -151,7 +152,6 @@ class ChartController: UIViewController, ChartViewDelegate {
         let currentPrice = informationStockTicker.marketPrice
         let percentageChange = informationStockTicker.changePercent
         let previousPrice = informationStockTicker.previousPrice
-        let nameCompany = nameTicker
         
         if percentageChange < 0.0 {
             currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
@@ -164,13 +164,10 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
         
         self.symbol = symbol
-//        tickerLabel.text = symbol
         if indexMarket {
-//            nameLabel.text = "\(indexName) - \(exchangeSymbol)"
             tickerLabel.text = "\(symbol)"
             volumeLabel.text = ""
         } else {
-//            nameLabel.text = nameCompany
             tickerLabel.text = "\(symbol) - \(exchangeSymbol)"
             volumeLabel.text = "$\(previousPrice)"
         }
@@ -217,6 +214,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                         self?.exchangeSymbol = dataFromAPI.1
                         DispatchQueue.main.async {
                             self?.startStopSpinner(start: false)
+                            self?.tickerLabel.text = "\(self!.symbol) - \(self!.exchangeSymbol)"
                             self?.setUpStockModel()
                         }
                     } else {
@@ -457,6 +455,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         var symbo = ""
         var currentPrice = "0.0"
         var percentageChange = "0.0"
+        let defaultImage = UIImage(named: "mw-logo") ?? UIImage()
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd 'at' h:mm a"
@@ -495,7 +494,10 @@ class ChartController: UIViewController, ChartViewDelegate {
         Shared via Bullish Square 📱 
         """
         
-        let activityItems: [Any] = [formattedText]
+        // Capture and resize chart image (replace `chartView` with your actual chart view)
+        let chartImage = chartWithTimes.asImage()?.resized(to: CGSize(width: 300, height: 300)) ?? defaultImage
+                    
+        let activityItems: [Any] = [formattedText, chartImage]
         
         let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         present(activityVC, animated: true)
@@ -730,7 +732,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
 
         if v1 < v2 {
-            let gradientFill = makeGradient(colors: [UIColor(named: "uptrend")!, UIColor.systemBlue.withAlphaComponent(0.2)])
+            let gradientFill = makeGradient(colors: [UIColor.systemBlue, UIColor(named: "uptrend")!.withAlphaComponent(0.3)])
             set1.fill = gradientFill
             set1.setColor(UIColor(named: "uptrend")!)
         } else {
@@ -786,6 +788,24 @@ class ChartController: UIViewController, ChartViewDelegate {
            
             destination!.modalTransitionStyle = .crossDissolve
             self.present(destination!, animated: true, completion: nil)
+        }
+    }
+}
+
+extension UIView {
+    func asImage() -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        return renderer.image { context in
+            layer.render(in: context.cgContext)
+        }
+    }
+}
+
+extension UIImage {
+    func resized(to size: CGSize) -> UIImage? {
+        let renderer = UIGraphicsImageRenderer(size: size)
+        return renderer.image { _ in
+            self.draw(in: CGRect(origin: .zero, size: size))
         }
     }
 }

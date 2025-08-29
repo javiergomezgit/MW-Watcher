@@ -290,10 +290,10 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         }
         let tickerCurrentValues = TickersCurrentValues(ticker: tickkerValues.ticker, marketPrice: tickkerValues.marketPrice, previousPrice: tickkerValues.previousPrice, changePercent: tickkerValues.changePercent)
         
-        destination.informationStockTicker = TickersCurrentValues(ticker: tickkerValues.ticker, marketPrice: tickkerValues.marketPrice, previousPrice: tickkerValues.previousPrice, changePercent: tickkerValues.changePercent)
+        destination.informationStockTicker = tickerCurrentValues
         destination.nameTicker = tickerFeatures.nameTicker
         destination.imageCompany = tickerFeatures.imageTicker
-//        destination!.modalTransitionStyle = .crossDissolve
+        destination.modalTransitionStyle = .crossDissolve
 //        self.present(destination!, animated: true, completion: nil)
         self.navigationController?.pushViewController(destination, animated: true)
         

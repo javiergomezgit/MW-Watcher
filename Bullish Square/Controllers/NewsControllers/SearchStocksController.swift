@@ -193,7 +193,8 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
                             destination?.nameTicker = tickerFeatures.nameTicker
                             destination?.imageCompany = tickerFeatures.imageTicker
                             destination?.modalTransitionStyle = .crossDissolve
-                            self.present(destination!, animated: true, completion: nil)
+                            self.navigationController?.pushViewController(destination!, animated: true)
+
                         }
 }
                 }
