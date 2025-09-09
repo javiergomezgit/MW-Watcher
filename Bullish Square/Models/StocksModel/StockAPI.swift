@@ -290,19 +290,23 @@ final class StockAPI {
                     print (tickerJSON.value) //json
                     print (tickerJSON.key) //ticker
                     
-                    let tickerDictionary = tickerJSON.value as? [String: Any]
-                    var previousClose = tickerDictionary!["chartPreviousClose"] as! Double
-                    let closePriceArray = tickerDictionary!["close"] as? [Any]
-                    let closePrice = closePriceArray?.last as? Double ?? 0.0
-                    
-                    let percentageChange = (closePrice * 100) / previousClose
-                    var percentageRounded = 0.0
-                    percentageRounded = percentageChange - 100
-                    percentageRounded = Double(round(100*percentageRounded)/100)
-                    previousClose = Double(round(100*previousClose)/100)
-                    
-                    let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
-                    tickersArray.append(tickerValues)
+                    if let tickerDictionary = tickerJSON.value as? [String: Any] {
+                        var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
+                        let closePriceArray = tickerDictionary["close"] as? [Any]
+                        let closePrice = closePriceArray?.last as? Double ?? 0.0
+                        
+                        let percentageChange = (closePrice * 100) / previousClose
+                        var percentageRounded = 0.0
+                        percentageRounded = percentageChange - 100
+                        percentageRounded = Double(round(100*percentageRounded)/100)
+                        previousClose = Double(round(100*previousClose)/100)
+                        
+                        let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
+                        tickersArray.append(tickerValues)
+                    } else {
+                        let error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "JSON is Empty"])
+                        completion(.failure(error))
+                    }
                 }
                 let tickersSorted = tickersArray.sorted{ $0.ticker < $1.ticker }
                 completion(.success(tickersSorted))

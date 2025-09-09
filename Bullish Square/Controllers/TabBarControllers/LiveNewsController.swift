@@ -492,10 +492,10 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         
         let configuration = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .regular)
         if savedRows[indexPath.row] == true {
-            cell.saveButton.tintColor = .red
+            cell.saveButton.tintColor = UIColor(named: "colorHightlight")
             cell.saveButton.setImage(UIImage(systemName: "bookmark.fill", withConfiguration: configuration), for: .normal)
         } else {
-            cell.saveButton.tintColor = .darkGray
+            cell.saveButton.tintColor = UIColor(named: "colorHightlight")
             cell.saveButton.setImage(UIImage(systemName: "bookmark", withConfiguration: configuration), for: .normal)
         }
         

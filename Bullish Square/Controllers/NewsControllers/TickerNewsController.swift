@@ -58,9 +58,7 @@ class TickerNewsController: UIViewController {
             loadTickerNews()
         }    }
     
-    @IBAction func closeButton(_ sender: UIButton) {
-        self.dismiss(animated: true, completion: nil)
-    }
+
     func loadCryptoNews() {
         startStopSpinner(start: true)
         refreshControl.beginRefreshing()

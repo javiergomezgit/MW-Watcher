@@ -73,5 +73,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Dark</string>
+    <key>UIAppFonts</key>
+    <array>
+        <string>Inter-Variable.ttf</string>
+        <string>Roboto-Bold.ttf</string>
+        <string>Robot-Regular.ttf</string>
+        <string>Roboto-Thin.ttf</string>
+    </array>
 </dict>
 </plist>

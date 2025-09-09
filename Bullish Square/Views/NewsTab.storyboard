@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <device id="retina6_12" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
@@ -22,7 +22,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="X7h-qB-31g">
                                 <rect key="frame" x="0.0" y="118.00000000000001" width="393" height="42.666666666666671"/>
-                                <color key="backgroundColor" name="background4"/>
+                                <color key="backgroundColor" name="colorPrimary"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Vcf-9Z-kh7">
                                     <size key="itemSize" width="165" height="30"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -43,10 +43,11 @@
                                                         <constraint firstAttribute="width" relation="lessThanOrEqual" constant="140" id="24n-rC-wzb"/>
                                                     </constraints>
                                                     <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="15"/>
+                                                    <color key="textColor" name="colorPrimary"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                             </subviews>
-                                            <color key="backgroundColor" red="0.0" green="0.78039215689999997" blue="0.74509803919999995" alpha="0.14999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <color key="backgroundColor" name="colorSecondary"/>
                                             <constraints>
                                                 <constraint firstAttribute="trailing" secondItem="pIk-mE-mrL" secondAttribute="trailing" constant="10" id="1yn-h4-aKR"/>
                                                 <constraint firstItem="pIk-mE-mrL" firstAttribute="leading" secondItem="i4C-hP-jxL" secondAttribute="leading" constant="10" id="BrS-lE-3KH"/>
@@ -61,9 +62,9 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" allowsSelectionDuringEditing="YES" rowHeight="135" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1xv-7D-zQI">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" allowsSelection="NO" allowsSelectionDuringEditing="YES" rowHeight="135" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1xv-7D-zQI">
                                 <rect key="frame" x="15" y="175.66666666666669" width="363" height="608.33333333333326"/>
-                                <color key="backgroundColor" name="background4"/>
+                                <color key="backgroundColor" name="colorPrimary"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="LiveNewsViewCell" rowHeight="150" id="vvv-qM-afb" customClass="LiveNewsViewCell" customModule="Bullish_Square" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="363" height="150"/>
@@ -94,7 +95,7 @@
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pFt-lj-udp">
                                                             <rect key="frame" x="0.0" y="0.0" width="36.333333333333336" height="67.333333333333329"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                                            <color key="tintColor" systemColor="systemMintColor"/>
+                                                            <color key="tintColor" name="colorHightlight"/>
                                                             <state key="normal">
                                                                 <imageReference key="image" image="bookmark" catalog="system" symbolScale="large" renderingMode="template"/>
                                                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default" weight="regular"/>
@@ -103,7 +104,7 @@
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pjP-4V-y01">
                                                             <rect key="frame" x="0.0" y="67.333333333333314" width="36.333333333333336" height="67.666666666666686"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                                            <color key="tintColor" name="onboardingNotification"/>
+                                                            <color key="tintColor" name="colorAccent"/>
                                                             <state key="normal">
                                                                 <imageReference key="image" image="square.and.arrow.up" catalog="system" symbolScale="large" renderingMode="template"/>
                                                                 <preferredSymbolConfiguration key="preferredSymbolConfiguration" scale="default" weight="regular"/>
@@ -159,13 +160,13 @@
                                                 </button>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XwI-Bv-q3g">
                                                     <rect key="frame" x="0.0" y="140" width="363" height="10"/>
-                                                    <color key="backgroundColor" name="background4"/>
+                                                    <color key="backgroundColor" name="colorPrimary"/>
                                                     <constraints>
                                                         <constraint firstAttribute="height" constant="10" id="JNB-SN-jSd"/>
                                                     </constraints>
                                                 </view>
                                             </subviews>
-                                            <color key="backgroundColor" name="background4"/>
+                                            <color key="backgroundColor" name="colorPrimary"/>
                                             <constraints>
                                                 <constraint firstItem="XwI-Bv-q3g" firstAttribute="top" secondItem="wIf-9N-Rfg" secondAttribute="bottom" constant="5" id="1Rq-KX-mdq"/>
                                                 <constraint firstItem="lUf-Gn-yeF" firstAttribute="leading" secondItem="zVv-yA-Ulx" secondAttribute="leading" id="1Vd-94-yOw"/>
@@ -214,6 +215,7 @@
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O4o-Ig-7zQ">
                                                 <rect key="frame" x="0.0" y="13.333333333333368" width="131" height="43.666666666666657"/>
+                                                <color key="tintColor" name="AccentColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain">
                                                     <imageReference key="image" image="backward.end.fill" catalog="system" symbolScale="large" renderingMode="original"/>
@@ -222,6 +224,7 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iL4-q6-I72">
                                                 <rect key="frame" x="131" y="13.333333333333368" width="131" height="43.666666666666657"/>
+                                                <color key="tintColor" name="AccentColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain">
                                                     <imageReference key="image" image="play.fill" catalog="system" symbolScale="large"/>
@@ -230,16 +233,16 @@
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vIQ-r8-C5f">
                                                 <rect key="frame" x="262" y="13.333333333333368" width="131" height="43.666666666666657"/>
+                                                <color key="tintColor" name="AccentColor"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="plain" image="repeat" catalog="system">
                                                     <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" configurationType="pointSize" pointSize="25"/>
                                                 </buttonConfiguration>
                                             </button>
                                         </subviews>
-                                        <color key="backgroundColor" systemColor="systemGray6Color"/>
                                     </stackView>
                                 </subviews>
-                                <color key="backgroundColor" name="background4"/>
+                                <color key="backgroundColor" name="colorPrimary"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="70" id="DER-cN-8DV"/>
                                     <constraint firstAttribute="trailing" secondItem="d26-Em-mmN" secondAttribute="trailing" id="Zcb-yD-lz6"/>
@@ -248,7 +251,7 @@
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="tWZ-lG-IDb"/>
-                        <color key="backgroundColor" name="background4"/>
+                        <color key="backgroundColor" name="colorPrimary"/>
                         <constraints>
                             <constraint firstItem="tWZ-lG-IDb" firstAttribute="trailing" secondItem="X7h-qB-31g" secondAttribute="trailing" id="38T-Eu-qu9"/>
                             <constraint firstItem="X7h-qB-31g" firstAttribute="height" secondItem="5Bn-ls-3BD" secondAttribute="height" multiplier="0.05" id="7aI-bW-FRK"/>
@@ -305,31 +308,34 @@
         <image name="FrameSquare10" width="1500" height="1500"/>
         <image name="backward.end.fill" catalog="system" width="128" height="97"/>
         <image name="bookmark" catalog="system" width="110" height="128"/>
-        <image name="mw-logo" width="4096" height="4096"/>
+        <image name="mw-logo" width="4292" height="4291"/>
         <image name="newspaper" width="15" height="14"/>
         <image name="play.fill" catalog="system" width="120" height="128"/>
         <image name="repeat" catalog="system" width="128" height="98"/>
         <image name="square.and.arrow.up" catalog="system" width="110" height="128"/>
-        <namedColor name="background4">
-            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        <namedColor name="AccentColor">
+            <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <namedColor name="onboardingNotification">
-            <color red="0.3411764705882353" green="0.6470588235294118" blue="0.28627450980392155" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        <namedColor name="colorAccent">
+            <color red="0.063000001013278961" green="0.38400000333786011" blue="0.77600002288818359" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorHightlight">
+            <color red="0.89300000667572021" green="0.045000001788139343" blue="0.02199999988079071" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorPrimary">
+            <color red="0.097999997437000275" green="0.12200000137090683" blue="0.18400000035762787" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="colorSecondary">
+            <color red="0.68199998140335083" green="0.79199999570846558" blue="0.80400002002716064" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="uptrend">
-            <color red="0.32400000095367432" green="0.70599997043609619" blue="0.56499999761581421" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.64300000667572021" green="0.94099998474121094" blue="0.82400000095367432" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <systemColor name="systemGray6Color">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="systemGrayColor">
-            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemMintColor">
-            <color red="0.0" green="0.78039215689999997" blue="0.74509803919999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.55686274509803924" green="0.55686274509803924" blue="0.57647058823529407" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemPurpleColor">
-            <color red="0.68627450980000004" green="0.32156862749999998" blue="0.87058823529999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.68627450980392157" green="0.32156862745098042" blue="0.87058823529411766" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

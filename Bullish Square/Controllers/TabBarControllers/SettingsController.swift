@@ -7,18 +7,26 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
 
 class SettingsController: UITableViewController {
-
+    
     @IBOutlet weak var versionLabel: UILabel!
     @IBOutlet weak var profileImageView: UIImageView!
-
+    @IBOutlet weak var nameEmailCell: UITableViewCell!
+    @IBOutlet weak var imageCell: UITableViewCell!
+    
+    var currentProfile = Profile(name: "Name", email: "Email")
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
         versionLabel.text = "Version \(appVersion)"
+        
+        getNameEmailFromFirestore()
+        //load image from database phone if empty download from firebase,
     }
-
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -49,17 +57,18 @@ class SettingsController: UITableViewController {
             navigateToEditProfile()
         case 1:
             // Password and Security cell - navigate to security settings
-            navigateToSecuritySettings()
+            //navigateToSecuritySettings()
+            print ("Future implementation")
         default:
             break
         }
     }
-
+    
     private func handleLegalSection(row: Int) {
         // Your existing openBrowser logic
         openBrowser(selectedCell: row)
     }
-
+    
     private func handleProfilePhotoSection() {
         let storyboard = UIStoryboard(name: "SettingsTab", bundle: nil)
         if let editProfileVC = storyboard.instantiateViewController(withIdentifier: "EditProfileController") as? EditProfileController {
@@ -69,7 +78,7 @@ class SettingsController: UITableViewController {
             present(navigationController, animated: true)
         }
     }
-
+    
     private func navigateToEditProfile() {
         let storyboard = UIStoryboard(name: "SettingsTab", bundle: nil)
         if let editProfileVC = storyboard.instantiateViewController(withIdentifier: "EditProfileController") as? EditProfileController {
@@ -89,15 +98,49 @@ class SettingsController: UITableViewController {
             present(navigationController, animated: true)
         }
     }
-
-
-
+    
     // Helper methods to get current data
     private func getCurrentProfile() -> Profile {
         // Return current profile data
-        return Profile(name: "Javier Gomez", email: "javier.go.go@hotmail.com")
+        
+        let name = self.currentProfile.name
+        let email = self.currentProfile.email
+        
+        return Profile(name: name, email: email)
     }
+    
+    func getNameEmailFromFirestore() {
+        let user = Auth.auth().currentUser
+        
+        if let user = user {
+            let uid = user.uid
+            let db = Firestore.firestore()
 
+            db.collection("users").document(uid).getDocument { document, error in
+                if let document = document, document.exists {
+                    let data = document.data()!
+                    print(data)
+                    
+                    let name = data["name"] as? String ?? ""
+                    self.currentProfile.name = name
+                    self.currentProfile.email = (data["email"] as? String)!
+                    
+                    DispatchQueue.main.async {
+                        if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) {
+                            var content = cell.defaultContentConfiguration()
+                            content.text = self.currentProfile.name
+                            content.secondaryText = self.currentProfile.email
+                            content.image = UIImage(systemName: "person.crop.square.fill")
+                            cell.contentConfiguration = content
+                        }
+                    }
+                } else {
+                    print("Document does not exist")
+                }
+            }
+        }
+    }
+    
     private func getSecuritySettings() -> SecuritySettings {
         // Return current security settings
         return SecuritySettings()
@@ -108,18 +151,18 @@ class SettingsController: UITableViewController {
         image = UIImage(systemName: "lock")
         return image!
     }
-
+    
     func openBrowser(selectedCell: Int) {
         var urlString = ""
         switch selectedCell {
         case 0:
-            urlString = "https://www.jdevprojects.com/privacy-policy-mw"
+            urlString = "https://www.jdevit.com/privacy-policy-mw"
         case 1:
-            urlString = "https://www.jdevprojects.com/contact-me-mw"
+            urlString = "https://www.jdevit.com/contact-me-mw"
         case 2:
-            urlString = "https://www.jdevprojects.com/contact-me-mw"
+            urlString = "https://www.jdevit.com/contact-me-mw"
         default:
-            urlString = "https://www.jdevprojects.com/"
+            urlString = "https://www.jdevit.com/"
         }
         
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
@@ -127,11 +170,15 @@ class SettingsController: UITableViewController {
         
         destination!.urlString = urlString
         destination!.modalTransitionStyle = .crossDissolve
-//        destination!.modalPresentationStyle = .overCurrentContext
+        //        destination!.modalPresentationStyle = .overCurrentContext
         self.present(destination!, animated: true, completion: nil)
     }
     
     @IBAction func logoutButtonTapped(_ sender: UIButton) {
+        logoutFirebase()
+    }
+    
+    private func logoutFirebase() {
         do {
             try Auth.auth().signOut()
             print("User logged out successfully from firebase")
@@ -157,5 +204,5 @@ class SettingsController: UITableViewController {
             sceneDelegate.window?.rootViewController = loginVC
         }
     }
-
+    
 }

@@ -732,11 +732,11 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
 
         if v1 < v2 {
-            let gradientFill = makeGradient(colors: [UIColor.systemBlue, UIColor(named: "uptrend")!.withAlphaComponent(0.3)])
+            let gradientFill = makeGradient(colors: [UIColor(named: "colorAccent")!, UIColor(named: "uptrend")!.withAlphaComponent(0.3)])
             set1.fill = gradientFill
             set1.setColor(UIColor(named: "uptrend")!)
         } else {
-            let gradientFill = makeGradient(colors: [UIColor.orange.withAlphaComponent(0.2), UIColor(named: "downtrend")!])
+            let gradientFill = makeGradient(colors: [UIColor(named: "downtrend")!.withAlphaComponent(0.2), UIColor(named: "downtrend")!])
             set1.fill = gradientFill
             set1.setColor(.red)
         }

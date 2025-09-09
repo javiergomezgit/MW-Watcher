@@ -258,17 +258,17 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.previousPriceLabel.text = "$" + String(previousPrice)
             
             if percentage < 0 {
-                cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                cell.previousPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                cell.changeLabel.textColor = UIColor(named: "downtrend")  //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                cell.previousPriceLabel.textColor = UIColor(named: "downtrend")   //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
                 cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
-                cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                cell.frameCoverLabel.backgroundColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
+                cell.arrowImageView.tintColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+                //cell.frameCoverLabel.backgroundColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
             } else {
-                cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                cell.previousPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                cell.changeLabel.textColor = UIColor(named: "uptrend")  //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                cell.previousPriceLabel.textColor = UIColor(named: "uptrend")  //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
                 cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
-                cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                cell.frameCoverLabel.backgroundColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+                cell.arrowImageView.tintColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+                //cell.frameCoverLabel.backgroundColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
                 
             }
             
@@ -352,14 +352,14 @@ extension WatchlistController {
     
     private func setupUITopRightButton() {
         //        navigationController?.navigationBar.prefersLargeTitles = true
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(addingTicketTapped(tapGestureRecognizer:)))
         imageViewTopRightButton.isUserInteractionEnabled = true
-        imageViewTopRightButton.tintColor = .label
+        imageViewTopRightButton.tintColor = UIColor(named: "colorSecondary")
         imageViewTopRightButton.addGestureRecognizer(tapGestureRecognizer)
         
-        let tapGestureRecognizerPerformance = UITapGestureRecognizer(target: self, action: #selector(imagePerformanceTapped(tapGestureRecognizer:)))
+        let tapGestureRecognizerPerformance = UITapGestureRecognizer(target: self, action: #selector(performanceSimulatorTapped(tapGestureRecognizer:)))
         imageViewPerformanceButton.isUserInteractionEnabled = true
-        imageViewPerformanceButton.tintColor = .label
+        imageViewPerformanceButton.tintColor = UIColor(named: "colorSecondary")
         imageViewPerformanceButton.addGestureRecognizer(tapGestureRecognizerPerformance)
         
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
@@ -380,7 +380,7 @@ extension WatchlistController {
         ])
     }
     
-    @objc func imagePerformanceTapped(tapGestureRecognizer: UITapGestureRecognizer) {
+    @objc func performanceSimulatorTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(identifier: "simulatedPortfolio") //as? UIViewController
         
@@ -389,7 +389,7 @@ extension WatchlistController {
         self.show(destination, sender: self)
     }
     
-    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
+    @objc func addingTicketTapped(tapGestureRecognizer: UITapGestureRecognizer)
     {
         addingTicker()
     }

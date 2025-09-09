@@ -78,9 +78,9 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
                     // Save name and email to Firestore if we got them
                     if let fullName = appleIDCredential.fullName {
                         let db = Firestore.firestore()
+                        let name = "\(fullName.givenName ?? "") \(fullName.familyName ?? "") "
                         let userData: [String: Any] = [
-                            "givenName": fullName.givenName ?? "",
-                            "familyName": fullName.familyName ?? "",
+                            "name": name,
                             "email": appleIDCredential.email ?? authResult.user.email ?? ""
                         ]
                         // Save to Firestore under the user’s ID

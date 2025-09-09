@@ -107,9 +107,9 @@ class SignUpViewController: UIViewController {
                 let nameWithoutDomain = email.split(separator: "@")
                 
                 let db = Firestore.firestore()
+                let name = "\(nameWithoutDomain[0]) "
                 let userData: [String: Any] = [
-                    "givenName": nameWithoutDomain[0],
-                    "familyName": "",
+                    "name": name,
                     "email": email
                 ]
                 // Save to Firestore under the user’s ID

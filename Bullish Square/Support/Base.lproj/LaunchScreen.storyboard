@@ -8,6 +8,11 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="Inter-Variable.ttf">
+            <string>Inter-Regular_Bold</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--Launch Screen-->
         <scene sceneID="EHf-IW-A2E">
@@ -17,7 +22,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BS-Logo-Black" translatesAutoresizingMaskIntoConstraints="NO" id="OOM-pc-FTe">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BS-Logo-WhitePrimary" translatesAutoresizingMaskIntoConstraints="NO" id="OOM-pc-FTe">
                                 <rect key="frame" x="114" y="332.5" width="186" height="186.5"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="OOM-pc-FTe" secondAttribute="height" multiplier="1:1" id="k17-do-BAF"/>
@@ -28,13 +33,13 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="61" id="Cu0-on-aCL"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="KohinoorGujarati-Light" family="Kohinoor Gujarati" pointSize="30"/>
-                                <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" name="Inter-Regular_Bold" family="Inter" pointSize="31"/>
+                                <color key="textColor" name="colorSecondary"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                        <color key="backgroundColor" name="colorNeutral"/>
+                        <color key="backgroundColor" name="colorPrimary"/>
                         <constraints>
                             <constraint firstItem="OOM-pc-FTe" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" multiplier="0.45" id="0Bf-3D-kif"/>
                             <constraint firstAttribute="bottom" secondItem="Wke-we-1tA" secondAttribute="bottom" constant="20" id="6df-N9-cAy"/>
@@ -51,9 +56,12 @@
         </scene>
     </scenes>
     <resources>
-        <image name="BS-Logo-Black" width="3755" height="3018"/>
-        <namedColor name="colorNeutral">
-            <color red="0.94099998474121094" green="0.94900000095367432" blue="0.76099997758865356" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <image name="BS-Logo-WhitePrimary" width="4292" height="4291"/>
+        <namedColor name="colorPrimary">
+            <color red="0.097999997437000275" green="0.12200000137090683" blue="0.18400000035762787" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
+        <namedColor name="colorSecondary">
+            <color red="0.68199998140335083" green="0.79199999570846558" blue="0.80400002002716064" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>
