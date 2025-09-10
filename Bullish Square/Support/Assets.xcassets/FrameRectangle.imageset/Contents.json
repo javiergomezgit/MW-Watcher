@@ -1,16 +1,6 @@
 {
   "images" : [
     {
-      "filename" : "frameImageFeed-Light-1.png",
-      "idiom" : "universal"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
       "filename" : "frameImageFeed-Dark-1.png",
       "idiom" : "universal"
     }

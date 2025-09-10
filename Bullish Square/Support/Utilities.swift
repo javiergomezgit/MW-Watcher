@@ -29,6 +29,16 @@ class Utilities {
         viewController.present(alert, animated: true)
     }
     
+    ///Show alert with completion
+    static func showAlertWithCompletion(on vc: UIViewController, title: String, message: String, completion: (() -> Void)? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            completion?()
+        })
+        vc.present(alert, animated: true)
+    }
+
+    
     //Show Alert error
     static func showErrorAlert(on viewController: UIViewController, message: String) {
         let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)

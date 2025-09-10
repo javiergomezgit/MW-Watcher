@@ -227,7 +227,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "myTickersCell", for: indexPath) as! WatchlistViewCell
-        
+                
         cell.tickerLabel.text = " "
         cell.currentPriceLabel.text = "$0.0"
         cell.nameCompanyLabel.text = " "
@@ -262,14 +262,19 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
                 cell.previousPriceLabel.textColor = UIColor(named: "downtrend")   //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
                 cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
                 cell.arrowImageView.tintColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                //cell.frameCoverLabel.backgroundColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
+                cell.frameCoverLabel.backgroundColor = UIColor(named: "downtrend") //UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
+                
+                cell.currentPriceLabel.backgroundColor = UIColor(named: "downtrend")
+                cell.currentPriceLabel.textColor = UIColor.white
             } else {
                 cell.changeLabel.textColor = UIColor(named: "uptrend")  //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
                 cell.previousPriceLabel.textColor = UIColor(named: "uptrend")  //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
                 cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
                 cell.arrowImageView.tintColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                //cell.frameCoverLabel.backgroundColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
-                
+                cell.frameCoverLabel.backgroundColor = UIColor(named: "uptrend") //UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+             
+                cell.currentPriceLabel.backgroundColor = UIColor(named: "uptrend")
+                cell.currentPriceLabel.textColor = UIColor(named: "colorPrimary")
             }
             
             cell.openChartButton.tag = indexPath.row

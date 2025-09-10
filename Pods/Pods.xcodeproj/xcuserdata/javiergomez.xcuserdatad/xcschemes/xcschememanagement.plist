@@ -139,6 +139,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>FirebaseStorage.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>GTMSessionFetcher-GTMSessionFetcher_Core_Privacy.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -179,7 +184,7 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-MW Watcher.xcscheme</key>
+		<key>Pods-Bullish Square.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>

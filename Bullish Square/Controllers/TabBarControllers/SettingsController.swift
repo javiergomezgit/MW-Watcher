@@ -18,12 +18,20 @@ class SettingsController: UITableViewController {
     
     var currentProfile = Profile(name: "Name", email: "Email")
     
+    override func viewWillAppear(_ animated: Bool) {
+        //Temporarily
+        profileImageView.image = SaveProfileInformation().loadImageProfile()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
         versionLabel.text = "Version \(appVersion)"
         
-        getNameEmailFromFirestore()
+        //Temporarily
+        profileImageView.image = SaveProfileInformation().loadImageProfile()
+        
+        getUserInfoFromFirebase()
         //load image from database phone if empty download from firebase,
     }
     
@@ -34,7 +42,9 @@ class SettingsController: UITableViewController {
         switch indexPath.section {
         case 0:
             // Profile section - handle name and email cell taps
-            handleProfilePhotoSection()
+            //Future -> separate photo editing from email/name
+            //handleProfilePhotoSection()
+            navigateToEditProfile()
         case 1:
             // Account section
             handleAccountSection(row: indexPath.row)
@@ -45,11 +55,7 @@ class SettingsController: UITableViewController {
             break
         }
     }
-    
-    @IBAction func changeImageButtonPressed(_ sender: UIButton) {
         
-    }
-    
     private func handleAccountSection(row: Int) {
         switch row {
         case 0:
@@ -69,15 +75,15 @@ class SettingsController: UITableViewController {
         openBrowser(selectedCell: row)
     }
     
-    private func handleProfilePhotoSection() {
-        let storyboard = UIStoryboard(name: "SettingsTab", bundle: nil)
-        if let editProfileVC = storyboard.instantiateViewController(withIdentifier: "EditProfileController") as? EditProfileController {
-            editProfileVC.currentProfileImage = getCurrentImageProfile() //getCurrentProfile()
-            
-            let navigationController = UINavigationController(rootViewController: editProfileVC)
-            present(navigationController, animated: true)
-        }
-    }
+//    private func handleProfilePhotoSection() {
+//        let storyboard = UIStoryboard(name: "SettingsTab", bundle: nil)
+//        if let editProfileVC = storyboard.instantiateViewController(withIdentifier: "EditProfileController") as? EditProfileController {
+//            editProfileVC.currentProfileImage = getCurrentImageProfile()
+//            
+//            let navigationController = UINavigationController(rootViewController: editProfileVC)
+//            present(navigationController, animated: true)
+//        }
+//    }
     
     private func navigateToEditProfile() {
         let storyboard = UIStoryboard(name: "SettingsTab", bundle: nil)
@@ -105,11 +111,15 @@ class SettingsController: UITableViewController {
         
         let name = self.currentProfile.name
         let email = self.currentProfile.email
+        let phoneNumber = self.currentProfile.phoneNumber
+        let imageProfileURL = self.currentProfile.profileImage
         
-        return Profile(name: name, email: email)
+        return Profile(name: name, email: email, phoneNumber: phoneNumber, profileImage: imageProfileURL)
     }
     
-    func getNameEmailFromFirestore() {
+    //Populates fields with firebase information
+    //Stores in local variable
+    func getUserInfoFromFirebase() {
         let user = Auth.auth().currentUser
         
         if let user = user {
@@ -124,12 +134,18 @@ class SettingsController: UITableViewController {
                     let name = data["name"] as? String ?? ""
                     self.currentProfile.name = name
                     self.currentProfile.email = (data["email"] as? String)!
+                    let phoneNumber = data["phoneNumber"] as? String ?? ""
+                    self.currentProfile.phoneNumber = phoneNumber
+                    let profileURL = data["profileURL"] as? String ?? ""
+                    self.currentProfile.profileImage = profileURL
                     
                     DispatchQueue.main.async {
                         if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) {
                             var content = cell.defaultContentConfiguration()
                             content.text = self.currentProfile.name
                             content.secondaryText = self.currentProfile.email
+                            //Not working yet, Firebase storage not working properly, saving in local database temporarily
+                            //Calling downloading image from firebase to load the image in the profile view
                             content.image = UIImage(systemName: "person.crop.square.fill")
                             cell.contentConfiguration = content
                         }
@@ -141,26 +157,50 @@ class SettingsController: UITableViewController {
         }
     }
     
+    //Not working yet, Firebase storage not working properly, saving in local database temporarily
+    func downloadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+        guard let url = URL(string: urlString) else {
+            completion(nil)
+            return
+        }
+        
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let error = error {
+                print("Error downloading image: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            guard let data = data, let image = UIImage(data: data) else {
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                completion(image)
+            }
+        }
+        task.resume()
+    }
+    
     private func getSecuritySettings() -> SecuritySettings {
         // Return current security settings
         return SecuritySettings()
-    }
-    
-    private func getCurrentImageProfile() -> UIImage {
-        let image: UIImage?
-        image = UIImage(systemName: "lock")
-        return image!
     }
     
     func openBrowser(selectedCell: Int) {
         var urlString = ""
         switch selectedCell {
         case 0:
-            urlString = "https://www.jdevit.com/privacy-policy-mw"
+            urlString = "https://jdevit.com/privacy-policy-bullish-square/"
         case 1:
-            urlString = "https://www.jdevit.com/contact-me-mw"
+            urlString = "https://jdevit.com/contact-bullish-square/"
         case 2:
-            urlString = "https://www.jdevit.com/contact-me-mw"
+            urlString = "https://jdevit.com/contact-bullish-square/"
         default:
             urlString = "https://www.jdevit.com/"
         }

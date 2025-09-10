@@ -12,11 +12,11 @@
 		2245E3712640C01D00D340DE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2245E3702640C01D00D340DE /* Podfile */; };
 		226463EA26691EEE00A915D2 /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 226463E926691EEE00A915D2 /* LocalAuthentication.framework */; };
 		229554F2267A3C260082235C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 229554F1267A3C260082235C /* CloudKit.framework */; };
-		BF330CE1B2C7874C1E3D40AC /* Pods_MW_Watcher.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F3E0AECFD26F2321600DCBD /* Pods_MW_Watcher.framework */; };
+		22F2A01C2E7073C200A27195 /* YPImagePicker in Frameworks */ = {isa = PBXBuildFile; productRef = 22F2A01B2E7073C200A27195 /* YPImagePicker */; };
+		8CF542B22B25878A9E20EC65 /* Pods_Bullish_Square.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 666B9CA0785245CC7BF9E27F /* Pods_Bullish_Square.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1F3E0AECFD26F2321600DCBD /* Pods_MW_Watcher.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MW_Watcher.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		221236A4263DA728007EA092 /* Bullish Square.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bullish Square.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		223B10B32958D7B300C6A04C /* SwiftSoup.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftSoup.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		223B10BF2958DA4000C6A04C /* SwiftSoup.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftSoup.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -27,8 +27,9 @@
 		226463E926691EEE00A915D2 /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
 		229554F1267A3C260082235C /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		22FF59132E0497DC00B9B9D6 /* FirebaseAnalytics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = FirebaseAnalytics.xcframework; path = Pods/FirebaseAnalytics/Frameworks/FirebaseAnalytics.xcframework; sourceTree = "<group>"; };
-		34E8A2E99EF5DB49E2DEBD3C /* Pods-MW Watcher.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.release.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.release.xcconfig"; sourceTree = "<group>"; };
-		CCB74C06A4222609337B39B7 /* Pods-MW Watcher.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MW Watcher.debug.xcconfig"; path = "Target Support Files/Pods-MW Watcher/Pods-MW Watcher.debug.xcconfig"; sourceTree = "<group>"; };
+		5BAEDC830D496A7A81C12051 /* Pods-Bullish Square.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bullish Square.debug.xcconfig"; path = "Target Support Files/Pods-Bullish Square/Pods-Bullish Square.debug.xcconfig"; sourceTree = "<group>"; };
+		666B9CA0785245CC7BF9E27F /* Pods_Bullish_Square.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Bullish_Square.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E2EEB633AEEC1A35645C3B11 /* Pods-Bullish Square.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Bullish Square.release.xcconfig"; path = "Target Support Files/Pods-Bullish Square/Pods-Bullish Square.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -73,10 +74,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				22334B6429A1776F00FE3A86 /* Algorithms in Frameworks */,
+				22F2A01C2E7073C200A27195 /* YPImagePicker in Frameworks */,
 				229554F2267A3C260082235C /* CloudKit.framework in Frameworks */,
 				221656E52DFF81A300A38914 /* AMPopTip in Frameworks */,
 				226463EA26691EEE00A915D2 /* LocalAuthentication.framework in Frameworks */,
-				BF330CE1B2C7874C1E3D40AC /* Pods_MW_Watcher.framework in Frameworks */,
+				8CF542B22B25878A9E20EC65 /* Pods_Bullish_Square.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -94,7 +96,7 @@
 				226463E926691EEE00A915D2 /* LocalAuthentication.framework */,
 				225CF9A5264216A400D19929 /* WidgetKit.framework */,
 				225CF9A7264216A400D19929 /* SwiftUI.framework */,
-				1F3E0AECFD26F2321600DCBD /* Pods_MW_Watcher.framework */,
+				666B9CA0785245CC7BF9E27F /* Pods_Bullish_Square.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -132,8 +134,8 @@
 		C658810D9F34D18312E4133B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				CCB74C06A4222609337B39B7 /* Pods-MW Watcher.debug.xcconfig */,
-				34E8A2E99EF5DB49E2DEBD3C /* Pods-MW Watcher.release.xcconfig */,
+				5BAEDC830D496A7A81C12051 /* Pods-Bullish Square.debug.xcconfig */,
+				E2EEB633AEEC1A35645C3B11 /* Pods-Bullish Square.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -166,6 +168,7 @@
 			packageProductDependencies = (
 				22334B6329A1776F00FE3A86 /* Algorithms */,
 				221656E42DFF81A300A38914 /* AMPopTip */,
+				22F2A01B2E7073C200A27195 /* YPImagePicker */,
 			);
 			productName = "MW Watcher";
 			productReference = 221236A4263DA728007EA092 /* Bullish Square.app */;
@@ -197,6 +200,7 @@
 			packageReferences = (
 				22334B6229A1776F00FE3A86 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				221656E32DFF81A300A38914 /* XCRemoteSwiftPackageReference "AMPopTip" */,
+				22F2A01A2E7073C200A27195 /* XCRemoteSwiftPackageReference "YPImagePicker" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 221236A5263DA728007EA092 /* Products */;
@@ -255,7 +259,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-MW Watcher-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-Bullish Square-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -268,19 +272,19 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Bullish Square/Pods-Bullish Square-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			inputPaths = (
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Bullish Square/Pods-Bullish Square-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MW Watcher/Pods-MW Watcher-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Bullish Square/Pods-Bullish Square-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -420,7 +424,7 @@
 		};
 		221236B9263DA72A007EA092 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CCB74C06A4222609337B39B7 /* Pods-MW Watcher.debug.xcconfig */;
+			baseConfigurationReference = 5BAEDC830D496A7A81C12051 /* Pods-Bullish Square.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -518,7 +522,7 @@
 		};
 		221236BA263DA72A007EA092 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 34E8A2E99EF5DB49E2DEBD3C /* Pods-MW Watcher.release.xcconfig */;
+			baseConfigurationReference = E2EEB633AEEC1A35645C3B11 /* Pods-Bullish Square.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -654,6 +658,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		22F2A01A2E7073C200A27195 /* XCRemoteSwiftPackageReference "YPImagePicker" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Yummypets/YPImagePicker.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -666,6 +678,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 22334B6229A1776F00FE3A86 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
+		};
+		22F2A01B2E7073C200A27195 /* YPImagePicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 22F2A01A2E7073C200A27195 /* XCRemoteSwiftPackageReference "YPImagePicker" */;
+			productName = YPImagePicker;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -204,11 +204,11 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
        
         switch tickerValues.indexTicker {
         case "^DJI":
-            cell.stockBackgroundView.backgroundColor = .systemBrown.withAlphaComponent(0.5)
+            cell.stockBackgroundView.backgroundColor = UIColor(named: "colorAccent") //.systemBrown.withAlphaComponent(0.5)
         case "^GSPC":
-            cell.stockBackgroundView.backgroundColor = .systemOrange.withAlphaComponent(0.5)
+            cell.stockBackgroundView.backgroundColor = UIColor(named: "colorAccent")//.systemOrange.withAlphaComponent(0.5)
             case "^IXIC":
-            cell.stockBackgroundView.backgroundColor = UIColor(named: "nasdaqColor")
+            cell.stockBackgroundView.backgroundColor = UIColor(named: "colorAccent")
         default:
             break
         }
@@ -216,14 +216,19 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         var currentPrice = tickerValues.indexPrice
         let percentageChanged = tickerValues.changePercentage
         
+        cell.currentPriceLabel.textColor = UIColor(named: "colorSecondary") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+        cell.changeLabel.textColor = UIColor(named: "colorSecondary")//UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+
+
+        
         if percentageChanged < 0 {
             let percentageRounded = round(100*percentageChanged)/100
             cell.changeLabel.text = String(percentageRounded) + "%"
-            cell.changeLabel.textColor = UIColor(named: "downtrend")//UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            //cell.changeLabel.textColor = UIColor(named: "downtrend")//UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
             currentPrice = round(100*currentPrice)/100
             cell.currentPriceLabel.text = "$ " + String(currentPrice)
-            cell.currentPriceLabel.textColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+//            cell.currentPriceLabel.textColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
             cell.arrowImageView.image = (UIImage.init(named: "arrow.down.app.fill"))
             cell.arrowImageView.tintColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
@@ -231,14 +236,14 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
             //positive day for market
             let percentageRounded = round(100*percentageChanged)/100
             cell.changeLabel.text = String(percentageRounded) + "%"
-            cell.changeLabel.textColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+//            cell.changeLabel.textColor = UIColor.white //UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
             currentPrice = round(100*currentPrice)/100
             cell.currentPriceLabel.text = "$ " + String(currentPrice)
-            cell.currentPriceLabel.textColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+//            cell.currentPriceLabel.textColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
             cell.arrowImageView.image = (UIImage.init(named: "arrow.up.square.fill"))
-            cell.arrowImageView.tintColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.arrowImageView.tintColor = UIColor.white //UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
         }
         
         cell.openChartButton.tag = indexPath.row
@@ -299,15 +304,19 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
         cell.changeLabel.text = percentDay
         
         if cryptoCoins[indexPath.row].changePercentage < 0 {
-            cell.changeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            cell.changeLabel.textColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
-            cell.arrowImageView.tintColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            cell.frameCoverLabel.backgroundColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
+            cell.arrowImageView.tintColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            cell.frameCoverLabel.backgroundColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
+            cell.currentPriceLabel.backgroundColor = UIColor(named: "downtrend")
+            cell.currentPriceLabel.textColor = UIColor.white
         } else {
-            cell.changeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.changeLabel.textColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
-            cell.arrowImageView.tintColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            cell.frameCoverLabel.backgroundColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+            cell.arrowImageView.tintColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            cell.frameCoverLabel.backgroundColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
+            cell.currentPriceLabel.backgroundColor = UIColor(named: "uptrend")
+            cell.currentPriceLabel.textColor = UIColor(named: "colorPrimary")
         }
         
         cell.openChartButton.tag = indexPath.row

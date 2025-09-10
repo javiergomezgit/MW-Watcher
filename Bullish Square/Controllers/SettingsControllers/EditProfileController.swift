@@ -1,6 +1,8 @@
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
+import YPImagePicker
 
 class EditProfileController: UITableViewController {
     
@@ -8,16 +10,20 @@ class EditProfileController: UITableViewController {
     var updatedProfile = Profile(name: "", email: "")
     var editingField: String? // "name" or "email"
     var currentProfileImage: UIImage?
+    var imageChanged = false
     
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
+    @IBOutlet weak var imageViewProfile: UIImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
         populateFields()
         setupFieldEditing()
+        
+        imageViewProfile.image = SaveProfileInformation().loadImageProfile()
     }
     
     private func setupNavigationBar() {
@@ -57,6 +63,68 @@ class EditProfileController: UITableViewController {
         }
     }
     
+    @IBAction func editPhotoButtonTapped(_ sender: UIButton) {
+        var config = YPImagePickerConfiguration()
+        // [Edit configuration here ...]
+        //General config
+        config.isScrollToChangeModesEnabled = true
+        config.onlySquareImagesFromCamera = true
+        config.usesFrontCamera = true
+        config.showsPhotoFilters = false
+        config.showsVideoTrimmer = false
+        config.shouldSaveNewPicturesToAlbum = true
+        config.albumName = "DefaultYPImagePickerAlbumName"
+        config.startOnScreen = YPPickerScreen.photo
+        config.screens = [.library, .photo]
+        config.showsCrop = .circle // .none
+        config.targetImageSize = YPImageSize.original
+        config.overlayView = UIView()
+        config.hidesStatusBar = true
+        config.hidesBottomBar = false
+        config.hidesCancelButton = false
+        config.silentMode = true
+        config.preferredStatusBarStyle = UIStatusBarStyle.default
+        config.bottomMenuItemSelectedTextColour = UIColor.red // UIColor(r: 38/255, g: 38/255, b: 38/255, a: 1.0)
+        config.bottomMenuItemUnSelectedTextColour = UIColor.yellow //UIColor(r: 153, g: 153, b: 153)
+//        config.filters = [DefaultYPFilters...]
+        config.maxCameraZoomFactor = 1.0
+        
+        
+        config.library.options = nil
+        config.library.onlySquare = false
+        config.library.isSquareByDefault = true
+        config.library.minWidthForItem = nil
+        config.library.mediaType = YPlibraryMediaType.photo
+        config.library.defaultMultipleSelection = false
+        config.library.maxNumberOfItems = 1
+        config.library.minNumberOfItems = 1
+        config.library.numberOfItemsInRow = 4
+        config.library.spacingBetweenItems = 1.0
+        config.library.skipSelectionsGallery = false
+        config.library.preselectedItems = nil
+        config.library.preSelectItemOnMultipleSelection = true
+        
+        
+        config.gallery.hidesRemoveButton = false
+        
+        // Build a picker with your configuration
+        let picker = YPImagePicker(configuration: config)
+    
+        picker.didFinishPicking { [unowned picker] items, _ in
+            if let photo = items.singlePhoto {
+                print(photo.fromCamera) // Image source (camera or library)
+                print(photo.image) // Final image selected by the user
+                print(photo.originalImage) // original image selected by the user, unfiltered
+//                print(photo.modifiedImage) // Transformed image, can be nil
+//                print(photo.exifMeta) // Print exif meta data of original image.
+                self.imageViewProfile.image = photo.image
+                self.imageChanged = true
+            }
+            picker.dismiss(animated: true, completion: nil)
+        }
+        present(picker, animated: true, completion: nil)
+    }
+    
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
@@ -79,33 +147,74 @@ class EditProfileController: UITableViewController {
     }
     
     private func saveUpdatedProfileFirebase() {
-        
         guard let user = Auth.auth().currentUser else { return }
-        
         if self.currentProfile!.email != self.updatedProfile.email {
-            
             self.showPasswordAlert()
-            
         } else {
-            let profileData: [String: Any] = [
-                "name": self.updatedProfile.name,
-                "phoneNumber": self.updatedProfile.phoneNumber!,
-            ]
             
-            Firestore.firestore().collection("users").document(user.uid).updateData(profileData) { error in
-                if let error = error {
-                    print("Error updating profile: \(error.localizedDescription)")
-                    Utilities.showErrorAlert(on: self, message: error.localizedDescription)
-                    return
+            if imageChanged {
+                        
+                guard let image = imageViewProfile.image else {
+                  print("❌ No/invalid image data")
+                  return
                 }
-                self.currentProfile?.name = self.updatedProfile.name
-                self.currentProfile?.phoneNumber = self.updatedProfile.phoneNumber
-                self.nameTextField.text = self.updatedProfile.name
-                self.phoneTextField.text = self.updatedProfile.phoneNumber
+
+                print("Image size:", image.size)
                 
-                Utilities.showAlert(on: self, title: "Updated successfully", message: "Your profile was updated successfully.")
-                print("Profile updated successfully!")
+                SaveProfileInformation().saveImageProfile(imageProfile: image)
+
+                let profileData: [String: Any] = [
+                    "name": self.updatedProfile.name,
+                    "phoneNumber": self.updatedProfile.phoneNumber!
+                ]
+          
+                Firestore.firestore().collection("users").document(user.uid).updateData(profileData) { error in
+                    if let error = error {
+                        print("Error updating profile: \(error.localizedDescription)")
+                        Utilities.showErrorAlert(on: self, message: error.localizedDescription)
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.currentProfile?.name = self.updatedProfile.name
+                        self.currentProfile?.phoneNumber = self.updatedProfile.phoneNumber
+                        self.nameTextField.text = self.updatedProfile.name
+                        self.phoneTextField.text = self.updatedProfile.phoneNumber
+                        
+                        Utilities.showAlertWithCompletion(on: self, title: "Updated successfully", message: "Your profile was updated successfully.") {
+                                                        
+                            self.dismiss(animated: true) {
+                                if let nav = self.navigationController {
+                                    nav.popViewController(animated: true)
+                                } else {
+                                    self.dismiss(animated: true)
+                                }
+                            }
+                        }
+                        print("Profile updated successfully!")
+                    }
+                }
+
+            } else {
                 
+                let profileData: [String: Any] = [
+                    "name": self.updatedProfile.name,
+                    "phoneNumber": self.updatedProfile.phoneNumber!,
+                ]
+                Firestore.firestore().collection("users").document(user.uid).updateData(profileData) { error in
+                    if let error = error {
+                        print("Error updating profile: \(error.localizedDescription)")
+                        Utilities.showErrorAlert(on: self, message: error.localizedDescription)
+                        return
+                    }
+                    self.currentProfile?.name = self.updatedProfile.name
+                    self.currentProfile?.phoneNumber = self.updatedProfile.phoneNumber
+                    self.nameTextField.text = self.updatedProfile.name
+                    self.phoneTextField.text = self.updatedProfile.phoneNumber
+                    
+                    Utilities.showAlert(on: self, title: "Updated successfully", message: "Your profile was updated successfully.")
+                    print("Profile updated successfully!")
+                }
             }
         }
     }

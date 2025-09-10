@@ -1,5 +1,5 @@
 {
-  "originHash" : "a35104c01fbbb6b64ccd6ff2297b43ab842b79de9652cd02737306da8b1ee843",
+  "originHash" : "991ac480bc5f39de21ed80462d8e1bed141d772a2816e6f7eeb0e055f58159ac",
   "pins" : [
     {
       "identity" : "ampoptip",
@@ -8,6 +8,24 @@
       "state" : {
         "revision" : "db495eea0747a3493ca8b3c737d037c0090973db",
         "version" : "4.12.0"
+      }
+    },
+    {
+      "identity" : "prynttrimmerview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/HHK1/PryntTrimmerView",
+      "state" : {
+        "revision" : "ac1b60a22c7e6a6514de7a66d2f3d5b537c956d5",
+        "version" : "4.0.2"
+      }
+    },
+    {
+      "identity" : "stevia",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/freshOS/Stevia",
+      "state" : {
+        "revision" : "cfb1a1d2159277bb553c3dc46f3f742c0275566d",
+        "version" : "5.1.2"
       }
     },
     {
@@ -24,8 +42,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-numerics.git",
       "state" : {
-        "revision" : "e0ec0f5f3af6f3e4d5e7a19d2af26b481acb6ba8",
-        "version" : "1.0.3"
+        "revision" : "bbadd4b853a33fd78c4ae977d17bb2af15eb3f2a",
+        "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "ypimagepicker",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Yummypets/YPImagePicker.git",
+      "state" : {
+        "revision" : "9d1c5e938c2de8f851da54af9037eda2d98ea649",
+        "version" : "5.3.0"
       }
     }
   ],
