@@ -29,6 +29,7 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
     private let tableView: UITableView = {
         let table = UITableView()
         table.register(SearchStocksViewCell.self, forCellReuseIdentifier: SearchStocksViewCell.identifier)
+        table.backgroundColor = UIColor(named: "colorPrimary")
         return table
     }()
     

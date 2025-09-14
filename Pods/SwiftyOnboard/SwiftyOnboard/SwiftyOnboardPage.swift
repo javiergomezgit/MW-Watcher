@@ -61,7 +61,7 @@ open class SwiftyOnboardPage: UIView {
         
         let margin = self.layoutMarginsGuide
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.leftAnchor.constraint(equalTo: margin.leftAnchor, constant: 30).isActive = true
+        imageView.leftAnchor.constraint(equalTo: margin.leftAnchor, constant: 20).isActive = true
         imageView.rightAnchor.constraint(equalTo: margin.rightAnchor, constant: -5).isActive = true
         imageView.topAnchor.constraint(equalTo: margin.topAnchor, constant: 5).isActive = true
         imageView.heightAnchor.constraint(equalTo: margin.heightAnchor, multiplier: 0.8).isActive = true

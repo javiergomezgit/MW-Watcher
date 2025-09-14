@@ -13,9 +13,13 @@ import AVFoundation
 
 class LiveNewsController: UIViewController {
     
+    // MARK: - Outlets
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var stackViewPlayer: UIStackView!
+    @IBOutlet weak var backwardButton: UIButton!
+    @IBOutlet weak var playButton: UIButton!
+    @IBOutlet weak var loopButton: UIButton!
     
     @IBOutlet weak var collectionLayout: UICollectionViewFlowLayout! {
         didSet {
@@ -23,6 +27,7 @@ class LiveNewsController: UIViewController {
         }
     }
     
+    // MARK: - Properties
     var sources = ["ALL"]
     var newsItems: [NewsItem] = []
     var backupNewsItems: [NewsItem] = []
@@ -39,26 +44,18 @@ class LiveNewsController: UIViewController {
     private let imageViewSavedNews = UIImageView(image: UIImage(named: "tray.2.fill"))
     private let imageViewSearchNews = UIImageView(image: UIImage(systemName: "play.circle"))
     
-    // Audio management
+    // MARK: - Audio Properties
     private var audioPlayer: AVAudioPlayer?
     private var audioData: Data?
     private var isLoopEnabled = false
     private var headlineUpdateTimer: Timer?
     
-    
-    // Player control buttons
-    @IBOutlet weak var backwardButton: UIButton!
-    @IBOutlet weak var playButton: UIButton!
-    @IBOutlet weak var loopButton: UIButton!
-    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Initialize UI and data
         setupUI()
         setupPlayerControls()
         
-        // Configure table and collection views
         tableView.delegate = self
         tableView.dataSource = self
         collectionView.delegate = self
@@ -69,18 +66,34 @@ class LiveNewsController: UIViewController {
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl)
         
-        // Check first launch for onboarding
+        // Onboarding check
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingLiveNews")
         UserDefaults.standard.set(true, forKey: "firstLaunchingLiveNews")
-        UserDefaults.standard.synchronize()
         alreadyLaunched = isFirstLaunch
         
+        // Initial load
         loadNews()
     }
     
-    // MARK: - UI Setup
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showImage(false)
+        audioPlayer?.stop()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        showImage(true)
+    }
+}
+
+//
+// MARK: - UI Setup
+//
+extension LiveNewsController {
+    
+    // Navigation bar setup with action buttons
     private func setupUI() {
-        // Configure navigation bar buttons
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageSavedNewsTapped(tapGestureRecognizer:)))
         imageViewSavedNews.isUserInteractionEnabled = true
         imageViewSavedNews.tintColor = .label
@@ -109,16 +122,16 @@ class LiveNewsController: UIViewController {
         ])
     }
     
+    // Animate showing/hiding top bar buttons
     private func showImage(_ show: Bool) {
-        // Animate visibility of navigation bar icons
         UIView.animate(withDuration: 0.2) {
             self.imageViewSavedNews.alpha = show ? 1.0 : 0.0
             self.imageViewSearchNews.alpha = show ? 1.0 : 0.0
         }
     }
     
+    // Show onboarding tip for new users
     func showFirstTimeNotification(whereView: UIView) {
-        // Display onboarding notification for first-time users
         let popTip = PopTip()
         popTip.delayIn = TimeInterval(1)
         popTip.actionAnimation = .bounce(2)
@@ -128,19 +141,21 @@ class LiveNewsController: UIViewController {
         
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
         popTip.shouldDismissOnTap = true
-        
-        popTip.tapHandler = { _ in print("tapped") }
-        popTip.dismissHandler = { _ in print("dismissed") }
-        popTip.tapOutsideHandler = { _ in print("tap outside") }
     }
+}
+
+//
+// MARK: - News Loading
+//
+extension LiveNewsController {
     
-    // MARK: - News Loading
+    // Handle pull-to-refresh
     @objc func refresh(_ sender: AnyObject) {
         loadNews()
     }
     
+    // Load news from multiple sources
     func loadNews() {
-        // Fetch news from multiple sources
         refreshControl.beginRefreshing()
         startStopSpinner(start: true)
         
@@ -194,10 +209,15 @@ class LiveNewsController: UIViewController {
             }
         }
     }
+}
+
+//
+// MARK: - Audio Management
+//
+extension LiveNewsController {
     
-    // MARK: - Audio Management
+    // Prepare and request combined audio for selected headlines using API
     func loadAudioForSelectedHeadlines(numberOfHeadlines: Int) {
-        // Generate and play audio for selected number of headlines
         startStopSpinner(start: true)
         audioData = nil
         audioPlayer?.stop()
@@ -212,7 +232,6 @@ class LiveNewsController: UIViewController {
             + ". "
         }.joined()
         
-        // Check character limit
         if combinedHeadlines.count > 10000 {
             DispatchQueue.main.async {
                 self.startStopSpinner(start: false)
@@ -221,7 +240,6 @@ class LiveNewsController: UIViewController {
             return
         }
         
-        // ElevenLabs API request
         guard let url = URL(string: "\(KeysNewsCallAPI.elevenLabsBaseURL)/\(KeysNewsCallAPI.voiceID)") else {
             DispatchQueue.main.async {
                 self.startStopSpinner(start: false)
@@ -333,9 +351,8 @@ class LiveNewsController: UIViewController {
         task.resume()
     }
     
-    // MARK: - Player Controls
+    // Setup player controls button images and actions
     private func setupPlayerControls() {
-        // Configure audio player control buttons
         backwardButton.setImage(UIImage(systemName: "backward.fill"), for: .normal)
         playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
         loopButton.setImage(UIImage(systemName: "repeat"), for: .normal)
@@ -351,8 +368,8 @@ class LiveNewsController: UIViewController {
         stackViewPlayer.isHidden = true
     }
     
+    // Restart audio from beginning and play if paused
     @objc func restartAudio() {
-        // Restart audio from the beginning
         audioPlayer?.currentTime = 0
         if audioPlayer?.isPlaying == false {
             audioPlayer?.play()
@@ -360,8 +377,8 @@ class LiveNewsController: UIViewController {
         }
     }
     
+    // Toggle play/pause audio state
     @objc func togglePlayPause() {
-        // Toggle audio play/pause state
         guard audioPlayer != nil else {
             Utilities.showErrorAlert(on: self, message: "No audio available. Please select headlines to play.")
             return
@@ -377,26 +394,25 @@ class LiveNewsController: UIViewController {
         }
     }
     
+    // Toggle looping playback state
     @objc func toggleLoop() {
-        // Toggle audio loop mode
         isLoopEnabled.toggle()
         loopButton.tintColor = isLoopEnabled ? .red : .label
         loopButton.setImage(UIImage(systemName: "repeat"), for: .normal)
     }
-
     
+    // Stop audio headline update timer
     private func stopHeadlineUpdateTimer() {
-        // Stop headline update timer
         headlineUpdateTimer?.invalidate()
         headlineUpdateTimer = nil
     }
 }
 
-
-
-
-// MARK: Right top button in navigation controller
+//
+// MARK: - Navigation Button Handling
+//
 extension LiveNewsController {
+    
     private struct Const {
         static let ImageSizeForLargeState: CGFloat = 36
         static let ImageRightMargin: CGFloat = 18
@@ -407,8 +423,8 @@ extension LiveNewsController {
         static let NavBarHeightLargeState: CGFloat = 96.5
     }
     
+    // Show or hide loading spinner overlay
     func startStopSpinner(start: Bool) {
-        // Show or hide loading spinner
         if start {
             addChild(child)
             child.view.frame = view.frame
@@ -421,8 +437,7 @@ extension LiveNewsController {
         }
     }
     
-    
-    
+    // Open saved news screen
     @objc func imageSavedNewsTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(identifier: "savednews") as? SavedNewsController
@@ -431,6 +446,7 @@ extension LiveNewsController {
         self.show(destination!, sender: self)
     }
     
+    // Show alert to select number of news headlines to play audio
     @objc func imagePlayAudioNewsTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         let numberOfNews = newsItems.count
         if numberOfNews == 0 {
@@ -463,27 +479,19 @@ extension LiveNewsController {
         
         present(alert, animated: true)
     }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        showImage(false)
-        audioPlayer?.stop()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        showImage(true)
-    }
 }
 
-
-
-// MARK: Table Delegate
+//
+// MARK: - Table View Delegate/DataSource
+//
 extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafariViewControllerDelegate {
+    
+    // Return count of news items for table
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return newsItems.count
     }
     
+    // Configure and return cell for news item row
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LiveNewsViewCell", for: indexPath) as! LiveNewsViewCell
         let newsItem = newsItems[indexPath.row]
@@ -510,6 +518,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         return cell
     }
     
+    // Share news headline and details
     @objc func shareTitle(sender: UIButton) {
         sender.animateButton(sender: sender, duration: 0.1)
         
@@ -525,7 +534,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         📅 \(date)
         👤 Source: \(author)
         🔗 Read more: \(link)
-        Shared via Bullis Square 📱
+        Shared via Bullish Square 📱
         """
         
         var activityItems: [Any] = [formattedText]
@@ -539,6 +548,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         present(activityVC, animated: true)
     }
     
+    // Save or remove news headline from saved list
     @objc func saveTitle(sender: UIButton) {
         sender.animateButton(sender: sender, duration: 0.1)
         let headline = self.newsItems[sender.tag].headline
@@ -574,6 +584,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         sender.setImage(boldSearch, for: .normal)
     }
     
+    // Open link in Safari View Controller
     @objc func connected(sender: UIButton) {
         guard let urlString = sender.titleLabel?.text else { return }
         
@@ -586,30 +597,38 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         }
     }
     
+    // Safari delegate - placeholder for dismiss
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
         // dismiss(animated: true)
     }
 }
 
-
-
-
-// MARK: Collection View Delegate
+//
+// MARK: - Collection View Delegate/DataSource & FlowLayout
+//
 extension LiveNewsController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    // Number of source items for collection
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return sources.count
     }
     
+    // Setup each source cell
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath) as! LiveNewsCollectionViewCell
-        
+        //cell.backgroundColor = UIColor(named: "colorSecondary")
+
         let text = sources[indexPath.row]
         cell.setValues(source: text)
         cell.maxWidth = collectionView.bounds.width
         return cell
     }
     
+    // Filter news items by selected source
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //let cell = collectionView.cellForItem(at: indexPath)
+        //cell?.backgroundColor = UIColor(named: "colorAccent")
+        
         let selectedSource = sources[indexPath.row]
         
         if selectedSource == "ALL" {
@@ -626,43 +645,55 @@ extension LiveNewsController: UICollectionViewDelegate, UICollectionViewDataSour
         tableView.reloadData()
     }
     
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+//        let cell = collectionView.cellForItem(at: indexPath)
+//        cell?.backgroundColor = UIColor(named: "colorSecondary")
+    }
+    
+    // Cell size for collection view
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 25, height: 35)
     }
     
+    // Minimum horizontal spacing between cells
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 15.0
     }
     
+    // Minimum vertical line spacing for cells
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 10.0
     }
 }
 
-
-
-
-// MARK: UIPickerViewDelegate, UIPickerViewDataSource
+//
+// MARK: - Picker View Delegate/DataSource
+//
 extension LiveNewsController: UIPickerViewDelegate, UIPickerViewDataSource {
+    
+    // One component in picker
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
     
+    // Number of rows equals number of news items
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         return newsItems.count
     }
     
+    // Row title is simply the number
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return "\(row + 1)"
     }
 }
 
-
-
+//
 // MARK: - AVAudioPlayer Delegate
+//
 extension LiveNewsController: AVAudioPlayerDelegate {
+    
+    // Loop or stop audio when finished playing
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        // Handle audio playback completion
         if flag && isLoopEnabled {
             player.currentTime = 0
             player.play()
@@ -674,8 +705,8 @@ extension LiveNewsController: AVAudioPlayerDelegate {
         }
     }
     
+    // Handle audio decode errors
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        // Handle audio decode errors
         print("Audio decode error: \(error?.localizedDescription ?? "Unknown")")
         DispatchQueue.main.async {
             Utilities.showErrorAlert(on: self, message: "Failed to decode audio.")
@@ -685,10 +716,3 @@ extension LiveNewsController: AVAudioPlayerDelegate {
         }
     }
 }
-
-
-
-
-
-
-

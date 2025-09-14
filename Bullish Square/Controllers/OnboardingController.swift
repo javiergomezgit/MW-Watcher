@@ -1,5 +1,5 @@
 //
-//  LaunchController.swift
+//  OnboardingController.swift
 //  MW Watcher
 //
 //  Created by Javier Gomez on 6/2/21.
@@ -9,7 +9,7 @@ import UIKit
 import SwiftyOnboard
 import FirebaseAuth
 
-class LaunchController: UIViewController {
+class OnboardingController: UIViewController {
     
     var swiftyOnboard: SwiftyOnboard!
     
@@ -73,7 +73,7 @@ class LaunchController: UIViewController {
     }
 }
 
-extension LaunchController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {
+extension OnboardingController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {
     
     func swiftyOnboardNumberOfPages(_ swiftyOnboard: SwiftyOnboard) -> Int {
         return 3

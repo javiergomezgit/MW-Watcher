@@ -38,6 +38,25 @@ class SaveTickers {
         }
     }
     
+    func deleteAllTickers() {
+        DispatchQueue.main.async {
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            let managedContext = appDelegate.persistentContainer.viewContext
+
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: self.entityName)
+            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+            do {
+                try managedContext.execute(deleteRequest)
+                try managedContext.save()
+                print("✅ All tickers deleted successfully")
+            } catch {
+                print("❌ Failed to delete all tickers: \(error)")
+            }
+        }
+    }
+
+    
     func deleteTicker(tickerFeatures: TickersFeatures) {
         DispatchQueue.main.async {
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
@@ -69,6 +88,7 @@ class SaveTickers {
     }
     
     func loadTickers() -> [TickersFeatures] {
+        
         var tickerItems : [TickersFeatures] = []
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         let managedContext = appDelegate!.persistentContainer.viewContext
@@ -81,7 +101,7 @@ class SaveTickers {
                 var imageFromData = UIImage()
                 let ticker = tickerObject.value(forKey: "ticker") as! String
                 var name = tickerObject.value(forKey: "nameCompany") as? String
-                let imageName = tickerObject.value(forKey: "imageCompanyName") as? String
+                let imageName = tickerObject.value(forKey: "imageCompanyName") as? String ?? ticker
                 if name == nil {
                     name = "n/a"
                 }
@@ -98,7 +118,7 @@ class SaveTickers {
                     imageFromData = UIImage(named: "mw-logo")!
                 }
 
-                let tickerItem = TickersFeatures(ticker: ticker, nameTicker: name!, imageTicker: imageFromData, imageTickerName: imageName!)
+                let tickerItem = TickersFeatures(ticker: ticker, nameTicker: name!, imageTicker: imageFromData, imageTickerName: imageName)
                 tickerItems.append(tickerItem)
             }
         } catch let error as NSError {
@@ -107,5 +127,6 @@ class SaveTickers {
         let tickersSortedItems = tickerItems.sorted{ $0.ticker < $1.ticker }
         
         return tickersSortedItems
+        
     }
 }

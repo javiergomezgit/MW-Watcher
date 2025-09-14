@@ -17,22 +17,42 @@ class SettingsController: UITableViewController {
     @IBOutlet weak var imageCell: UITableViewCell!
     
     var currentProfile = Profile(name: "Name", email: "Email")
+    private var overlayView: UIView?
+
     
     override func viewWillAppear(_ animated: Bool) {
         //Temporarily
         profileImageView.image = SaveProfileInformation().loadImageProfile()
+        
+        // Check Firebase auth state
+        if Auth.auth().currentUser == nil {
+            // User is signed out – perform redirect, show login, or show alert
+            showLoginOverlay()
+        } else {
+            // User is authenticated – proceed as normal
+            hideLoginOverlay()
+        }
     }
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
         versionLabel.text = "Version \(appVersion)"
         
         //Temporarily
-        profileImageView.image = SaveProfileInformation().loadImageProfile()
-        
+        let imageProfile = SaveProfileInformation().loadImageProfile()
+        if imageProfile.size.width == 0 {
+            DispatchQueue.main.async{
+                let tempImage = UIImage(named: "person.circle.fill")!
+                self.profileImageView.image = tempImage
+                SaveProfileInformation().saveImageProfile(imageProfile: UIImage(named: "person.circle.fill")!)
+            }
+        } else {
+            DispatchQueue.main.async{
+                self.profileImageView.image = imageProfile
+            }
+        }
         getUserInfoFromFirebase()
-        //load image from database phone if empty download from firebase,
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -89,9 +109,27 @@ class SettingsController: UITableViewController {
         let storyboard = UIStoryboard(name: "SettingsTab", bundle: nil)
         if let editProfileVC = storyboard.instantiateViewController(withIdentifier: "EditProfileController") as? EditProfileController {
             editProfileVC.currentProfile = getCurrentProfile()
+            editProfileVC.onSave = { [weak self] updated in
+                    self?.currentProfile = updated
+                    self?.refreshUI()
+                }
             
             let navigationController = UINavigationController(rootViewController: editProfileVC)
             present(navigationController, animated: true)
+        }
+    }
+    
+    private func refreshUI() {
+        DispatchQueue.main.async {
+            if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) {
+                var content = cell.defaultContentConfiguration()
+                content.text = self.currentProfile.name
+                content.secondaryText = self.currentProfile.email
+                content.image = UIImage(systemName: "person.crop.square.fill")!
+                cell.contentConfiguration = content
+                //Maybe need to add something similar whe the image is updated too
+                self.profileImageView.image = SaveProfileInformation().loadImageProfile()
+            }
         }
     }
     
@@ -146,7 +184,7 @@ class SettingsController: UITableViewController {
                             content.secondaryText = self.currentProfile.email
                             //Not working yet, Firebase storage not working properly, saving in local database temporarily
                             //Calling downloading image from firebase to load the image in the profile view
-                            content.image = UIImage(systemName: "person.crop.square.fill")
+                            content.image = UIImage(systemName: "person.crop.square.fill")!
                             cell.contentConfiguration = content
                         }
                     }
@@ -245,4 +283,98 @@ class SettingsController: UITableViewController {
         }
     }
     
+}
+
+
+extension SettingsController {
+    
+    func showLoginOverlay() {
+        guard overlayView == nil else { return }
+        
+        let overlay = UIView(frame: view.bounds)
+        overlay.backgroundColor = UIColor(named: "colorPrimary")?.withAlphaComponent(0.8) ?? .black.withAlphaComponent(0.8)
+        overlay.alpha = 0
+        
+        let label = PaddedLabel()
+        label.text = "Please Sign In to continue"
+        label.textColor = .white
+        label.backgroundColor = UIColor(named: "colorSecondary")
+        label.textAlignment = .center
+        label.textColor = UIColor(named: "colorPrimary")
+        label.font = .systemFont(ofSize: 20, weight: .semibold)
+        label.layer.cornerRadius = 12
+        label.clipsToBounds = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        let button = UIButton(type: .custom)
+        button.setTitle("Sign In", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = UIColor(named: "colorAccent")
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.layer.cornerRadius = 10
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.2
+        button.layer.shadowOffset = CGSize(width: 0, height: 2)
+        button.layer.shadowRadius = 4
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(navigateToLogin), for: .touchUpInside)
+        
+        overlay.addSubview(label)
+        overlay.addSubview(button)
+        view.addSubview(overlay)
+        
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: overlay.centerYAnchor, constant: -30),
+            label.widthAnchor.constraint(equalToConstant: 280),
+            label.heightAnchor.constraint(equalToConstant: 62),
+            
+            button.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
+            button.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 20),
+            button.widthAnchor.constraint(equalToConstant: 160),
+            button.heightAnchor.constraint(equalToConstant: 48)
+        ])
+        
+        overlayView = overlay
+        
+        UIView.animate(withDuration: 0.3) {
+            overlay.alpha = 1
+        }
+    }
+    
+    func hideLoginOverlay() {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.overlayView?.alpha = 0
+        }, completion: { _ in
+            self.overlayView?.removeFromSuperview()
+            self.overlayView = nil
+        })
+    }
+    
+    @objc private func navigateToLogin() {
+        let storyboard = UIStoryboard(name: "Login", bundle: nil)
+        let signInVC = storyboard.instantiateViewController(withIdentifier: "SignInViewController")
+        signInVC.modalPresentationStyle = .fullScreen
+        present(signInVC, animated: true, completion: nil)
+    }
+}
+
+
+// PaddedLabel from prior question
+class PaddedLabel: UILabel {
+    var textInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12) {
+        didSet { setNeedsDisplay() }
+    }
+    
+    override func drawText(in rect: CGRect) {
+        let insetRect = rect.inset(by: textInsets)
+        super.drawText(in: insetRect)
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        var contentSize = super.intrinsicContentSize
+        contentSize.width += textInsets.left + textInsets.right
+        contentSize.height += textInsets.top + textInsets.bottom
+        return contentSize
+    }
 }

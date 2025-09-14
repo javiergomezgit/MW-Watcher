@@ -30,12 +30,14 @@ class LiveNewsCollectionViewCell: UICollectionViewCell {
         didSet{
             if self.isSelected {
                 UIView.animate(withDuration: 0.3) { // for animation effect
-                    self.contentView.backgroundColor = .systemOrange.withAlphaComponent(0.17)
+                    self.contentView.backgroundColor = UIColor(named: "colorAccent")
+                    self.sourceLabel.textColor = .white
                 }
             }
             else {
                 UIView.animate(withDuration: 0.3) { // for animation effect
-                        self.contentView.backgroundColor = UIColor(red: 0/255, green: 199/255, blue: 190/255, alpha: 0.15)
+                    self.contentView.backgroundColor = UIColor(named: "colorSecondary")
+                    self.sourceLabel.textColor = UIColor(named: "colorPrimary")
                 }
             }
         }

@@ -28,13 +28,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             logoutPossibleSessions()
             
             //Got to onboarding screen
-            navigateToLaunchController()
+            navigateToOnboardingController()
         } else {
             // Check if there's a current user cached locally
-            if let _ = Auth.auth().currentUser  {
+            //Temporal conditional until there are more features to offer to the user. Having account will be optional for now
+            if UserDefaults.standard.bool(forKey: "userPrefersNoAccount") {
                 self.navigateToMainController()
-            } else {
-                self.navigateToSignIn()
+            } else { //end of temporal conditonal
+                if let _ = Auth.auth().currentUser  {
+                    self.navigateToMainController()
+                } else {
+                    self.navigateToSignIn()
+                }
             }
         }
         
@@ -44,11 +49,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // Save default ticker for first launch
     private func addStarterTicker() {
         if let image = UIImage(named: "appleStock") {
-            let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: image, imageTickerName: "Apple Image")
             let savedTickers = SaveTickers()
-            savedTickers.saveTicker(tickerFeatures: tickerFeatures)
+            let savedApple = savedTickers.loadTickers()
+            for ticker in savedApple {
+                if ticker.ticker != "AAPL" {
+                    let tickerFeatures = TickersFeatures(ticker: "AAPL", nameTicker: "Apple Inc.", imageTicker: image, imageTickerName: "Apple Image")
+                    savedTickers.saveTicker(tickerFeatures: tickerFeatures)
+                }
+            }
         }
-        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore") 
     }
     
     //If not found, then signout user
@@ -79,9 +89,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = signInVC
     }
     
-    private func navigateToLaunchController() {
+    private func navigateToOnboardingController() {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let launchVC = storyboard.instantiateViewController(withIdentifier: "LaunchController")
+        let launchVC = storyboard.instantiateViewController(withIdentifier: "OnboardingController")
         window?.rootViewController = launchVC
     }
     

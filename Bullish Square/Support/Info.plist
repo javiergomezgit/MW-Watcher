@@ -31,8 +31,21 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>To access your camera in your profile</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>To access secure data in your watchlist</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>To access your mic in your profile</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To access your photo library in your profile</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Inter-Variable.ttf</string>
+		<string>Roboto-Bold.ttf</string>
+		<string>Robot-Regular.ttf</string>
+		<string>Roboto-Thin.ttf</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -55,9 +68,9 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
+	<string>LaunchView</string>
 	<key>UIMainStoryboardFile</key>
-	<string>Singles</string>
+	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
@@ -75,18 +88,5 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
-	<key>UIAppFonts</key>
-	<array>
-		<string>Inter-Variable.ttf</string>
-		<string>Roboto-Bold.ttf</string>
-		<string>Robot-Regular.ttf</string>
-		<string>Roboto-Thin.ttf</string>
-	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>To access your camera in your profile</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To access your photo library in your profile</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>To access your mic in your profile</string>
 </dict>
 </plist>

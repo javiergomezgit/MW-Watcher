@@ -53,27 +53,20 @@ class ChartController: UIViewController, ChartViewDelegate {
     public var nameTicker = ""
     
     public var imageCompany = UIImage(named: "mw-logo")
-    
-//    override func loadView() {
-        //Testing values -- for visualizing chart
-//        let tickerCurrentValues = TickersCurrentValues(ticker: "AAPL", marketPrice: 154.23, previousPrice: 150.45, changePercent: 8.4)
-//        self.informationStockTicker = tickerCurrentValues
-//        self.nameTicker = "Apple, Inc."
-//        self.imageCompany = UIImage(named: "apple")
-        //-- Test values --//
-//    }
-    
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
         startStopSpinner(start: true)
         
         segmentControl.borderColor = .clear
-        segmentControl.selectedLabelColor = .white
-        segmentControl.unselectedLabelColor = .darkGray
-        segmentControl.backgroundColor = .lightGray
-        segmentControl.thumbColor = .black
+        segmentControl.selectedLabelColor = UIColor.white
+        segmentControl.unselectedLabelColor = UIColor(named: "colorAccent")!
+        segmentControl.layer.cornerRadius = 10
+        segmentControl.backgroundColor = .clear
+        segmentControl.thumbColor = UIColor(named: "colorAccent")!
+        let font = UIFont.systemFont(ofSize: 15) // pick the size you want
+        segmentControl.font  = UIFont.boldSystemFont(ofSize: font.pointSize)
         segmentControl.selectedIndex = 0
         segmentControl.addTarget(self, action: #selector(segmentValueChanged(_:)), for: .valueChanged)
         
@@ -714,7 +707,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         let set1 = LineChartDataSet(entries: linearValues, label: "Subscribs")
         set1.mode = .cubicBezier
         set1.drawCirclesEnabled = false
-        set1.lineWidth = 3
+        set1.lineWidth = 1
 
         let v1 = linearValues.first!.y
         let v2 = linearValues.last!.y
@@ -722,7 +715,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         // Gradient helper
         func makeGradient(colors: [UIColor], angle: CGFloat = 90.0) -> Fill {
             let cgColors = colors.map { $0.cgColor } as CFArray
-            let locations: [CGFloat] = [0.0, 1.0]
+            let locations: [CGFloat] = [0.0, 0.4]
             let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
                                       colors: cgColors,
                                       locations: locations)!
@@ -732,13 +725,13 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
 
         if v1 < v2 {
-            let gradientFill = makeGradient(colors: [UIColor(named: "colorAccent")!, UIColor(named: "uptrend")!.withAlphaComponent(0.3)])
+            let gradientFill = makeGradient(colors: [UIColor(named: "uptrend")!.withAlphaComponent(0.1), UIColor(named: "uptrend")!.withAlphaComponent(0.5)])
             set1.fill = gradientFill
             set1.setColor(UIColor(named: "uptrend")!)
         } else {
-            let gradientFill = makeGradient(colors: [UIColor(named: "downtrend")!.withAlphaComponent(0.2), UIColor(named: "downtrend")!])
+            let gradientFill = makeGradient(colors: [UIColor(named: "downtrend")!.withAlphaComponent(0.5), UIColor(named: "downtrend")!.withAlphaComponent(0.1)])
             set1.fill = gradientFill
-            set1.setColor(.red)
+            set1.setColor(UIColor(named: "downtrend")!)
         }
 
 

@@ -20,11 +20,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mTo-wT-6BF">
-                                <rect key="frame" x="17" y="117.99999999999999" width="359" height="255.66666666666663"/>
-                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                <rect key="frame" x="10" y="117.99999999999999" width="373" height="255.66666666666663"/>
+                                <color key="backgroundColor" name="colorPrimary"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" alpha="0.69999999999999996" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="16/06/2025 | 1:00pm" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Iz-IS-oCx">
-                                <rect key="frame" x="17" y="373.66666666666669" width="359" height="20.666666666666686"/>
+                                <rect key="frame" x="10" y="373.66666666666669" width="373" height="20.666666666666686"/>
                                 <fontDescription key="fontDescription" name="Avenir-Book" family="Avenir" pointSize="15"/>
                                 <color key="textColor" name="colorSecondary"/>
                                 <nil key="highlightedColor"/>
@@ -254,13 +254,13 @@
                         <constraints>
                             <constraint firstItem="FsK-hf-zaw" firstAttribute="top" secondItem="S6y-1b-6Gb" secondAttribute="bottom" id="099-hg-Qzy"/>
                             <constraint firstItem="FsK-hf-zaw" firstAttribute="leading" secondItem="kwI-Cv-YpN" secondAttribute="leading" constant="15" id="0CT-4F-Oq8"/>
-                            <constraint firstItem="mTo-wT-6BF" firstAttribute="leading" secondItem="kwI-Cv-YpN" secondAttribute="leading" constant="17" id="1H2-UK-zZk"/>
+                            <constraint firstItem="mTo-wT-6BF" firstAttribute="leading" secondItem="kwI-Cv-YpN" secondAttribute="leading" constant="10" id="1H2-UK-zZk"/>
                             <constraint firstItem="mTo-wT-6BF" firstAttribute="top" secondItem="kwI-Cv-YpN" secondAttribute="top" id="32B-aS-UJ4"/>
                             <constraint firstItem="kwI-Cv-YpN" firstAttribute="trailing" secondItem="S6y-1b-6Gb" secondAttribute="trailing" constant="15" id="7QV-XY-asn"/>
                             <constraint firstItem="kwI-Cv-YpN" firstAttribute="trailing" secondItem="FsK-hf-zaw" secondAttribute="trailing" constant="15" id="Ew9-ew-j1Z"/>
                             <constraint firstItem="S6y-1b-6Gb" firstAttribute="top" secondItem="7Iz-IS-oCx" secondAttribute="bottom" constant="5" id="JRF-SV-rHa"/>
                             <constraint firstItem="kwI-Cv-YpN" firstAttribute="bottom" secondItem="FsK-hf-zaw" secondAttribute="bottom" id="MBP-vE-Pb5"/>
-                            <constraint firstItem="kwI-Cv-YpN" firstAttribute="trailing" secondItem="mTo-wT-6BF" secondAttribute="trailing" constant="17" id="Mg8-F7-dKj"/>
+                            <constraint firstItem="kwI-Cv-YpN" firstAttribute="trailing" secondItem="mTo-wT-6BF" secondAttribute="trailing" constant="10" id="Mg8-F7-dKj"/>
                             <constraint firstItem="mTo-wT-6BF" firstAttribute="height" secondItem="UQQ-Ab-cRT" secondAttribute="height" multiplier="0.3" id="MgW-vn-dcr"/>
                             <constraint firstItem="7Iz-IS-oCx" firstAttribute="top" secondItem="mTo-wT-6BF" secondAttribute="bottom" id="PhD-N4-CQU"/>
                             <constraint firstItem="S6y-1b-6Gb" firstAttribute="leading" secondItem="kwI-Cv-YpN" secondAttribute="leading" constant="15" id="SK2-X8-n3D"/>
@@ -323,9 +323,6 @@
         <namedColor name="uptrend">
             <color red="0.64300000667572021" green="0.94099998474121094" blue="0.82400000095367432" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
         <systemColor name="systemGrayColor">
             <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>

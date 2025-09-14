@@ -23,7 +23,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="U.S. Markets on Mar 24 2023" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tqe-R0-VfB">
                                 <rect key="frame" x="15" y="127.99999999999999" width="220.66666666666666" height="19.333333333333329"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" name="colorSecondary"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CV8-Q2-mBa">
@@ -197,7 +197,7 @@
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0DJ-B4-qoC">
                                 <rect key="frame" x="15" y="382.33333333333326" width="363" height="343.66666666666674"/>
-                                <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                <color key="backgroundColor" name="colorPrimary"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U3Q-eC-5SJ" customClass="HBSegmentedControl" customModule="Bullish_Square" customModuleProvider="target">
                                 <rect key="frame" x="15" y="734" width="363" height="35"/>
@@ -494,7 +494,7 @@
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" rowHeight="130" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1SP-Wa-JtH">
                                 <rect key="frame" x="15" y="218" width="363" height="566"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="backgroundColor" name="colorPrimary"/>
                                 <prototypes>
                                     <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="TickerNewsCell" rowHeight="150" id="n3g-u8-NUx" customClass="TickerNewsViewCell" customModule="Bullish_Square" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="363" height="150"/>
@@ -542,7 +542,6 @@
                                                             </state>
                                                         </button>
                                                     </subviews>
-                                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                     <constraints>
                                                         <constraint firstItem="BQ8-yl-Ij2" firstAttribute="height" secondItem="Nmg-7y-TzL" secondAttribute="height" multiplier="0.5" id="7mV-xQ-0T8"/>
                                                         <constraint firstItem="BQ8-yl-Ij2" firstAttribute="width" secondItem="Nmg-7y-TzL" secondAttribute="width" id="INr-jT-UNR"/>
@@ -566,7 +565,6 @@
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                     </subviews>
-                                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                     <constraints>
                                                         <constraint firstItem="LrH-3J-VcE" firstAttribute="height" secondItem="3VP-rU-DbF" secondAttribute="height" multiplier="0.4" id="4Qe-1Q-hye"/>
                                                         <constraint firstItem="55s-aq-KDW" firstAttribute="height" secondItem="3VP-rU-DbF" secondAttribute="height" multiplier="0.4" id="HeA-9A-uDj"/>
@@ -581,6 +579,7 @@
                                                     <rect key="frame" x="0.0" y="0.0" width="311.66666666666669" height="150"/>
                                                 </button>
                                             </subviews>
+                                            <color key="backgroundColor" name="colorPrimary"/>
                                             <constraints>
                                                 <constraint firstItem="Nmg-7y-TzL" firstAttribute="leading" secondItem="DZU-1B-aae" secondAttribute="trailing" constant="15" id="3kY-mC-AQr"/>
                                                 <constraint firstItem="DZU-1B-aae" firstAttribute="top" secondItem="iL9-V4-Toq" secondAttribute="top" id="BRE-SM-TCD"/>
@@ -625,7 +624,7 @@
                             </tableView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="tal-7o-eGB"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" name="colorPrimary"/>
                         <constraints>
                             <constraint firstItem="tal-7o-eGB" firstAttribute="trailing" secondItem="1SP-Wa-JtH" secondAttribute="trailing" constant="15" id="IF7-Pb-HXP"/>
                             <constraint firstItem="ht3-O0-7xZ" firstAttribute="centerX" secondItem="tal-7o-eGB" secondAttribute="centerX" id="SBA-hN-Hzp"/>
@@ -658,7 +657,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="F8f-tR-uW5">
                                 <rect key="frame" x="0.0" y="118" width="393" height="85.333333333333314"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="appleStock" translatesAutoresizingMaskIntoConstraints="NO" id="s2o-96-xTU">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="BS-Logo-BlackW" translatesAutoresizingMaskIntoConstraints="NO" id="s2o-96-xTU">
                                         <rect key="frame" x="20" y="8.6666666666666714" width="68" height="68"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="s2o-96-xTU" secondAttribute="height" multiplier="1:1" id="Icx-IZ-hdO"/>
@@ -677,7 +676,7 @@
                                             <constraint firstAttribute="height" constant="40" id="ouy-A1-J0m"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" name="CourierNewPSMT" family="Courier New" pointSize="22"/>
-                                        <color key="tintColor" name="colorHightlight"/>
+                                        <color key="tintColor" name="colorAccent"/>
                                         <state key="normal">
                                             <color key="titleColor" systemColor="labelColor"/>
                                             <imageReference key="image" image="book.pages" catalog="system" symbolScale="large" renderingMode="original"/>
@@ -693,7 +692,7 @@
                                             <constraint firstAttribute="height" constant="40" id="DqV-I9-JSw"/>
                                             <constraint firstAttribute="width" constant="40" id="bPM-bV-tdn"/>
                                         </constraints>
-                                        <color key="tintColor" name="colorHightlight"/>
+                                        <color key="tintColor" name="colorAccent"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain">
                                             <imageReference key="image" image="square.and.arrow.up" catalog="system" symbolScale="large"/>
@@ -798,7 +797,7 @@
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bw0-YM-78e">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="387.66666666666669"/>
-                                        <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
+                                        <color key="backgroundColor" name="colorPrimary"/>
                                     </view>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="E0y-kp-OUs">
                                         <rect key="frame" x="10" y="387.66666666666669" width="353" height="30"/>
@@ -859,7 +858,7 @@
                                     <constraint firstAttribute="width" constant="30" id="lAt-KU-aSH"/>
                                     <constraint firstAttribute="height" constant="45" id="sxV-Mq-BsC"/>
                                 </constraints>
-                                <color key="tintColor" name="colorAccent"/>
+                                <color key="tintColor" name="colorHightlight"/>
                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                 <state key="normal">
                                     <imageReference key="image" image="chart.bar.fill" catalog="system" symbolScale="large" renderingMode="hierarchical"/>
@@ -940,7 +939,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="XJZ-2D-sHw"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" name="colorPrimary"/>
                     </view>
                     <navigationItem key="navigationItem" id="GH6-AA-yOP"/>
                 </viewController>
@@ -1265,6 +1264,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="BS-Logo-BlackW" width="4292" height="4291"/>
         <image name="FrameSquare20" width="1500" height="1500"/>
         <image name="appleStock" width="128" height="128"/>
         <image name="arrow.triangle.2.circlepath" width="16" height="13"/>

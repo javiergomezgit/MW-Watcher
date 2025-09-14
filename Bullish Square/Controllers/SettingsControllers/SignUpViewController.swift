@@ -57,6 +57,10 @@ class SignUpViewController: UIViewController {
             signUpButton.isEnabled = true
         }
     }
+    @IBAction func skipButtonTapped(_ sender: UIButton) {
+        UserDefaults.standard.set(true, forKey: "userPrefersNoAccount")
+        navigateToMainInterface()
+    }
     
     @IBAction func signUpButtonTapped(_ sender: UIButton) {
         print("sign up with firebase authentication")
@@ -124,6 +128,7 @@ class SignUpViewController: UIViewController {
                 } else {
                     print ("Failed to save UID to Keychain")
                 }
+                UserDefaults.standard.set(false, forKey: "userPrefersNoAccount")
                 
                 // You can now navigate the user to the main part of your app
                 self.navigateToMainInterface()
@@ -153,7 +158,7 @@ class SignUpViewController: UIViewController {
             case .success(let resultToken):
                 
                 let token = resultToken.user.uid
-    //            UserDefaults.standard.set(token, forKey: "authToken")
+
                 if KeychainManager.saveUID(token) {
                     print ("Saved UID to Keychain")
                 } else {
@@ -161,6 +166,7 @@ class SignUpViewController: UIViewController {
                 }
                 
                 print("✅ Apple sign-in successful")
+                UserDefaults.standard.set(false, forKey: "userPrefersNoAccount")
                 self?.navigateToMainInterface()
             case .failure(let error):
                 print("❌ Apple sign-in failed: \(error.localizedDescription)")

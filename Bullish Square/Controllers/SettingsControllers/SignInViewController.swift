@@ -51,6 +51,10 @@ class SignInViewController: UIViewController {
         }
     }
     
+    @IBAction func skipButtonTapped(_ sender: UIButton) {
+        UserDefaults.standard.set(true, forKey: "userPrefersNoAccount")
+        navigateToMainInterface()
+    }
     
     @IBAction func signInButtonTapped(_ sender: UIButton) {
         sender.layer.cornerRadius = 8
@@ -113,6 +117,7 @@ class SignInViewController: UIViewController {
             } else {
                 print("Failed to save UID to Keychain")
             }
+            UserDefaults.standard.set(false, forKey: "userPrefersNoAccount")
             self.navigateToMainInterface()
         }
     }
@@ -134,7 +139,7 @@ class SignInViewController: UIViewController {
                 } else {
                     print ("Failed to save UID to Keychain")
                 }
-                
+                UserDefaults.standard.set(false, forKey: "userPrefersNoAccount")
                 self?.navigateToMainInterface()
             case .failure(let error):
                 print("❌ Apple sign-in failed: \(error.localizedDescription)")

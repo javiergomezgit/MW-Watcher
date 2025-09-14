@@ -224,11 +224,9 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         if percentageChanged < 0 {
             let percentageRounded = round(100*percentageChanged)/100
             cell.changeLabel.text = String(percentageRounded) + "%"
-            //cell.changeLabel.textColor = UIColor(named: "downtrend")//UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
             currentPrice = round(100*currentPrice)/100
             cell.currentPriceLabel.text = "$ " + String(currentPrice)
-//            cell.currentPriceLabel.textColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             
             cell.arrowImageView.image = (UIImage.init(named: "arrow.down.app.fill"))
             cell.arrowImageView.tintColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
@@ -236,11 +234,9 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
             //positive day for market
             let percentageRounded = round(100*percentageChanged)/100
             cell.changeLabel.text = String(percentageRounded) + "%"
-//            cell.changeLabel.textColor = UIColor.white //UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
             currentPrice = round(100*currentPrice)/100
             cell.currentPriceLabel.text = "$ " + String(currentPrice)
-//            cell.currentPriceLabel.textColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
             
             cell.arrowImageView.image = (UIImage.init(named: "arrow.up.square.fill"))
             cell.arrowImageView.tintColor = UIColor.white //UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)

@@ -11,7 +11,8 @@ class EditProfileController: UITableViewController {
     var editingField: String? // "name" or "email"
     var currentProfileImage: UIImage?
     var imageChanged = false
-    
+    var onSave: ((Profile) -> Void)?
+
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
@@ -86,7 +87,7 @@ class EditProfileController: UITableViewController {
         config.preferredStatusBarStyle = UIStatusBarStyle.default
         config.bottomMenuItemSelectedTextColour = UIColor.red // UIColor(r: 38/255, g: 38/255, b: 38/255, a: 1.0)
         config.bottomMenuItemUnSelectedTextColour = UIColor.yellow //UIColor(r: 153, g: 153, b: 153)
-//        config.filters = [DefaultYPFilters...]
+        //        config.filters = [DefaultYPFilters...]
         config.maxCameraZoomFactor = 1.0
         
         
@@ -109,14 +110,14 @@ class EditProfileController: UITableViewController {
         
         // Build a picker with your configuration
         let picker = YPImagePicker(configuration: config)
-    
+        
         picker.didFinishPicking { [unowned picker] items, _ in
             if let photo = items.singlePhoto {
                 print(photo.fromCamera) // Image source (camera or library)
                 print(photo.image) // Final image selected by the user
                 print(photo.originalImage) // original image selected by the user, unfiltered
-//                print(photo.modifiedImage) // Transformed image, can be nil
-//                print(photo.exifMeta) // Print exif meta data of original image.
+                //                print(photo.modifiedImage) // Transformed image, can be nil
+                //                print(photo.exifMeta) // Print exif meta data of original image.
                 self.imageViewProfile.image = photo.image
                 self.imageChanged = true
             }
@@ -132,7 +133,7 @@ class EditProfileController: UITableViewController {
     @objc private func saveTapped() {
         // Save the changes
         saveProfile()
-        //        dismiss(animated: true)
+        //dismiss(animated: true)
     }
     
     private func saveProfile() {
@@ -153,21 +154,21 @@ class EditProfileController: UITableViewController {
         } else {
             
             if imageChanged {
-                        
+                
                 guard let image = imageViewProfile.image else {
-                  print("❌ No/invalid image data")
-                  return
+                    print("❌ No/invalid image data")
+                    return
                 }
-
+                
                 print("Image size:", image.size)
                 
                 SaveProfileInformation().saveImageProfile(imageProfile: image)
-
+                
                 let profileData: [String: Any] = [
                     "name": self.updatedProfile.name,
                     "phoneNumber": self.updatedProfile.phoneNumber!
                 ]
-          
+                
                 Firestore.firestore().collection("users").document(user.uid).updateData(profileData) { error in
                     if let error = error {
                         print("Error updating profile: \(error.localizedDescription)")
@@ -182,7 +183,8 @@ class EditProfileController: UITableViewController {
                         self.phoneTextField.text = self.updatedProfile.phoneNumber
                         
                         Utilities.showAlertWithCompletion(on: self, title: "Updated successfully", message: "Your profile was updated successfully.") {
-                                                        
+                            let updated = self.updatedProfile
+                            self.onSave?(updated)
                             self.dismiss(animated: true) {
                                 if let nav = self.navigationController {
                                     nav.popViewController(animated: true)
@@ -194,7 +196,7 @@ class EditProfileController: UITableViewController {
                         print("Profile updated successfully!")
                     }
                 }
-
+                
             } else {
                 
                 let profileData: [String: Any] = [
@@ -207,13 +209,26 @@ class EditProfileController: UITableViewController {
                         Utilities.showErrorAlert(on: self, message: error.localizedDescription)
                         return
                     }
-                    self.currentProfile?.name = self.updatedProfile.name
-                    self.currentProfile?.phoneNumber = self.updatedProfile.phoneNumber
-                    self.nameTextField.text = self.updatedProfile.name
-                    self.phoneTextField.text = self.updatedProfile.phoneNumber
-                    
-                    Utilities.showAlert(on: self, title: "Updated successfully", message: "Your profile was updated successfully.")
-                    print("Profile updated successfully!")
+                    DispatchQueue.main.async {
+                        self.currentProfile?.name = self.updatedProfile.name
+                        self.currentProfile?.phoneNumber = self.updatedProfile.phoneNumber
+                        self.nameTextField.text = self.updatedProfile.name
+                        self.phoneTextField.text = self.updatedProfile.phoneNumber
+                        
+                        Utilities.showAlertWithCompletion(on: self, title: "Updated successfully", message: "Your profile was updated successfully.") {
+                            
+                            let updated = self.updatedProfile
+                            self.onSave?(updated)
+                            self.dismiss(animated: true) {
+                                if let nav = self.navigationController {
+                                    nav.popViewController(animated: true)
+                                } else {
+                                    self.dismiss(animated: true)
+                                }
+                            }
+                        }
+                        print("Profile updated successfully!")
+                    }
                 }
             }
         }

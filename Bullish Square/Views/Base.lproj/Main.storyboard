@@ -9,10 +9,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Launch-->
+        <!--Onboarding-->
         <scene sceneID="09B-KD-KJo">
             <objects>
-                <viewController storyboardIdentifier="LaunchController" title="Launch" id="pUw-t2-ZMF" customClass="LaunchController" customModule="Bullish_Square" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="OnboardingController" title="Onboarding" id="pUw-t2-ZMF" customClass="OnboardingController" customModule="Bullish_Square" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="CH9-hF-UwJ">
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

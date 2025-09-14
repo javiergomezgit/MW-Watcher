@@ -66,15 +66,22 @@ class SimulatedPortfolioController: UIViewController {
     }
     
     private func setSegementedControl() {
-        timesSegmentedControl.borderColor = .systemGray6
-        timesSegmentedControl.selectedLabelColor = .systemBackground
-        timesSegmentedControl.unselectedLabelColor = .label.withAlphaComponent(0.8)
-        timesSegmentedControl.backgroundColor = .systemGray3
-        timesSegmentedControl.thumbColor = .label
+        timesSegmentedControl.borderColor = .clear
+        timesSegmentedControl.selectedLabelColor = UIColor.white
+        timesSegmentedControl.unselectedLabelColor = UIColor(named: "colorAccent")!
+        timesSegmentedControl.layer.cornerRadius = 10
+        timesSegmentedControl.backgroundColor = .clear
+        timesSegmentedControl.thumbColor = UIColor(named: "colorAccent")!
+        let font = UIFont.systemFont(ofSize: 15) // pick the size you want
+        timesSegmentedControl.font  = UIFont.boldSystemFont(ofSize: font.pointSize)
         timesSegmentedControl.selectedIndex = 0
         timesSegmentedControl.items = ["1 day", "1 month", "1 year", "5 years"]
         timesSegmentedControl.addTarget(self, action: #selector(segmentValueChanged(_:)), for: .valueChanged)
     }
+    
+    
+
+    
     
     @objc func segmentValueChanged(_ sender: AnyObject?){
         

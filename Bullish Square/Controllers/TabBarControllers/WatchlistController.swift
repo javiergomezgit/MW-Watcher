@@ -20,6 +20,7 @@ class WatchlistController: UIViewController {
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
     var percentageChg = 0.0
+    var loadStocks = false //Implemented when the updating for the new version 2.0.0, old database had different information. Temporal until everyone is on version 2.0.0 and more
 //    var spinner = UIActivityIndicatorView(style: .large)
     private let imageViewTopRightButton = UIImageView(image: UIImage(named: "plus.square.on.square"))
     private let imageViewPerformanceButton = UIImageView(image: UIImage(named: "chart.line.uptrend.xyaxis.circle"))
@@ -79,9 +80,11 @@ class WatchlistController: UIViewController {
         }
         
         let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
-        let versionWithoutDots = appVersion.replacingOccurrences(of: ".", with: "")
+        let appversionCharacter = appVersion.first!
         
-        if Int(versionWithoutDots)! >= 1212 {
+        
+        if appversionCharacter.wholeNumberValue! >= 2 {
+            loadStocks = true
             let loadSavedTickers = self.savedTickers.loadTickers()
             if !loadSavedTickers.isEmpty {
                 self.loadMultipleStocks(savedTickers: loadSavedTickers)
@@ -89,7 +92,12 @@ class WatchlistController: UIViewController {
                 self.startStopSpinner(start: false)
             }
         } else {
-            // Create the alert controller
+            loadStocks = false
+//            savedTickers.deleteAllTickers()
+            startStopSpinner(start: false)
+
+            
+//             Create the alert controller
             let alertController = UIAlertController(title: "Reinstall", message: "Uninstall App and download again!", preferredStyle: .alert)
             
             // Create the actions
@@ -410,9 +418,11 @@ extension WatchlistController {
     
     override func viewWillAppear(_ animated: Bool) {
         let loadSavedTickers = savedTickers.loadTickers()
-        loadMultipleStocks(savedTickers: loadSavedTickers)
-        
-        self.tableView.reloadData()
+        if !loadSavedTickers.isEmpty {
+            loadMultipleStocks(savedTickers: loadSavedTickers)
+        } else {
+            self.startStopSpinner(start: false)
+        }
     }
     
     /// Show or hide the image from NavBar while going to next screen or back to initial screen

@@ -78,17 +78,31 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
                     // Save name and email to Firestore if we got them
                     if let fullName = appleIDCredential.fullName {
                         let db = Firestore.firestore()
-                        let name = "\(fullName.givenName ?? "") \(fullName.familyName ?? "") "
-                        let userData: [String: Any] = [
-                            "name": name,
-                            "email": appleIDCredential.email ?? authResult.user.email ?? ""
-                        ]
-                        // Save to Firestore under the user’s ID
-                        db.collection("users").document(authResult.user.uid).setData(userData, merge: true) { error in
-                            if let error = error {
-                                print("Failed to save user data: \(error.localizedDescription)")
+                        if authResult.additionalUserInfo?.isNewUser == true {
+                            //First time this Apple ID signs into Firebase
+                            print("This is a new user. You can create a Firestore document, show onboarding, etc.")
+                            var name = "\(fullName.givenName ?? "")_\(fullName.familyName ?? "")"
+                            if name == "" {
+                                let tempName = appleIDCredential.email?.split(separator: "@") ?? authResult.user.email?.split(separator: "@") ?? ["Without Name"]
+                                name = String(tempName[0])
                             }
+                            let userData: [String: Any] = [
+                                "name": name,
+                                "email": appleIDCredential.email ?? authResult.user.email ?? ""
+                            ]
+                            // Save to Firestore under the user’s ID
+                            db.collection("users").document(authResult.user.uid).setData(userData, merge: true) { error in
+                                if let error = error {
+                                    print("Failed to save user data: \(error.localizedDescription)")
+                                }
+                            }
+                        } else {
+                            //Returning user
+                            print("Existing user signed in.")
+                            let name = "\(fullName.givenName ?? "") \(fullName.familyName ?? "") "
                         }
+                        
+
                     }
                     print("Signed in with Apple: \(authResult.user.email ?? "No email")")
                     self.completionHandler?(.success(authResult))
