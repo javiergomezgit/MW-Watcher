@@ -94,12 +94,23 @@ class SaveTickers {
         let managedContext = appDelegate!.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         
+        fetchRequest.returnsDistinctResults = true
+        fetchRequest.propertiesToFetch = ["ticker"]
+        
+        var seenTickers = Set<String>()
+        
         do {
             tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
             
             for tickerObject in tickerManagedObjectArray {
                 var imageFromData = UIImage()
                 let ticker = tickerObject.value(forKey: "ticker") as! String
+                
+                // ---- MEMORY-LEVEL GUARD (optional but bullet-proof) ----
+                            guard seenTickers.insert(ticker).inserted else { continue }
+                            // ---------------------------------------------------------
+                
+                
                 var name = tickerObject.value(forKey: "nameCompany") as? String
                 let imageName = tickerObject.value(forKey: "imageCompanyName") as? String ?? ticker
                 if name == nil {

@@ -7,12 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		221656E52DFF81A300A38914 /* AMPopTip in Frameworks */ = {isa = PBXBuildFile; productRef = 221656E42DFF81A300A38914 /* AMPopTip */; };
-		22334B6429A1776F00FE3A86 /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 22334B6329A1776F00FE3A86 /* Algorithms */; };
 		2245E3712640C01D00D340DE /* Podfile in Resources */ = {isa = PBXBuildFile; fileRef = 2245E3702640C01D00D340DE /* Podfile */; };
 		226463EA26691EEE00A915D2 /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 226463E926691EEE00A915D2 /* LocalAuthentication.framework */; };
+		229355632EBC113000094140 /* AMPopTip in Frameworks */ = {isa = PBXBuildFile; productRef = 229355622EBC113000094140 /* AMPopTip */; };
+		229355662EBC11DA00094140 /* YPImagePicker in Frameworks */ = {isa = PBXBuildFile; productRef = 229355652EBC11DA00094140 /* YPImagePicker */; };
 		229554F2267A3C260082235C /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 229554F1267A3C260082235C /* CloudKit.framework */; };
-		22F2A01C2E7073C200A27195 /* YPImagePicker in Frameworks */ = {isa = PBXBuildFile; productRef = 22F2A01B2E7073C200A27195 /* YPImagePicker */; };
 		8CF542B22B25878A9E20EC65 /* Pods_Bullish_Square.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 666B9CA0785245CC7BF9E27F /* Pods_Bullish_Square.framework */; };
 /* End PBXBuildFile section */
 
@@ -73,11 +72,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22334B6429A1776F00FE3A86 /* Algorithms in Frameworks */,
-				22F2A01C2E7073C200A27195 /* YPImagePicker in Frameworks */,
 				229554F2267A3C260082235C /* CloudKit.framework in Frameworks */,
-				221656E52DFF81A300A38914 /* AMPopTip in Frameworks */,
+				229355662EBC11DA00094140 /* YPImagePicker in Frameworks */,
 				226463EA26691EEE00A915D2 /* LocalAuthentication.framework in Frameworks */,
+				229355632EBC113000094140 /* AMPopTip in Frameworks */,
 				8CF542B22B25878A9E20EC65 /* Pods_Bullish_Square.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -166,9 +164,8 @@
 			);
 			name = "Bullish Square";
 			packageProductDependencies = (
-				22334B6329A1776F00FE3A86 /* Algorithms */,
-				221656E42DFF81A300A38914 /* AMPopTip */,
-				22F2A01B2E7073C200A27195 /* YPImagePicker */,
+				229355622EBC113000094140 /* AMPopTip */,
+				229355652EBC11DA00094140 /* YPImagePicker */,
 			);
 			productName = "MW Watcher";
 			productReference = 221236A4263DA728007EA092 /* Bullish Square.app */;
@@ -198,9 +195,8 @@
 			);
 			mainGroup = 2212369B263DA728007EA092;
 			packageReferences = (
-				22334B6229A1776F00FE3A86 /* XCRemoteSwiftPackageReference "swift-algorithms" */,
-				221656E32DFF81A300A38914 /* XCRemoteSwiftPackageReference "AMPopTip" */,
-				22F2A01A2E7073C200A27195 /* XCRemoteSwiftPackageReference "YPImagePicker" */,
+				229355612EBC113000094140 /* XCRemoteSwiftPackageReference "AMPopTip" */,
+				229355642EBC11DA00094140 /* XCRemoteSwiftPackageReference "YPImagePicker" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 221236A5263DA728007EA092 /* Products */;
@@ -642,7 +638,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		221656E32DFF81A300A38914 /* XCRemoteSwiftPackageReference "AMPopTip" */ = {
+		229355612EBC113000094140 /* XCRemoteSwiftPackageReference "AMPopTip" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/andreamazz/AMPopTip";
 			requirement = {
@@ -650,38 +646,25 @@
 				minimumVersion = 4.12.0;
 			};
 		};
-		22334B6229A1776F00FE3A86 /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-algorithms.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
-		22F2A01A2E7073C200A27195 /* XCRemoteSwiftPackageReference "YPImagePicker" */ = {
+		229355642EBC11DA00094140 /* XCRemoteSwiftPackageReference "YPImagePicker" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Yummypets/YPImagePicker.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.3.0;
+				minimumVersion = 5.3.2;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		221656E42DFF81A300A38914 /* AMPopTip */ = {
+		229355622EBC113000094140 /* AMPopTip */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 221656E32DFF81A300A38914 /* XCRemoteSwiftPackageReference "AMPopTip" */;
+			package = 229355612EBC113000094140 /* XCRemoteSwiftPackageReference "AMPopTip" */;
 			productName = AMPopTip;
 		};
-		22334B6329A1776F00FE3A86 /* Algorithms */ = {
+		229355652EBC11DA00094140 /* YPImagePicker */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 22334B6229A1776F00FE3A86 /* XCRemoteSwiftPackageReference "swift-algorithms" */;
-			productName = Algorithms;
-		};
-		22F2A01B2E7073C200A27195 /* YPImagePicker */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 22F2A01A2E7073C200A27195 /* XCRemoteSwiftPackageReference "YPImagePicker" */;
+			package = 229355642EBC11DA00094140 /* XCRemoteSwiftPackageReference "YPImagePicker" */;
 			productName = YPImagePicker;
 		};
 /* End XCSwiftPackageProductDependency section */

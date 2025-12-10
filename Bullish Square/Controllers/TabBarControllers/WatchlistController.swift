@@ -83,37 +83,37 @@ class WatchlistController: UIViewController {
         let appversionCharacter = appVersion.first!
         
         
-        if appversionCharacter.wholeNumberValue! >= 2 {
-            loadStocks = true
-            let loadSavedTickers = self.savedTickers.loadTickers()
-            if !loadSavedTickers.isEmpty {
-                self.loadMultipleStocks(savedTickers: loadSavedTickers)
-            } else {
-                self.startStopSpinner(start: false)
-            }
-        } else {
-            loadStocks = false
-//            savedTickers.deleteAllTickers()
-            startStopSpinner(start: false)
-
-            
-//             Create the alert controller
-            let alertController = UIAlertController(title: "Reinstall", message: "Uninstall App and download again!", preferredStyle: .alert)
-            
-            // Create the actions
-            let okAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default) {
-                UIAlertAction in
-                exit(0)
-            }
-            
-            // Add the actions
-            alertController.addAction(okAction)
-            
-            // Present the controller
-            self.present(alertController, animated: true, completion: nil)
-            
-            
-        }
+//        if appversionCharacter.wholeNumberValue! >= 2 {
+//            loadStocks = true
+//            let loadSavedTickers = self.savedTickers.loadTickers()
+//            if !loadSavedTickers.isEmpty {
+//                self.loadMultipleStocks(savedTickers: loadSavedTickers)
+//            } else {
+//                self.startStopSpinner(start: false)
+//            }
+//        } else {
+//            loadStocks = false
+////            savedTickers.deleteAllTickers()
+//            startStopSpinner(start: false)
+//
+//            
+////             Create the alert controller
+//            let alertController = UIAlertController(title: "Reinstall", message: "Uninstall App and download again!", preferredStyle: .alert)
+//            
+//            // Create the actions
+//            let okAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default) {
+//                UIAlertAction in
+//                exit(0)
+//            }
+//            
+//            // Add the actions
+//            alertController.addAction(okAction)
+//            
+//            // Present the controller
+//            self.present(alertController, animated: true, completion: nil)
+//            
+//            
+//        }
         
     }
     
@@ -171,6 +171,8 @@ class WatchlistController: UIViewController {
         }
         
         StockAPI.shared.getPriceMultipleStocks(tickersGroup: mergedTickers, timeRange: timeRange) { result in
+            
+            print (mergedTickers)
             switch result {
                 
             case .success(let tickersGroupPrices):

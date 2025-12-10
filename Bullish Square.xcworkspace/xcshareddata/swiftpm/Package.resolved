@@ -1,5 +1,5 @@
 {
-  "originHash" : "991ac480bc5f39de21ed80462d8e1bed141d772a2816e6f7eeb0e055f58159ac",
+  "originHash" : "18fb7601fa0acff58ebb105f75d1e9891439a202042d8a2a9a54044c115f6a79",
   "pins" : [
     {
       "identity" : "ampoptip",
@@ -24,26 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/freshOS/Stevia",
       "state" : {
-        "revision" : "cfb1a1d2159277bb553c3dc46f3f742c0275566d",
-        "version" : "5.1.2"
-      }
-    },
-    {
-      "identity" : "swift-algorithms",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-algorithms.git",
-      "state" : {
-        "revision" : "87e50f483c54e6efd60e885f7f5aa946cee68023",
-        "version" : "1.2.1"
-      }
-    },
-    {
-      "identity" : "swift-numerics",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-numerics.git",
-      "state" : {
-        "revision" : "bbadd4b853a33fd78c4ae977d17bb2af15eb3f2a",
-        "version" : "1.1.0"
+        "revision" : "6192b6216f821b7132e9b772108f25af8cf8ebc5",
+        "version" : "6.2.2"
       }
     },
     {
@@ -51,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Yummypets/YPImagePicker.git",
       "state" : {
-        "revision" : "9d1c5e938c2de8f851da54af9037eda2d98ea649",
-        "version" : "5.3.0"
+        "revision" : "a1dbf277792dbfa6e15719e57bb552c9f471b94a",
+        "version" : "5.3.2"
       }
     }
   ],
