@@ -16,10 +16,18 @@ class LiveNewsViewCell: UITableViewCell {
     @IBOutlet weak var feedImageView: UIImageView!
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var shareButton: UIButton!
+    @IBOutlet weak var bottomView: UIView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
 
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        //feedImageView.roundCorners([.topLeft, .topRight], percent: 10)    // 10% rounded corners
+        feedImageView.roundAllCorners(by: 10)
+        bottomView.roundCornersUIView([.bottomLeft, .bottomRight], percent: 20)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

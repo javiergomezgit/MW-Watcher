@@ -134,6 +134,9 @@ class Support {
         }
         return image
     }
+    
+    //MARK: Round edges of an image
+    
 }
 
 
@@ -168,22 +171,63 @@ extension String {
     }
 }
 
+//MARK: Round edges for images
+extension UIImageView {
+    /// Rounds the corners by a percentage of the imageView’s height.
+    func roundAllCorners(by percentage: CGFloat) {
+        let radius = bounds.height * (percentage / 100)
+        layer.cornerRadius = radius
+        layer.masksToBounds = true
+    }
+    
+    /// Round specific corners with a radius by percentage.
+    /// Use     imageNews.roundCorners([.topLeft, .topRight], radius: 10)
+    func roundCorners(_ corners: UIRectCorner, percent: CGFloat) {
+        layoutIfNeeded()  // ensure we have final bounds
+        
+        let modifiedPercent = percent / 100
 
-//MARK: Fixings for libraries
-/* Replace this:
- internal static let EaseOutBack = { (elapsed: TimeInterval, duration: TimeInterval) -> Double in
- let s: TimeInterval = 1.70158
- var position: TimeInterval = elapsed / duration
- position -= 1.0
- return Double( position * position * ((s + 1.0) * position + s) + 1.0 )
- }
- 
-For this:
-internal static let EaseOutBack = { (elapsed: TimeInterval, duration: TimeInterval) -> Double in
-    let s: TimeInterval = 1.70158
-    var position: TimeInterval = elapsed / duration
-    position -= 1.0
-    let position2 = (s + 1.0) * position + s
-    return Double( position * position * (position2) + 1.0 )
+        let minSide = min(bounds.width, bounds.height)
+        let radius = minSide * modifiedPercent
+
+        let path = UIBezierPath(
+            roundedRect: bounds,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        layer.mask = mask
+    }
 }
-*/
+
+
+//MARK: Round edges for images
+extension UIView {
+    /// Rounds the corners by a percentage of the imageView’s height.
+    func roundAllCornersUIView(by percentage: CGFloat) {
+        let radius = bounds.height * (percentage / 100)
+        layer.cornerRadius = radius
+        layer.masksToBounds = true
+    }
+    
+    /// Round specific corners with a radius by percentage.
+    /// Use     imageNews.roundCorners([.topLeft, .topRight], radius: 10)
+    func roundCornersUIView(_ corners: UIRectCorner, percent: CGFloat) {
+        layoutIfNeeded()  // ensure we have final bounds
+        
+        let modifiedPercent = percent / 100
+
+        let minSide = min(bounds.width, bounds.height)
+        let radius = minSide * modifiedPercent
+
+        let path = UIBezierPath(
+            roundedRect: bounds,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        layer.mask = mask
+    }
+}

@@ -20,7 +20,7 @@ class TickerNewsController: UIViewController {
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet var tableView: UITableView!
     @IBOutlet weak var nameStock: UILabel!
-
+    
     var ticker = ""
     var name = ""
     var cryptoCoin = false
