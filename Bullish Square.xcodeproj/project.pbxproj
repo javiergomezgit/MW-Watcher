@@ -427,7 +427,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Bullish Square/MW Watcher.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.0.0;
+				CURRENT_PROJECT_VERSION = 2.0.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -445,7 +445,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 2.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -525,7 +525,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Bullish Square/MW Watcher.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.0.0;
+				CURRENT_PROJECT_VERSION = 2.0.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = SJK4QJY486;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -542,7 +542,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.0.0;
+				MARKETING_VERSION = 2.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
