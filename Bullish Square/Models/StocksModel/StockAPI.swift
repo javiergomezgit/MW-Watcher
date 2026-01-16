@@ -233,10 +233,11 @@ final class StockAPI {
                                     if let symbolDictionary = subSubJSON.object as? [String: Any] {
                                         let symbol = symbolDictionary["symbol"] as? String
                                         let shortName = symbolDictionary["shortname"] as? String
-                                        _ = symbolDictionary["longname"] as? String //Stores the long name of the stock
+                                        let longName = symbolDictionary["longname"] as? String //Stores the long name of the stock
+                                        let name = shortName ?? longName ?? "N/A"
                                         let stockType = symbolDictionary["quoteType"] as? String
                                         let exchange = symbolDictionary["exchDisp"] as? String
-                                        let stock = Stock(ticker: symbol!, nameTicker: shortName!, exchange: exchange!, stockType: stockType!)
+                                        let stock = Stock(ticker: symbol!, nameTicker: name, exchange: exchange!, stockType: stockType!)
                                         stocks.append(stock)
                                     }
                                 }
