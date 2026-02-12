@@ -1,4 +1,7 @@
-
+```
+Bullish Square/Security/PrivateKeys.swift
+Bullish Square/Security/GoogleService-Info.plist
+```
 Widget/Info.plist
 TestingFunctions.playground/playground.xcworkspace/xcuserdata/javiergomez.xcuserdatad/UserInterfaceState.xcuserstate
 TestingFunctions.playground/playground.xcworkspace/contents.xcworkspacedata
@@ -49,6 +52,7 @@ MW Watcher/Info.plist
 MW Watcher/GoogleService-Info.plist
 MW Watcher/CryptoModel/CryptosAPI.swift
 MW Watcher/ChartsModel/ChartsAPI.swift
+
 Resources/.DS_Store
 Resources/iOS Phones - 6.7"/Apple iPhone 11 Pro Max Screenshot 1.png
 Resources/iOS Phones - 6.7"/Apple iPhone 11 Pro Max Screenshot 2.png
@@ -761,3 +765,4 @@ Resources BS/Screens 2.0.0/IMG_0744.PNG
 Resources BS/Screens 2.0.0/IMG_0746.PNG
 Resources BS/Screens 2.0.0/IMG_0747.PNG
 .DS_Store
+Bullish Square/Security/GoogleService-Info.plist
