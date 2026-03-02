@@ -99,10 +99,11 @@ extension LiveNewsController {
         imageViewSavedNews.tintColor = .label
         imageViewSavedNews.addGestureRecognizer(tapGestureRecognizer)
         
-        let tapGestureRecognizerSearch = UITapGestureRecognizer(target: self, action: #selector(imagePlayAudioNewsTapped(tapGestureRecognizer:)))
-        imageViewSearchNews.isUserInteractionEnabled = true
+        // Temporarily hide the "play headlines" entry point until the picker flow is finalized.
+        // TODO: Re-enable this button and gesture when the headline-count picker UX is ready.
+        imageViewSearchNews.isHidden = true
+        imageViewSearchNews.isUserInteractionEnabled = false
         imageViewSearchNews.tintColor = .label
-        imageViewSearchNews.addGestureRecognizer(tapGestureRecognizerSearch)
         
         guard let navigationBar = navigationController?.navigationBar else { return }
         navigationBar.addSubview(imageViewSavedNews)
@@ -447,6 +448,7 @@ extension LiveNewsController {
     }
     
     // Show alert to select number of news headlines to play audio
+    // TODO: Re-enable this flow after product sign-off for the headline-count picker UI.
     @objc func imagePlayAudioNewsTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         let numberOfNews = newsItems.count
         if numberOfNews == 0 {
