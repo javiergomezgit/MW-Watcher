@@ -152,63 +152,77 @@ extension LiveNewsController {
     
     // Handle pull-to-refresh
     @objc func refresh(_ sender: AnyObject) {
-        loadNews()
+        NewsCache.shared.clear()
+        startStopSpinner(start: true)
+        SceneDelegate.triggerNewsPrefetch()
+        pollCacheUntilReady(categories: ["business", "world", "general"], attempt: 0)
     }
     
     // Load news from multiple sources
     func loadNews() {
-        refreshControl.beginRefreshing()
-        startStopSpinner(start: true)
+        let categories = ["business", "world", "general"]
         
-        let selectedSources = ["business", "world", "general"]
-        var error = false
+        // ✅ All 3 ready — not just any
+        let allReady = categories.allSatisfy { NewsCache.shared.get($0) != nil }
+        
+        if allReady {
+            populateNews(from: categories)
+        } else {
+            startStopSpinner(start: true)
+            pollCacheUntilReady(categories: categories, attempt: 0)
+        }
+    }
+    
+    private func pollCacheUntilReady(categories: [String], attempt: Int) {
+        let maxAttempts = 20
+        let allReady = categories.allSatisfy { NewsCache.shared.get($0) != nil }
+        
+        if allReady {
+            populateNews(from: categories) // ← handles main thread internally
+        } else if attempt < maxAttempts {
+            DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                self.pollCacheUntilReady(categories: categories, attempt: attempt + 1)
+            }
+        } else {
+            populateNews(from: categories) // timeout fallback
+        }
+    }
+    
+    private func populateNews(from categories: [String]) {
+        // ✅ Force main thread always
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { self.populateNews(from: categories) }
+            return
+        }
+        
+        sources.removeAll()
+        newsItems.removeAll()
+        backupNewsItems.removeAll()
+        sources.append("ALL")
+        
         var tempSources: Set<String> = []
-        var count = 0
         
-        for source in selectedSources {
-            NewsCallAPI.shared.loadAllNews(keySource: source) { allNews in
-                if allNews == nil {
-                    print("Error getting from one of the sources")
-                    error = true
-                } else {
-                    if count == 0 {
-                        self.sources.removeAll()
-                        self.newsItems.removeAll()
-                        self.backupNewsItems.removeAll()
-                        self.sources.append("ALL")
-                    }
-                    for news in allNews! {
-                        let inserted = tempSources.insert(news.author)
-                        if inserted.inserted {
-                            self.sources.append(news.author)
-                        }
-                        self.newsItems.append(news)
-                        self.backupNewsItems.append(news)
-                    }
-                    
-                    if selectedSources.count - 1 == count {
-                        DispatchQueue.main.async {
-                            self.sources.sort()
-                            self.tableView.reloadData()
-                            self.collectionView.reloadData()
-                            self.refreshControl.endRefreshing()
-                            self.startStopSpinner(start: false)
-                            if !self.alreadyLaunched {
-                                self.showFirstTimeNotification(whereView: self.tableView)
-                            }
-                            print("News items loaded: \(self.newsItems.count)")
-                        }
-                    }
+        for category in categories {
+            guard let items = NewsCache.shared.get(category) else { continue }
+            for news in items {
+                if tempSources.insert(news.author).inserted {
+                    sources.append(news.author)
                 }
-                count += 1
+                newsItems.append(news)
+                backupNewsItems.append(news)
             }
         }
         
-        if error {
-            DispatchQueue.main.async {
-                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error, try later!", titleButton: "OK", over: self)
-            }
+        sources.sort()
+        tableView.reloadData()
+        collectionView.reloadData()
+        refreshControl.endRefreshing()
+        startStopSpinner(start: false)
+        
+        if !alreadyLaunched {
+            showFirstTimeNotification(whereView: tableView)
         }
+        print("News items loaded from cache: \(self.newsItems.count)")
     }
 }
 

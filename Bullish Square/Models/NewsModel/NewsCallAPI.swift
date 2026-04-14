@@ -75,6 +75,7 @@ final class NewsCallAPI {
                     let newsItem = NewsItem.init(headline: headline, link: link, pubDate: pubDate, ticker: "", author: authorName, image: downloadedImage)
                     newsItems.append(newsItem)
                 }
+                print("✅ Cached: \(keySource) — \(newsItems.count) articles from News CallAPI")
                 completion(newsItems)
             }
         })
