@@ -11,7 +11,7 @@ import WebKit
 class BrowserController: UIViewController, WKNavigationDelegate {
 
     var webView: WKWebView!
-    var urlString = "https://www.jdevprojects.com/"
+    var urlString = "https://www.jdevit.com/"
 
     override func loadView() {
         webView = WKWebView()
