@@ -751,37 +751,31 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     @IBAction func openNewsButton(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
+        guard let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController else { return }
+
         if self.informationCryptoTicker.name == "" {
             let ticker = informationStockTicker.ticker
             
-            let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
-            let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
-            
             if indexMarket {
-                destination!.ticker = indexName
-                destination!.name = indexName
+                destination.ticker = indexName
+                destination.name = indexName
             } else {
-                destination!.ticker = ticker
-                destination!.name = nameTicker
+                destination.ticker = ticker
+                destination.name = nameTicker
             }
-                        
-            destination!.modalTransitionStyle = .crossDissolve
-            self.present(destination!, animated: true, completion: nil)
-            //        self.show(destination!, sender: self)
         } else {
-            //sender.isEnabled = false
-            let ticker = informationCryptoTicker.symbol
-            
-            let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
-            let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController
-            
-            destination!.ticker = ticker
-            destination!.cryptoCoin = true
-            destination!.name = informationCryptoTicker.name
-           
-            destination!.modalTransitionStyle = .crossDissolve
-            self.present(destination!, animated: true, completion: nil)
+            destination.ticker = informationCryptoTicker.symbol
+            destination.cryptoCoin = true
+            destination.name = informationCryptoTicker.name
         }
+        
+        destination.modalTransitionStyle = .crossDissolve
+
+        let navController = UINavigationController(rootViewController: destination)
+        navController.modalPresentationStyle = .pageSheet
+        navController.modalTransitionStyle = .crossDissolve
+        self.present(navController, animated: true)
     }
 }
 

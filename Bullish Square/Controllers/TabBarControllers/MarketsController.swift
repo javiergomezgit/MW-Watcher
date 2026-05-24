@@ -255,17 +255,15 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         let percentageRounded = round(100*perChange)/100
         
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
-        let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
+        let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as! ChartController
         
         let tickerWithChange = TickersCurrentValues(ticker: ticker.indexTicker, marketPrice: ticker.indexPrice, previousPrice: 0.0, changePercent: percentageRounded)
-        destination!.informationStockTicker = tickerWithChange
-        destination!.indexName = ticker.indexName
-        destination!.indexMarket = true
+        destination.informationStockTicker = tickerWithChange
+        destination.indexName = ticker.indexName
+        destination.nameTicker = ticker.indexName
+        destination.indexMarket = true
         
-        destination!.modalPresentationStyle = .popover
-        destination!.modalTransitionStyle = .crossDissolve
-        
-        self.present(destination!, animated: true, completion: nil)
+        navigationController?.pushViewController(destination, animated: true)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -332,17 +330,20 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
         price = round(100*price)/100
         
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
-        let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController
+
+        guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
         
         let cryptoInfoToPass = CryptosViewCellModel(symbol: ticker.indexTicker, name: ticker.indexName, price: String(price), change: String(percentageRounded), changeMonth: "", volume: "", cryptoImageName: ticker.indexTicker)
-        destination!.informationCryptoTicker = cryptoInfoToPass
-        destination!.indexName = ticker.indexName
-        destination!.indexMarket = true
+        destination.informationCryptoTicker = cryptoInfoToPass
+        destination.nameTicker = ticker.indexName
+        destination.indexName = ticker.indexName
+        destination.indexMarket = true
         
-        destination!.modalPresentationStyle = .popover
-        destination!.modalTransitionStyle = .crossDissolve
+        destination.modalPresentationStyle = .popover
+        destination.modalTransitionStyle = .crossDissolve
         
-        self.present(destination!, animated: true, completion: nil)
+        //self.present(destination!, animated: true, completion: nil)
+        navigationController?.pushViewController(destination, animated: true)
     }
 }
 

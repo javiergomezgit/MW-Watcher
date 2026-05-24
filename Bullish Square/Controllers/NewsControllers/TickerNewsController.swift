@@ -49,6 +49,12 @@ class TickerNewsController: UIViewController {
         } else {
             loadTickerNews()
         }
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(dismissController))
+    }
+    
+    @objc func dismissController() {
+        dismiss(animated: true)
     }
     
     @objc func refresh(_ sender: AnyObject) {

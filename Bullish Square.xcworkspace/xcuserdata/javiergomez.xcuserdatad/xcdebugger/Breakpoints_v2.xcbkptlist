@@ -7,22 +7,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "09A8AEC2-3586-4A47-A0DB-04E24CC603A6"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Bullish Square/Controllers/TabBarControllers/WatchlistController.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "225"
-            endingLineNumber = "225"
-            landmarkName = "searchStocksControllerDidDismiss(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "F566135B-D5BD-46E3-A91C-D41B8ADB609C"
             shouldBeEnabled = "No"
             ignoreCount = "0"
@@ -65,6 +49,22 @@
             startingLineNumber = "234"
             endingLineNumber = "234"
             landmarkName = "searchStocks(ticker:completion:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "67B66E41-6213-4F19-A244-766E25B1ABD7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Bullish Square/Controllers/IndividualControllers/ChartController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "143"
+            endingLineNumber = "143"
+            landmarkName = "selectedStockTicker()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
