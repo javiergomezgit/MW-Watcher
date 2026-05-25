@@ -73,19 +73,65 @@ class MarketsController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupUITopRightButton()
-        startStopSpinner(start: true)
-        loadMajorMarketsChart()
-        loadCurrentPrices()
-        
         sizeOfCell = (view.frame.width/3) - (view.frame.width/20)
+
+        startStopSpinner(start: true)
+        loadFromCacheOrFetch()
     }
-    
+
     func updateAllData() {
         startStopSpinner(start: true)
         loadMajorMarketsChart()
         loadCurrentPrices()
+    }
+
+    private func loadFromCacheOrFetch() {
+        if let cached = MarketsCache.shared.get() {
+            populateFromCache(cached)
+        } else {
+            pollCacheUntilReady(attempt: 0)
+        }
+    }
+
+    private func pollCacheUntilReady(attempt: Int) {
+        let maxAttempts = 20
+        if let cached = MarketsCache.shared.get() {
+            DispatchQueue.main.async { self.populateFromCache(cached) }
+        } else if attempt < maxAttempts {
+            DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
+                self.pollCacheUntilReady(attempt: attempt + 1)
+            }
+        } else {
+            DispatchQueue.main.async {
+                self.loadMajorMarketsChart()
+                self.loadCurrentPrices()
+            }
+        }
+    }
+
+    private func populateFromCache(_ cached: MarketsCache.CachedData) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { self.populateFromCache(cached) }
+            return
+        }
+
+        marketsDataDJI = cached.chartDJI
+        marketsDataSP500 = cached.chartSP500
+        marketsDataIXIC = cached.chartIXIC
+
+        majorMarketsPrices.removeAll()
+        loadMajorMarkets(marketsValues: cached.marketQuotes)
+
+        let ts = Support.sharedSupport.dateFormatUnixToLocal(timeInt: cached.timestamp)
+        dateLatestDataLabel.text = ts
+
+        collectionView.reloadData()
+        setUpMarketModel()
+        setUpViewModel(cryptoValues: cached.cryptoData)
+        startStopSpinner(start: false)
+        print("✅ Markets populated from cache")
     }
     
     let child = Spinner()

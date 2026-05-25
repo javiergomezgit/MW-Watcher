@@ -20,6 +20,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             delegate.startNewsPrefetch()
         }
     }
+
+    static func triggerMarketsPrefetch() {
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let delegate = scene.delegate as? SceneDelegate {
+            delegate.startMarketsPrefetch()
+        }
+    }
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
@@ -41,8 +48,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
         }
         
-        // Start background news prefetch for any navigation path
+        // Start background prefetch for any navigation path
         startNewsPrefetch()
+        startMarketsPrefetch()
         hasInitialFetchStarted = true
         
         window.makeKeyAndVisible()
@@ -50,11 +58,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func sceneWillEnterForeground(_ scene: UIScene) {
         guard hasInitialFetchStarted else { return }
-        
+
         let categories = ["business", "world", "general"]
         let anyStale = categories.contains { NewsCache.shared.isStale($0) }
         if anyStale {
             startNewsPrefetch()
+        }
+
+        if MarketsCache.shared.isStale() {
+            startMarketsPrefetch()
         }
     }
     
@@ -82,6 +94,36 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         fetchNext(0)
     }
     
+    // MARK: - Markets Prefetch
+
+    func startMarketsPrefetch() {
+        ChartAPI.shared.getMajorMarketsValues(symbol: "^DJI") { result in
+            guard case .success(let dji) = result else { return }
+            ChartAPI.shared.getMajorMarketsValues(symbol: "^GSPC") { result in
+                guard case .success(let sp500) = result else { return }
+                ChartAPI.shared.getMajorMarketsValues(symbol: "^IXIC") { result in
+                    guard case .success(let ixic) = result else { return }
+                    StockAPI.shared.getPriceGeneralMarkets { markets, timestamp in
+                        guard let markets = markets else { return }
+                        CryptoAPI.shared.getAllCryptosData { cryptoResult in
+                            guard case .success(let cryptoData) = cryptoResult else { return }
+                            let cached = MarketsCache.CachedData(
+                                chartDJI: dji,
+                                chartSP500: sp500,
+                                chartIXIC: ixic,
+                                marketQuotes: markets,
+                                cryptoData: cryptoData,
+                                timestamp: timestamp
+                            )
+                            MarketsCache.shared.store(cached)
+                            print("✅ Markets data cached")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // MARK: - First Launch
     
     private func addStarterTicker() {
