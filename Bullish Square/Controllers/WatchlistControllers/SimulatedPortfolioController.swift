@@ -168,7 +168,7 @@ class SimulatedPortfolioController: UIViewController {
         var pricesAndTimes = [PerformersPrices]()
         
         for marketValue in marketsValues {
-
+            //print("\(marketValue.ticker): \(marketValue.tickerPerformer.map { $0.close })")
             let ticker = marketValue.ticker
             switch ticker {
             case "^DJI":
@@ -214,7 +214,7 @@ class SimulatedPortfolioController: UIViewController {
         
         populatePortfolioChartEntry(portfolioStocks: pricesAndTimes)
         
-        sumPortfolio = sumPortfolio / Double(marketsValues.count - 4)
+        sumPortfolio = sumPortfolio / Double(pricesAndTimes.count)
         
         let dowCompareTo = sumPortfolio - self.dowTodayPrice
         let sp500CompareTo = sumPortfolio - self.sp500TodayPrice
@@ -280,24 +280,41 @@ class SimulatedPortfolioController: UIViewController {
     
     private func populatePortfolioChartEntry(portfolioStocks: [PerformersPrices]) {
         
-        for (index, stock) in portfolioStocks.enumerated() {
-            if index == 0 {
-                for (i, closePrices) in stock.tickerPerformer.enumerated() {
-                    let closePrice = closePrices.close
-                    self.linearValuesPortfolio.append(ChartDataEntry(x: Double(i), y: closePrice))
-                }
-            } else {
-                for (i, closePrices) in stock.tickerPerformer.enumerated() {
-                    if i != self.linearValuesPortfolio.count {
-                        let closePrice = closePrices.close
-                        let previousPrice = self.linearValuesPortfolio[i].y
-                        
-                        let avgPercentage = (previousPrice + closePrice) / Double(portfolioStocks.count)
-                        self.linearValuesPortfolio[i].y = avgPercentage
-                    }
-                }
+        var sumPerSlot: [Int: Double] = [:]
+        var countPerSlot: [Int: Int] = [:]
+        
+        for stock in portfolioStocks {
+            for (i, closePrices) in stock.tickerPerformer.enumerated() {
+                let closePrice = closePrices.close
+                guard closePrice != 0 else { continue }
+                sumPerSlot[i, default: 0] += closePrice
+                countPerSlot[i, default: 0] += 1
             }
         }
+        
+        linearValuesPortfolio.removeAll()
+        
+        //Use max slot count instead of only slots with data
+        let maxSlot = portfolioStocks.map { $0.tickerPerformer.count }.max() ?? 0
+        
+        for i in 0..<maxSlot {
+            let sum = sumPerSlot[i] ?? 0
+            let count = countPerSlot[i] ?? 0
+            
+            guard count > 0 else {
+                //Fill gap with previous value — keeps chart line continuous
+                let previousY = linearValuesPortfolio.last?.y ?? 0
+                print("Slot \(i): GAP FILLED with \(previousY)")
+
+                linearValuesPortfolio.append(ChartDataEntry(x: Double(i), y: previousY))
+                continue
+            }
+            
+            let avg = sum / Double(count)
+            print("Slot \(i): avg=\(avg) count=\(count)")
+            linearValuesPortfolio.append(ChartDataEntry(x: Double(i), y: avg))
+        }
+        print("populatePortfolioChartEntry running — maxSlot: \(portfolioStocks.map { $0.tickerPerformer.count }.max() ?? 0)")
     }
     
     lazy var lineChartView: LineChartView = {
@@ -357,7 +374,7 @@ extension SimulatedPortfolioController: ChartViewDelegate {
     
     func loadPerformerChart() {
         var centerLineData = [ChartDataEntry]()
-        for index in 0...linearValuesDJI.count { //78
+        for index in 0..<linearValuesDJI.count {
             centerLineData.append(ChartDataEntry(x: Double(index), y: 0.0))
         }
         let centerLine = LineChartDataSet(entries: centerLineData, label: "- 0% -")

@@ -49,9 +49,8 @@ final class ChartAPI {
         
         var exchangeName = ""
         let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, response, error in
+        let task = session.dataTask(with: request as URLRequest) { data, _, error in
             if let error = error {
-//                completion(.failure(error))
                 completion(.errorFailure(error))
                 return
             }
@@ -80,12 +79,20 @@ final class ChartAPI {
                             let close   =   subSubJSON["close"].double
                             let volume  =   subSubJSON["volume"].double
                             
-                            let value = ValueStock(start_timestamp: dateTime!, open: open!, high: high!, low: low!, close: close!, volume: volume!)
+                            guard let dateTime = dateTime,
+                                  let open = open,
+                                  let high = high,
+                                  let low = low,
+                                  let close = close,
+                                  let volume = volume else { continue }
+                            
+                            let value = ValueStock(start_timestamp: dateTime, open: open, high: high, low: low, close: close, volume: volume)
                             valuesStock.append(value)
                         }
                     }
                 }
-                let sortedValues = valuesStock.sorted(by: { $0.start_timestamp > $1.start_timestamp })
+                let filteredValues = valuesStock.filter { $0.close != 0 }
+                let sortedValues = filteredValues.sorted(by: { $0.start_timestamp > $1.start_timestamp })
                 valuesStock.removeAll()
                 for (index, valueStock) in sortedValues.enumerated() {
                     if index <= 59 {
@@ -321,28 +328,35 @@ final class ChartAPI {
                 var marketsValues = [PerformersPrices]()
                 for tickerJSON in arrayJSON {
                     print (tickerJSON)
-
-                    let tickerDictionary = tickerJSON.value as? [String: Any]
-                    let previousClose = tickerDictionary!["chartPreviousClose"] as! Double
                     
-                    let arrayPrices = tickerDictionary!["close"] as! [Double]
-                    let arrayTimeStamps = tickerDictionary!["timestamp"] as! [Double]
+                    guard let tickerDict = tickerJSON.value as? [String: Any],
+                          let previousClose = tickerDict["chartPreviousClose"] as? Double,
+                          let rawPrices = tickerDict["close"] as? [Any],
+                          let arrayTimeStamps = tickerDict["timestamp"] as? [Double] else { continue }
                     
-                    let currentPrice = arrayPrices.last
-                    let basePrice = arrayPrices.first
+                    let arrayPrices: [Double] = rawPrices.compactMap { item in
+                        guard let price = item as? Double, price > 0 else { return nil }
+                        return price
+                    }
+                    
+                    guard !arrayPrices.isEmpty,
+                          let currentPrice = arrayPrices.last,
+                          let basePrice = arrayPrices.first else { continue }
+                    
                     var pricesAndTimes = [MarketsClosedPrices]()
                     for (index, closePrice) in arrayPrices.enumerated() {
-                        let changePercentage = ((closePrice * 100) / basePrice!) - 100
+                        let changePercentage = ((closePrice * 100) / basePrice) - 100
                         let percentageRounded = Double(round(100*changePercentage)/100)
                         
+                        guard index < arrayTimeStamps.count else { break }
                         let priceTime = MarketsClosedPrices(timeStamp: arrayTimeStamps[index], close: percentageRounded)
                         pricesAndTimes.append(priceTime)
                     }
                     
-                    let changePercentage = ((currentPrice! * 100) / previousClose) - 100
+                    let changePercentage = ((currentPrice * 100) / previousClose) - 100
                     let percentageRounded = Double(round(100*changePercentage)/100)
-                    
-                    let tickerValue = PerformersPrices(ticker: tickerJSON.key, changePercentage: percentageRounded, currentPrice: currentPrice!, tickerPerformer: pricesAndTimes)
+
+                    let tickerValue = PerformersPrices(ticker: tickerJSON.key, changePercentage: percentageRounded, currentPrice: currentPrice, tickerPerformer: pricesAndTimes)
                     
                     marketsValues.append(tickerValue)
                 }

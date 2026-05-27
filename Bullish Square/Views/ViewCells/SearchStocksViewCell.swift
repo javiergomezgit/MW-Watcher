@@ -120,6 +120,15 @@ class SearchStocksViewCell: UITableViewCell {
         return super.hitTest(point, with: event)
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        ticker = ""
+        isAdded = false
+        stockLabel.text = nil
+        stockNameLabel.text = nil
+        exchangeLabel.text = nil
+        updateButtonAppearance()
+    }
     
     public func configure(ticker: String, name: String, exchange: String, isAdded: Bool = false) {
         self.ticker = ticker

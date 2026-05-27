@@ -19,6 +19,7 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
     private var filteredStocks = [Stock]()
     private var watchlist: Set<String> = [] // Track added tickers
     var timeRange: String = "&interval=1d&range=1d"
+    private var searchTimer: Timer?
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -77,23 +78,21 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
         }
     }
     
-    
+    // Fetches stocks from API and reloads the table.
+    // Uses reloadSections instead of reloadData to force full cell reconfiguration,
+    // preventing stale ticker values from carrying over between searches.
     private func searchStocks(ticker: String) {
         StockAPI.shared.searchStocks(ticker: ticker) { stocks, error in
-            if stocks != nil {
-                print (stocks as Any)
-                self.stocks.removeAll()
-                self.filteredStocks.removeAll()
-                
-                self.stocks = stocks!
-                self.filteredStocks = stocks!
-                if stocks!.count != 0 {
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                    }
-                }
-            } else {
+            guard let stocks = stocks, !stocks.isEmpty else {
                 print (error as Any)
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.stocks = stocks
+                self.filteredStocks = stocks
+                //self.tableView.reloadData()
+                self.tableView.reloadSections(IndexSet(integer: 0), with: .none)
             }
         }
     }
@@ -120,17 +119,18 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchStocksViewCell.identifier, for: indexPath) as! SearchStocksViewCell
-        if filteredStocks.count > 0 {
-            let ticker = filteredStocks[indexPath.row]
-            let isAdded = watchlist.contains(ticker.ticker)
-            cell.configure(ticker: ticker.ticker, name: ticker.nameTicker, exchange: ticker.exchange, isAdded: isAdded)
-            cell.delegate = self
-        }
+        
+        guard indexPath.row < filteredStocks.count else { return cell }
+        let ticker = filteredStocks[indexPath.row]
+        let isAdded = watchlist.contains(ticker.ticker)
+        cell.prepareForReuse()
+        cell.configure(ticker: ticker.ticker, name: ticker.nameTicker, exchange: ticker.exchange, isAdded: isAdded)
+        cell.delegate = self
+        
         return cell
     }
     
     func didTapAddButton(in cell: SearchStocksViewCell, isAdded: Bool, ticker: String) {
-        print (ticker)
         for stock in self.filteredStocks {
             if stock.ticker == ticker {
                 if isAdded {
@@ -197,9 +197,9 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
                             self.navigationController?.pushViewController(destination!, animated: true)
 
                         }
-}
+                    }
                 }
-
+                
             case .failure(let error):
                 print (error.localizedDescription)
                 DispatchQueue.main.async {
@@ -216,22 +216,26 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
     
 }
 
-extension SearchStocksController: UISearchBarDelegate {//UISearchResultsUpdating, UISearchBarDelegate, UISearchControllerDelegate {
+extension SearchStocksController: UISearchBarDelegate {
     
+    // Debounce search input — waits 0.4s after user stops typing before firing API call.
+    // Prevents rapid successive calls on every keystroke. Clears results if search is empty.
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        filteredStocks.removeAll()
-        guard let searchBarText = searchBar.text, !searchBarText.isEmpty else {
+        searchTimer?.invalidate()
+        
+        guard !searchText.isEmpty else {
+            filteredStocks.removeAll()
+            stocks.removeAll()
+            tableView.reloadData()
             return
         }
-        filterContentForSearchText(searchBarText)
+        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false) { [weak self] _ in
+            self?.filterContentForSearchText(searchText)
+        }
     }
     
     func filterContentForSearchText(_ searchText: String) {
         searchStocks(ticker: searchText)
-        
-        filteredStocks = searchText.isEmpty ? stocks : stocks.filter({ stock in
-            return stock.ticker.range(of: searchText, options: .caseInsensitive, range: nil, locale: nil) != nil
-        })
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
