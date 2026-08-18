@@ -39,7 +39,7 @@ final class ChartAPI {
         ]
         
         let request = NSMutableURLRequest(
-            url: NSURL(string: KeysChartsAPI.getStockBaseUrl + symbol + "/" + intervalTime + KeysChartsAPI.getStockEndpoint)! as URL,
+            url: NSURL(string: KeysChartsAPI.getStockBaseUrl + symbol + "&interval=" + intervalTime )! as URL,
             cachePolicy: .useProtocolCachePolicy,
             timeoutInterval: 10.0)
         
@@ -72,7 +72,7 @@ final class ChartAPI {
                     }
                     if key == "body" {
                         for (_, subSubJSON):(String, JSON) in subJson {
-                            let dateTime =  subSubJSON["date_utc"].double
+                            let dateTime =  subSubJSON["timestamp_unix"].double
                             let open    =   subSubJSON["open"].double
                             let high    =   subSubJSON["high"].double
                             let low     =   subSubJSON["low"].double

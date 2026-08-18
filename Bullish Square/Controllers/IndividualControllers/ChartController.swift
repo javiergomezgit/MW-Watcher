@@ -39,7 +39,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     var candleValues = [CandleChartDataEntry]()
     var linearValues = [ChartDataEntry]()
     var interval = "300"
-    var intervalStock = "15min"
+    var intervalStock = "15m&limit=35"
     var symbol = "bit"
     var timeIntervals = ["old" : "1:2", "mid" : "1:2", "now" : "1:2"]
     var times = [0 : ""]
@@ -77,7 +77,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             selectedCryptoTicker()
         } else {
             segmentControl.items = ["15 min", "1 hr", "Day", "Week"]
-            self.intervalStock = "15m"
+            self.intervalStock = "15m&limit=35"
             selectedStockTicker()
         }
     }
@@ -121,18 +121,18 @@ class ChartController: UIViewController, ChartViewDelegate {
             loadCryptoPrices()
         } else {
             switch index {
-            case 0: self.intervalStock = "15m"
+            case 0: self.intervalStock = "15m&limit=35"
                 break
-            case 1: self.intervalStock = "1h"
+            case 1: self.intervalStock = "1h&limit=35"
                 break
-            case 2: self.intervalStock = "1d"
+            case 2: self.intervalStock = "1d&limit=35"
                 break
-            case 3: self.intervalStock = "1wk"
+            case 3: self.intervalStock = "1wk&limit=35"
                 break
-            case 4: self.intervalStock = "1wk"
+            case 4: self.intervalStock = "1wk&limit=35"
                 break
             default:
-                self.intervalStock = "15m"
+                self.intervalStock = "15m&limit=35"
             }
             selectedStockTicker()
         }
@@ -654,7 +654,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         set1.drawVerticalHighlightIndicatorEnabled = true
         set1.highlightLineWidth = 1
         set1.highlightColor = .systemBlue
-        set1.drawValuesEnabled = true
+        set1.drawValuesEnabled = false
         set1.drawIconsEnabled = true
         set1.shadowColor = .label
         set1.shadowWidth = 1.0
