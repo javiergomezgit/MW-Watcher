@@ -14,7 +14,9 @@ class WatchlistController: UIViewController {
     
     //MARK: Variables
     var tickersFeatures: [TickersFeatures] = []
-    var tickersValues: [TickersCurrentValues] = []
+    //Keyed by ticker. The API can return fewer entries than the saved watchlist, or in a
+    //different order, so a price must never be located by row index.
+    var tickersValues: [String: TickersCurrentValues] = [:]
     var timeRange: String = "&interval=1d&range=1d"
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
@@ -181,7 +183,8 @@ class WatchlistController: UIViewController {
                 print (tickersGroupPrices)
                 
                 self.tickersFeatures = savedTickers
-                self.tickersValues = tickersGroupPrices
+                self.tickersValues = Dictionary(tickersGroupPrices.map { ($0.ticker, $0) },
+                                                uniquingKeysWith: { first, _ in first })
                 
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
@@ -243,24 +246,28 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         cell.changeLabel.text = "%"
         cell.previousPriceLabel.text = "$0.0"
         
-        let ticker = tickersFeatures[indexPath.row].ticker
+        let tickerFeatures = tickersFeatures[indexPath.row]
+        let ticker = tickerFeatures.ticker
         if ticker != "" {
             
-            let name = tickersFeatures[indexPath.row].nameTicker
-            let image = tickersFeatures[indexPath.row].imageTicker
-            let marketPrice = tickersValues[indexPath.row].marketPrice
-            if marketPrice != 0.0  {
-                cell.currentPriceLabel.text = "$\(marketPrice)"
+            //Identity comes from Core Data, so it is always present
+            cell.tickerLabel.text = ticker
+            cell.imageCompanyImageView.image = tickerFeatures.imageTicker
+            cell.nameCompanyLabel.text = tickerFeatures.nameTicker
+            
+            cell.openChartButton.tag = indexPath.row
+            cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
+            
+            //Prices come from the API, which may not have returned this ticker at all.
+            //Leave the placeholder values in place rather than showing another stock's price.
+            guard let values = tickersValues[ticker] else { return cell }
+            
+            if values.marketPrice != 0.0  {
+                cell.currentPriceLabel.text = "$\(values.marketPrice)"
             }
             
-            var previousPrice = tickersValues[indexPath.row].previousPrice
-            var percentage = tickersValues[indexPath.row].changePercent
-            previousPrice = Double(round(100*previousPrice)/100)
-            percentage = Double(round(100*percentage)/100)
-            
-            cell.tickerLabel.text = ticker
-            cell.imageCompanyImageView.image = image
-            cell.nameCompanyLabel.text = name
+            let previousPrice = Double(round(100*values.previousPrice)/100)
+            let percentage = Double(round(100*values.changePercent)/100)
             
             cell.changeLabel.text = String(percentage) + "%"
             cell.previousPriceLabel.text = "$" + String(previousPrice)
@@ -284,24 +291,25 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
                 cell.currentPriceLabel.backgroundColor = UIColor(named: "uptrend")
                 cell.currentPriceLabel.textColor = UIColor(named: "colorPrimary")
             }
-            
-            cell.openChartButton.tag = indexPath.row
-            cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
         }
         
         return cell
     }
     
     @objc func openChart(sender: UIButton) {
+        //The tag can be stale after a row is deleted, so bounds-check it
+        guard sender.tag < tickersFeatures.count else { return }
         let tickerFeatures = tickersFeatures[sender.tag]
-        let tickkerValues = tickersValues[sender.tag]
         
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else {
             print("Failed to instantiate ChartController")
             return
         }
-        let tickerCurrentValues = TickersCurrentValues(ticker: tickkerValues.ticker, marketPrice: tickkerValues.marketPrice, previousPrice: tickkerValues.previousPrice, changePercent: tickkerValues.changePercent)
+        
+        //Open the chart even when no price came back; it loads its own series from the ticker
+        let tickerCurrentValues = tickersValues[tickerFeatures.ticker]
+            ?? TickersCurrentValues(ticker: tickerFeatures.ticker, marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
         
         destination.informationStockTicker = tickerCurrentValues
         destination.nameTicker = tickerFeatures.nameTicker
@@ -321,7 +329,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             let tickerFeatures = tickersFeatures[indexPath.row]
             savedTickers.deleteTicker(ticker: tickerFeatures.ticker)
             
-            tickersValues.remove(at: indexPath.row)
+            tickersValues.removeValue(forKey: tickerFeatures.ticker)
             tickersFeatures.remove(at: indexPath.row)
             
             tableView.deleteRows(at: [indexPath], with: .left)
