@@ -20,6 +20,7 @@ final class StockAPI {
         case invalidJSON
         case invalidTicker
         case freeVersion
+        case noData
     }
     
     //MARK: API call for search/add of single stock
@@ -148,7 +149,6 @@ final class StockAPI {
         ]
         
         let url = KeysStocksAPI.apiCurrentPriceBaseURL + ticker + timeRange
-        var json: [String: Any]? = [:]
         
         let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
                                           cachePolicy: .useProtocolCachePolicy,
@@ -159,36 +159,46 @@ final class StockAPI {
         
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
-                print(error!)
-                completion(.failure(error!))
-            } else {
-                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                if json == nil  {
-                    completion(.failure("JSON is Empty" as! Error))
-                }
-                
-                for tickerJSON in json! {
-                    print (tickerJSON.value) //json
-                    print (tickerJSON.key) //ticker
-                    
-                    let tickerDictionary = tickerJSON.value as? [String: Any]
-                    var previousClose = tickerDictionary!["chartPreviousClose"] as? Double ?? 0.0
-                    let closePriceArray = tickerDictionary!["close"] as? [Any]
-                    let closePrice = closePriceArray!.last as? Double ?? 0.0 //TODO: validate when is empty
-                    
-                    let percentageChange = (closePrice * 100) / previousClose
-                    var percentageRounded = 0.0
-                    percentageRounded = percentageChange - 100
-                    
-                    percentageRounded = Double(round(100*percentageRounded)/100)
-                    previousClose = Double(round(100*previousClose)/100)
-                    
-                    let tickerCurrentValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
-                    completion(.success(tickerCurrentValues))
-                    break
-                }
+            if let error = error {
+                print(error)
+                completion(.failure(error))
+                return
             }
+            
+            guard let data = data else {
+                completion(.failure(APIError.noData))
+                return
+            }
+            
+            //A rate-limit or error body still parses as JSON, so an empty object counts as a failure too
+            let decoded = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            guard let json = decoded, !json.isEmpty else {
+                completion(.failure(APIError.invalidJSON))
+                return
+            }
+            
+            for tickerJSON in json {
+                //Skip entries that aren't a ticker payload, e.g. {"message": "rate limited"}
+                guard let tickerDictionary = tickerJSON.value as? [String: Any] else { continue }
+                
+                var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
+                let closePriceArray = tickerDictionary["close"] as? [Any]
+                let closePrice = closePriceArray?.last as? Double ?? 0.0
+                
+                let percentageChange = (closePrice * 100) / previousClose
+                var percentageRounded = 0.0
+                percentageRounded = percentageChange - 100
+                
+                percentageRounded = Double(round(100*percentageRounded)/100)
+                previousClose = Double(round(100*previousClose)/100)
+                
+                let tickerCurrentValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
+                completion(.success(tickerCurrentValues))
+                return
+            }
+            
+            //Nothing in the response was a usable ticker payload
+            completion(.failure(APIError.tickerNotFound))
         })
         dataTask.resume()
     }
@@ -266,7 +276,6 @@ final class StockAPI {
         ]
         
         let url = KeysStocksAPI.groupStocksPriceBaseURL + tickersGroup + timeRange
-        var json: [String: Any]? = [:]
         
         let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
                                           cachePolicy: .useProtocolCachePolicy,
@@ -277,41 +286,50 @@ final class StockAPI {
         
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
-                print(error!)
-                completion(.failure(error!))
-            } else {
-                json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                if json == nil  {
-                    completion(.failure("JSON is Empty" as! Error))
-                }
-                
-                var tickersArray : [TickersCurrentValues] = []
-                for tickerJSON in json! {
-                    print (tickerJSON.value) //json
-                    print (tickerJSON.key) //ticker
-                    
-                    if let tickerDictionary = tickerJSON.value as? [String: Any] {
-                        var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
-                        let closePriceArray = tickerDictionary["close"] as? [Any]
-                        let closePrice = closePriceArray?.last as? Double ?? 0.0
-                        
-                        let percentageChange = (closePrice * 100) / previousClose
-                        var percentageRounded = 0.0
-                        percentageRounded = percentageChange - 100
-                        percentageRounded = Double(round(100*percentageRounded)/100)
-                        previousClose = Double(round(100*previousClose)/100)
-                        
-                        let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
-                        tickersArray.append(tickerValues)
-                    } else {
-                        let error = NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "JSON is Empty"])
-                        completion(.failure(error))
-                    }
-                }
-                let tickersSorted = tickersArray.sorted{ $0.ticker < $1.ticker }
-                completion(.success(tickersSorted))
+            if let error = error {
+                print(error)
+                completion(.failure(error))
+                return
             }
+            
+            guard let data = data else {
+                completion(.failure(APIError.noData))
+                return
+            }
+            
+            //A rate-limit or error body still parses as JSON, so an empty object counts as a failure too
+            let decoded = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            guard let json = decoded, !json.isEmpty else {
+                completion(.failure(APIError.invalidJSON))
+                return
+            }
+            
+            var tickersArray : [TickersCurrentValues] = []
+            for tickerJSON in json {
+                //Skip malformed entries instead of failing the whole batch
+                guard let tickerDictionary = tickerJSON.value as? [String: Any] else { continue }
+                
+                var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
+                let closePriceArray = tickerDictionary["close"] as? [Any]
+                let closePrice = closePriceArray?.last as? Double ?? 0.0
+                
+                let percentageChange = (closePrice * 100) / previousClose
+                var percentageRounded = 0.0
+                percentageRounded = percentageChange - 100
+                percentageRounded = Double(round(100*percentageRounded)/100)
+                previousClose = Double(round(100*previousClose)/100)
+                
+                let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
+                tickersArray.append(tickerValues)
+            }
+            
+            guard !tickersArray.isEmpty else {
+                completion(.failure(APIError.invalidJSON))
+                return
+            }
+            
+            let tickersSorted = tickersArray.sorted{ $0.ticker < $1.ticker }
+            completion(.success(tickersSorted))
         })
         dataTask.resume()
     }
