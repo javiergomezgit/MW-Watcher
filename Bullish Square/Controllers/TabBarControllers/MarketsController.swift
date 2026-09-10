@@ -149,23 +149,23 @@ class MarketsController: UIViewController {
     }
     
     func loadCurrentPrices() {
-        StockAPI.shared.getPriceGeneralMarkets { markets,timeStamp  in
-            if markets == nil {
-                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-            } else {
+        StockAPI.shared.getPriceGeneralMarkets { [weak self] markets, timeStamp in
+            //This completion arrives on a URLSession queue. Everything below either presents
+            //UI or mutates state the collection view reads, so hop to main before any of it.
+            DispatchQueue.main.async {
+                guard let self else { return }
+                
                 guard let marketsValues = markets else {
                     ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                     return
                 }
+                
                 self.majorMarketsPrices.removeAll()
                 self.loadMajorMarkets(marketsValues: marketsValues)
                 self.loadMinorMarkets()
                 
-                DispatchQueue.main.async {
-                    let newTimeStamp = Support.sharedSupport.dateFormatUnixToLocal(timeInt: timeStamp)
-                    self.dateLatestDataLabel.text = newTimeStamp
-                    self.collectionView.reloadData()
-                }
+                self.dateLatestDataLabel.text = Support.sharedSupport.dateFormatUnixToLocal(timeInt: timeStamp)
+                self.collectionView.reloadData()
             }
         }
     }

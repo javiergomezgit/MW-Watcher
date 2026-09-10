@@ -174,13 +174,14 @@ class WatchlistController: UIViewController {
             switch result {
                 
             case .success(let tickersGroupPrices):
-                print (tickersGroupPrices)
-                
-                self.tickersFeatures = savedTickers
-                self.tickersValues = Dictionary(tickersGroupPrices.map { ($0.ticker, $0) },
-                                                uniquingKeysWith: { first, _ in first })
                 
                 DispatchQueue.main.async {
+                    //Assigned on main: the table view reads both of these while scrolling, and
+                    //they were previously replaced from a URLSession queue.
+                    self.tickersFeatures = savedTickers
+                    self.tickersValues = Dictionary(tickersGroupPrices.map { ($0.ticker, $0) },
+                                                    uniquingKeysWith: { first, _ in first })
+                    
                     self.tableView.reloadData()
                     self.refreshControl.endRefreshing()
                     self.startStopSpinner(start: false)

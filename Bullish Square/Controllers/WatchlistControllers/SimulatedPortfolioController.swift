@@ -139,25 +139,24 @@ class SimulatedPortfolioController: UIViewController {
     }
     
     func loadCurrentPrices(tickers: String) {
-        ChartAPI.shared.getPricesMarketsAndWatchlist(tickersWatchlist: tickers, timeRange: timeRange) { markets in
-            if markets == nil {
+        ChartAPI.shared.getPricesMarketsAndWatchlist(tickersWatchlist: tickers, timeRange: timeRange) { [weak self] markets in
+            //This completion arrives on a URLSession queue. Removing the spinner touches the
+            //view hierarchy and the alert presents UI, so neither may run off main.
+            DispatchQueue.main.async {
+                guard let self else { return }
                 self.startStopSpinner(start: false)
-                ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-            } else {
+                
                 guard let marketsValues = markets else {
-                    self.startStopSpinner(start: false)
                     ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                     return
                 }
+                
                 self.linearValuesSP500.removeAll()
-                self.linearValuesDJI .removeAll()
+                self.linearValuesDJI.removeAll()
                 self.linearValuesIXIC.removeAll()
                 self.linearValuesPortfolio.removeAll()
-                DispatchQueue.main.async {
-                    print (marketsValues)
-                    self.startStopSpinner(start: false)
-                    self.processPricesPerformance(marketsValues: marketsValues)
-                }
+                
+                self.processPricesPerformance(marketsValues: marketsValues)
             }
         }
     }
