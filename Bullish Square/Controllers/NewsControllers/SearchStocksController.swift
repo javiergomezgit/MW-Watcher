@@ -164,14 +164,15 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
     
     // Removes stock from watchlist and Core Data
     func deleteIndividualStock(individualTicker: String, nameTicker: String) {
-        let tickerFeatures = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: UIImage(named: "mw-logo")!, imageTickerName: "mw-logo")
         self.watchlist.remove(individualTicker)
-        SaveTickers().deleteTicker(tickerFeatures: tickerFeatures)
+        SaveTickers().deleteTicker(ticker: individualTicker)
     }
     
     // Saves stock to watchlist and Core Data
     func saveIndividualStock(individualTicker: String, nameTicker: String) {
-        let tickerFeatures = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: UIImage(named: "mw-logo")!, imageTickerName: "mw-logo")
+        //imageTickerName is left empty to mark "logo not fetched yet". It must never carry a
+        //sentinel value, because delete predicates used to match on this field.
+        let tickerFeatures = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: UIImage(named: "mw-logo")!, imageTickerName: "")
         self.watchlist.insert(individualTicker)
         SaveTickers().saveTicker(tickerFeatures: tickerFeatures)
     }

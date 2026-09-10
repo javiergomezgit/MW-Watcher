@@ -157,7 +157,9 @@ class WatchlistController: UIViewController {
         
         for (index, savedTicker) in savedTickers.enumerated() {
            
-                if savedTicker.imageTickerName == "mw-logo" {
+                //Empty marks "logo not fetched yet". "mw-logo" is the legacy sentinel that
+                //older installs still have stored, so keep honouring it for migration.
+                if savedTicker.imageTickerName.isEmpty || savedTicker.imageTickerName == "mw-logo" {
                     loadImageStock(individualTicker: savedTicker.ticker, nameTicker: savedTicker.nameTicker)
                 }
             
@@ -205,13 +207,9 @@ class WatchlistController: UIViewController {
                 print (error)
             case .success(let imageCompany):
                 
-                let tempTickerValues = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: imageCompany, imageTickerName: "mw-logo")
-                self.savedTickers.deleteTicker(tickerFeatures: tempTickerValues)
-                print ("deleted ticker temporal \(tempTickerValues)")
-                
-                let newTickerValues = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: imageCompany, imageTickerName: individualTicker)
-                self.savedTickers.saveTicker(tickerFeatures: newTickerValues)
-                print ("saved new ticker \(self.savedTickers.loadTickers())")
+                //Update in place. The old delete-then-insert deleted every row still holding
+                //the placeholder logo, so adding several stocks at once lost most of them.
+                self.savedTickers.updateTickerLogo(ticker: individualTicker, image: imageCompany, imageName: individualTicker)
                 
             }
         }
@@ -321,7 +319,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
             let tickerFeatures = tickersFeatures[indexPath.row]
-            savedTickers.deleteTicker(tickerFeatures: tickerFeatures)
+            savedTickers.deleteTicker(ticker: tickerFeatures.ticker)
             
             tickersValues.remove(at: indexPath.row)
             tickersFeatures.remove(at: indexPath.row)

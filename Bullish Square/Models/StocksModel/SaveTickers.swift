@@ -57,19 +57,16 @@ class SaveTickers {
     }
 
     
-    func deleteTicker(tickerFeatures: TickersFeatures) {
+    //Deletes by ticker only. This used to be an OR predicate across ticker / nameCompany /
+    //imageCompanyName, and because callers passed the literal "mw-logo" as imageCompanyName,
+    //removing one stock deleted every row whose logo had not been fetched yet.
+    func deleteTicker(ticker: String) {
         DispatchQueue.main.async {
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
             let managedContext = appDelegate.persistentContainer.viewContext
-            
+
             let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
-            
-            // Match by any property you care about
-            fetchRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
-                NSPredicate(format: "ticker == %@", tickerFeatures.ticker),
-                NSPredicate(format: "nameCompany == %@", tickerFeatures.nameTicker),
-                NSPredicate(format: "imageCompanyName == %@", tickerFeatures.imageTickerName)
-            ])
+            fetchRequest.predicate = NSPredicate(format: "ticker == %@", ticker)
 
             do {
                 let results = try managedContext.fetch(fetchRequest)
@@ -82,7 +79,40 @@ class SaveTickers {
                     try managedContext.save()
                 }
             } catch {
-                print("Failed to delete ticker: \(error)")
+                print("Failed to delete ticker \(ticker): \(error)")
+            }
+        }
+    }
+
+    //Updates an existing row's logo in place. Replaces the old delete-then-reinsert pattern,
+    //which relied on the "mw-logo" sentinel and could drop the ticker entirely.
+    func updateTickerLogo(ticker: String, image: UIImage, imageName: String) {
+        DispatchQueue.main.async {
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            let managedContext = appDelegate.persistentContainer.viewContext
+
+            let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
+            fetchRequest.predicate = NSPredicate(format: "ticker == %@", ticker)
+
+            guard let imageData = image.pngData() else {
+                print("Could not encode logo for \(ticker)")
+                return
+            }
+
+            do {
+                let results = try managedContext.fetch(fetchRequest)
+                guard !results.isEmpty else { return } //row was removed meanwhile
+
+                for object in results {
+                    object.setValue(imageData, forKey: "imageCompany")
+                    object.setValue(imageName, forKey: "imageCompanyName")
+                }
+
+                if managedContext.hasChanges {
+                    try managedContext.save()
+                }
+            } catch {
+                print("Failed to update logo for \(ticker): \(error)")
             }
         }
     }
