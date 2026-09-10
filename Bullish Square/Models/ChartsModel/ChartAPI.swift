@@ -355,7 +355,9 @@ final class ChartAPI {
                         pricesAndTimes.append(priceTime)
                     }
                     
-                    let changePercentage = ((currentPrice * 100) / previousClose) - 100
+                    //A previousClose of 0 would make this infinite. basePrice above is safe,
+                    //the compactMap already drops any price that is not greater than zero.
+                    let changePercentage = previousClose > 0 ? ((currentPrice * 100) / previousClose) - 100 : 0.0
                     let percentageRounded = Double(round(100*changePercentage)/100)
 
                     let tickerValue = PerformersPrices(ticker: tickerJSON.key, changePercentage: percentageRounded, currentPrice: currentPrice, tickerPerformer: pricesAndTimes)

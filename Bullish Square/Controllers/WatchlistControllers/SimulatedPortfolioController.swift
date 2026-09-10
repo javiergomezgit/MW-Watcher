@@ -49,6 +49,8 @@ class SimulatedPortfolioController: UIViewController {
         
         if let tickers = loadPortfolioTickers() {
             loadCurrentPrices(tickers: tickers)
+        } else {
+            showEmptyPortfolioState()
         }
             
         loadDate()
@@ -101,6 +103,11 @@ class SimulatedPortfolioController: UIViewController {
         }
         if let tickers = loadPortfolioTickers() {
             loadCurrentPrices(tickers: tickers)
+        } else {
+            //There is nothing to fetch, so the spinner started above would otherwise spin
+            //forever and lock the screen behind its overlay.
+            startStopSpinner(start: false)
+            showEmptyPortfolioState()
         }
     }
     
@@ -161,6 +168,27 @@ class SimulatedPortfolioController: UIViewController {
         }
     }
     
+    ///Shown when the watchlist holds nothing to measure. Without this the storyboard's
+    ///placeholder zeros stay on screen and read as a real flat result, claiming the portfolio
+    ///is positive and level with every index.
+    private func showEmptyPortfolioState() {
+        sp500TodayLabel.text = "—"
+        dowTodayLabel.text = "—"
+        nasdaqTodayLabel.text = "—"
+        
+        sp500ComparingLabel.text = "—"
+        dowComparingLabel.text = "—"
+        nasdaqComparingLabel.text = "—"
+        myPortfolioComparingLabel.text = "—"
+        
+        //These sit inside sentences laid out in the storyboard: "The Portfolio is <x>" and
+        //"<y> S&P 500 with <z>", so the wording has to complete them.
+        sp500OverLabel.text = ""
+        dowOverLabel.text = ""
+        nasdaqOverLabel.text = ""
+        myPortfolioOverLabel.text = "empty"
+    }
+    
     func processPricesPerformance(marketsValues: [PerformersPrices]){
         
         var sumPortfolio = 0.0
@@ -213,12 +241,20 @@ class SimulatedPortfolioController: UIViewController {
         
         populatePortfolioChartEntry(portfolioStocks: pricesAndTimes)
         
-        sumPortfolio = sumPortfolio / Double(pricesAndTimes.count)
+        //A watchlist holding only index symbols leaves nothing to average, and 0/0 put "nan%"
+        //into every label. Report no performance instead, and render a dash so an empty
+        //portfolio is not mistaken for a flat 0%.
+        let hasPortfolio = !pricesAndTimes.isEmpty
+        let portfolioPerformance = hasPortfolio ? sumPortfolio / Double(pricesAndTimes.count) : 0.0
         
-        let dowCompareTo = sumPortfolio - self.dowTodayPrice
-        let sp500CompareTo = sumPortfolio - self.sp500TodayPrice
-        let nasdaqCompareTo = sumPortfolio - self.nasdaqTodayPrice
-        let portfolioPerformance = sumPortfolio
+        let dowCompareTo = portfolioPerformance - self.dowTodayPrice
+        let sp500CompareTo = portfolioPerformance - self.sp500TodayPrice
+        let nasdaqCompareTo = portfolioPerformance - self.nasdaqTodayPrice
+        
+        func percentText(_ value: Double) -> String {
+            guard hasPortfolio, value.isFinite else { return "—" }
+            return "\(Double(round(100*value)/100))%"
+        }
                 
         DispatchQueue.main.async {
             if dowCompareTo < 0 {
@@ -267,10 +303,19 @@ class SimulatedPortfolioController: UIViewController {
                 self.myPortfolioOverLabel.text = "Overperforming"
             }
             
-            self.dowComparingLabel.text = String("\(Double(round(100*dowCompareTo)/100))%")
-            self.sp500ComparingLabel.text = String("\(Double(round(100*sp500CompareTo)/100))%")
-            self.nasdaqComparingLabel.text = String("\(Double(round(100*nasdaqCompareTo)/100))%")
-            self.myPortfolioComparingLabel.text = String("\(Double(round(100*portfolioPerformance)/100))%")
+            if !hasPortfolio {
+                //Nothing to compare against yet; the over/under wording would otherwise claim
+                //the portfolio is outperforming on a value that does not exist.
+                self.dowOverLabel.text = ""
+                self.sp500OverLabel.text = ""
+                self.nasdaqOverLabel.text = ""
+                self.myPortfolioOverLabel.text = "empty"
+            }
+            
+            self.dowComparingLabel.text = percentText(dowCompareTo)
+            self.sp500ComparingLabel.text = percentText(sp500CompareTo)
+            self.nasdaqComparingLabel.text = percentText(nasdaqCompareTo)
+            self.myPortfolioComparingLabel.text = percentText(portfolioPerformance)
             //self.refreshControl.endRefreshing()
             //self.startStopSpinner(start: false)
             self.loadPerformerChart()
@@ -344,28 +389,24 @@ class SimulatedPortfolioController: UIViewController {
     }()
     
     private func setAxisRange() {
-        // Find the min and max values across all datasets
-        var minValue = Double.greatestFiniteMagnitude
-        var maxValue = -Double.greatestFiniteMagnitude
-        
-        // Check all data arrays
         let allData = [linearValuesSP500, linearValuesDJI, linearValuesIXIC, linearValuesPortfolio]
+        let allValues = allData.flatMap { $0 }.map { $0.y }.filter { $0.isFinite }
         
-        for dataArray in allData {
-            for entry in dataArray {
-                minValue = min(minValue, entry.y)
-                maxValue = max(maxValue, entry.y)
-            }
+        //With nothing to plot, the old code left minValue at greatestFiniteMagnitude and
+        //maxValue at its negative, so the padding was -infinity and the axis bounds came out
+        //as +infinity and -infinity. The series is a percentage move, so centre on zero.
+        guard let minValue = allValues.min(), let maxValue = allValues.max() else {
+            lineChartView.rightAxis.axisMinimum = -1
+            lineChartView.rightAxis.axisMaximum = 1
+            return
         }
         
-        // Add some padding (10% on each side)
-        let padding = (maxValue - minValue) * 0.1
-        let adjustedMin = minValue - padding
-        let adjustedMax = maxValue + padding
+        //A perfectly flat series gives zero padding, which collapses the axis onto one value
+        let span = maxValue - minValue
+        let padding = span > 0 ? span * 0.1 : max(abs(maxValue) * 0.1, 1.0)
         
-        // Set the axis range
-        lineChartView.rightAxis.axisMinimum = adjustedMin
-        lineChartView.rightAxis.axisMaximum = adjustedMax
+        lineChartView.rightAxis.axisMinimum = minValue - padding
+        lineChartView.rightAxis.axisMaximum = maxValue + padding
     }
 }
 

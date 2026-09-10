@@ -145,9 +145,11 @@ class CostCalculatorController: UIViewController {
         let totalAmounts = totalAmountOwned + totalAmountBuying
         let totalShares = qtyOwned + qtyBuying
         
-        finalPrice = totalAmounts / Double(totalShares)
-        
-        finalPercentage = ((priceBuying * 100) / finalPrice) - 100
+        //Zero shares made finalPrice infinite or NaN. The isNaN check further down caught only
+        //the NaN half, so an infinite finalPrice reached NumberFormatter and the field showed
+        //"$+∞" to the user.
+        finalPrice = totalShares > 0 ? totalAmounts / Double(totalShares) : 0.0
+        finalPercentage = finalPrice > 0 ? ((priceBuying * 100) / finalPrice) - 100 : 0.0
         
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 2
@@ -156,16 +158,16 @@ class CostCalculatorController: UIViewController {
         //let numberSting = formatter.string(from: totalAmountBuying as NSNumber)
         
         let amountString = formatter.string(from: totalAmounts as NSNumber)
-        amountTotalLabel.text = "S\(amountString!)"
+        amountTotalLabel.text = "$\(amountString ?? "0")"
         sharesTotalLabel.text = String(totalShares)
         
-        if finalPercentage.isNaN {
+        if !finalPercentage.isFinite || !finalPrice.isFinite {
             finalPercentage = 0
             finalPrice = 0
         }
         
         let totalPriceString = formatter.string(from: finalPrice as NSNumber)
-        totalPriceLabel.text = "$\(totalPriceString!)"
+        totalPriceLabel.text = "$\(totalPriceString ?? "0")"
         
         if finalPercentage < 0 {
             profitLossPercentageLabel.textColor = .red
@@ -175,7 +177,7 @@ class CostCalculatorController: UIViewController {
         
         formatter.maximumFractionDigits = 2
         let finalPercentageString = formatter.string(from: finalPercentage as NSNumber)
-        profitLossPercentageLabel.text = "\(finalPercentageString!)%"
+        profitLossPercentageLabel.text = "\(finalPercentageString ?? "0")%"
     }
     
     @IBAction func resetTextFields(_ sender: Any) {

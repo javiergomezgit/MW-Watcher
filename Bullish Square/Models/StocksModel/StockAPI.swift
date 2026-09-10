@@ -216,9 +216,11 @@ final class StockAPI {
                 let closePriceArray = tickerDictionary["close"] as? [Any]
                 let closePrice = closePriceArray?.last as? Double ?? 0.0
                 
-                let percentageChange = (closePrice * 100) / previousClose
+                //A previousClose of 0 made this infinite and pushed it straight into the UI
                 var percentageRounded = 0.0
-                percentageRounded = percentageChange - 100
+                if previousClose > 0 {
+                    percentageRounded = ((closePrice * 100) / previousClose) - 100
+                }
                 
                 percentageRounded = Double(round(100*percentageRounded)/100)
                 previousClose = Double(round(100*previousClose)/100)
@@ -344,9 +346,11 @@ final class StockAPI {
                 let closePriceArray = tickerDictionary["close"] as? [Any]
                 let closePrice = closePriceArray?.last as? Double ?? 0.0
                 
-                let percentageChange = (closePrice * 100) / previousClose
+                //A previousClose of 0 made this infinite and pushed it straight into the UI
                 var percentageRounded = 0.0
-                percentageRounded = percentageChange - 100
+                if previousClose > 0 {
+                    percentageRounded = ((closePrice * 100) / previousClose) - 100
+                }
                 percentageRounded = Double(round(100*percentageRounded)/100)
                 previousClose = Double(round(100*previousClose)/100)
                 
