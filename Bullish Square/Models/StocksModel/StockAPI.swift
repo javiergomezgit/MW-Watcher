@@ -150,11 +150,17 @@ final class StockAPI {
                     return
                 }
                 
-                //Only an explicit invalid-symbol answer is permanent:
-                //{"code":404,"message":"**symbol** ... is invalid","status":"error"}
-                //Any other body without a url is treated as transient so it is retried, rather
-                //than recording a fallback for good.
-                if json["status"].string == "error", json["code"].int == 404 {
+                //No usable url. Two shapes mean the logo permanently does not exist:
+                //  {"meta":{"symbol":"AAPD"},"url":""}          symbol recognised, no logo
+                //  {"code":404,"status":"error", ...}           symbol not recognised
+                //ETFs commonly return the first, with HTTP 200 and an empty url. Treating that
+                //as transient made the app re-request it on every appearance, forever.
+                //Anything else, such as a rate-limit body carrying neither meta nor a 404, is
+                //genuinely transient and worth retrying.
+                let recognisedSymbol = json["meta"]["symbol"].string != nil
+                let explicitlyNotFound = json["status"].string == "error" && json["code"].int == 404
+                
+                if recognisedSymbol || explicitlyNotFound {
                     completion(.failure(APIError.logoUnavailable))
                 } else {
                     completion(.failure(APIError.logoDownloadFailed))
