@@ -192,6 +192,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
+                        self?.startStopSpinner(start: false)
                         ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
                     }
                     print (error)
@@ -226,6 +227,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                         print("Received exchange name: \(exchange)")
                 case .errorFailure(let error):
                     DispatchQueue.main.async {
+                        self?.startStopSpinner(start: false)
                         ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
                     }
                     print (error)
