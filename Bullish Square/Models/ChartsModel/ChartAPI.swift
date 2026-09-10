@@ -20,6 +20,7 @@ final class ChartAPI {
         case tickerNotFound
         case invalidJSON
         case invalidTicker
+        case noData
     }
     
     enum ResultStock<Success, Exchange, Failure> where Failure: Error {
@@ -56,6 +57,7 @@ final class ChartAPI {
             }
             
             guard let data = data else {
+                completion(.errorFailure(APIError.noData))
                 return
             }
             
@@ -122,7 +124,9 @@ final class ChartAPI {
             "X-RapidAPI-Key": KeysChartsAPI.getGeneralMarketApiKey
         ]
         
-        let symbolFixed = symbol.replacingCharacters(in: ...symbol.startIndex, with: "%5E")
+        //Only escape a leading ^. The previous version replaced the first character
+        //unconditionally, which mangled plain symbols and trapped on an empty string.
+        let symbolFixed = symbol.hasPrefix("^") ? "%5E" + symbol.dropFirst() : symbol
         
         let urlString = "\(KeysChartsAPI.getGeneralMarketBaseUrl)\(symbolFixed)&interval=\(intervalTime)&diffandsplits=false"
         let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
@@ -139,6 +143,7 @@ final class ChartAPI {
             }
             
             guard let data = data else {
+                completion(.failure(APIError.noData))
                 return
             }
             
@@ -151,14 +156,17 @@ final class ChartAPI {
                 for (key, subJson):(String, JSON) in json {
                     if key == "body" {
                         for (_, subSubJSON):(String, JSON) in subJson {
-                            let dateTime =  subSubJSON["date_utc"].double
-                            let open    =   subSubJSON["open"].double
-                            let high    =   subSubJSON["high"].double
-                            let low     =   subSubJSON["low"].double
-                            let close   =   subSubJSON["close"].double
-                            let volume  =   subSubJSON["volume"].double
+                            //Skip incomplete candles rather than trapping on them. Intraday
+                            //series routinely carry nulls across pre/post-market gaps.
+                            //getStockValues already guarded this way; this function did not.
+                            guard let dateTime = subSubJSON["date_utc"].double,
+                                  let open = subSubJSON["open"].double,
+                                  let high = subSubJSON["high"].double,
+                                  let low = subSubJSON["low"].double,
+                                  let close = subSubJSON["close"].double,
+                                  let volume = subSubJSON["volume"].double else { continue }
                             
-                            let value = ValueStock(start_timestamp: dateTime!, open: open!, high: high!, low: low!, close: close!, volume: volume!)
+                            let value = ValueStock(start_timestamp: dateTime, open: open, high: high, low: low, close: close, volume: volume)
                             valuesStock.append(value)
                         }
                     }
@@ -172,7 +180,6 @@ final class ChartAPI {
                 }
                 
                 valuesStock.reverse()
-                dump (valuesStock)
                 completion(.success(valuesStock))
             } catch {
                 completion(.failure(error))
@@ -190,7 +197,9 @@ final class ChartAPI {
         
         let intervalTime = "5m"
         
-        let symbolFixed = symbol.replacingCharacters(in: ...symbol.startIndex, with: "%5E")
+        //Only escape a leading ^. The previous version replaced the first character
+        //unconditionally, which mangled plain symbols and trapped on an empty string.
+        let symbolFixed = symbol.hasPrefix("^") ? "%5E" + symbol.dropFirst() : symbol
         
         let urlString = "\(KeysChartsAPI.getMajorsMarketsBaseUrl)\(symbolFixed)&interval=\(intervalTime)&diffandsplits=false"
         let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
@@ -207,6 +216,7 @@ final class ChartAPI {
             }
             
             guard let data = data else {
+                completion(.failure(APIError.noData))
                 return
             }
             
@@ -229,54 +239,46 @@ final class ChartAPI {
                 dateComponents.second = 0
                 
                 let userCalendar = Calendar(identifier: .gregorian)
-                let someDateTime = userCalendar.date(from: dateComponents)
-                let dateFormatter = DateFormatter()
-                dateFormatter.timeZone = zone
-                let timeStartedMarket = Int(someDateTime!.timeIntervalSince1970)
+                guard let marketOpen = userCalendar.date(from: dateComponents) else {
+                    completion(.failure(APIError.invalidJSON))
+                    return
+                }
+                //Kept as a Double: Int(Double) traps on NaN or an out-of-range value.
+                let timeStartedMarket = marketOpen.timeIntervalSince1970
                 
                 let json = try JSON(data: data)
                 
-                var valuesStock: [MarketsCandles] = []
-                var previousClose = 0.0
-                
-                for (key, subJson):(String, JSON) in json {
-                    if key == "meta" {
-                        previousClose = subJson["previousClose"].double!
-                        dump(previousClose)
-                        break
-                    }
+                //Every close here is a percentage move against previousClose, so without it the
+                //series is meaningless. It used to be force unwrapped, and silently defaulted to
+                //0.0 when meta was absent, which divided by zero and pushed infinities into the
+                //chart instead of failing.
+                guard let previousClose = json["meta"]["previousClose"].double, previousClose != 0 else {
+                    completion(.failure(APIError.invalidJSON))
+                    return
                 }
+                
+                var valuesStock: [MarketsCandles] = []
                 
                 for (key, subJson):(String, JSON) in json {
                     if key == "body" {
                         for (_, subSubJSON):(String, JSON) in subJson {
-                            let dateTime =  subSubJSON["date_utc"].double
-                            let open    =   subSubJSON["open"].double
-                            let high    =   subSubJSON["high"].double
-                            let low     =   subSubJSON["low"].double
-                            let closePrice   =   subSubJSON["close"].double
+                            //closePrice used to be compared with `!= 0.0` while still optional,
+                            //so a null passed the check and then trapped on the force unwrap.
+                            //A null close is normal across pre/post-market gaps, which made this
+                            //a cold-start crash: SceneDelegate calls this three times on launch.
+                            guard let dateTime = subSubJSON["date_utc"].double, dateTime.isFinite,
+                                  let open = subSubJSON["open"].double,
+                                  let high = subSubJSON["high"].double,
+                                  let low = subSubJSON["low"].double,
+                                  let closePrice = subSubJSON["close"].double,
+                                  closePrice != 0.0 else { continue }
                             
-                            var close = 0.0
+                            //Only candles from after today's open are charted
+                            guard dateTime > timeStartedMarket else { continue }
                             
-                            if Int(dateTime!) > timeStartedMarket {
-                                if closePrice != 0.0 {
-                                    close = ((closePrice! * 100) / previousClose) - 100
-                                    let value = MarketsCandles(start_timestamp: dateTime!, open: open!, high: high!, low: low!, close: close)
-                                    valuesStock.append(value)
-                                }
-                            } else { //added this else and the code, this created a messy chart, not sure what it created
-//                                here
-//                                let originalUnixTime = timeStartedMarket
-//                                let oneDayInSeconds = 24 * 60 * 60 //86400 seconds
-//                                let newTimeStarted = originalUnixTime - oneDayInSeconds
-//                                
-//                                if closePrice != 0.0 {
-//                                    close = ((closePrice! * 100) / previousClose) - 100
-//                                    let value = MarketsCandles(start_timestamp: Double(newTimeStarted), open: open!, high: high!, low: low!, close: close)
-//                                    valuesStock.append(value)
-//                                }
-                                
-                            }
+                            let close = ((closePrice * 100) / previousClose) - 100
+                            let value = MarketsCandles(start_timestamp: dateTime, open: open, high: high, low: low, close: close)
+                            valuesStock.append(value)
                         }
                         break
                     }
