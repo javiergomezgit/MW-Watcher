@@ -128,6 +128,7 @@ class SignInViewController: UIViewController {
         print("call apple sign in/up")
         
         AppleAuthManager.shared.signInWithApple { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let resultToken):
                 print("✅ Apple sign-in successful")
@@ -140,10 +141,10 @@ class SignInViewController: UIViewController {
                     print ("Failed to save UID to Keychain")
                 }
                 UserDefaults.standard.set(false, forKey: "userPrefersNoAccount")
-                self?.navigateToMainInterface()
+                self.navigateToMainInterface()
             case .failure(let error):
                 print("❌ Apple sign-in failed: \(error.localizedDescription)")
-                Utilities.showAlert(on: self!, title: "Error", message: error.localizedDescription)
+                Utilities.showAlert(on: self, title: "Error", message: error.localizedDescription)
             }
         }
     }

@@ -174,61 +174,63 @@ class ChartController: UIViewController, ChartViewDelegate {
     private func loadStockPrices(){
         if indexMarket {
             ChartAPI.shared.getMarketValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
+                guard let self else { return }
                 switch result {
                     
                 case .success(let data):
                     if data.count != 0  {
-                        self?.stockData = data
+                        self.stockData = data
                         DispatchQueue.main.async {
-                            self?.startStopSpinner(start: false)
-                            self?.setUpStockModel()
+                            self.startStopSpinner(start: false)
+                            self.setUpStockModel()
                         }
                     } else {
                         DispatchQueue.main.async {
-                            self?.startStopSpinner(start: false)
-                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                            self.startStopSpinner(start: false)
+                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
                         }
                         print ("no more API")
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        self?.startStopSpinner(start: false)
-                        ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                        self.startStopSpinner(start: false)
+                        ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
                     }
                     print (error)
                 }
             }
         } else {
             ChartAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
+                guard let self else { return }
                 switch result {
                 case .success(let dataFromAPI):
                     let data = dataFromAPI.0
                     if data.count != 0  {
-                        self?.stockData = data
-                        self?.exchangeSymbol = dataFromAPI.1
+                        self.stockData = data
+                        self.exchangeSymbol = dataFromAPI.1
                         DispatchQueue.main.async {
-                            self?.startStopSpinner(start: false)
-                            self?.tickerLabel.text = "\(self!.symbol) - \(self!.exchangeSymbol)"
-                            self?.setUpStockModel()
+                            self.startStopSpinner(start: false)
+                            self.tickerLabel.text = "\(self.symbol) - \(self.exchangeSymbol)"
+                            self.setUpStockModel()
                         }
                     } else {
                         DispatchQueue.main.async {
-                            self?.startStopSpinner(start: false)
-                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                            self.startStopSpinner(start: false)
+                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
                         }
                         print ("no more API")
                     }
                 case .exchangeName(let exchange):
                         // Handle standalone exchange name (unlikely, as it's not used)
                         DispatchQueue.main.async {
-                            self?.exchangeSymbol = exchange
-                            self?.tickerLabel.text = "\(self!.symbol) - \(self!.exchangeSymbol))"
+                            self.exchangeSymbol = exchange
+                            self.tickerLabel.text = "\(self.symbol) - \(self.exchangeSymbol)"
                         }
                         print("Received exchange name: \(exchange)")
                 case .errorFailure(let error):
                     DispatchQueue.main.async {
-                        self?.startStopSpinner(start: false)
-                        ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                        self.startStopSpinner(start: false)
+                        ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
                     }
                     print (error)
                 }
@@ -299,22 +301,23 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     private func loadCryptoPrices() {
         CryptoAPI.shared.getSelectedCrypto(interval: interval, symbol: symbol) { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let data):
                 
                 DispatchQueue.main.async {
-                    self?.startStopSpinner(start: false)
+                    self.startStopSpinner(start: false)
                     if data.count != 0 {
-                        self?.cryptoData = data
-                        self?.setUpCryptoModel()
+                        self.cryptoData = data
+                        self.setUpCryptoModel()
                     } else {
-                        ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self!)
+                        ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
                     }
                     
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
                 }
                 print (error)
             }

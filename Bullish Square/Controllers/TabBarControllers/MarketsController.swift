@@ -190,15 +190,16 @@ class MarketsController: UIViewController {
     
     func loadMinorMarkets(){
         CryptoAPI.shared.getAllCryptosData { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let data):
                 DispatchQueue.main.async {
-                    self?.cryptoCoins.removeAll()
-                    self?.setUpViewModel(cryptoValues: data)
+                    self.cryptoCoins.removeAll()
+                    self.setUpViewModel(cryptoValues: data)
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self!)
+                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
                 }
                 print (error)
             }
