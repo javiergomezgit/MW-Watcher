@@ -129,6 +129,10 @@ class SaveTickers {
         
         var seenTickers = Set<String>()
         
+        //Used to spot rows that never received a real logo, see below
+        let placeholder = UIImage(named: "mw-logo") ?? UIImage()
+        let placeholderData = placeholder.pngData()
+        
         do {
             tickerManagedObjectArray = try managedContext.fetch(fetchRequest)
             
@@ -142,21 +146,22 @@ class SaveTickers {
                 
                 
                 var name = tickerObject.value(forKey: "nameCompany") as? String
-                let imageName = tickerObject.value(forKey: "imageCompanyName") as? String ?? ticker
+                var imageName = tickerObject.value(forKey: "imageCompanyName") as? String ?? ticker
                 if name == nil {
                     name = "n/a"
                 }
                 if let imageData = tickerObject.value(forKey: "imageCompany") as? Data {
-                    do {
-                        if let image = UIImage(data: imageData) {
-                            imageFromData = image
-                        } else {
-                            imageFromData = UIImage(named: "mw-logo")!
-                        }
+                    imageFromData = UIImage(data: imageData) ?? placeholder
+                    
+                    //A row still holding the bundled placeholder never got a real logo: a failed
+                    //fetch used to be recorded as a success, which marked the row resolved for
+                    //good. Report it as unresolved so it is retried instead of staying blank.
+                    if imageData == placeholderData {
+                        imageName = ""
                     }
-
                 } else {
-                    imageFromData = UIImage(named: "mw-logo")!
+                    imageFromData = placeholder
+                    imageName = ""
                 }
 
                 let tickerItem = TickersFeatures(ticker: ticker, nameTicker: name!, imageTicker: imageFromData, imageTickerName: imageName)

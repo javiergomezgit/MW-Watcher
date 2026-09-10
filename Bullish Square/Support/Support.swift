@@ -117,22 +117,66 @@ class Support {
     }
     
     
-    //MARK: Download image from an url and save it in cache, if result in error return official logo
+    //MARK: Download image from a url, caching the result
     let imageCache = NSCache<NSString, UIImage>()
-    func downloadImageFeed(URLImage: String) -> UIImage {
-        var image = UIImage(named: "mw-logo")!
-        if URLImage.isValidURL {
-            let url = URL(string: URLImage)
-            do {
-                let data = try Data(contentsOf: url!)
-                let imageToCache = UIImage(data: data)!
-                imageCache.setObject(imageToCache, forKey: URLImage as NSString)
-                image = imageToCache
-            } catch {
-                image = UIImage(named: "mw-logo")!
+    
+    ///Asynchronous image download. Returns nil when the url is unusable, the request fails, or
+    ///the payload is not a decodable image, so the caller decides on the fallback.
+    ///Replaces a synchronous Data(contentsOf:) that blocked whichever queue called it — when
+    ///several downloads were kicked off at once from a URLSession completion handler, they
+    ///starved that handler's queue and images silently fell back to the placeholder.
+    func downloadImage(from urlString: String, completion: @escaping (UIImage?) -> Void) {
+        if let cached = imageCache.object(forKey: urlString as NSString) {
+            completion(cached)
+            return
+        }
+        
+        guard urlString.isValidURL, let url = URL(string: urlString) else {
+            completion(nil)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 15.0
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
+            guard error == nil, let data = data, let image = UIImage(data: data) else {
+                completion(nil)
+                return
+            }
+            self?.imageCache.setObject(image, forKey: urlString as NSString)
+            completion(image)
+        }.resume()
+    }
+    
+    ///Downloads the given images concurrently and writes them into a copy of `items`.
+    ///Entries with no url, or whose download fails, keep the image they already carry.
+    func fillImages<T>(into items: [T],
+                       urls: [Int: String],
+                       imagePath: WritableKeyPath<T, UIImage>,
+                       completion: @escaping ([T]) -> Void) {
+        guard !urls.isEmpty else {
+            completion(items)
+            return
+        }
+        
+        var result = items
+        let group = DispatchGroup()
+        let serial = DispatchQueue(label: "com.bullishsquare.imagefill")
+        
+        for (index, urlString) in urls where index < result.count {
+            group.enter()
+            downloadImage(from: urlString) { image in
+                if let image = image {
+                    serial.sync { result[index][keyPath: imagePath] = image }
+                }
+                group.leave()
             }
         }
-        return image
+        
+        group.notify(queue: serial) {
+            completion(result)
+        }
     }
     
     //MARK: Round edges of an image
@@ -167,6 +211,40 @@ extension String {
             return match.range.length == self.utf16.count
         } else {
             return false
+        }
+    }
+}
+
+//MARK: Placeholder avatar for tickers with no logo
+extension UIImage {
+    ///A tinted circle carrying the symbol's first letters, used when the provider has no logo
+    ///for a ticker so the row reads as deliberate rather than broken.
+    static func letterAvatar(for ticker: String, size: CGFloat = 120) -> UIImage {
+        let symbol = ticker.replacingOccurrences(of: "^", with: "")
+        let letters = String(symbol.prefix(2)).uppercased()
+        
+        //Seeded by hand: String.hashValue is randomised per process, so the colour would
+        //change on every launch.
+        let seed = symbol.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) & 0xFFFFFF }
+        let background = UIColor(hue: CGFloat(seed % 360) / 360.0,
+                                 saturation: 0.45,
+                                 brightness: 0.75,
+                                 alpha: 1.0)
+        
+        let bounds = CGRect(x: 0, y: 0, width: size, height: size)
+        return UIGraphicsImageRenderer(size: bounds.size).image { context in
+            background.setFill()
+            context.cgContext.fillEllipse(in: bounds)
+            
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: size * 0.38, weight: .semibold),
+                .foregroundColor: UIColor.white
+            ]
+            let text = letters as NSString
+            let textSize = text.size(withAttributes: attributes)
+            text.draw(at: CGPoint(x: bounds.midX - textSize.width / 2,
+                                  y: bounds.midY - textSize.height / 2),
+                      withAttributes: attributes)
         }
     }
 }

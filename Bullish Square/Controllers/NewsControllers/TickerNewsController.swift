@@ -12,7 +12,7 @@ struct TickerNews {
     let pubDate: String
     let linkHeadline: String
     let author: String
-    let image: UIImage
+    var image: UIImage //filled in after the async image download
 }
 
 class TickerNewsController: UIViewController {

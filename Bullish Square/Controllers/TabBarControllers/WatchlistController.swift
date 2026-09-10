@@ -157,15 +157,9 @@ class WatchlistController: UIViewController {
     func loadMultipleStocks(savedTickers: [TickersFeatures]) {
         var mergedTickers = ""
         
+        loadPendingLogos(for: savedTickers)
+        
         for (index, savedTicker) in savedTickers.enumerated() {
-           
-                //Empty marks "logo not fetched yet". "mw-logo" is the legacy sentinel that
-                //older installs still have stored, so keep honouring it for migration.
-                if savedTicker.imageTickerName.isEmpty || savedTicker.imageTickerName == "mw-logo" {
-                    loadImageStock(individualTicker: savedTicker.ticker, nameTicker: savedTicker.nameTicker)
-                }
-            
-            
             let ticker = savedTicker.ticker
             if index == 0 {
                 mergedTickers = ticker
@@ -202,19 +196,49 @@ class WatchlistController: UIViewController {
         }
     }
     
-    func loadImageStock(individualTicker: String, nameTicker: String) {
+    ///Fetches missing logos one at a time. Firing one request per new ticker simultaneously
+    ///starved the URLSession queue and some logos silently ended up as the placeholder.
+    ///Empty imageTickerName marks "not fetched yet"; "mw-logo" is the legacy sentinel that
+    ///older installs still have stored, so it is honoured for migration.
+    private func loadPendingLogos(for savedTickers: [TickersFeatures]) {
+        var pending = savedTickers.filter {
+            $0.imageTickerName.isEmpty || $0.imageTickerName == "mw-logo"
+        }
+        
+        func fetchNext() {
+            guard !pending.isEmpty else { return }
+            let next = pending.removeFirst()
+            loadImageStock(individualTicker: next.ticker, nameTicker: next.nameTicker) {
+                fetchNext()
+            }
+        }
+        fetchNext()
+    }
+    
+    func loadImageStock(individualTicker: String, nameTicker: String, completion: @escaping () -> Void = {}) {
         
         StockAPI.shared.getLogoStock(ticker: individualTicker) { result in
             switch result {
-            case .failure(let error):
-                print (error)
             case .success(let imageCompany):
                 
                 //Update in place. The old delete-then-insert deleted every row still holding
                 //the placeholder logo, so adding several stocks at once lost most of them.
                 self.savedTickers.updateTickerLogo(ticker: individualTicker, image: imageCompany, imageName: individualTicker)
                 
+            case .failure(let error):
+                
+                if let apiError = error as? StockAPI.APIError, case .logoUnavailable = apiError {
+                    //No logo exists for this symbol, so record a letter avatar and stop asking.
+                    let avatar = UIImage.letterAvatar(for: individualTicker)
+                    self.savedTickers.updateTickerLogo(ticker: individualTicker, image: avatar, imageName: individualTicker)
+                } else {
+                    //Transient. Leave the row unresolved so the next appearance retries it,
+                    //rather than recording the placeholder as if it were the real logo.
+                    print("Logo fetch failed for \(individualTicker), will retry: \(error)")
+                }
+                
             }
+            completion()
         }
     }
 

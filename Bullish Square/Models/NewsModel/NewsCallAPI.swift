@@ -46,7 +46,10 @@ final class NewsCallAPI {
                     return
                 }
                 
+                let placeholder = UIImage(named: "mw-logo") ?? UIImage()
                 var newsItems = [NewsItem]()
+                var imageURLs = [Int: String]()
+                
                 for jsonNew in jsonNews {
                     
                     let dictionaryNew = jsonNew as! [String: Any]
@@ -60,23 +63,20 @@ final class NewsCallAPI {
                     let notFormatedDate = dictionaryNew["publishedAt"] as! String
                     let pubDate = Support.sharedSupport.newLocalTimeNews(timeString: notFormatedDate)
                     
-                    let imageURL = dictionaryNew["image"] as? String
-                    var downloadedImage = UIImage()
-                    if imageURL != nil {
-                        if imageURL!.isValidURL {
-                            downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: imageURL!)
-                        } else {
-                            downloadedImage = UIImage(named: "mw-logo")!
-                        }
-                    } else {
-                        downloadedImage = UIImage(named: "mw-logo")!
+                    if let imageURL = dictionaryNew["image"] as? String, imageURL.isValidURL {
+                        imageURLs[newsItems.count] = imageURL
                     }
                     
-                    let newsItem = NewsItem.init(headline: headline, link: link, pubDate: pubDate, ticker: "", author: authorName, image: downloadedImage)
+                    let newsItem = NewsItem.init(headline: headline, link: link, pubDate: pubDate, ticker: "", author: authorName, image: placeholder)
                     newsItems.append(newsItem)
                 }
-                print("✅ Cached: \(keySource) — \(newsItems.count) articles from News CallAPI")
-                completion(newsItems)
+                
+                //Images are fetched concurrently rather than one blocking download at a time
+                //on this completion handler, which stalled the whole feed.
+                Support.sharedSupport.fillImages(into: newsItems, urls: imageURLs, imagePath: \NewsItem.image) { itemsWithImages in
+                    print("✅ Cached: \(keySource) — \(itemsWithImages.count) articles from News CallAPI")
+                    completion(itemsWithImages)
+                }
             }
         })
         dataTask.resume()
@@ -114,7 +114,10 @@ final class NewsCallAPI {
                 let newsEntries = jsonNews["symbolEntries"] as! [String: Any]
                 let entries = newsEntries["results"] as! [Any]
                 
+                let placeholder = UIImage(named: "mw-logo") ?? UIImage()
                 var newsItems = [TickerNews]()
+                var imageURLs = [Int: String]()
+                
                 for jsonNew in entries {
                     
                     let dictionaryNew = jsonNew as! [String: Any]
@@ -122,14 +125,10 @@ final class NewsCallAPI {
                     let headline = dictionaryNew["description"] as! String
                     let link = dictionaryNew["url"] as! String
                     
-                    let imageDictionary = dictionaryNew["promoImage"] as? [String : Any]
-                    
-                    var downloadedImage = UIImage()
-                    if imageDictionary != nil {
-                        let imageLink = imageDictionary?["url"] as! String // as? [String: Any]
-                        downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: imageLink)
-                    } else {
-                        downloadedImage = UIImage(named: "mw-logo")!
+                    //Was force cast, which trapped whenever promoImage carried no url
+                    if let imageDictionary = dictionaryNew["promoImage"] as? [String: Any],
+                       let imageLink = imageDictionary["url"] as? String, imageLink.isValidURL {
+                        imageURLs[newsItems.count] = imageLink
                     }
 
                     let author = dictionaryNew["type"] as! String
@@ -137,10 +136,13 @@ final class NewsCallAPI {
                     let notFormatedDate = dictionaryNew["dateFirstPublished"] as! String
                     let pubDate = Support.sharedSupport.newLocalTime(timeString: notFormatedDate)
                     
-                    let newsItem = TickerNews.init(headline: headline, pubDate: pubDate, linkHeadline: link, author: author, image: downloadedImage)
+                    let newsItem = TickerNews.init(headline: headline, pubDate: pubDate, linkHeadline: link, author: author, image: placeholder)
                     newsItems.append(newsItem)
                 }
-                completion(newsItems)
+                
+                Support.sharedSupport.fillImages(into: newsItems, urls: imageURLs, imagePath: \TickerNews.image) { itemsWithImages in
+                    completion(itemsWithImages)
+                }
             }
         })
         dataTask.resume()

@@ -21,6 +21,8 @@ final class StockAPI {
         case invalidTicker
         case freeVersion
         case noData
+        case logoUnavailable    //the provider has no logo for this symbol; permanent
+        case logoDownloadFailed //transport or decode failure; worth retrying
     }
     
     //MARK: API call for search/add of single stock
@@ -118,22 +120,45 @@ final class StockAPI {
             }
             
             guard let data = data else {
+                completion(.failure(APIError.noData))
+                return
+            }
+            
+            //Throttling and server faults have to stay retryable, so they are separated out
+            //before the body is inspected. A body with no url is otherwise indistinguishable
+            //from a symbol that genuinely has no logo.
+            if let httpResponse = response as? HTTPURLResponse,
+               httpResponse.statusCode == 429 || httpResponse.statusCode >= 500 {
+                completion(.failure(APIError.logoDownloadFailed))
                 return
             }
             
             do {
                 let json = try JSON(data: data)
-                var downloadedImage = UIImage(named: "mw-logo")!
-                for (key, subJson):(String, JSON) in json {
-                    
-                    if key == "url" {
-                        guard let urlString = subJson.string else {
+                
+                if let logoURL = json["url"].string, !logoURL.isEmpty {
+                    //Downloaded asynchronously. This used to be a blocking call made from
+                    //inside this completion handler, so adding several tickers at once starved
+                    //the session's queue and some logos silently became the placeholder.
+                    Support.sharedSupport.downloadImage(from: logoURL) { image in
+                        guard let image = image else {
+                            completion(.failure(APIError.logoDownloadFailed))
                             return
                         }
-                        downloadedImage = Support.sharedSupport.downloadImageFeed(URLImage: urlString)
+                        completion(.success(image))
                     }
+                    return
                 }
-                completion(.success(downloadedImage))
+                
+                //Only an explicit invalid-symbol answer is permanent:
+                //{"code":404,"message":"**symbol** ... is invalid","status":"error"}
+                //Any other body without a url is treated as transient so it is retried, rather
+                //than recording a fallback for good.
+                if json["status"].string == "error", json["code"].int == 404 {
+                    completion(.failure(APIError.logoUnavailable))
+                } else {
+                    completion(.failure(APIError.logoDownloadFailed))
+                }
             } catch {
                 completion(.failure(error))
             }
