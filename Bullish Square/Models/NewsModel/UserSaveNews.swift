@@ -19,7 +19,9 @@ class UserSaveNews {
         let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
         let headlineObject = NSManagedObject(entity: entity, insertInto: managedContext)
         
-        let imageData = imageNews.pngData()
+        //Never store nil. A zero-size UIImage returns nil here, and that nil blob is what
+        //made loadNews trap when the row was read back.
+        let imageData = imageNews.pngData() ?? UIImage(named: "mw-logo")?.pngData()
         
         headlineObject.setValue(headline, forKey: "headline")
         headlineObject.setValue(date, forKey: "date")
@@ -37,7 +39,9 @@ class UserSaveNews {
         }
     }
     
-    func deleteNews(headline: String, date: String, deleteAll: Bool) -> Bool? {
+    //Returns Bool rather than Bool?: it never produced nil, and both call sites force
+    //unwrapped the result.
+    func deleteNews(headline: String, date: String, deleteAll: Bool) -> Bool {
         var success = false
         
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -62,7 +66,7 @@ class UserSaveNews {
             do {
                 newsManagedObjectArray = try managedContext.fetch(fetchRequest)
                 for newsManagedObject in newsManagedObjectArray {
-                    let localHeadline = newsManagedObject.value(forKey: "headline") as! String
+                    guard let localHeadline = newsManagedObject.value(forKey: "headline") as? String else { continue }
                     if localHeadline == headline {
                         managedContext.delete(newsManagedObject)
                         try managedContext.save()
@@ -80,21 +84,27 @@ class UserSaveNews {
     func loadNews() -> [UserSavedNewsItem] {
         var newsItemArray : [UserSavedNewsItem] = []
         
-        let appDelegate = UIApplication.shared.delegate as? AppDelegate
-        let managedContext = appDelegate!.persistentContainer.viewContext
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return newsItemArray }
+        let managedContext = appDelegate.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+        
+        //Rows saved before the image pipeline was fixed can hold a nil blob, and every field
+        //here was force cast, so a single bad row crashed the whole Saved News screen.
+        let placeholderData = UIImage(named: "mw-logo")?.pngData() ?? Data()
         
         do {
             newsManagedObjectArray = try managedContext.fetch(fetchRequest)
 
             for newsManagedObject in newsManagedObjectArray {
-                let headline = newsManagedObject.value(forKey: "headline") as! String
-                let date = newsManagedObject.value(forKey: "date") as! String
-                let link = newsManagedObject.value(forKey: "link") as! String
-                let author = newsManagedObject.value(forKey: "author") as! String
-                let imageData = newsManagedObject.value(forKey: "imageNews") as! Data
+                //Without a headline or a link the row cannot be shown or opened, so skip it
+                guard let headline = newsManagedObject.value(forKey: "headline") as? String,
+                      let link = newsManagedObject.value(forKey: "link") as? String else { continue }
                 
-                let newsItem = UserSavedNewsItem.init(headline: headline, link: link, pubDate: date, author: author, newsImageData: imageData)
+                let date = newsManagedObject.value(forKey: "date") as? String ?? ""
+                let author = newsManagedObject.value(forKey: "author") as? String ?? ""
+                let imageData = newsManagedObject.value(forKey: "imageNews") as? Data ?? placeholderData
+                
+                let newsItem = UserSavedNewsItem(headline: headline, link: link, pubDate: date, author: author, newsImageData: imageData)
                 newsItemArray.append(newsItem)
             }
         } catch let error as NSError {

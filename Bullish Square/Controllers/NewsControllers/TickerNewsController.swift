@@ -236,7 +236,7 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
             }
         } else {
             //unsave
-            if saveHeadlines.deleteNews(headline: headline, date: dateOfNew, deleteAll: false)! {
+            if saveHeadlines.deleteNews(headline: headline, date: dateOfNew, deleteAll: false) {
                 sender.tintColor = .darkGray
                 boldSearch = UIImage(systemName: "bookmark", withConfiguration: configurationButton)!
                 self.savedRows[sender.tag] = false
