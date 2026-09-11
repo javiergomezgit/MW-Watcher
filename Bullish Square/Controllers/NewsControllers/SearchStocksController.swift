@@ -185,34 +185,45 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
     
     // Fetches price and logo for selected stock then pushes ChartController
     @objc func openChart(index: Int) {
+        //Read out of filteredStocks once. The searches below are asynchronous and the user
+        //can keep typing, so index is not safe to hold on to until they come back.
         let individualTicker = filteredStocks[index].ticker
         let nameTicker = filteredStocks[index].nameTicker
+        let exchange = filteredStocks[index].exchange
         
         self.startStopSpinner(start: true)
         
-        StockAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { result in
+        StockAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { [weak self] result in
+            guard let self else { return }
             switch result {
             case .success(let tickerCurrentValues):
-                StockAPI.shared.getLogoStock(ticker: individualTicker) { result in
+                StockAPI.shared.getLogoStock(ticker: individualTicker) { [weak self] result in
+                    guard let self else { return }
+                    
+                    //The logo is decoration. Pushing from inside the success branch meant a
+                    //symbol the provider has no logo for - every ETF returns an empty url -
+                    //left the spinner running and never opened the chart at all.
+                    let imageCompany: UIImage
                     switch result {
+                    case .success(let image):
+                        imageCompany = image
                     case .failure(let error):
+                        imageCompany = UIImage(named: "mw-logo") ?? UIImage()
                         print(error)
-                    case .success(let imageCompany):
-                        let tickerFeatures = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: imageCompany, imageTickerName: "")
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self.startStopSpinner(start: false)
                         
-                        DispatchQueue.main.async {
-                            self.startStopSpinner(start: false)
-                            
-                            let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
-                            guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
-                            
-                            destination.exchangeSymbol = self.filteredStocks[index].exchange
-                            destination.informationStockTicker = tickerCurrentValues
-                            destination.nameTicker = tickerFeatures.nameTicker
-                            destination.imageCompany = tickerFeatures.imageTicker
-                            destination.modalTransitionStyle = .crossDissolve
-                            self.navigationController?.pushViewController(destination, animated: true)
-                        }
+                        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
+                        guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
+                        
+                        destination.exchangeSymbol = exchange
+                        destination.informationStockTicker = tickerCurrentValues
+                        destination.nameTicker = nameTicker
+                        destination.imageCompany = imageCompany
+                        destination.modalTransitionStyle = .crossDissolve
+                        self.navigationController?.pushViewController(destination, animated: true)
                     }
                 }
                 
