@@ -88,12 +88,17 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
         }
         //sk_c57c7bf356fe2348a00f33b1b5969b31fc52a8fe7b97027b
         cell.linkButton.tag = indexPath.row
+        //UIControl keeps duplicate registrations, so a reused cell fired this action once
+        //per dequeue. Removing the pair first guarantees exactly one.
+        cell.linkButton.removeTarget(self, action: #selector(linkButton(_:)), for: .touchUpInside)
         cell.linkButton.addTarget(self, action: #selector(linkButton(_:)), for: .touchUpInside)
         
         cell.shareButton.tag = indexPath.row
+        cell.shareButton.removeTarget(self, action: #selector(shareHeadline(_: )), for: .touchUpInside)
         cell.shareButton.addTarget(self, action: #selector(shareHeadline(_: )), for: .touchUpInside)
         
         cell.readButton.tag = indexPath.row
+        cell.readButton.removeTarget(self, action: #selector(readHeadline(_:)), for: .touchUpInside)
         cell.readButton.addTarget(self, action: #selector(readHeadline(_:)), for: .touchUpInside)
         
         return cell

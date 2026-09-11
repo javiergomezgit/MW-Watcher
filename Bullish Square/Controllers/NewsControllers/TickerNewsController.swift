@@ -169,12 +169,17 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.authorLabel.text = tickerNewsArray[indexPath.row].author
         
         cell.linkButton.titleLabel?.text = tickerNewsArray[indexPath.row].linkHeadline
+        //UIControl keeps duplicate registrations, so a reused cell fired this action once
+        //per dequeue. Removing the pair first guarantees exactly one.
+        cell.linkButton.removeTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
         cell.saveButton.tag = indexPath.row
+        cell.saveButton.removeTarget(self, action: #selector(saveHeadline(sender:)), for: .touchUpInside)
         cell.saveButton.addTarget(self, action: #selector(saveHeadline(sender:)), for: .touchUpInside)
         
         cell.shareButton.tag = indexPath.row
+        cell.shareButton.removeTarget(self, action: #selector(shareHeadline(sender:)), for: .touchUpInside)
         cell.shareButton.addTarget(self, action: #selector(shareHeadline(sender:)), for: .touchUpInside)
         
         return cell

@@ -280,6 +280,9 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.imageCompanyImageView.image = tickerFeatures.imageTicker
             cell.nameCompanyLabel.text = tickerFeatures.nameTicker
             
+            //UIControl keeps duplicate registrations, so a reused cell fired this action once
+            //per dequeue. Removing the pair first guarantees exactly one.
+            cell.openChartButton.removeTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
             cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
             
             //Prices come from the API, which may not have returned this ticker at all.

@@ -290,6 +290,9 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
         }
         
         cell.openChartButton.tag = indexPath.row
+        //UIControl keeps duplicate registrations, so a reused cell fired this action once
+        //per dequeue. Removing the pair first guarantees exactly one.
+        cell.openChartButton.removeTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
         cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
         
         return cell
@@ -361,6 +364,7 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
         }
         
         cell.openChartButton.tag = indexPath.row
+        cell.openChartButton.removeTarget(self, action: #selector(openChartMinorMarket(sender:)), for: .touchUpInside)
         cell.openChartButton.addTarget(self, action: #selector(openChartMinorMarket(sender:)), for: .touchUpInside)
         
         return cell
