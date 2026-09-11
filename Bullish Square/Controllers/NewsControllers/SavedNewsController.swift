@@ -276,9 +276,7 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete{
-            let headline = newsItems[indexPath.row].headline
-            let date = newsItems[indexPath.row].pubDate
-            _ = savedNews.deleteNews(headline: headline, date: date, deleteAll: false)
+            _ = savedNews.deleteNews(link: newsItems[indexPath.row].link, deleteAll: false)
             newsItems.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .left)
         }
@@ -340,7 +338,7 @@ extension SavedNewsController {
     }
     
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)  {
-        _ = savedNews.deleteNews(headline: "", date: "", deleteAll: true)
+        _ = savedNews.deleteNews(link: "", deleteAll: true)
         newsItems.removeAll()
         tableView.reloadData()
     }

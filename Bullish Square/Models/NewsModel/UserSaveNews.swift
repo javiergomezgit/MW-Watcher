@@ -39,9 +39,26 @@ class UserSaveNews {
         }
     }
     
+    //Just the article links, for the news screens to render bookmark state from.
+    func savedLinks() -> Set<String> {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return [] }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+        
+        do {
+            let objects = try managedContext.fetch(fetchRequest)
+            return Set(objects.compactMap { $0.value(forKey: "link") as? String })
+        } catch let error as NSError {
+            print("Could not fetch saved links. \(error), \(error.userInfo)")
+            return []
+        }
+    }
+    
     //Returns Bool rather than Bool?: it never produced nil, and both call sites force
     //unwrapped the result.
-    func deleteNews(headline: String, date: String, deleteAll: Bool) -> Bool {
+    //Matches on link. It used to match on headline and ignore its date parameter entirely,
+    //so two articles sharing a headline deleted each other.
+    func deleteNews(link: String, deleteAll: Bool) -> Bool {
         var success = false
         
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
@@ -66,8 +83,8 @@ class UserSaveNews {
             do {
                 newsManagedObjectArray = try managedContext.fetch(fetchRequest)
                 for newsManagedObject in newsManagedObjectArray {
-                    guard let localHeadline = newsManagedObject.value(forKey: "headline") as? String else { continue }
-                    if localHeadline == headline {
+                    guard let localLink = newsManagedObject.value(forKey: "link") as? String else { continue }
+                    if localLink == link {
                         managedContext.delete(newsManagedObject)
                         try managedContext.save()
                     }

@@ -26,7 +26,9 @@ class TickerNewsController: UIViewController {
     var cryptoCoin = false
     var tickerNewsArray: [TickerNews] = []
     let saveHeadlines = UserSaveNews()
-    var savedRows : [Int: Bool] = [:]
+    //Keyed by article link. cellForRowAt never rendered this at all, so a reused cell kept
+    //whatever bookmark the previous article left on it.
+    var savedLinks: Set<String> = []
     var refreshControl = UIRefreshControl()
     var notFound = false
     let child = Spinner()
@@ -43,6 +45,8 @@ class TickerNewsController: UIViewController {
         
         tickerLabel.text = ticker
         nameStock.text = name
+        
+        savedLinks = saveHeadlines.savedLinks()
         
         if cryptoCoin {
             loadCryptoNews()
@@ -174,6 +178,8 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.linkButton.removeTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         cell.linkButton.addTarget(self, action: #selector(connected(sender:)), for: .touchUpInside)
         
+        applySavedState(to: cell.saveButton, link: tickerNewsArray[indexPath.row].linkHeadline)
+        
         cell.saveButton.tag = indexPath.row
         cell.saveButton.removeTarget(self, action: #selector(saveHeadline(sender:)), for: .touchUpInside)
         cell.saveButton.addTarget(self, action: #selector(saveHeadline(sender:)), for: .touchUpInside)
@@ -215,41 +221,42 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
     
     
     @objc func saveHeadline(sender: UIButton) {
-        let index = sender.tag
         sender.animateButton(sender: sender, duration: 0.1)
-        let headline = tickerNewsArray[index].headline
-        let link = tickerNewsArray[index].linkHeadline
-        let dateOfNew = tickerNewsArray[index].pubDate
-        let author = tickerNewsArray[index].author
-        let imageNews = tickerNewsArray[index].image
+        guard sender.tag < tickerNewsArray.count else { return }
+        let newsItem = tickerNewsArray[sender.tag]
+        let link = newsItem.linkHeadline
         
-        let configurationButton = sender.currentImage?.configuration
-        var boldSearch = UIImage()
-        
-        let currentImageData = sender.currentImage
-        let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
-        
-        if currentImageData?.pngData() == imageData?.pngData() {
-            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link, author: author, imageNews: imageNews) {
-                sender.tintColor = .red
-                boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: configurationButton)!
-                print ("\(headline) saved article")
-                self.savedRows[sender.tag] = true
+        //Save-or-unsave used to be decided by comparing the PNG bytes of the button's own
+        //image, which made the button the source of truth. Ask the store instead.
+        if savedLinks.contains(link) {
+            if saveHeadlines.deleteNews(link: link, deleteAll: false) {
+                savedLinks.remove(link)
             } else {
-                //TODO: - send alert to user that was not possible to save
-                print ("\(headline) NOT SAVED")
+                print ("\(newsItem.headline) NOT UNSAVED")
             }
         } else {
-            //unsave
-            if saveHeadlines.deleteNews(headline: headline, date: dateOfNew, deleteAll: false) {
-                sender.tintColor = .darkGray
-                boldSearch = UIImage(systemName: "bookmark", withConfiguration: configurationButton)!
-                self.savedRows[sender.tag] = false
+            if saveHeadlines.saveNews(headline: newsItem.headline, date: newsItem.pubDate, link: link, author: newsItem.author, imageNews: newsItem.image) {
+                savedLinks.insert(link)
+                print ("\(newsItem.headline) saved article")
             } else {
-                print ("\(headline) NOT UNSAVED")
+                //TODO: - send alert to user that was not possible to save
+                print ("\(newsItem.headline) NOT SAVED")
             }
         }
-        sender.setImage(boldSearch, for: .normal)
+        
+        applySavedState(to: sender, link: link)
+    }
+    
+    //One place decides how a bookmark looks, so a tap and a redraw cannot disagree. The
+    //unsave path used to tint the button .darkGray, which reads as gone against the dark
+    //background.
+    private func applySavedState(to button: UIButton, link: String) {
+        //No explicit SymbolConfiguration. The storyboard sets this button's
+        //preferredSymbolConfiguration (large scale, regular weight) and that is what sized
+        //the bookmark before; building one here would change how it draws.
+        let symbol = savedLinks.contains(link) ? "bookmark.fill" : "bookmark"
+        button.tintColor = UIColor(named: "colorHightlight")
+        button.setImage(UIImage(systemName: symbol), for: .normal)
     }
 
     @objc func connected(sender: UIButton){

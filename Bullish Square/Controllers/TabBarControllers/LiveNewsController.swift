@@ -39,7 +39,9 @@ class LiveNewsController: UIViewController {
     
     var loadedTimes = 0
     var alreadyLaunched = false
-    var savedRows: [Int: Bool] = [:]
+    //Keyed by article link, not row index. The source filter replaces newsItems wholesale,
+    //so an index-keyed map rendered bookmarks against whatever article now sat at that row.
+    var savedLinks: Set<String> = []
     
     private let imageViewSavedNews = UIImageView(image: UIImage(named: "tray.2.fill"))
     private let imageViewSearchNews = UIImageView(image: UIImage(systemName: "play.circle"))
@@ -84,6 +86,14 @@ class LiveNewsController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         showImage(true)
+        
+        //Articles can be unsaved from the Saved News tab, so re-read rather than trusting
+        //whatever this screen last wrote.
+        let current = saveHeadlines.savedLinks()
+        if current != savedLinks {
+            savedLinks = current
+            tableView.reloadData()
+        }
     }
 }
 
@@ -214,6 +224,7 @@ extension LiveNewsController {
         }
         
         sources.sort()
+        savedLinks = saveHeadlines.savedLinks()
         tableView.reloadData()
         collectionView.reloadData()
         refreshControl.endRefreshing()
@@ -514,14 +525,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         
         cell.setNewsValues(headline: newsItem.headline, link: newsItem.link, pubdate: newsItem.pubDate, author: newsItem.author, imageFeed: newsItem.image)
         
-        let configuration = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .regular)
-        if savedRows[indexPath.row] == true {
-            cell.saveButton.tintColor = UIColor(named: "colorHightlight")
-            cell.saveButton.setImage(UIImage(systemName: "bookmark.fill", withConfiguration: configuration), for: .normal)
-        } else {
-            cell.saveButton.tintColor = UIColor(named: "colorHightlight")
-            cell.saveButton.setImage(UIImage(systemName: "bookmark", withConfiguration: configuration), for: .normal)
-        }
+        applySavedState(to: cell.saveButton, link: newsItem.link)
         
         //UIControl keeps duplicate registrations, so a reused cell fired this action once
         //per dequeue. Removing the pair first guarantees exactly one.
@@ -572,37 +576,37 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
     // Save or remove news headline from saved list
     @objc func saveTitle(sender: UIButton) {
         sender.animateButton(sender: sender, duration: 0.1)
-        let headline = self.newsItems[sender.tag].headline
-        let dateOfNew = self.newsItems[sender.tag].pubDate
-        let link = self.newsItems[sender.tag].link
-        let source = self.newsItems[sender.tag].author
-        let imageNews = self.newsItems[sender.tag].image
+        guard sender.tag < newsItems.count else { return }
+        let newsItem = newsItems[sender.tag]
         
-        let configurationButton = sender.currentImage?.configuration
-        var boldSearch = UIImage()
-        
-        let currentImageData = sender.currentImage
-        let imageData = UIImage(systemName: "bookmark", withConfiguration: configurationButton)
-        
-        if currentImageData?.pngData() == imageData?.pngData() {
-            if saveHeadlines.saveNews(headline: headline, date: dateOfNew, link: link, author: source, imageNews: imageNews) {
-                sender.tintColor = .red
-                boldSearch = UIImage(systemName: "bookmark.fill", withConfiguration: configurationButton)!
-                print("\(headline) saved article")
-                self.savedRows[sender.tag] = true
+        //Save-or-unsave used to be decided by comparing the PNG bytes of the button's own
+        //image, which made the button the source of truth. Ask the store instead.
+        if savedLinks.contains(newsItem.link) {
+            if saveHeadlines.deleteNews(link: newsItem.link, deleteAll: false) {
+                savedLinks.remove(newsItem.link)
             } else {
-                print("\(headline) NOT SAVED")
+                print("\(newsItem.headline) NOT UNSAVED")
             }
         } else {
-            if saveHeadlines.deleteNews(headline: headline, date: dateOfNew, deleteAll: false) {
-                sender.tintColor = .darkGray
-                boldSearch = UIImage(systemName: "bookmark", withConfiguration: configurationButton)!
-                self.savedRows[sender.tag] = false
+            if saveHeadlines.saveNews(headline: newsItem.headline, date: newsItem.pubDate, link: newsItem.link, author: newsItem.author, imageNews: newsItem.image) {
+                savedLinks.insert(newsItem.link)
+                print("\(newsItem.headline) saved article")
             } else {
-                print("\(headline) NOT UNSAVED")
+                print("\(newsItem.headline) NOT SAVED")
             }
         }
-        sender.setImage(boldSearch, for: .normal)
+        
+        applySavedState(to: sender, link: newsItem.link)
+    }
+    
+    //One place decides how a bookmark looks, so a tap and a redraw cannot disagree. The
+    //unsave path used to tint the button .darkGray, which reads as gone against the dark
+    //background until something reloads the row.
+    private func applySavedState(to button: UIButton, link: String) {
+        let configuration = UIImage.SymbolConfiguration(pointSize: 22.0, weight: .regular)
+        let symbol = savedLinks.contains(link) ? "bookmark.fill" : "bookmark"
+        button.tintColor = UIColor(named: "colorHightlight")
+        button.setImage(UIImage(systemName: symbol, withConfiguration: configuration), for: .normal)
     }
     
     // Open link in Safari View Controller
