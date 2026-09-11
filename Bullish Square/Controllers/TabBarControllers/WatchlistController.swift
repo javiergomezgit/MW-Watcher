@@ -280,7 +280,6 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.imageCompanyImageView.image = tickerFeatures.imageTicker
             cell.nameCompanyLabel.text = tickerFeatures.nameTicker
             
-            cell.openChartButton.tag = indexPath.row
             cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
             
             //Prices come from the API, which may not have returned this ticker at all.
@@ -322,9 +321,14 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     }
     
     @objc func openChart(sender: UIButton) {
-        //The tag can be stale after a row is deleted, so bounds-check it
-        guard sender.tag < tickersFeatures.count else { return }
-        let tickerFeatures = tickersFeatures[sender.tag]
+        //Resolved at tap time from where the button actually sits. It previously used a tag
+        //stamped in cellForRowAt, and deleting a row does not re-dequeue the rows below it, so
+        //their tags still pointed at pre-delete positions and opened a different stock.
+        let buttonCentre = CGPoint(x: sender.bounds.midX, y: sender.bounds.midY)
+        guard let indexPath = tableView.indexPathForRow(at: sender.convert(buttonCentre, to: tableView)),
+              indexPath.row < tickersFeatures.count else { return }
+        
+        let tickerFeatures = tickersFeatures[indexPath.row]
         
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else {
