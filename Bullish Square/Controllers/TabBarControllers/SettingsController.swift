@@ -91,7 +91,10 @@ class SettingsController: UITableViewController {
     }
     
     private func handleLegalSection(row: Int) {
-        // Your existing openBrowser logic
+        //Only the first three rows are links. The rows below them hold the Logout and
+        //Delete Account buttons, and tapping the cell around a button used to fall through
+        //to openBrowser's default case and open the website.
+        guard row <= 2 else { return }
         openBrowser(selectedCell: row)
     }
     
@@ -254,6 +257,48 @@ class SettingsController: UITableViewController {
     
     @IBAction func logoutButtonTapped(_ sender: UIButton) {
         logoutFirebase()
+    }
+    
+    @IBAction func deleteAccountButtonTapped(_ sender: UIButton) {
+        confirmAccountDeletion()
+    }
+    
+    //App Review 5.1.1(v) requires an in-app deletion path for any app that creates
+    //accounts. Two steps, because nothing here can be undone.
+    private func confirmAccountDeletion() {
+        let alert = UIAlertController(
+            title: "Delete Account?",
+            message: "This permanently deletes your account, your profile, and everything saved on this device. It cannot be undone.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete Account", style: .destructive) { [weak self] _ in
+            self?.performAccountDeletion()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func performAccountDeletion() {
+        AccountDeletionManager.shared.deleteAccount(presentingOn: self) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                
+                switch result {
+                case .success:
+                    //Same teardown as signing out: the account is gone, so the app has to
+                    //come back up on the login screen.
+                    self.handleLogout()
+                case .failure(let error):
+                    //Backing out of the password prompt or the Apple sheet is a normal
+                    //outcome, not something to put an error in front of.
+                    if let deletionError = error as? AccountDeletionManager.DeletionError,
+                       case .cancelled = deletionError { return }
+                    Utilities.showErrorAlert(on: self, message: error.localizedDescription)
+                }
+            }
+        }
     }
     
     private func logoutFirebase() {
