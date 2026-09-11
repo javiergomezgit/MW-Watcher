@@ -44,9 +44,10 @@ class Support {
         dateFormatter.timeStyle = .medium
         dateFormatter.timeZone = TimeZone(identifier: "PDT")
 
-        let dateObj: Date? = dateFormatterGet.date(from: timeString)
-        let newLocalTime = dateFormatter.string(from: dateObj!)
-        return newLocalTime
+        //Was force unwrapped, so a timestamp the formatter could not parse crashed the whole
+        //news load. Degrades to an empty label instead, matching newLocalTime below.
+        guard let dateObj = dateFormatterGet.date(from: timeString) else { return "" }
+        return dateFormatter.string(from: dateObj)
     }
     
     //MARK: Change date format News specific stock
