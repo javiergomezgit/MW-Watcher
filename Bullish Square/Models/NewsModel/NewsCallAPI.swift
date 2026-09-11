@@ -36,47 +36,58 @@ final class NewsCallAPI {
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
            
-            if (error != nil) {
+            if let error = error {
+                print(error)
                 completion(nil)
-            } else {
+                return
+            }
+            
+            guard let data = data else {
+                completion(nil)
+                return
+            }
+            
+            //A non-dictionary body, an error payload, or a missing articles array all used to
+            //hit a bare return that abandoned the completion handler. SceneDelegate chains the
+            //three category fetches off this callback, so one bad body stopped the remaining
+            //categories from ever being requested, and Live News sat on its spinner for the
+            //full 20-second cache poll before giving up.
+            let decoded = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            guard let json = decoded, let jsonNews = json["articles"] as? [Any] else {
+                completion(nil)
+                return
+            }
+            
+            let placeholder = UIImage(named: "mw-logo") ?? UIImage()
+            var newsItems = [NewsItem]()
+            var imageURLs = [Int: String]()
+            
+            for jsonNew in jsonNews {
                 
-                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                dump (json!)
-                guard let jsonNews = json!["articles"] as? [Any] else {
-                    return
+                let dictionaryNew = jsonNew as! [String: Any]
+                
+                let authorDictionary = dictionaryNew["source"] as! [String: Any]
+                let authorName = authorDictionary["name"] as! String
+                
+                let headline = dictionaryNew["title"] as! String
+                let link = dictionaryNew["url"] as! String
+                
+                let notFormatedDate = dictionaryNew["publishedAt"] as! String
+                let pubDate = Support.sharedSupport.newLocalTimeNews(timeString: notFormatedDate)
+                
+                if let imageURL = dictionaryNew["image"] as? String, imageURL.isValidURL {
+                    imageURLs[newsItems.count] = imageURL
                 }
                 
-                let placeholder = UIImage(named: "mw-logo") ?? UIImage()
-                var newsItems = [NewsItem]()
-                var imageURLs = [Int: String]()
-                
-                for jsonNew in jsonNews {
-                    
-                    let dictionaryNew = jsonNew as! [String: Any]
-                    
-                    let authorDictionary = dictionaryNew["source"] as! [String: Any]
-                    let authorName = authorDictionary["name"] as! String
-                    
-                    let headline = dictionaryNew["title"] as! String
-                    let link = dictionaryNew["url"] as! String
-                    
-                    let notFormatedDate = dictionaryNew["publishedAt"] as! String
-                    let pubDate = Support.sharedSupport.newLocalTimeNews(timeString: notFormatedDate)
-                    
-                    if let imageURL = dictionaryNew["image"] as? String, imageURL.isValidURL {
-                        imageURLs[newsItems.count] = imageURL
-                    }
-                    
-                    let newsItem = NewsItem.init(headline: headline, link: link, pubDate: pubDate, ticker: "", author: authorName, image: placeholder)
-                    newsItems.append(newsItem)
-                }
-                
-                //Images are fetched concurrently rather than one blocking download at a time
-                //on this completion handler, which stalled the whole feed.
-                Support.sharedSupport.fillImages(into: newsItems, urls: imageURLs, imagePath: \NewsItem.image) { itemsWithImages in
-                    print("✅ Cached: \(keySource) — \(itemsWithImages.count) articles from News CallAPI")
-                    completion(itemsWithImages)
-                }
+                let newsItem = NewsItem.init(headline: headline, link: link, pubDate: pubDate, ticker: "", author: authorName, image: placeholder)
+                newsItems.append(newsItem)
+            }
+            
+            //Images are fetched concurrently rather than one blocking download at a time
+            //on this completion handler, which stalled the whole feed.
+            Support.sharedSupport.fillImages(into: newsItems, urls: imageURLs, imagePath: \NewsItem.image) { itemsWithImages in
+                print("✅ Cached: \(keySource) — \(itemsWithImages.count) articles from News CallAPI")
+                completion(itemsWithImages)
             }
         })
         dataTask.resume()
