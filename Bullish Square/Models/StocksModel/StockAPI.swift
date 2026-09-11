@@ -25,6 +25,25 @@ final class StockAPI {
         case logoDownloadFailed //transport or decode failure; worth retrying
     }
     
+    //MARK: Decoded response shapes
+    ///Every field is optional. The previous parser force cast each one, so a single index
+    ///missing a short name or reporting a null price crashed the launch prefetch.
+    private struct GeneralMarketsResponse: Decodable {
+        let quoteResponse: QuoteResponse?
+        
+        struct QuoteResponse: Decodable {
+            let result: [Quote]?
+            
+            struct Quote: Decodable {
+                let symbol: String?
+                let shortName: String?
+                let regularMarketPrice: Double?
+                let regularMarketChangePercent: Double?
+                let regularMarketTime: Int?
+            }
+        }
+    }
+    
     //MARK: API call for search/add of single stock
     func getFeaturesTicker(tickerSingle: String, completion: @escaping (Result<TickersFeatures, Error>) -> Void) {
         let headers = [
@@ -385,38 +404,52 @@ final class StockAPI {
         
         let session = URLSession.shared
         let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
+            if let error = error {
+                print(error)
                 completion(nil, 0)
-            } else {
-                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                print (json as Any)
-                
-                let resultJSON = json?["quoteResponse"] as? [String: Any]
-                
-                if let resultArray = resultJSON!["result"] as? [Any] {
-                    
-                    var marketsValues = [GeneralMarkets]()
-                    var timeStamp = 0
-                    for tickerJSON in resultArray {
-                        
-                        let tickerDictionary = tickerJSON as? [String: Any]
-                        timeStamp = tickerDictionary!["regularMarketTime"] as! Int
-                        let marketPrice = tickerDictionary!["regularMarketPrice"] as! Double
-                        let changePercentage = tickerDictionary!["regularMarketChangePercent"] as! Double
-                        let ticker = tickerDictionary!["symbol"] as! String
-                        let shortName = tickerDictionary!["shortName"] as! String
-                        
-                        let percentageRounded = Double(round(100*changePercentage)/100)
-                        
-                        let marketIndex = GeneralMarkets(indexTicker: ticker, indexName: shortName, indexPrice: marketPrice, changePercentage: percentageRounded)
-                        marketsValues.append(marketIndex)
-                    }
-                    //                    marketsValues = marketsValues.sorted{ $0.changePercentage < $1.changePercentage }
-                    completion(marketsValues, timeStamp)
-                } else {
-                    completion(nil, 0)
-                }
+                return
             }
+            
+            guard let data = data else {
+                completion(nil, 0)
+                return
+            }
+            
+            //data, the quoteResponse lookup and every field inside result were force unwrapped
+            //or force cast. This runs from SceneDelegate on every cold start, so a rate-limit
+            //body crashed the launch before the loop was even reached.
+            guard let quotes = (try? JSONDecoder().decode(GeneralMarketsResponse.self, from: data))?
+                .quoteResponse?.result else {
+                completion(nil, 0)
+                return
+            }
+            
+            var marketsValues = [GeneralMarkets]()
+            var timeStamp = 0
+            
+            for quote in quotes {
+                //Skip an index missing anything displayed, rather than trapping on it
+                guard let ticker = quote.symbol,
+                      let shortName = quote.shortName,
+                      let marketPrice = quote.regularMarketPrice,
+                      let changePercentage = quote.regularMarketChangePercent else { continue }
+                
+                timeStamp = quote.regularMarketTime ?? timeStamp
+                
+                marketsValues.append(GeneralMarkets(indexTicker: ticker,
+                                                    indexName: shortName,
+                                                    indexPrice: marketPrice,
+                                                    changePercentage: Double(round(100*changePercentage)/100)))
+            }
+            
+            //The request always asks for the same four indices, so nothing usable means the
+            //response shape changed. Report it rather than showing an empty Markets screen.
+            guard !marketsValues.isEmpty else {
+                completion(nil, 0)
+                return
+            }
+            
+            completion(marketsValues, timeStamp)
         })
         dataTask.resume()
     }
