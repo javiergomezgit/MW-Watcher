@@ -138,6 +138,13 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     
+    //The chart's history endpoint stopped returning an exchange name, so the old
+    //unconditional "\(symbol) - \(exchangeSymbol)" left a dangling separator on screen.
+    //Join the two only when there is an exchange to join.
+    private func tickerTitle() -> String {
+        exchangeSymbol.isEmpty ? symbol : "\(symbol) - \(exchangeSymbol)"
+    }
+    
     private func selectedStockTicker() {
         let symbol = informationStockTicker.ticker
         self.currentPrice = informationStockTicker.marketPrice
@@ -160,7 +167,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             tickerLabel.text = "\(symbol)"
             volumeLabel.text = ""
         } else {
-            tickerLabel.text = "\(symbol) - \(exchangeSymbol)"
+            tickerLabel.text = tickerTitle()
             volumeLabel.text = "$\(previousPrice)"
         }
         cryptoImage.image = imageCompany
@@ -206,10 +213,14 @@ class ChartController: UIViewController, ChartViewDelegate {
                     let data = dataFromAPI.0
                     if data.count != 0  {
                         self.stockData = data
-                        self.exchangeSymbol = dataFromAPI.1
+                        //Callers such as SearchStocksController pass a real exchange in.
+                        //The endpoint returns none, so assigning unconditionally wiped it out.
+                        if !dataFromAPI.1.isEmpty {
+                            self.exchangeSymbol = dataFromAPI.1
+                        }
                         DispatchQueue.main.async {
                             self.startStopSpinner(start: false)
-                            self.tickerLabel.text = "\(self.symbol) - \(self.exchangeSymbol)"
+                            self.tickerLabel.text = self.tickerTitle()
                             self.setUpStockModel()
                         }
                     } else {
@@ -223,7 +234,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                         // Handle standalone exchange name (unlikely, as it's not used)
                         DispatchQueue.main.async {
                             self.exchangeSymbol = exchange
-                            self.tickerLabel.text = "\(self.symbol) - \(self.exchangeSymbol)"
+                            self.tickerLabel.text = self.tickerTitle()
                         }
                         print("Received exchange name: \(exchange)")
                 case .errorFailure(let error):
