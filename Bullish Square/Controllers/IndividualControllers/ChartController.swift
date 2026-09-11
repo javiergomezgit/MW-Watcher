@@ -704,13 +704,17 @@ class ChartController: UIViewController, ChartViewDelegate {
     }()
     
     func setDataLineChart() {
-        let set1 = LineChartDataSet(entries: linearValues, label: "Subscribs")
+        //The type toggle stays tappable after a failed load, and first!/last! below used to
+        //trap on an empty set.
+        guard let v1 = linearValues.first?.y, let v2 = linearValues.last?.y else {
+            lineChartView.data = nil
+            return
+        }
+        
+        let set1 = LineChartDataSet(entries: linearValues, label: "Price")
         set1.mode = .cubicBezier
         set1.drawCirclesEnabled = false
         set1.lineWidth = 1
-
-        let v1 = linearValues.first!.y
-        let v2 = linearValues.last!.y
 
         // Gradient helper
         func makeGradient(colors: [UIColor], angle: CGFloat = 90.0) -> Fill {
