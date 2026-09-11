@@ -35,14 +35,13 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     var selectedCandleChart = false
     
-    var CLOHValues = [MarketsCandles]()
     var candleValues = [CandleChartDataEntry]()
     var linearValues = [ChartDataEntry]()
     var interval = "300"
     var intervalStock = "15m&limit=35"
     var symbol = "bit"
     var timeIntervals = ["old" : "1:2", "mid" : "1:2", "now" : "1:2"]
-    var times = [0 : ""]
+    var times: [Int: String] = [:]
     var indexMarket = false
     var indexName = ""
     var exchangeSymbol = ""
@@ -336,76 +335,74 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     private func setUpStockModel(){
         guard let modelCandles = stockData else { return }
-        self.candleValues.removeAll()
-        self.linearValues.removeAll()
+        resetChartState()
         
         for (index, candleValue) in modelCandles.enumerated() {
-            let startingAt = candleValue.start_timestamp
-            let openPrice = candleValue.open
-            let highPrice = candleValue.high
-            let closePrice = candleValue.close
-            let lowPrice = candleValue.low
-            
-            let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
-            let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
-            let CLOHValue = MarketsCandles(start_timestamp: startingAt, open: openPrice, high: highPrice, low: lowPrice, close: closePrice)
-            
-            self.candleValues.append(candleValueEntry)
-            self.linearValues.append(linearValueEntry)
-            self.CLOHValues.append(CLOHValue)
-            
-            switch index {
-            case 0:
-                self.timeIntervals["old"] = String(startingAt)
-            case 29:
-                self.timeIntervals["mid"] = String(startingAt)
-            case 59:
-                self.timeIntervals["now"] = String(startingAt)
-            default: print ("")
-            }
-            
-            times[index] = String(startingAt)
+            candleValues.append(CandleChartDataEntry(x: Double(index),
+                                                     shadowH: candleValue.high,
+                                                     shadowL: candleValue.low,
+                                                     open: candleValue.open,
+                                                     close: candleValue.close))
+            linearValues.append(ChartDataEntry(x: Double(index), y: candleValue.close))
+            times[index] = String(candleValue.start_timestamp)
         }
         
-        printCLOH(entry: 59)
-        setupDateLabel()
-        choseTypeChart()
+        finishChartSetup()
     }
     
     private func setUpCryptoModel() {
         
         guard let modelCandles = cryptoData else { return }
-        self.candleValues.removeAll()
-        self.linearValues.removeAll()
+        resetChartState()
         
-        for (index, candleValue) in modelCandles.enumerated() {
-            let startingAt = candleValue.start_timestamp
-            guard let openPrice = Double(candleValue.open) else { return }
-            guard let highPrice = Double(candleValue.max) else { return }
-            guard let closePrice = Double(candleValue.close) else { return }
-            guard let lowPrice = Double(candleValue.min) else { return }
+        for candleValue in modelCandles {
+            //Skip a malformed candle rather than abandoning the whole chart, which is what the
+            //old `else { return }` did. Indexing off what has actually been appended keeps the
+            //x positions contiguous despite the gaps.
+            guard let openPrice = Double(candleValue.open),
+                  let highPrice = Double(candleValue.max),
+                  let closePrice = Double(candleValue.close),
+                  let lowPrice = Double(candleValue.min) else { continue }
             
-            let candleValueEntry = CandleChartDataEntry(x: Double(index), shadowH: highPrice, shadowL: lowPrice, open: openPrice, close: closePrice)
-            let linearValueEntry = ChartDataEntry(x: Double(index), y: closePrice)
-            let CLOHValue = MarketsCandles(start_timestamp: Double(startingAt)!, open: openPrice, high: highPrice, low: lowPrice, close: closePrice)
-
-            self.candleValues.append(candleValueEntry)
-            self.linearValues.append(linearValueEntry)
-            self.CLOHValues.append(CLOHValue)
-            
-            switch index {
-            case 0:
-                self.timeIntervals["old"] = startingAt
-            case 29:
-                self.timeIntervals["mid"] = startingAt
-            case 59:
-                self.timeIntervals["now"] = startingAt
-            default: print ("something")
-            }
-            times[index] = String(startingAt)
+            let index = candleValues.count
+            candleValues.append(CandleChartDataEntry(x: Double(index),
+                                                     shadowH: highPrice,
+                                                     shadowL: lowPrice,
+                                                     open: openPrice,
+                                                     close: closePrice))
+            linearValues.append(ChartDataEntry(x: Double(index), y: closePrice))
+            times[index] = candleValue.start_timestamp
         }
         
-        printCLOH(entry: 59)
+        finishChartSetup()
+    }
+    
+    ///Clears everything rebuilt per load. `times` was previously left alone, so switching from
+    ///a longer interval to a shorter one left stale keys behind and let an out-of-range index
+    ///reach candleValues.
+    private func resetChartState() {
+        candleValues.removeAll()
+        linearValues.removeAll()
+        times.removeAll()
+    }
+    
+    ///Anchors the three axis time labels and the OHLC readout to the data actually loaded.
+    ///These were pinned to indices 0, 29 and 59, but the stock endpoint returns roughly 35
+    ///candles: "now" was never set, so the right-hand axis label fell back to the current clock
+    ///time, and printCLOH(entry: 59) silently did nothing, which is why the OHLC row kept
+    ///showing its storyboard placeholders.
+    private func finishChartSetup() {
+        guard !candleValues.isEmpty else {
+            choseTypeChart()
+            return
+        }
+        
+        let lastIndex = candleValues.count - 1
+        if let oldest = times[0]            { timeIntervals["old"] = oldest }
+        if let middle = times[lastIndex / 2] { timeIntervals["mid"] = middle }
+        if let newest = times[lastIndex]    { timeIntervals["now"] = newest }
+        
+        printCLOH(entry: lastIndex)
         setupDateLabel()
         choseTypeChart()
     }
@@ -415,36 +412,34 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     private func printCLOH(entry: Int) {
-        let timeIndex = entry
-        if let stringTime = transformTime(entry: Double(timeIndex)) {
-            
-            let open = candleValues[Int(entry)].open
-            let low = candleValues[Int(entry)].low
-            let close = candleValues[Int(entry)].close //same as current price for the current candle
-            let high = candleValues[Int(entry)].high
-            
-            pointingDateLabel.text = "Time: \(stringTime)"
-            pointingOpenLabel.text = "O: $\(open)"
-            pointingLowLabel.text = "L: $\(low)"
-            pointingHighLabel.text = "H: $\(high)"
-            pointingCloseLabel.text = "C: $\(close)"
-            
-            var colorToShow: UIColor!
-            
-            if Int(entry) > 0 {
-                let previousClose = candleValues[Int(entry)-1].close
-                let changePercentage = ((previousClose * 100) / close) - 100
-                
-                let rounded = Double(round(100*changePercentage)/100)
-                if rounded > 0  {
-                    colorToShow = UIColor(named: "downtrend")!
-                } else {
-                    colorToShow = UIColor(named: "uptrend")!
-                }
+        //Any index can arrive here: the chart delegate passes back whatever the user touched,
+        //and a stale times dictionary used to let an out-of-range index through to a crash.
+        guard candleValues.indices.contains(entry),
+              let stringTime = transformTime(entry: Double(entry)) else { return }
+        
+        let candle = candleValues[entry]
+        
+        pointingDateLabel.text = "Time: \(stringTime)"
+        pointingOpenLabel.text = "O: $\(candle.open)"
+        pointingLowLabel.text = "L: $\(candle.low)"
+        pointingHighLabel.text = "H: $\(candle.high)"
+        pointingCloseLabel.text = "C: $\(candle.close)"
+        
+        //Coloured by the move from the previous candle. The first candle has nothing to compare
+        //against and used to leave both labels with no colour at all.
+        var colorToShow = UIColor.label
+        if entry > 0 {
+            let previousClose = candleValues[entry - 1].close
+            if previousClose > 0 {
+                //Was ((previousClose * 100) / close) - 100, which measured the move backwards
+                let changePercentage = ((candle.close * 100) / previousClose) - 100
+                colorToShow = changePercentage < 0
+                    ? (UIColor(named: "downtrend") ?? .label)
+                    : (UIColor(named: "uptrend") ?? .label)
             }
-            pointingOpenLabel.textColor = colorToShow
-            pointingCloseLabel.textColor = colorToShow
         }
+        pointingOpenLabel.textColor = colorToShow
+        pointingCloseLabel.textColor = colorToShow
     }
     
     @IBAction func shareButtonTapped(_ sender: UIButton) {
