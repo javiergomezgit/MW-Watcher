@@ -168,7 +168,7 @@
                             <constraint firstItem="fXE-Oy-9b2" firstAttribute="leading" secondItem="Abp-ai-f8f" secondAttribute="leading" constant="15" id="kd9-Y4-6Wf"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Stock Watchlist" id="APR-H7-ov8"/>
+                    <navigationItem key="navigationItem" title="My Watchlist" id="APR-H7-ov8"/>
                     <nil key="simulatedTopBarMetrics"/>
                     <connections>
                         <outlet property="tableView" destination="fXE-Oy-9b2" id="sBX-eG-kL1"/>

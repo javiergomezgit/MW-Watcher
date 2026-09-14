@@ -12,6 +12,14 @@ class SaveTickers {
     var tickerManagedObjectArray: [NSManagedObject] = []
     let entityName = "WatchlistEntity"
     
+    ///Rows are scoped to an owner and a watchlist. Without this every list would show the
+    ///same stocks, and signing out would hand the next person the previous one's watchlist.
+    private var ownerUID: String { WatchlistSyncService.currentOwnerUID }
+    private var activeWatchlistID: String { WatchlistStore.shared.activeWatchlistID }
+    private var scopePredicate: NSPredicate {
+        NSPredicate(format: "ownerUID == %@ AND watchlistID == %@", ownerUID, activeWatchlistID)
+    }
+    
     func saveTicker(tickerFeatures: TickersFeatures) {
         DispatchQueue.main.async { [self] in
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return  }
@@ -22,6 +30,8 @@ class SaveTickers {
             tickerObject.setValue(tickerFeatures.ticker, forKey: "ticker")
             tickerObject.setValue(tickerFeatures.nameTicker, forKey: "nameCompany")
             tickerObject.setValue(tickerFeatures.imageTickerName, forKey: "imageCompanyName")
+            tickerObject.setValue(self.ownerUID, forKey: "ownerUID")
+            tickerObject.setValue(self.activeWatchlistID, forKey: "watchlistID")
             
             guard let imageToData = tickerFeatures.imageTicker.pngData() else {
                 print("jpg error")
@@ -66,7 +76,12 @@ class SaveTickers {
             let managedContext = appDelegate.persistentContainer.viewContext
 
             let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
-            fetchRequest.predicate = NSPredicate(format: "ticker == %@", ticker)
+            //Scoped: the same ticker can sit in more than one watchlist, and removing it from
+            //one must not remove it from the others.
+            fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "ticker == %@", ticker),
+                self.scopePredicate
+            ])
 
             do {
                 let results = try managedContext.fetch(fetchRequest)
@@ -92,7 +107,10 @@ class SaveTickers {
             let managedContext = appDelegate.persistentContainer.viewContext
 
             let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: self.entityName)
-            fetchRequest.predicate = NSPredicate(format: "ticker == %@", ticker)
+            fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                NSPredicate(format: "ticker == %@", ticker),
+                self.scopePredicate
+            ])
 
             guard let imageData = image.pngData() else {
                 print("Could not encode logo for \(ticker)")
@@ -123,6 +141,7 @@ class SaveTickers {
         let appDelegate = UIApplication.shared.delegate as? AppDelegate
         let managedContext = appDelegate!.persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+        fetchRequest.predicate = scopePredicate
         
         fetchRequest.returnsDistinctResults = true
         fetchRequest.propertiesToFetch = ["ticker"]

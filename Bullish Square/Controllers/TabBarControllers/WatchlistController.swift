@@ -25,7 +25,32 @@ class WatchlistController: UIViewController {
     var loadStocks = false //Implemented when the updating for the new version 2.0.0, old database had different information. Temporal until everyone is on version 2.0.0 and more
 //    var spinner = UIActivityIndicatorView(style: .large)
     private let imageViewTopRightButton = UIImageView(image: UIImage(named: "plus.square.on.square"))
-    private let imageViewPerformanceButton = UIImageView(image: UIImage(named: "chart.line.uptrend.xyaxis.circle"))
+    
+    ///Sits where the simulated-portfolio icon used to be. The portfolio moved to the floating
+    ///button so this slot could carry the watchlist switcher.
+    private let imageViewManageWatchlistsButton: UIImageView = {
+        let configuration = UIImage.SymbolConfiguration(pointSize: 26, weight: .regular)
+        let imageView = UIImageView(image: UIImage(systemName: "rectangle.stack", withConfiguration: configuration))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
+    ///Floating action button, bottom right, for the simulated portfolio. The plain symbol
+    ///rather than the .circle variant, which would draw a circle inside a circular button.
+    private let simulatedPortfolioButton: UIButton = {
+        let button = UIButton(type: .system)
+        let configuration = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
+        button.setImage(UIImage(systemName: "chart.line.uptrend.xyaxis", withConfiguration: configuration), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = UIColor(named: "colorAccent")
+        button.layer.cornerRadius = 28
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.3
+        button.layer.shadowOffset = CGSize(width: 0, height: 4)
+        button.layer.shadowRadius = 6
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
@@ -35,6 +60,10 @@ class WatchlistController: UIViewController {
         super.viewDidLoad()
         
         setupUITopRightButton()
+        setupSimulatedPortfolioButton()
+        
+        WatchlistStore.shared.ensureDefaultExists()
+        refreshWatchlistTitle()
         
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
@@ -205,6 +234,13 @@ class WatchlistController: UIViewController {
             return
         }
         
+        //Show the new rows straight away. tickersFeatures used to be assigned only in the
+        //success branch, so switching watchlists left the previous list on screen until
+        //prices came back and it read as the switch not having worked. tickersValues is keyed
+        //by ticker, so anything the two lists share keeps its price and the rest fill in.
+        tickersFeatures = savedTickers
+        tableView.reloadData()
+        
         var mergedTickers = ""
         
         loadPendingLogos(for: savedTickers)
@@ -322,6 +358,13 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         
         cell.changeLabel.text = "%"
         cell.previousPriceLabel.text = "$0.0"
+        
+        //Only the text used to be reset. A cell reused for a ticker whose price has not
+        //arrived kept the previous stock's arrow and up/down colour, which is most visible
+        //right after switching watchlists.
+        cell.arrowImageView.image = nil
+        cell.changeLabel.textColor = UIColor(named: "colorSecondary")
+        cell.previousPriceLabel.textColor = UIColor(named: "colorSecondary")
         
         let tickerFeatures = tickersFeatures[indexPath.row]
         let ticker = tickerFeatures.ticker
@@ -462,30 +505,69 @@ extension WatchlistController {
         imageViewTopRightButton.tintColor = UIColor(named: "colorSecondary")
         imageViewTopRightButton.addGestureRecognizer(tapGestureRecognizer)
         
-        let tapGestureRecognizerPerformance = UITapGestureRecognizer(target: self, action: #selector(performanceSimulatorTapped(tapGestureRecognizer:)))
-        imageViewPerformanceButton.isUserInteractionEnabled = true
-        imageViewPerformanceButton.tintColor = UIColor(named: "colorSecondary")
-        imageViewPerformanceButton.addGestureRecognizer(tapGestureRecognizerPerformance)
+        let tapGestureRecognizerManage = UITapGestureRecognizer(target: self, action: #selector(manageWatchlistsTapped(tapGestureRecognizer:)))
+        imageViewManageWatchlistsButton.isUserInteractionEnabled = true
+        imageViewManageWatchlistsButton.tintColor = UIColor(named: "colorSecondary")
+        imageViewManageWatchlistsButton.addGestureRecognizer(tapGestureRecognizerManage)
         
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
         guard let navigationBar = self.navigationController?.navigationBar else { return }
         navigationBar.addSubview(imageViewTopRightButton)
-        navigationBar.addSubview(imageViewPerformanceButton)
-        imageViewPerformanceButton.translatesAutoresizingMaskIntoConstraints = false
+        navigationBar.addSubview(imageViewManageWatchlistsButton)
+        imageViewManageWatchlistsButton.translatesAutoresizingMaskIntoConstraints = false
         imageViewTopRightButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             imageViewTopRightButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -ConstTopRightButton.ImageRightMargin),
             imageViewTopRightButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
             imageViewTopRightButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
             imageViewTopRightButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor),
-            imageViewPerformanceButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -(imageViewTopRightButton.frame.width*2.9)),
-            imageViewPerformanceButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
-            imageViewPerformanceButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
-            imageViewPerformanceButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor)
+            imageViewManageWatchlistsButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -(imageViewTopRightButton.frame.width*2.9)),
+            imageViewManageWatchlistsButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
+            imageViewManageWatchlistsButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
+            imageViewManageWatchlistsButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor)
         ])
     }
     
-    @objc func performanceSimulatorTapped(tapGestureRecognizer: UITapGestureRecognizer) {
+    ///On the view rather than the navigation bar, so it stays put while the table scrolls.
+    ///The safe area bottom already accounts for the tab bar.
+    private func setupSimulatedPortfolioButton() {
+        view.addSubview(simulatedPortfolioButton)
+        view.bringSubviewToFront(simulatedPortfolioButton)
+        simulatedPortfolioButton.addTarget(self, action: #selector(simulatedPortfolioButtonTapped), for: .touchUpInside)
+        
+        NSLayoutConstraint.activate([
+            simulatedPortfolioButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            simulatedPortfolioButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            simulatedPortfolioButton.widthAnchor.constraint(equalToConstant: 56),
+            simulatedPortfolioButton.heightAnchor.constraint(equalToConstant: 56)
+        ])
+    }
+    
+    @objc private func simulatedPortfolioButtonTapped() {
+        openSimulatedPortfolio()
+    }
+    
+    @objc func manageWatchlistsTapped(tapGestureRecognizer: UITapGestureRecognizer) {
+        let manageController = ManageWatchlistsController()
+        manageController.delegate = self
+        
+        let navigationController = UINavigationController(rootViewController: manageController)
+        //A sheet rather than a full screen: the list underneath stays visible, so switching
+        //reads as changing what is shown rather than navigating somewhere else.
+        if let sheet = navigationController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(navigationController, animated: true)
+    }
+    
+    ///The navigation title is the active watchlist's name, which is how you know which list
+    ///is showing now that there is more than one.
+    private func refreshWatchlistTitle() {
+        title = WatchlistStore.shared.activeWatchlistName
+    }
+    
+    private func openSimulatedPortfolio() {
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         let destination = storyboard.instantiateViewController(identifier: "simulatedPortfolio") //as? UIViewController
         
@@ -518,7 +600,19 @@ extension WatchlistController {
     private func showImage(_ show: Bool) {
         UIView.animate(withDuration: 0.2) {
             self.imageViewTopRightButton.alpha = show ? 1.0 : 0.0
-            self.imageViewPerformanceButton.alpha = show ? 1.0 : 0.0
+            self.imageViewManageWatchlistsButton.alpha = show ? 1.0 : 0.0
         }
+    }
+}
+
+// MARK: - ManageWatchlistsControllerDelegate
+
+extension WatchlistController: ManageWatchlistsControllerDelegate {
+    
+    func manageWatchlistsControllerDidChangeSelection(_ controller: ManageWatchlistsController) {
+        refreshWatchlistTitle()
+        //Reload from the store rather than reusing what is on screen: the rows belong to the
+        //list that was showing a moment ago.
+        loadMultipleStocks(savedTickers: savedTickers.loadTickers())
     }
 }

@@ -18,10 +18,18 @@
         <attribute name="imageNews" optional="YES" attributeType="Binary"/>
         <attribute name="link" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="WatchlistMetaEntity" representedClassName="WatchlistMetaEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="ownerUID" optional="YES" attributeType="String"/>
+        <attribute name="watchlistID" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="WatchlistEntity" representedClassName="WatchlistEntity" syncable="YES" codeGenerationType="class">
         <attribute name="imageCompany" optional="YES" attributeType="Binary"/>
         <attribute name="imageCompanyName" optional="YES" attributeType="String"/>
         <attribute name="nameCompany" optional="YES" attributeType="String"/>
+        <attribute name="ownerUID" optional="YES" attributeType="String"/>
         <attribute name="ticker" optional="YES" attributeType="String"/>
+        <attribute name="watchlistID" optional="YES" attributeType="String"/>
     </entity>
 </model>
