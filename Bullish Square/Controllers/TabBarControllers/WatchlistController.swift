@@ -55,7 +55,11 @@ class WatchlistController: UIViewController {
         
         refreshControl.attributedTitle = NSAttributedString(string: "Loading...")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl) // not required when using UITableViewController
+        //Assigned rather than added as a subview. This is a plain UIViewController with a
+        //table view outlet, so UIKit only manages the control - and resets the content inset
+        //on endRefreshing - when it owns it. Added as a bare subview the control stayed
+        //stuck at its expanded offset.
+        tableView.refreshControl = refreshControl
         
         startStopSpinner(start: true)
         
@@ -128,6 +132,7 @@ class WatchlistController: UIViewController {
     }
     
     @objc func refresh(_ sender: AnyObject) {
+        refreshStartedAt = Date()
         let loadSavedTickers = savedTickers.loadTickers()
         loadMultipleStocks(savedTickers: loadSavedTickers)
     }
@@ -154,7 +159,52 @@ class WatchlistController: UIViewController {
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
     }
     
+    ///When the current pull-to-refresh began, so the control is not closed mid-open.
+    private var refreshStartedAt: Date?
+    
+    ///Shortest time the refresh control stays up. UIRefreshControl ignores endRefreshing()
+    ///while its opening animation is still running, and an instant failure - airplane mode
+    ///returns in milliseconds, with no network round trip - lands inside that window every
+    ///time. The control then never returns to rest: the table stays pulled down and the
+    ///"Loading..." title stays on screen. A successful load takes long enough to miss it.
+    private let minimumRefreshDuration: TimeInterval = 0.6
+    
+    ///Every exit from a load goes through here. The refresh control and the spinner used to
+    ///be cleared separately, and the failure branch cleared only one of them.
+    private func finishLoading() {
+        startStopSpinner(start: false)
+        
+        guard refreshControl.isRefreshing else {
+            refreshStartedAt = nil
+            return
+        }
+        
+        let elapsed = refreshStartedAt.map { Date().timeIntervalSince($0) } ?? minimumRefreshDuration
+        let remaining = max(0, minimumRefreshDuration - elapsed)
+        refreshStartedAt = nil
+        
+        guard remaining > 0 else {
+            refreshControl.endRefreshing()
+            return
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + remaining) { [weak self] in
+            self?.refreshControl.endRefreshing()
+        }
+    }
+    
     func loadMultipleStocks(savedTickers: [TickersFeatures]) {
+        //An empty watchlist was sent to the price API as an empty symbol list, which comes
+        //back as invalidJSON. Pull-to-refresh does not guard for empty the way viewWillAppear
+        //does, so refreshing an empty watchlist span "Loading..." forever.
+        guard !savedTickers.isEmpty else {
+            tickersFeatures = []
+            tickersValues = [:]
+            tableView.reloadData()
+            finishLoading()
+            return
+        }
+        
         var mergedTickers = ""
         
         loadPendingLogos(for: savedTickers)
@@ -183,15 +233,17 @@ class WatchlistController: UIViewController {
                                                     uniquingKeysWith: { first, _ in first })
                     
                     self.tableView.reloadData()
-                    self.refreshControl.endRefreshing()
-                    self.startStopSpinner(start: false)
+                    self.finishLoading()
                 }
                 
             case .failure(let error):
                 print (error)
                 DispatchQueue.main.async {
+                    //Ends first. Dismissing a refresh control while a modal is being
+                    //presented over the scroll view drops its animation and leaves it
+                    //spinning, which is why only the failure path stuck.
+                    self.finishLoading()
                     ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-                    self.startStopSpinner(start: false)
                 }
             }
         }
@@ -458,11 +510,7 @@ extension WatchlistController {
     
     override func viewWillAppear(_ animated: Bool) {
         let loadSavedTickers = savedTickers.loadTickers()
-        if !loadSavedTickers.isEmpty {
-            loadMultipleStocks(savedTickers: loadSavedTickers)
-        } else {
-            self.startStopSpinner(start: false)
-        }
+        loadMultipleStocks(savedTickers: loadSavedTickers)
     }
     
     /// Show or hide the image from NavBar while going to next screen or back to initial screen
