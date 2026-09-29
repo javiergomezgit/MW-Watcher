@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 import Firebase
+import FirebaseCrashlytics
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -23,14 +24,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
+    ///A load failure used to crash here, so a failed migration or a corrupt file took the app
+    ///down on every launch. PersistentStoreLoader recovers instead; see it for which failures
+    ///replace the store and which leave it alone.
     lazy var persistentContainer: NSPersistentContainer = {
-                
         let container = NSPersistentContainer(name: "SavingFeeds")
-        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-            if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
+        
+        let outcome = PersistentStoreLoader.load(container) { error, stage in
+            print("Core Data store failed at \(stage). \(error), \(error.userInfo)")
+            //Firebase is configured in didFinishLaunching and this container is lazy, so in
+            //practice it is always ready. A missing report is not worth a crash if it is not.
+            guard FirebaseApp.app() != nil else { return }
+            Crashlytics.crashlytics().record(error: error, userInfo: ["stage": stage])
+        }
+        
+        if outcome != .loaded {
+            print("Core Data recovered from a load failure: \(outcome)")
+        }
         return container
     }()
     
