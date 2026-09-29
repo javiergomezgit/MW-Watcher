@@ -156,7 +156,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         self.symbol = symbol
         if indexMarket {
-            tickerLabel.text = "\(symbol)"
+            tickerLabel.text = Self.displaySymbol(symbol)
             volumeLabel.text = ""
         } else {
             //The symbol alone. The header used to add " - <exchange>", but the chart
@@ -429,6 +429,13 @@ class ChartController: UIViewController, ChartViewDelegate {
         pointingCloseLabel.textColor = colorToShow
     }
     
+    ///Index symbols carry Yahoo's "^" prefix, which the API needs and people should not see:
+    ///the index chart's header and its share text both read "^DJI". Strip it wherever a symbol
+    ///is shown and keep it wherever one is requested - self.symbol still holds the raw value.
+    private static func displaySymbol(_ symbol: String) -> String {
+        symbol.hasPrefix("^") ? String(symbol.dropFirst()) : symbol
+    }
+    
     ///What the share text says, worked out from what the chart was opened with.
     ///
     ///The old version picked its branch by whether nameTicker was set, and every entry point
@@ -442,7 +449,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                                     indexName: String) -> (name: String, symbol: String, price: String, change: String) {
         let isCrypto = stock.ticker.isEmpty
         let name = isCrypto ? crypto.name : (nameTicker.isEmpty ? indexName : nameTicker)
-        let symbol = isCrypto ? crypto.symbol : stock.ticker
+        let symbol = isCrypto ? crypto.symbol : displaySymbol(stock.ticker)
         let price = isCrypto ? crypto.price : stock.marketPrice
         let change = isCrypto ? crypto.change : stock.changePercent
         let trend = change >= 0 ? "📈 " : "📉 "
