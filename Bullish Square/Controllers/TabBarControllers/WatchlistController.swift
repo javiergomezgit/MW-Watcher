@@ -17,6 +17,14 @@ class WatchlistController: UIViewController {
     //Keyed by ticker. The API can return fewer entries than the saved watchlist, or in a
     //different order, so a price must never be located by row index.
     var tickersValues: [String: TickersCurrentValues] = [:]
+    ///When each ticker's price was last asked for. Per ticker rather than one timestamp for
+    ///the screen, so that adding a stock or switching watchlists still fetches the tickers
+    ///that are new while skipping the ones already on hand.
+    private var priceFetchedAt: [String: Date] = [:]
+    ///Prices asked for more recently than this are reused instead of requested again.
+    ///Short enough that the watchlist still reads as live, long enough to absorb tab switches,
+    ///returning from a chart and flipping between watchlists. Pull to refresh ignores it.
+    private let priceFreshness: TimeInterval = 60
     var timeRange: String = "&interval=1d&range=1d"
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
@@ -163,7 +171,7 @@ class WatchlistController: UIViewController {
     @objc func refresh(_ sender: AnyObject) {
         refreshStartedAt = Date()
         let loadSavedTickers = savedTickers.loadTickers()
-        loadMultipleStocks(savedTickers: loadSavedTickers)
+        loadMultipleStocks(savedTickers: loadSavedTickers, force: true)
     }
     
     func showFirstTimeNotification(whereView: UIView) {
@@ -222,13 +230,15 @@ class WatchlistController: UIViewController {
         }
     }
     
-    func loadMultipleStocks(savedTickers: [TickersFeatures]) {
+    ///`force` is for pull to refresh, where the user has asked for new prices outright.
+    func loadMultipleStocks(savedTickers: [TickersFeatures], force: Bool = false) {
         //An empty watchlist was sent to the price API as an empty symbol list, which comes
         //back as invalidJSON. Pull-to-refresh does not guard for empty the way viewWillAppear
         //does, so refreshing an empty watchlist span "Loading..." forever.
         guard !savedTickers.isEmpty else {
             tickersFeatures = []
             tickersValues = [:]
+            priceFetchedAt = [:]
             tableView.reloadData()
             finishLoading()
             return
@@ -244,6 +254,18 @@ class WatchlistController: UIViewController {
         var mergedTickers = ""
         
         loadPendingLogos(for: savedTickers)
+        
+        //This ran on every appearance: each tab switch and each return from a chart was a full
+        //price request straight into the API quota, and that endpoint already answers with
+        //invalidJSON under load. The rows above come from Core Data regardless, so skipping
+        //the request changes nothing on screen when the prices are recent.
+        guard force || !pricesAreFresh(for: savedTickers) else {
+            finishLoading()
+            return
+        }
+        
+        //Captured before the request: the list on screen can change while it is in flight.
+        let requestedTickers = savedTickers.map(\.ticker)
         
         for (index, savedTicker) in savedTickers.enumerated() {
             let ticker = savedTicker.ticker
@@ -265,8 +287,7 @@ class WatchlistController: UIViewController {
                     //Assigned on main: the table view reads both of these while scrolling, and
                     //they were previously replaced from a URLSession queue.
                     self.tickersFeatures = savedTickers
-                    self.tickersValues = Dictionary(tickersGroupPrices.map { ($0.ticker, $0) },
-                                                    uniquingKeysWith: { first, _ in first })
+                    self.recordPrices(tickersGroupPrices, for: requestedTickers)
                     
                     self.tableView.reloadData()
                     self.finishLoading()
@@ -282,6 +303,30 @@ class WatchlistController: UIViewController {
                     ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
                 }
             }
+        }
+    }
+    
+    ///True only when every ticker on screen had its price asked for within `priceFreshness`.
+    ///A ticker never asked about - just added, or new to this watchlist - makes it false.
+    private func pricesAreFresh(for tickers: [TickersFeatures], now: Date = Date()) -> Bool {
+        tickers.allSatisfy { ticker in
+            guard let fetchedAt = priceFetchedAt[ticker.ticker] else { return false }
+            return now.timeIntervalSince(fetchedAt) < priceFreshness
+        }
+    }
+    
+    ///Merges a response into the prices already held rather than replacing them, so a
+    ///watchlist switched away from keeps its prices for when it comes back.
+    ///
+    ///Every requested ticker is stamped, including any the API left out. Some tickers are
+    ///never returned, and without the stamp they would force a request for the whole list on
+    ///every appearance. Leaving them out also clears any old price, so a ticker the API
+    ///stopped answering for shows the placeholder rather than a stale number.
+    private func recordPrices(_ prices: [TickersCurrentValues], for requestedTickers: [String], at now: Date = Date()) {
+        let received = Dictionary(prices.map { ($0.ticker, $0) }, uniquingKeysWith: { first, _ in first })
+        for ticker in requestedTickers {
+            tickersValues[ticker] = received[ticker]
+            priceFetchedAt[ticker] = now
         }
     }
     
@@ -456,7 +501,10 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             let tickerFeatures = tickersFeatures[indexPath.row]
             savedTickers.deleteTicker(ticker: tickerFeatures.ticker)
             
+            //Dropped together. A fetch time left without its price would read as fresh and
+            //show the placeholder if the ticker were added straight back.
             tickersValues.removeValue(forKey: tickerFeatures.ticker)
+            priceFetchedAt.removeValue(forKey: tickerFeatures.ticker)
             tickersFeatures.remove(at: indexPath.row)
             
             tableView.deleteRows(at: [indexPath], with: .left)
@@ -591,6 +639,7 @@ extension WatchlistController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         let loadSavedTickers = savedTickers.loadTickers()
         loadMultipleStocks(savedTickers: loadSavedTickers)
     }
