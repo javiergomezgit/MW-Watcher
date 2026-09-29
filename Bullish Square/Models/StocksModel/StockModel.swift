@@ -27,6 +27,9 @@ struct TickersCurrentValues {
     let marketPrice: Double
     let previousPrice: Double
     let changePercent: Double
+    ///Every close of the day's session, oldest first, for the watchlist sparkline. Defaulted
+    ///so the other places that build this type need no change and simply leave it empty.
+    var intradayCloses: [Double] = []
 }
 
 struct GeneralMarkets {

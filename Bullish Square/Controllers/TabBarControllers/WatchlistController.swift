@@ -25,7 +25,10 @@ class WatchlistController: UIViewController {
     ///Short enough that the watchlist still reads as live, long enough to absorb tab switches,
     ///returning from a chart and flipping between watchlists. Pull to refresh ignores it.
     private let priceFreshness: TimeInterval = 60
-    var timeRange: String = "&interval=1d&range=1d"
+    ///Five-minute bars across today's session, about 79 points, which is what the sparkline
+    ///draws. The previous close and the latest price come back identical to the old one-bar
+    ///"interval=1d", so every number on screen is unchanged; only the line is new.
+    var timeRange: String = "&interval=5m&range=1d"
     let savedTickers = SaveTickers()
     var refreshControl = UIRefreshControl()
     var alreadyLaunched = false
@@ -410,6 +413,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         cell.arrowImageView.image = nil
         cell.changeLabel.textColor = UIColor(named: "colorSecondary")
         cell.previousPriceLabel.textColor = UIColor(named: "colorSecondary")
+        cell.sparklineView.reset()
         
         let tickerFeatures = tickersFeatures[indexPath.row]
         let ticker = tickerFeatures.ticker
@@ -438,6 +442,12 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             
             cell.changeLabel.text = String(percentage) + "%"
             cell.previousPriceLabel.text = "$" + String(previousPrice)
+            
+            //The same "percentage < 0" test as the colours below, so the line can never be
+            //green on a red row.
+            cell.sparklineView.configure(closes: values.intradayCloses,
+                                         previousClose: values.previousPrice,
+                                         isUp: !(percentage < 0))
             
             if percentage < 0 {
                 cell.changeLabel.textColor = UIColor(named: "downtrend")  //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)

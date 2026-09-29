@@ -362,8 +362,11 @@ final class StockAPI {
                 guard let tickerDictionary = tickerJSON.value as? [String: Any] else { continue }
                 
                 var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
-                let closePriceArray = tickerDictionary["close"] as? [Any]
-                let closePrice = closePriceArray?.last as? Double ?? 0.0
+                //A bar with no trade arrives as JSON null. Reading the raw last element turned
+                //one of those into a price of 0 and a change of -100%, and at five-minute bars
+                //an empty last bar is common, so nulls are dropped and the latest real close wins.
+                let closes = (tickerDictionary["close"] as? [Any] ?? []).compactMap { $0 as? Double }
+                let closePrice = closes.last ?? 0.0
                 
                 //A previousClose of 0 made this infinite and pushed it straight into the UI
                 var percentageRounded = 0.0
@@ -373,7 +376,7 @@ final class StockAPI {
                 percentageRounded = Double(round(100*percentageRounded)/100)
                 previousClose = Double(round(100*previousClose)/100)
                 
-                let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
+                let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded, intradayCloses: closes)
                 tickersArray.append(tickerValues)
             }
             
