@@ -286,7 +286,9 @@ extension MarketsController: UICollectionViewDelegate, UICollectionViewDataSourc
             cell.currentPriceLabel.text = "$ " + String(currentPrice)
             
             cell.arrowImageView.image = (UIImage.init(named: "arrow.up.square.fill"))
-            cell.arrowImageView.tintColor = UIColor.white //UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            //Was white, so only a falling index had a coloured arrow and a rising one looked
+            //neutral. The same uptrend / downtrend pair the watchlist rows use.
+            cell.arrowImageView.tintColor = UIColor(named: "uptrend")
         }
         
         cell.openChartButton.tag = indexPath.row
