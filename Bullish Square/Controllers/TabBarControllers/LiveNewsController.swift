@@ -205,25 +205,30 @@ extension LiveNewsController {
             return
         }
         
-        sources.removeAll()
         newsItems.removeAll()
         backupNewsItems.removeAll()
-        sources.append("ALL")
         
-        var tempSources: Set<String> = []
+        var authors: Set<String> = []
+        //The same article can come back under more than one category, and was listed once
+        //per category. Keyed by link, falling back to the headline: keying an empty link would
+        //collapse every link-less article into one row.
+        var seenArticles: Set<String> = []
         
         for category in categories {
             guard let items = NewsCache.shared.get(category) else { continue }
             for news in items {
-                if tempSources.insert(news.author).inserted {
-                    sources.append(news.author)
-                }
+                let key = news.link.isEmpty ? news.headline : news.link
+                guard seenArticles.insert(key).inserted else { continue }
+                
+                authors.insert(news.author)
                 newsItems.append(news)
                 backupNewsItems.append(news)
             }
         }
         
-        sources.sort()
+        //"ALL" used to be appended first and then sorted with the sources, so it landed
+        //alphabetically - after "ABC News", say - instead of leading the strip.
+        sources = ["ALL"] + authors.sorted()
         savedLinks = saveHeadlines.savedLinks()
         tableView.reloadData()
         collectionView.reloadData()
