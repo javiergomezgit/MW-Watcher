@@ -42,7 +42,11 @@ class Support {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .medium
-        dateFormatter.timeZone = TimeZone(identifier: "PDT")
+        //The reader's own time zone. This said TimeZone(identifier: "PDT"), which is an
+        //abbreviation rather than an identifier and returns nil, so the formatter was already
+        //falling back to the device zone by accident. Pacific time would have been wrong for
+        //anyone outside it, since the formatted string carries no zone.
+        dateFormatter.timeZone = .current
 
         //Was force unwrapped, so a timestamp the formatter could not parse crashed the whole
         //news load. Degrades to an empty label instead, matching newLocalTime below.
