@@ -384,7 +384,7 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
 
         guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
         
-        let cryptoInfoToPass = CryptosViewCellModel(symbol: ticker.indexTicker, name: ticker.indexName, price: String(price), change: String(percentageRounded), changeMonth: "", volume: "", cryptoImageName: ticker.indexTicker)
+        let cryptoInfoToPass = CryptosViewCellModel(symbol: ticker.indexTicker, name: ticker.indexName, price: price, change: percentageRounded, changeMonth: "", volume: "", cryptoImageName: ticker.indexTicker)
         destination.informationCryptoTicker = cryptoInfoToPass
         destination.nameTicker = ticker.indexName
         destination.indexName = ticker.indexName

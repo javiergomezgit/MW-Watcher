@@ -29,8 +29,11 @@ struct Quote: Codable {
 struct CryptosViewCellModel {
     let symbol: String
     let name: String
-    let price: String
-    let change: String
+    ///Numbers, formatted only where they are shown. These were Strings, so the only builder
+    ///turned its Doubles into text and ChartController parsed them back with Float(...)! and
+    ///by stripping "$" and ",".
+    let price: Double
+    let change: Double
     let changeMonth: String
     let volume: String
     let cryptoImageName: String

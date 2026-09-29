@@ -46,7 +46,7 @@ class ChartController: UIViewController, ChartViewDelegate {
     var indexName = ""
     var currentPrice = 0.0
     
-    public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImageName: "")
+    public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: 0, change: 0, changeMonth: "", volume: "", cryptoImageName: "")
     public var informationStockTicker = TickersCurrentValues(ticker: "", marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
     public var nameTicker = ""
     
@@ -233,7 +233,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         let symbol = informationCryptoTicker.symbol
         
-        if Float(informationCryptoTicker.change)! < 0.000 {
+        if informationCryptoTicker.change < 0 {
             currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
         } else {
@@ -242,12 +242,8 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
         
         tickerLabel.text = symbol
-        var currentPrice = informationCryptoTicker.price
-        currentPrice = currentPrice.replacingOccurrences(of: "$", with: "")
-        currentPrice = currentPrice.replacingOccurrences(of: ",", with: "")
-        
-        self.currentPrice = Double(currentPrice) ?? 0.0
-        currentPriceLabel.text = informationCryptoTicker.price
+        self.currentPrice = informationCryptoTicker.price
+        currentPriceLabel.text = String(informationCryptoTicker.price)
         currentPercentageLabel.text = "\(informationCryptoTicker.change)% Day"
 //        nameLabel.text = informationCryptoTicker.name.uppercased()
         volumeLabel.text = "Vol.\(informationCryptoTicker.volume) MM"
@@ -433,46 +429,45 @@ class ChartController: UIViewController, ChartViewDelegate {
         pointingCloseLabel.textColor = colorToShow
     }
     
+    ///What the share text says, worked out from what the chart was opened with.
+    ///
+    ///The old version picked its branch by whether nameTicker was set, and every entry point
+    ///sets it, so it always took the stock branch. Crypto charts keep their numbers in
+    ///informationCryptoTicker and leave informationStockTicker empty, so a shared crypto chart
+    ///said a blank symbol, $0.00 and 0.00%. The index and crypto branches were never reached.
+    ///An empty stock ticker is the test viewDidLoad already uses to choose the crypto path.
+    private static func shareFields(stock: TickersCurrentValues,
+                                    crypto: CryptosViewCellModel,
+                                    nameTicker: String,
+                                    indexName: String) -> (name: String, symbol: String, price: String, change: String) {
+        let isCrypto = stock.ticker.isEmpty
+        let name = isCrypto ? crypto.name : (nameTicker.isEmpty ? indexName : nameTicker)
+        let symbol = isCrypto ? crypto.symbol : stock.ticker
+        let price = isCrypto ? crypto.price : stock.marketPrice
+        let change = isCrypto ? crypto.change : stock.changePercent
+        let trend = change >= 0 ? "📈 " : "📉 "
+        return (name, symbol, String(format: "%.2f", price), trend + String(format: "%.2f", change))
+    }
+    
     @IBAction func shareButtonTapped(_ sender: UIButton) {
         
-        var name = ""
-        var symbo = ""
-        var currentPrice = "0.0"
-        var percentageChange = "0.0"
+        let fields = Self.shareFields(stock: informationStockTicker,
+                                      crypto: informationCryptoTicker,
+                                      nameTicker: nameTicker,
+                                      indexName: indexName)
         let defaultImage = UIImage(named: "mw-logo") ?? UIImage()
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd 'at' h:mm a"
         let currentDate = formatter.string(from: Date())
                 
-        //When it's a stock information
-        if !self.nameTicker.isEmpty {
-            name = self.nameTicker
-            symbo = self.informationStockTicker.ticker
-            currentPrice = String(format: "%.2f", self.informationStockTicker.marketPrice)
-            percentageChange = String(format: "%.2f", self.informationStockTicker.changePercent)
-            percentageChange = (self.informationStockTicker.changePercent >= 0 ? "📈 " : "📉 ") + String(format: "%.2f", self.informationStockTicker.changePercent)
-        } else if !self.indexName.isEmpty {
-            //When it's an INDEX
-            name = self.indexName
-            symbo = self.informationStockTicker.ticker
-            currentPrice = String(format: "%.2f", self.informationStockTicker.marketPrice)
-            percentageChange = String(format: "%.2f", self.informationStockTicker.changePercent)
-        } else if !self.informationCryptoTicker.name.isEmpty {
-            //When it's a crypto coin
-            name = self.indexName
-            symbo = self.informationCryptoTicker.symbol
-            currentPrice = String(format: "%.2f", self.informationCryptoTicker.price)
-            percentageChange = String(format: "%.2f", self.informationCryptoTicker.change)
-        }
-              
 //        let appURLString = "https://apps.apple.com/us/app/market-news-and-charts/id1568502942" // Replace with your App Store ID
 //        let appURL = URL(string: appURLString) ?? URL(string: "https://bullis-square.com")!
         
         let formattedText = """
-        🏪 \(symbo) - \(name)
-        Price: $\(currentPrice)
-        Changed:\(percentageChange)%
+        🏪 \(fields.symbol) - \(fields.name)
+        Price: $\(fields.price)
+        Changed:\(fields.change)%
 
         📅 Today: \(currentDate)
         Shared via Bullish Square 📱 
