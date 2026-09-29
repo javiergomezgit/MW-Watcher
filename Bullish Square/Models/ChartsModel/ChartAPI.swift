@@ -23,16 +23,13 @@ final class ChartAPI {
         case noData
     }
     
-    enum ResultStock<Success, Exchange, Failure> where Failure: Error {
-        case success(Success)
-        case exchangeName(Exchange)
-        case errorFailure(Failure)
-    }
-    
     //MARK: API call for STOCKS chart
     ///Input: 1day, TICKER
     ///Output: -> ["timeStamp": "20-10-2021, "open":34,5, "high":36, "low":32.2, "close":33.1,"volume":233343]
-    public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (ResultStock<([ValueStock], String), String, Error>) -> Void) {
+    ///Returns a plain Result. This used to be a custom ResultStock whose only purpose was to
+    ///carry the exchange name alongside the values, and the endpoint stopped sending that name
+    ///when the chart moved to the v2 history API, so the app no longer shows an exchange.
+    public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
         
         let headers = [
             "X-RapidAPI-Host": KeysChartsAPI.getStockApiHost,
@@ -48,16 +45,15 @@ final class ChartAPI {
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
-        var exchangeName = ""
         let session = URLSession.shared
         let task = session.dataTask(with: request as URLRequest) { data, _, error in
             if let error = error {
-                completion(.errorFailure(error))
+                completion(.failure(error))
                 return
             }
             
             guard let data = data else {
-                completion(.errorFailure(APIError.noData))
+                completion(.failure(APIError.noData))
                 return
             }
             
@@ -68,10 +64,6 @@ final class ChartAPI {
                 var valuesStock: [ValueStock] = []
                 
                 for (key, subJson):(String, JSON) in json {
-                    if key == "meta" {
-                        let so = subJson["fullExchangeName"].string
-                        exchangeName = so ?? ""
-                    }
                     if key == "body" {
                         for (_, subSubJSON):(String, JSON) in subJson {
                             let dateTime =  subSubJSON["timestamp_unix"].double
@@ -105,9 +97,9 @@ final class ChartAPI {
                 valuesStock.reverse()
                 
                 dump (valuesStock)
-                completion(.success((valuesStock, exchangeName)))
+                completion(.success(valuesStock))
             } catch {
-                completion(.errorFailure(error))
+                completion(.failure(error))
             }
         }
         task.resume()

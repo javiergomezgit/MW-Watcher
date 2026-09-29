@@ -44,7 +44,6 @@ class ChartController: UIViewController, ChartViewDelegate {
     var times: [Int: String] = [:]
     var indexMarket = false
     var indexName = ""
-    var exchangeSymbol = ""
     var currentPrice = 0.0
     
     public var informationCryptoTicker = CryptosViewCellModel(symbol: "", name: "", price: "", change: "", changeMonth: "", volume: "", cryptoImageName: "")
@@ -138,13 +137,6 @@ class ChartController: UIViewController, ChartViewDelegate {
     }
     
     
-    //The chart's history endpoint stopped returning an exchange name, so the old
-    //unconditional "\(symbol) - \(exchangeSymbol)" left a dangling separator on screen.
-    //Join the two only when there is an exchange to join.
-    private func tickerTitle() -> String {
-        exchangeSymbol.isEmpty ? symbol : "\(symbol) - \(exchangeSymbol)"
-    }
-    
     private func selectedStockTicker() {
         let symbol = informationStockTicker.ticker
         self.currentPrice = informationStockTicker.marketPrice
@@ -167,7 +159,9 @@ class ChartController: UIViewController, ChartViewDelegate {
             tickerLabel.text = "\(symbol)"
             volumeLabel.text = ""
         } else {
-            tickerLabel.text = tickerTitle()
+            //The symbol alone. The header used to add " - <exchange>", but the chart
+            //endpoint stopped sending an exchange name, so it only ever showed a dangling dash.
+            tickerLabel.text = symbol
             volumeLabel.text = "$\(previousPrice)"
         }
         cryptoImage.image = imageCompany
@@ -209,18 +203,11 @@ class ChartController: UIViewController, ChartViewDelegate {
             ChartAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
                 guard let self else { return }
                 switch result {
-                case .success(let dataFromAPI):
-                    let data = dataFromAPI.0
+                case .success(let data):
                     if data.count != 0  {
                         self.stockData = data
-                        //Callers such as SearchStocksController pass a real exchange in.
-                        //The endpoint returns none, so assigning unconditionally wiped it out.
-                        if !dataFromAPI.1.isEmpty {
-                            self.exchangeSymbol = dataFromAPI.1
-                        }
                         DispatchQueue.main.async {
                             self.startStopSpinner(start: false)
-                            self.tickerLabel.text = self.tickerTitle()
                             self.setUpStockModel()
                         }
                     } else {
@@ -230,14 +217,7 @@ class ChartController: UIViewController, ChartViewDelegate {
                         }
                         print ("no more API")
                     }
-                case .exchangeName(let exchange):
-                        // Handle standalone exchange name (unlikely, as it's not used)
-                        DispatchQueue.main.async {
-                            self.exchangeSymbol = exchange
-                            self.tickerLabel.text = self.tickerTitle()
-                        }
-                        print("Received exchange name: \(exchange)")
-                case .errorFailure(let error):
+                case .failure(let error):
                     DispatchQueue.main.async {
                         self.startStopSpinner(start: false)
                         ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)

@@ -189,7 +189,6 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
         //can keep typing, so index is not safe to hold on to until they come back.
         let individualTicker = filteredStocks[index].ticker
         let nameTicker = filteredStocks[index].nameTicker
-        let exchange = filteredStocks[index].exchange
         
         self.startStopSpinner(start: true)
         
@@ -218,7 +217,6 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
                         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
                         guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
                         
-                        destination.exchangeSymbol = exchange
                         destination.informationStockTicker = tickerCurrentValues
                         destination.nameTicker = nameTicker
                         destination.imageCompany = imageCompany
