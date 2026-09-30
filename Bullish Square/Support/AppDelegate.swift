@@ -8,6 +8,7 @@
 import UIKit
 import CoreData
 import Firebase
+import FirebaseAppCheck
 import FirebaseCrashlytics
 
 @main
@@ -19,6 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
        
+        //Before configure(), which is when Firebase reads it. Setting it afterwards is silently
+        //ignored, and the market-data server would refuse every request.
+        AppCheck.setAppCheckProviderFactory(BullishAppCheckProviderFactory())
         FirebaseApp.configure()
         print("🔍 Firebase SDK version: \(FirebaseApp.app()?.options.googleAppID ?? "unknown")")
         return true

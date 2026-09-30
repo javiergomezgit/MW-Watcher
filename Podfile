@@ -11,6 +11,7 @@ target 'Bullish Square' do
 #    pod 'AMPopTip'
     pod 'Firebase/Analytics'
     pod 'Firebase/Crashlytics'
+    pod 'Firebase/AppCheck'
     pod 'FirebaseAuth'
     pod 'FirebaseFirestore'
     pod 'Firebase/Storage'

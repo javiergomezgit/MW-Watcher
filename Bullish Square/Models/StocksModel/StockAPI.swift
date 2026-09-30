@@ -322,73 +322,85 @@ final class StockAPI {
     
     //MARK: API call for GROUP of stocks with current price
     func getPriceMultipleStocks(tickersGroup: String, timeRange: String, completion: @escaping (Result<[TickersCurrentValues], Error>) -> Void) {
-        let headers = [
-            "x-rapidapi-key": KeysStocksAPI.groupStocksPriceKey,
-            "x-rapidapi-host": KeysStocksAPI.groupStocksPriceHost
-        ]
+        //Goes through the Bullish Square server instead of straight to RapidAPI. Every device
+        //used to spend from one shared monthly quota; the server answers from its cache when
+        //another user asked for the same symbols in the last minute. The response is Yahoo's
+        //get-spark JSON unchanged, so the parsing below is exactly what it was.
+        let symbols = tickersGroup.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? tickersGroup
         
-        let url = KeysStocksAPI.groupStocksPriceBaseURL + tickersGroup + timeRange
-        
-        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
-                                          cachePolicy: .useProtocolCachePolicy,
-                                          timeoutInterval: 10.0)
-        
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if let error = error {
-                print(error)
+        MarketDataServer.authorizedRequest(path: "/v1/spark?symbols=" + symbols + timeRange) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
                 completion(.failure(error))
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            //A rate-limit or error body still parses as JSON, so an empty object counts as a failure too
-            let decoded = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            guard let json = decoded, !json.isEmpty else {
-                completion(.failure(APIError.invalidJSON))
-                return
-            }
-            
-            var tickersArray : [TickersCurrentValues] = []
-            for tickerJSON in json {
-                //Skip malformed entries instead of failing the whole batch
-                guard let tickerDictionary = tickerJSON.value as? [String: Any] else { continue }
-                
-                var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
-                //A bar with no trade arrives as JSON null. Reading the raw last element turned
-                //one of those into a price of 0 and a change of -100%, and at five-minute bars
-                //an empty last bar is common, so nulls are dropped and the latest real close wins.
-                let closes = (tickerDictionary["close"] as? [Any] ?? []).compactMap { $0 as? Double }
-                let closePrice = closes.last ?? 0.0
-                
-                //A previousClose of 0 made this infinite and pushed it straight into the UI
-                var percentageRounded = 0.0
-                if previousClose > 0 {
-                    percentageRounded = ((closePrice * 100) / previousClose) - 100
+            let session = URLSession.shared
+            let dataTask = session.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
+                if let error = error {
+                    print(error)
+                    completion(.failure(error))
+                    return
                 }
-                percentageRounded = Double(round(100*percentageRounded)/100)
-                previousClose = Double(round(100*previousClose)/100)
+            
+                guard let data = data else {
+                    completion(.failure(APIError.noData))
+                    return
+                }
+            
+                //The server's own refusals carry a reason - app_check_failed, too_many_symbols,
+                //upstream_unavailable - worth seeing while App Check is being set up. They parse as
+                //a non-empty JSON object, so without this they only ever surfaced as invalidJSON.
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                    print("Price server answered \(httpResponse.statusCode): \(String(data: data, encoding: .utf8) ?? "")")
+                    completion(.failure(APIError.invalidJSON))
+                    return
+                }
+            
+                //A rate-limit or error body still parses as JSON, so an empty object counts as a failure too
+                let decoded = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                guard let json = decoded, !json.isEmpty else {
+                    completion(.failure(APIError.invalidJSON))
+                    return
+                }
+            
+                var tickersArray : [TickersCurrentValues] = []
+                for tickerJSON in json {
+                    //Skip malformed entries instead of failing the whole batch
+                    guard let tickerDictionary = tickerJSON.value as? [String: Any] else { continue }
                 
-                let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded, intradayCloses: closes)
-                tickersArray.append(tickerValues)
-            }
+                    var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
+                    //A bar with no trade arrives as JSON null. Reading the raw last element turned
+                    //one of those into a price of 0 and a change of -100%, and at five-minute bars
+                    //an empty last bar is common, so nulls are dropped and the latest real close wins.
+                    let closes = (tickerDictionary["close"] as? [Any] ?? []).compactMap { $0 as? Double }
+                    let closePrice = closes.last ?? 0.0
+                
+                    //A previousClose of 0 made this infinite and pushed it straight into the UI
+                    var percentageRounded = 0.0
+                    if previousClose > 0 {
+                        percentageRounded = ((closePrice * 100) / previousClose) - 100
+                    }
+                    percentageRounded = Double(round(100*percentageRounded)/100)
+                    previousClose = Double(round(100*previousClose)/100)
+                
+                    let tickerValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded, intradayCloses: closes)
+                    tickersArray.append(tickerValues)
+                }
             
-            guard !tickersArray.isEmpty else {
-                completion(.failure(APIError.invalidJSON))
-                return
-            }
+                guard !tickersArray.isEmpty else {
+                    completion(.failure(APIError.invalidJSON))
+                    return
+                }
             
-            let tickersSorted = tickersArray.sorted{ $0.ticker < $1.ticker }
-            completion(.success(tickersSorted))
-        })
-        dataTask.resume()
+                let tickersSorted = tickersArray.sorted{ $0.ticker < $1.ticker }
+                completion(.success(tickersSorted))
+            })
+            dataTask.resume()
+        }
     }
 
     //MARK: API call for general markets

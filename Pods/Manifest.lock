@@ -1188,6 +1188,12 @@ PODS:
     - abseil/meta/type_traits
     - abseil/xcprivacy
   - abseil/xcprivacy (1.20240722.0)
+  - AppCheckCore (11.3.2):
+    - GoogleUtilities/Environment (~> 8.0)
+    - GoogleUtilities/UserDefaults (~> 8.0)
+    - PromisesObjC (~> 2.4)
+    - PromisesSwift (~> 2.4)
+    - RecaptchaInterop (~> 101.0)
   - BoringSSL-GRPC (0.0.37):
     - BoringSSL-GRPC/Implementation (= 0.0.37)
     - BoringSSL-GRPC/Interface (= 0.0.37)
@@ -1199,6 +1205,9 @@ PODS:
   - DGCharts/Core (5.1.0)
   - Firebase/Analytics (12.2.0):
     - Firebase/Core
+  - Firebase/AppCheck (12.2.0):
+    - Firebase/CoreOnly
+    - FirebaseAppCheck (~> 12.2.0)
   - Firebase/Core (12.2.0):
     - Firebase/CoreOnly
     - FirebaseAnalytics (~> 12.2.0)
@@ -1228,6 +1237,12 @@ PODS:
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
+  - FirebaseAppCheck (12.2.0):
+    - AppCheckCore (~> 11.0)
+    - FirebaseAppCheckInterop (~> 12.2.0)
+    - FirebaseCore (~> 12.2.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
   - FirebaseAppCheckInterop (12.2.0)
   - FirebaseAuth (12.2.0):
     - FirebaseAppCheckInterop (~> 12.2.0)
@@ -1466,6 +1481,7 @@ PODS:
 DEPENDENCIES:
   - DGCharts
   - Firebase/Analytics
+  - Firebase/AppCheck
   - Firebase/Crashlytics
   - Firebase/Storage
   - FirebaseAuth
@@ -1478,10 +1494,12 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - abseil
+    - AppCheckCore
     - BoringSSL-GRPC
     - DGCharts
     - Firebase
     - FirebaseAnalytics
+    - FirebaseAppCheck
     - FirebaseAppCheckInterop
     - FirebaseAuth
     - FirebaseAuthInterop
@@ -1515,10 +1533,12 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   abseil: a05cc83bf02079535e17169a73c5be5ba47f714b
+  AppCheckCore: be8fce5469f68d7f6a29aa94b25f097409ff7fdc
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   DGCharts: 1c6daf585b6cfc78807af44ea690d357c410627f
   Firebase: 26f6f8d460603af3df970ad505b16b15f5e2e9a1
   FirebaseAnalytics: e04e23bc070e3014aa5cf4980f9df7ce5cd79ec8
+  FirebaseAppCheck: 3289eeac32eadb5da4ebed126b3a6acdf47dc745
   FirebaseAppCheckInterop: a1b2598c64c5a8c42fd6f6a1c3d0938ae4324678
   FirebaseAuth: 059c11702bdb759bb49b6c7ec6ff67abf21f39c4
   FirebaseAuthInterop: 217702acd4cc6baa98ba9d6c054532e0de0b8a16
@@ -1550,6 +1570,6 @@ SPEC CHECKSUMS:
   SwiftyOnboard: 76a648dc1dcbc844343b6b95fe5883cb64a62f4a
   TinyConstraints: 7b7ccc0c485bb3bb47082138ff28bc33cd49897f
 
-PODFILE CHECKSUM: 53cb109769b75e47d1caaaaebdc16ba802849d26
+PODFILE CHECKSUM: 7dcc712edf7f8bb0bbe0a25999e473f2dd7ab7a2
 
 COCOAPODS: 1.16.2
