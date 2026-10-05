@@ -28,17 +28,15 @@ class WatchlistViewCell: UITableViewCell {
     let analystTargetButton: UIButton = {
         var configuration = UIButton.Configuration.plain()
         configuration.image = UIImage(systemName: "target",
-                                      withConfiguration: UIImage.SymbolConfiguration(pointSize: 11, weight: .medium))
+                                      withConfiguration: UIImage.SymbolConfiguration(pointSize: 10, weight: .medium))
         configuration.imagePadding = 4
         configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
-        configuration.baseForegroundColor = UIColor(named: "colorSecondary")
         configuration.titleLineBreakMode = .byTruncatingTail
         //Outlined as a pill so the line reads as something to tap. As plain text it looked
-        //like part of the row, and a tap there was expected to open the chart.
+        //like part of the row, and a tap there was expected to open the chart. The colours
+        //follow the consensus and are set in showAnalystTarget.
         configuration.cornerStyle = .capsule
-        configuration.background.strokeColor = UIColor(named: "colorSecondary")?.withAlphaComponent(0.5)
         configuration.background.strokeWidth = 1
-        configuration.background.backgroundColor = UIColor(named: "colorSecondary")?.withAlphaComponent(0.08)
         let button = UIButton(configuration: configuration)
         button.contentHorizontalAlignment = .leading
         button.isHidden = true
@@ -137,22 +135,29 @@ class WatchlistViewCell: UITableViewCell {
             analystTargetButton.leadingAnchor.constraint(equalTo: nameCompanyLabel.leadingAnchor),
             analystTargetButton.topAnchor.constraint(equalTo: nameCompanyLabel.bottomAnchor, constant: 2),
             analystTargetButton.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -5),
-            analystTargetButton.heightAnchor.constraint(equalToConstant: 22)
+            analystTargetButton.heightAnchor.constraint(equalToConstant: 20)
         ])
     }
 
     ///nil clears the line: still loading, no analyst coverage, or the request failed. The row
     ///height is fixed, so an empty line leaves a gap rather than making rows jump.
-    func showAnalystTarget(_ text: String?) {
+    ///`recommendationKey` is the consensus ("buy", "strong_sell"...), from `AnalystTarget.consensusKey`,
+    ///and picks the colours.
+    func showAnalystTarget(_ text: String?, recommendationKey: String? = nil) {
         guard let text else {
             analystTargetButton.isHidden = true
             analystTargetButton.configuration?.attributedTitle = nil
             analystTargetButton.accessibilityLabel = nil
             return
         }
+        let colors = AnalystTargetFormat.ratingColors(for: recommendationKey)
+        analystTargetButton.configuration?.baseForegroundColor = colors.text
+        analystTargetButton.configuration?.background.backgroundColor = colors.fill
+        analystTargetButton.configuration?.background.strokeColor = colors.stroke
+
         //The chevron is the usual sign that a tap leads somewhere.
         var title = AttributedString(text + "  ›")
-        title.font = UIFont(name: "Avenir-Medium", size: 13) ?? .systemFont(ofSize: 13)
+        title.font = UIFont(name: "Avenir-Heavy", size: 12) ?? .boldSystemFont(ofSize: 12)
         analystTargetButton.configuration?.attributedTitle = title
         analystTargetButton.accessibilityLabel = "Analyst price target: " + text
         analystTargetButton.accessibilityHint = "Shows the analysts' full consensus"

@@ -48,14 +48,40 @@ struct AnalystTarget: Codable, Equatable {
         return (meanTarget - price) / price * 100
     }
 
-    ///Readable form of `recommendationKey`, or nil for one that says nothing ("none").
+    ///The average rating on the 1 (strong buy) to 5 (strong sell) scale, worked out from the
+    ///counts the sheet shows. Yahoo's own `recommendationMean` comes from a different set of
+    ///analysts: APLE had 3 buy and 8 hold this month (2.7, a hold) while Yahoo said "buy".
+    ///Using the counts keeps the word, its colour and the bars in agreement. Yahoo's figure
+    ///is only the fallback for a stock with no counts.
+    var consensusMean: Double? {
+        guard let breakdown, breakdown.total > 0 else { return recommendationMean }
+        let weighted = 1 * breakdown.strongBuy + 2 * breakdown.buy + 3 * breakdown.hold
+            + 4 * breakdown.sell + 5 * breakdown.strongSell
+        return Double(weighted) / Double(breakdown.total)
+    }
+
+    ///The consensus as a key ("strong_buy" ... "strong_sell"), from `consensusMean` with the
+    ///usual half-point bands; Yahoo's key when there is no mean at all.
+    var consensusKey: String? {
+        guard let mean = consensusMean else { return recommendationKey }
+        switch mean {
+        case ..<1.5: return "strong_buy"
+        case ..<2.5: return "buy"
+        case ..<3.5: return "hold"
+        case ..<4.5: return "sell"
+        default: return "strong_sell"
+        }
+    }
+
+    ///Readable form of `consensusKey`, or nil for one that says nothing ("none").
     var consensusLabel: String? {
-        switch recommendationKey {
+        switch consensusKey {
         case "strong_buy": return "Strong Buy"
         case "buy": return "Buy"
         case "hold": return "Hold"
         case "underperform": return "Underperform"
         case "sell": return "Sell"
+        case "strong_sell": return "Strong Sell"
         default: return nil
         }
     }

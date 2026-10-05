@@ -445,13 +445,13 @@ class WatchlistController: UIViewController {
         tableView.reloadRows(at: [indexPath], with: .none)
     }
 
-    ///"Target $328 · -0.4% · Buy". The upside uses the price shown on the same row, never the
+    ///"$328 · -0.4% · Buy" beside a target glyph, which says "target" without the word. The upside uses the price shown on the same row, never the
     ///one inside the analyst data, so a row cannot show two different prices. Without a price
     ///yet the percentage is left out rather than guessed.
     private func analystTargetLine(for ticker: String) -> String? {
         guard let target = AnalystTargetStore.shared.entry(for: ticker)?.target else { return nil }
 
-        var parts = ["Target " + AnalystTargetFormat.price(target.meanTarget)]
+        var parts = [AnalystTargetFormat.price(target.meanTarget)]
         if let price = tickersValues[ticker]?.marketPrice,
            let upside = target.upsidePercent(from: price) {
             parts.append(AnalystTargetFormat.percent(upside))
@@ -547,7 +547,8 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
 
             //Before the price guard: a target already known still shows while prices load,
             //just without the percentage.
-            cell.showAnalystTarget(analystTargetLine(for: ticker))
+            cell.showAnalystTarget(analystTargetLine(for: ticker),
+                                   recommendationKey: AnalystTargetStore.shared.entry(for: ticker)?.target?.consensusKey)
 
             //Prices come from the API, which may not have returned this ticker at all.
             //Leave the placeholder values in place rather than showing another stock's price.

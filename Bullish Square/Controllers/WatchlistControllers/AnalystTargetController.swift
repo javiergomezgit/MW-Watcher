@@ -12,18 +12,44 @@ import UIKit
 ///Shared by the watchlist row and the sheet, so both show a target the same way.
 enum AnalystTargetFormat {
 
-    ///Whole dollars from $100 up, where cents are noise next to analysts' own rounding; cents
-    ///below, where a $4.25 target rounded to $4 would be a 6% error.
+    ///Whole dollars from $10 up, where cents are noise next to analysts' own rounding and the
+    ///percentage beside it carries the precision; cents below, where a $4.25 target rounded to
+    ///$4 would be a 6% error. The cut was $100, which put "$17.17" next to "$328" in the list.
     static func price(_ value: Double) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
         formatter.currencyCode = "USD"
         formatter.locale = Locale(identifier: "en_US")
-        formatter.maximumFractionDigits = value >= 100 ? 0 : 2
-        formatter.minimumFractionDigits = value >= 100 ? 0 : 2
+        formatter.maximumFractionDigits = value >= 10 ? 0 : 2
+        formatter.minimumFractionDigits = value >= 10 ? 0 : 2
         //The default is banker's rounding, which shows $1,234.50 as $1,234.
         formatter.roundingMode = .halfUp
         return formatter.string(from: NSNumber(value: value)) ?? String(format: "$%.2f", value)
+    }
+
+    ///One colour per rating, shared by the watchlist pill and the sheet so a "Buy" looks the
+    ///same in both. Blue for the buy side, slate for hold, yellow for the sell side: it reads
+    ///in either direction for colour-blind users, and keeps clear of the uptrend/downtrend
+    ///mint and red, so a rating never looks like today's price move. "Strong" is the more
+    ///saturated end of each side. All are light enough to read as text on colorPrimary.
+    static func ratingColor(for key: String?) -> UIColor {
+        switch key {
+        case "strong_buy": return UIColor(red: 0.27, green: 0.60, blue: 1.00, alpha: 1)
+        case "buy": return UIColor(red: 0.58, green: 0.78, blue: 1.00, alpha: 1)
+        case "hold": return UIColor(red: 0.62, green: 0.66, blue: 0.74, alpha: 1)
+        case "underperform", "sell": return UIColor(red: 0.96, green: 0.86, blue: 0.52, alpha: 1)
+        case "strong_sell": return UIColor(red: 1.00, green: 0.78, blue: 0.16, alpha: 1)
+        default: return UIColor(named: "colorSecondary") ?? .secondaryLabel
+        }
+    }
+
+    ///The pill's text, fill and outline for a consensus. Strong ratings get a fuller fill.
+    static func ratingColors(for key: String?) -> (text: UIColor, fill: UIColor, stroke: UIColor) {
+        let color = ratingColor(for: key)
+        let strong = key == "strong_buy" || key == "strong_sell"
+        let none = !["strong_buy", "buy", "hold", "underperform", "sell", "strong_sell"].contains(key ?? "")
+        let fill: CGFloat = none ? 0.08 : (strong ? 0.26 : 0.13)
+        return (color, color.withAlphaComponent(fill), color.withAlphaComponent(strong ? 0.9 : 0.55))
     }
 
     ///Always signed, so a target below today's price reads as clearly as one above it.
@@ -155,7 +181,7 @@ final class AnalystTargetController: UIViewController {
         if let consensus = target.consensusLabel {
             rows.append(Self.label("Consensus: \(consensus)", font: Self.heavy(20)))
         }
-        if let mean = target.recommendationMean {
+        if let mean = target.consensusMean {
             rows.append(Self.label(String(format: "%.1f on a scale from 1 (strong buy) to 5 (strong sell).", mean),
                                    font: Self.medium(13), color: Self.secondaryColor))
         }
@@ -192,17 +218,9 @@ final class AnalystTargetController: UIViewController {
     private static let secondaryColor = UIColor(named: "colorSecondary") ?? .secondaryLabel
     private static let accent = UIColor(named: "colorAccent") ?? .systemBlue
 
-    ///Blues from bright to deep, strong buy to strong sell, with hold a neutral slate in the
-    ///middle. Deliberately not the app's green and red, which would turn the breakdown into an
-    ///instruction. Opaque and far apart in brightness: the earlier fades of one blue disappeared
-    ///into the dark background at the sell end and could not be told apart.
-    private static let ratingColors: [UIColor] = [
-        UIColor(red: 0.56, green: 0.83, blue: 1.00, alpha: 1),   //Strong Buy
-        UIColor(red: 0.29, green: 0.62, blue: 1.00, alpha: 1),   //Buy
-        UIColor(red: 0.55, green: 0.61, blue: 0.71, alpha: 1),   //Hold
-        UIColor(red: 0.21, green: 0.35, blue: 0.71, alpha: 1),   //Sell
-        UIColor(red: 0.16, green: 0.22, blue: 0.50, alpha: 1)    //Strong Sell
-    ]
+    ///Strong buy to strong sell, the same colours as the watchlist pill.
+    private static let ratingColors: [UIColor] = ["strong_buy", "buy", "hold", "sell", "strong_sell"]
+        .map { AnalystTargetFormat.ratingColor(for: $0) }
 
     private static func heavy(_ size: CGFloat) -> UIFont {
         UIFont(name: "Avenir-Heavy", size: size) ?? .boldSystemFont(ofSize: size)
