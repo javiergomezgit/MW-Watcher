@@ -778,3 +778,4 @@ CLAUDE.md
 # They were tracked before ignore rules existed; untracked on 2026-10-04.
 xcuserdata/
 .DS_Store
+/Resources BS
