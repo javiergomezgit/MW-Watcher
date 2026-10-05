@@ -515,18 +515,12 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "myTickersCell", for: indexPath) as! WatchlistViewCell
                 
         cell.tickerLabel.text = " "
-        cell.currentPriceLabel.text = "$0.0"
+        cell.currentPriceLabel.text = "—"
         cell.nameCompanyLabel.text = " "
-        
-        cell.changeLabel.text = "%"
-        cell.previousPriceLabel.text = "$0.0"
-        
-        //Only the text used to be reset. A cell reused for a ticker whose price has not
-        //arrived kept the previous stock's arrow and up/down colour, which is most visible
-        //right after switching watchlists.
-        cell.arrowImageView.image = nil
-        cell.changeLabel.textColor = UIColor(named: "colorSecondary")
-        cell.previousPriceLabel.textColor = UIColor(named: "colorSecondary")
+
+        //A cell reused for a ticker whose price has not arrived must not keep the previous
+        //stock's change and up/down colour, which is most visible after switching watchlists.
+        cell.showChange(percent: nil)
         cell.sparklineView.reset()
         
         let tickerFeatures = tickersFeatures[indexPath.row]
@@ -557,38 +551,15 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             if values.marketPrice != 0.0  {
                 cell.currentPriceLabel.text = Self.priceText(values.marketPrice)
             }
-            
-            let previousPrice = Double(round(100*values.previousPrice)/100)
+
             let percentage = Double(round(100*values.changePercent)/100)
-            
-            cell.changeLabel.text = String(percentage) + "%"
-            cell.previousPriceLabel.text = Self.priceText(previousPrice)
-            
-            //The same "percentage < 0" test as the colours below, so the line can never be
+            cell.showChange(percent: percentage)
+
+            //The same "percentage < 0" test as the change pill, so the line can never be
             //green on a red row.
             cell.sparklineView.configure(closes: values.intradayCloses,
                                          previousClose: values.previousPrice,
                                          isUp: !(percentage < 0))
-            
-            if percentage < 0 {
-                cell.changeLabel.textColor = UIColor(named: "downtrend")  //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                cell.previousPriceLabel.textColor = UIColor(named: "downtrend")   //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                cell.arrowImageView.image = (UIImage.init(systemName: "arrow.down.app.fill"))
-                cell.arrowImageView.tintColor = UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-                cell.frameCoverLabel.backgroundColor = UIColor(named: "downtrend") //UIColor(named: "downtrend") //UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1)
-                
-                cell.currentPriceLabel.backgroundColor = UIColor(named: "downtrend")
-                cell.currentPriceLabel.textColor = UIColor.white
-            } else {
-                cell.changeLabel.textColor = UIColor(named: "uptrend")  //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                cell.previousPriceLabel.textColor = UIColor(named: "uptrend")  //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                cell.arrowImageView.image = (UIImage.init(systemName: "arrow.up.square.fill"))
-                cell.arrowImageView.tintColor = UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-                cell.frameCoverLabel.backgroundColor = UIColor(named: "uptrend") //UIColor(named: "uptrend") //UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 0.7)
-             
-                cell.currentPriceLabel.backgroundColor = UIColor(named: "uptrend")
-                cell.currentPriceLabel.textColor = UIColor(named: "colorPrimary")
-            }
         }
         
         return cell

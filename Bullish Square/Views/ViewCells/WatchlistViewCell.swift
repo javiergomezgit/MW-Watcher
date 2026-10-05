@@ -11,14 +11,24 @@ class WatchlistViewCell: UITableViewCell {
 
     @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet weak var nameCompanyLabel: UILabel!
-    @IBOutlet weak var changeLabel: UILabel!
     @IBOutlet var currentPriceLabel: UILabel!
-    @IBOutlet var previousPriceLabel: UILabel!
-    @IBOutlet var arrowImageView: UIImageView!
     @IBOutlet weak var openChartButton: UIButton!
     @IBOutlet weak var imageCompanyImageView: UIImageView!
-    @IBOutlet weak var frameCoverLabel: UILabel!
-    
+
+    ///Today's change under the price: a tinted capsule with a slanted arrow at the end. Built
+    ///in code because a label cannot pad its text or carry a trailing symbol. Display only;
+    ///taps pass through to the chart button underneath.
+    let changePill: UIButton = {
+        var configuration = UIButton.Configuration.plain()
+        configuration.cornerStyle = .capsule
+        configuration.imagePlacement = .trailing
+        configuration.imagePadding = 3
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        let button = UIButton(configuration: configuration)
+        button.isUserInteractionEnabled = false
+        return button
+    }()
+
     ///Built in code, so the storyboard prototype needs no change.
     let sparklineView = SparklineView()
 
@@ -61,6 +71,7 @@ class WatchlistViewCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         pinTopBlockToStoryboardHeight()
+        installChangePill()
         installSparkline()
         installAnalystTarget()
     }
@@ -87,15 +98,31 @@ class WatchlistViewCell: UITableViewCell {
         ])
     }
 
+    ///Right-aligned under the price, level with the company name. Never wider than the price
+    ///column, so the sparkline and names can end at the price's leading edge.
+    private func installChangePill() {
+        changePill.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(changePill)
+        currentPriceLabel.backgroundColor = .clear
+        currentPriceLabel.textColor = .white
+
+        NSLayoutConstraint.activate([
+            changePill.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -5),
+            changePill.topAnchor.constraint(equalTo: currentPriceLabel.bottomAnchor, constant: 6),
+            changePill.heightAnchor.constraint(equalToConstant: 20),
+            changePill.leadingAnchor.constraint(greaterThanOrEqualTo: currentPriceLabel.leadingAnchor)
+        ])
+    }
+
     private func installSparkline() {
         sparklineView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(sparklineView)
 
-        //The arrow is the leftmost thing in the price column on both lines, so ending there
-        //clears the price, the previous close and the change. Centred on where the middle of
-        //the 75pt row was, level with the price column, not on the taller row's middle.
+        //The price column is the price label's width on both lines, so ending at its leading
+        //edge clears the price and the change. Centred on where the middle of the 75pt row
+        //was, level with the price column, not on the taller row's middle.
         NSLayoutConstraint.activate([
-            sparklineView.trailingAnchor.constraint(equalTo: arrowImageView.leadingAnchor, constant: -8),
+            sparklineView.trailingAnchor.constraint(equalTo: currentPriceLabel.leadingAnchor, constant: -8),
             sparklineView.centerYAnchor.constraint(equalTo: contentView.topAnchor, constant: Self.storyboardRowHeight / 2),
             sparklineView.widthAnchor.constraint(equalToConstant: 70),
             sparklineView.heightAnchor.constraint(equalToConstant: 36)
@@ -120,7 +147,7 @@ class WatchlistViewCell: UITableViewCell {
             $0.trailingAnchor.constraint(lessThanOrEqualTo: sparklineView.leadingAnchor, constant: -8)
         }
         namesEndBeforePrices = labels.map {
-            $0.trailingAnchor.constraint(lessThanOrEqualTo: arrowImageView.leadingAnchor, constant: -8)
+            $0.trailingAnchor.constraint(lessThanOrEqualTo: currentPriceLabel.leadingAnchor, constant: -8)
         }
     }
 
@@ -164,6 +191,39 @@ class WatchlistViewCell: UITableViewCell {
         analystTargetButton.isHidden = false
     }
 
+    ///Today's change in percent, or nil while the price has not arrived. The arrow and the red
+    ///or mint tint carry the direction, so the number is shown without a sign.
+    func showChange(percent: Double?) {
+        guard let percent else {
+            changePill.isHidden = true
+            changePill.accessibilityLabel = nil
+            return
+        }
+        let isDown = percent < 0
+        let tint: UIColor
+        let text: UIColor
+        if isDown {
+            tint = UIColor(named: "downtrend") ?? .systemRed
+            //`downtrend` itself is too dark to read as small text on colorPrimary.
+            text = UIColor(red: 1.0, green: 0.42, blue: 0.40, alpha: 1)
+        } else {
+            tint = UIColor(named: "uptrend") ?? .systemGreen
+            text = tint
+        }
+
+        let magnitude = String(format: "%.2f%%", abs(percent))
+        var title = AttributedString(magnitude)
+        title.font = UIFont(name: "Avenir-Heavy", size: 13) ?? .boldSystemFont(ofSize: 13)
+        changePill.configuration?.attributedTitle = title
+        //arrow.up.right points 45 degrees up, arrow.down.right 135 degrees.
+        changePill.configuration?.image = UIImage(systemName: isDown ? "arrow.down.right" : "arrow.up.right",
+                                                  withConfiguration: UIImage.SymbolConfiguration(pointSize: 10, weight: .heavy))
+        changePill.configuration?.baseForegroundColor = text
+        changePill.configuration?.background.backgroundColor = tint.withAlphaComponent(isDown ? 0.2 : 0.16)
+        changePill.accessibilityLabel = (isDown ? "Down " : "Up ") + magnitude + " today"
+        changePill.isHidden = false
+    }
+
     override func layoutSubviews() {
         //Decided from the row's real width, which only exists at layout time; awakeFromNib
         //still sees the storyboard's. Only a change of answer touches the constraints.
@@ -180,6 +240,7 @@ class WatchlistViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         sparklineView.reset()
+        showChange(percent: nil)
         showAnalystTarget(nil)
     }
 
