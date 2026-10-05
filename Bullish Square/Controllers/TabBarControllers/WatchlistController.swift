@@ -554,14 +554,14 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             guard let values = tickersValues[ticker] else { return cell }
             
             if values.marketPrice != 0.0  {
-                cell.currentPriceLabel.text = "$\(values.marketPrice)"
+                cell.currentPriceLabel.text = Self.priceText(values.marketPrice)
             }
             
             let previousPrice = Double(round(100*values.previousPrice)/100)
             let percentage = Double(round(100*values.changePercent)/100)
             
             cell.changeLabel.text = String(percentage) + "%"
-            cell.previousPriceLabel.text = "$" + String(previousPrice)
+            cell.previousPriceLabel.text = Self.priceText(previousPrice)
             
             //The same "percentage < 0" test as the colours below, so the line can never be
             //green on a red row.
@@ -593,6 +593,35 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    ///"$1,234.56": thousands grouped with commas, always two decimals. Fixed to en_US so the
+    ///row reads the same on a phone set to a comma-decimal region, like the rest of the app's
+    ///dollar figures.
+    private static let priceFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+
+    ///Coins under a dollar (SHIB, DOGE) keep their digits; two decimals would show $0.00.
+    private static let smallPriceFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 6
+        return formatter
+    }()
+
+    private static func priceText(_ value: Double) -> String {
+        let formatter = abs(value) < 1 ? smallPriceFormatter : priceFormatter
+        return formatter.string(from: NSNumber(value: value)) ?? String(format: "$%.2f", value)
+    }
+
     @objc func openChart(sender: UIButton) {
         //Resolved at tap time from where the button actually sits. It previously used a tag
         //stamped in cellForRowAt, and deleting a row does not re-dequeue the rows below it, so
