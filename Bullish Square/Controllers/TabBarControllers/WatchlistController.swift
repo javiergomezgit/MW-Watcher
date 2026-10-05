@@ -748,6 +748,12 @@ extension WatchlistController {
             simulatedPortfolioButton.widthAnchor.constraint(equalToConstant: 56),
             simulatedPortfolioButton.heightAnchor.constraint(equalToConstant: 56)
         ])
+
+        //The button floats over the table, so without room below the last row it covered
+        //that row's price and change with no way to scroll them clear.
+        let clearance: CGFloat = 56 + 20 + 8
+        tableView.contentInset.bottom = clearance
+        tableView.verticalScrollIndicatorInsets.bottom = clearance
     }
     
     @objc private func simulatedPortfolioButtonTapped() {
