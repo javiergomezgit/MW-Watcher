@@ -403,6 +403,57 @@ final class StockAPI {
         }
     }
 
+    //MARK: API call for one stock's analyst consensus
+    ///`.success(nil)` means no analyst covers the stock, which is an answer worth remembering;
+    ///`.failure` is anything that should be tried again later.
+    func getAnalystTarget(ticker: String, completion: @escaping (Result<AnalystTarget?, Error>) -> Void) {
+        //Tickers such as BRK-B, ^DJI or BTC-USD. "^" is not allowed unescaped in a path.
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._")
+        guard let symbol = ticker.addingPercentEncoding(withAllowedCharacters: allowed) else {
+            completion(.failure(APIError.invalidTicker))
+            return
+        }
+
+        MarketDataServer.authorizedRequest(path: "/v1/fundamentals/" + symbol) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                completion(.failure(error))
+                return
+            case .success(let authorized):
+                request = authorized
+            }
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                    completion(.failure(APIError.noData))
+                    return
+                }
+
+                switch httpResponse.statusCode {
+                case 200:
+                    do {
+                        completion(.success(try AnalystTarget.parse(data)))
+                    } catch let error as NSError {
+                        print("Analyst data for \(ticker) came back in an unexpected shape: \(error.localizedDescription)")
+                        completion(.failure(APIError.invalidJSON))
+                    }
+                case 404:
+                    //The server's "no_coverage": an ETF, a coin, or a stock no analyst follows.
+                    completion(.success(nil))
+                default:
+                    print("Analyst server answered \(httpResponse.statusCode) for \(ticker): \(String(data: data, encoding: .utf8) ?? "")")
+                    completion(.failure(APIError.invalidJSON))
+                }
+            }.resume()
+        }
+    }
+
     //MARK: API call for general markets
     func getPriceGeneralMarkets(completion: @escaping([GeneralMarkets]?, Int) -> Void) {
         let headers = [

@@ -25,6 +25,16 @@ class WatchlistController: UIViewController {
     ///Short enough that the watchlist still reads as live, long enough to absorb tab switches,
     ///returning from a chart and flipping between watchlists. Pull to refresh ignores it.
     private let priceFreshness: TimeInterval = 60
+
+    ///Tickers waiting for their analyst consensus, asked for one at a time.
+    private var analystTargetQueue: [String] = []
+    ///The one being asked for right now. It has already left the queue, so without this a
+    ///watchlist appearing mid-request queued it a second time.
+    private var analystTargetInFlight: String?
+    ///A failed ticker is left alone for a few minutes. Without this, every tab switch while the
+    ///server is down would ask again for every stock on the list.
+    private var analystTargetRetryAfter: [String: Date] = [:]
+    private let analystTargetRetryDelay: TimeInterval = 5 * 60
     ///Five-minute bars across today's session, about 79 points, which is what the sparkline
     ///draws. The previous close and the latest price come back identical to the old one-bar
     ///"interval=1d", so every number on screen is unchanged; only the line is new.
@@ -257,7 +267,8 @@ class WatchlistController: UIViewController {
         var mergedTickers = ""
         
         loadPendingLogos(for: savedTickers)
-        
+        loadPendingAnalystTargets(for: savedTickers)
+
         //This ran on every appearance: each tab switch and each return from a chart was a full
         //price request straight into the API quota, and that endpoint already answers with
         //invalidJSON under load. The rows above come from Core Data regardless, so skipping
@@ -379,6 +390,103 @@ class WatchlistController: UIViewController {
         }
     }
 
+    // MARK: - Analyst targets
+
+    ///Queues the tickers on this list whose consensus is missing or more than a day old, and
+    ///works through them one at a time like the logos, so a long list never bursts into the
+    ///server's rate limit. Only the list on screen is fetched.
+    ///
+    ///Decoration only: a failure leaves the line empty and never raises an alert.
+    private func loadPendingAnalystTargets(for savedTickers: [TickersFeatures], now: Date = Date()) {
+        let store = AnalystTargetStore.shared
+        for ticker in savedTickers.map(\.ticker) where !ticker.isEmpty {
+            guard store.needsFetch(ticker, now: now),
+                  ticker != analystTargetInFlight,
+                  !analystTargetQueue.contains(ticker),
+                  analystTargetRetryAfter[ticker].map({ now >= $0 }) ?? true else { continue }
+            analystTargetQueue.append(ticker)
+        }
+        fetchNextAnalystTarget()
+    }
+
+    private func fetchNextAnalystTarget() {
+        guard analystTargetInFlight == nil else { return }
+        //Something queued a while ago may have been answered since, so check again here.
+        while let next = analystTargetQueue.first, !AnalystTargetStore.shared.needsFetch(next) {
+            analystTargetQueue.removeFirst()
+        }
+        guard !analystTargetQueue.isEmpty else { return }
+        let ticker = analystTargetQueue.removeFirst()
+        analystTargetInFlight = ticker
+
+        StockAPI.shared.getAnalystTarget(ticker: ticker) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let target):
+                    AnalystTargetStore.shared.record(target, for: ticker)
+                    self.analystTargetRetryAfter.removeValue(forKey: ticker)
+                    self.reloadRow(forTicker: ticker)
+                case .failure(let error):
+                    print("Analyst target for \(ticker) failed, will retry later: \(error)")
+                    self.analystTargetRetryAfter[ticker] = Date().addingTimeInterval(self.analystTargetRetryDelay)
+                }
+                self.analystTargetInFlight = nil
+                self.fetchNextAnalystTarget()
+            }
+        }
+    }
+
+    ///Found by ticker at the moment the answer arrives, not by a row captured before the
+    ///request: the list may have been switched or edited while it was in flight.
+    private func reloadRow(forTicker ticker: String) {
+        guard let row = tickersFeatures.firstIndex(where: { $0.ticker == ticker }) else { return }
+        let indexPath = IndexPath(row: row, section: 0)
+        guard tableView.indexPathsForVisibleRows?.contains(indexPath) == true else { return }
+        tableView.reloadRows(at: [indexPath], with: .none)
+    }
+
+    ///"Target $328 · -0.4% · Buy". The upside uses the price shown on the same row, never the
+    ///one inside the analyst data, so a row cannot show two different prices. Without a price
+    ///yet the percentage is left out rather than guessed.
+    private func analystTargetLine(for ticker: String) -> String? {
+        guard let target = AnalystTargetStore.shared.entry(for: ticker)?.target else { return nil }
+
+        var parts = ["Target " + AnalystTargetFormat.price(target.meanTarget)]
+        if let price = tickersValues[ticker]?.marketPrice,
+           let upside = target.upsidePercent(from: price) {
+            parts.append(AnalystTargetFormat.percent(upside))
+        }
+        if let consensus = target.consensusLabel {
+            parts.append(consensus)
+        }
+        return parts.joined(separator: " · ")
+    }
+
+    @objc func openAnalystTarget(sender: UIButton) {
+        //Resolved at tap time, like openChart, so a delete above this row cannot redirect it.
+        let buttonCentre = CGPoint(x: sender.bounds.midX, y: sender.bounds.midY)
+        guard let indexPath = tableView.indexPathForRow(at: sender.convert(buttonCentre, to: tableView)),
+              indexPath.row < tickersFeatures.count else { return }
+
+        let tickerFeatures = tickersFeatures[indexPath.row]
+        //The line is only visible with a target on hand, but the store is the authority.
+        guard let entry = AnalystTargetStore.shared.entry(for: tickerFeatures.ticker),
+              let target = entry.target else { return }
+
+        let price = tickersValues[tickerFeatures.ticker]?.marketPrice
+        let detail = AnalystTargetController(ticker: tickerFeatures.ticker,
+                                             companyName: tickerFeatures.nameTicker,
+                                             currentPrice: (price ?? 0) > 0 ? price : nil,
+                                             target: target,
+                                             fetchedAt: entry.fetchedAt)
+        let navigationController = UINavigationController(rootViewController: detail)
+        if let sheet = navigationController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(navigationController, animated: true)
+    }
+
 }
 
 extension WatchlistController: SearchStocksControllerDelegate {
@@ -394,6 +502,12 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tickersFeatures.count
+    }
+
+    ///Overrides the storyboard's 75pt to make room for the analyst line. The same for every
+    ///row, with or without a target, so rows never jump as targets arrive.
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return WatchlistViewCell.rowHeight
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -428,7 +542,13 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             //per dequeue. Removing the pair first guarantees exactly one.
             cell.openChartButton.removeTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
             cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
-            
+            cell.analystTargetButton.removeTarget(self, action: #selector(openAnalystTarget(sender:)), for: .touchUpInside)
+            cell.analystTargetButton.addTarget(self, action: #selector(openAnalystTarget(sender:)), for: .touchUpInside)
+
+            //Before the price guard: a target already known still shows while prices load,
+            //just without the percentage.
+            cell.showAnalystTarget(analystTargetLine(for: ticker))
+
             //Prices come from the API, which may not have returned this ticker at all.
             //Leave the placeholder values in place rather than showing another stock's price.
             guard let values = tickersValues[ticker] else { return cell }
