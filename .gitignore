@@ -773,3 +773,8 @@ Resources BS/Bullish_Square_Business_Plan_v1.pdf
 GUIDE.md
 PROJECT.md
 CLAUDE.md
+
+# Xcode per-user state and Finder metadata, anywhere in the tree.
+# They were tracked before ignore rules existed; untracked on 2026-10-04.
+xcuserdata/
+.DS_Store
