@@ -42,7 +42,13 @@ class LiveNewsController: UIViewController {
     //Keyed by article link, not row index. The source filter replaces newsItems wholesale,
     //so an index-keyed map rendered bookmarks against whatever article now sat at that row.
     var savedLinks: Set<String> = []
-    
+    ///The source chip picked, kept so the feed updating in the background does not reset it.
+    private var selectedSource = "ALL"
+    ///Pictures loaded so far, by article link.
+    private var articleImages: [String: UIImage] = [:]
+    private var imagesInFlight: Set<String> = []
+    private var imagesFailed: Set<String> = []
+
     private let imageViewSavedNews = UIImageView(image: UIImage(named: "tray.2.fill"))
     private let imageViewSearchNews = UIImageView(image: UIImage(systemName: "play.circle"))
     
@@ -161,84 +167,139 @@ extension LiveNewsController {
 extension LiveNewsController {
     
     // Handle pull-to-refresh
+    ///The feed stays on screen while it refreshes. It used to clear the cache and cover the
+    ///list with a spinner until all three categories were back.
     @objc func refresh(_ sender: AnyObject) {
-        NewsCache.shared.clear()
-        startStopSpinner(start: true)
-        SceneDelegate.triggerNewsPrefetch()
-        pollCacheUntilReady(categories: ["business", "world", "general"], attempt: 0)
+        SceneDelegate.triggerNewsPrefetch(force: true)
     }
-    
-    // Load news from multiple sources
+
+    ///Shows whatever is cached - the saved feed from the last launch, or any category already
+    ///back - and lets NewsCache.didUpdate fill in the rest. It used to wait for all three
+    ///categories, checking once a second, behind a spinner on an empty screen.
     func loadNews() {
-        let categories = ["business", "world", "general"]
-        
-        // ✅ All 3 ready — not just any
-        let allReady = categories.allSatisfy { NewsCache.shared.get($0) != nil }
-        
-        if allReady {
-            populateNews(from: categories)
+        NotificationCenter.default.addObserver(self, selector: #selector(newsCacheDidUpdate),
+                                               name: NewsCache.didUpdate, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(newsPrefetchDidFinish),
+                                               name: NewsCache.prefetchDidFinish, object: nil)
+
+        if NewsCache.shared.hasAnyNews {
+            populateNews()
         } else {
+            //First launch ever, or the cache was cleared: nothing to show until GNews answers.
             startStopSpinner(start: true)
-            pollCacheUntilReady(categories: categories, attempt: 0)
         }
+        //Anything older than five minutes is fetched; a fresh saved feed costs no request.
+        SceneDelegate.triggerNewsPrefetch()
     }
-    
-    private func pollCacheUntilReady(categories: [String], attempt: Int) {
-        let maxAttempts = 20
-        let allReady = categories.allSatisfy { NewsCache.shared.get($0) != nil }
-        
-        if allReady {
-            populateNews(from: categories) // ← handles main thread internally
-        } else if attempt < maxAttempts {
-            DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-                self.pollCacheUntilReady(categories: categories, attempt: attempt + 1)
-            }
-        } else {
-            populateNews(from: categories) // timeout fallback
-        }
+
+    @objc private func newsCacheDidUpdate() {
+        populateNews()
     }
-    
-    private func populateNews(from categories: [String]) {
-        // ✅ Force main thread always
+
+    ///Ends the refresh control and the spinner even when nothing came back (offline, quota),
+    ///so neither can be left running.
+    @objc private func newsPrefetchDidFinish() {
+        refreshControl.endRefreshing()
+        startStopSpinner(start: false)
+    }
+
+    private func populateNews() {
+        //NewsCache posts on the main thread; this is a guard, not a hop that is expected.
         guard Thread.isMainThread else {
-            DispatchQueue.main.async { self.populateNews(from: categories) }
+            DispatchQueue.main.async { self.populateNews() }
             return
         }
-        
-        newsItems.removeAll()
+
         backupNewsItems.removeAll()
-        
+
         var authors: Set<String> = []
         //The same article can come back under more than one category, and was listed once
         //per category. Keyed by link, falling back to the headline: keying an empty link would
         //collapse every link-less article into one row.
         var seenArticles: Set<String> = []
-        
-        for category in categories {
+
+        for category in NewsCache.categories {
             guard let items = NewsCache.shared.get(category) else { continue }
-            for news in items {
+            for var news in items {
                 let key = news.link.isEmpty ? news.headline : news.link
                 guard seenArticles.insert(key).inserted else { continue }
-                
+
+                //A picture already loaded for this article survives the category being
+                //replaced by a fresher copy.
+                if !news.link.isEmpty, let image = articleImages[news.link] {
+                    news.image = image
+                }
                 authors.insert(news.author)
-                newsItems.append(news)
                 backupNewsItems.append(news)
             }
         }
-        
+
         //"ALL" used to be appended first and then sorted with the sources, so it landed
         //alphabetically - after "ABC News", say - instead of leading the strip.
         sources = ["ALL"] + authors.sorted()
+        //A new category arriving must not throw the reader out of the source they picked.
+        if !sources.contains(selectedSource) {
+            selectedSource = "ALL"
+        }
+        applySourceFilter()
         savedLinks = saveHeadlines.savedLinks()
         tableView.reloadData()
         collectionView.reloadData()
-        refreshControl.endRefreshing()
-        startStopSpinner(start: false)
-        
-        if !alreadyLaunched {
-            showFirstTimeNotification(whereView: tableView)
+        if let index = sources.firstIndex(of: selectedSource) {
+            collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
         }
-        print("News items loaded from cache: \(self.newsItems.count)")
+
+        if !backupNewsItems.isEmpty {
+            startStopSpinner(start: false)
+            if !alreadyLaunched {
+                //Once per launch: this now runs as each category arrives.
+                alreadyLaunched = true
+                showFirstTimeNotification(whereView: tableView)
+            }
+        }
+    }
+
+    private func applySourceFilter() {
+        if selectedSource == "ALL" {
+            newsItems = backupNewsItems
+        } else {
+            newsItems = backupNewsItems.filter { $0.author == selectedSource }
+        }
+    }
+
+    ///Loads one article's picture the first time its row is shown. Keyed by link, never by
+    ///row: the source filter and new categories both reorder the list while it downloads.
+    private func loadImageIfNeeded(for newsItem: NewsItem) {
+        let link = newsItem.link
+        guard !link.isEmpty,
+              articleImages[link] == nil,
+              !imagesInFlight.contains(link),
+              !imagesFailed.contains(link),
+              let url = newsItem.imageURL else { return }
+        imagesInFlight.insert(link)
+
+        Support.sharedSupport.downloadImage(from: url) { [weak self] image in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.imagesInFlight.remove(link)
+                guard let image else {
+                    //Not retried while scrolling; the placeholder stays.
+                    self.imagesFailed.insert(link)
+                    return
+                }
+                self.articleImages[link] = image
+                for index in self.backupNewsItems.indices where self.backupNewsItems[index].link == link {
+                    self.backupNewsItems[index].image = image
+                }
+                for index in self.newsItems.indices where self.newsItems[index].link == link {
+                    self.newsItems[index].image = image
+                    let indexPath = IndexPath(row: index, section: 0)
+                    if self.tableView.indexPathsForVisibleRows?.contains(indexPath) == true {
+                        self.tableView.reloadRows(at: [indexPath], with: .none)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -529,7 +590,8 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         let newsItem = newsItems[indexPath.row]
         
         cell.setNewsValues(headline: newsItem.headline, link: newsItem.link, pubdate: newsItem.pubDate, author: newsItem.author, imageFeed: newsItem.image)
-        
+        loadImageIfNeeded(for: newsItem)
+
         applySavedState(to: cell.saveButton, link: newsItem.link)
         
         //UIControl keeps duplicate registrations, so a reused cell fired this action once
@@ -548,6 +610,17 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
         return cell
     }
     
+    ///The table prepares rows before they scroll on screen, and a prepared row is shown as it
+    ///was built. A picture arriving in between only redrew rows already visible, so the row
+    ///came on screen with the placeholder and kept it until scrolled away and back. This runs
+    ///every time a row appears, so it always gets the picture loaded so far.
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let cell = cell as? LiveNewsViewCell,
+              indexPath.row < newsItems.count,
+              let image = articleImages[newsItems[indexPath.row].link] else { return }
+        cell.feedImageView.image = image
+    }
+
     // Share news headline and details
     @objc func shareTitle(sender: UIButton) {
         sender.animateButton(sender: sender, duration: 0.1)
@@ -659,19 +732,8 @@ extension LiveNewsController: UICollectionViewDelegate, UICollectionViewDataSour
         //let cell = collectionView.cellForItem(at: indexPath)
         //cell?.backgroundColor = UIColor(named: "colorAccent")
         
-        let selectedSource = sources[indexPath.row]
-        
-        if selectedSource == "ALL" {
-            newsItems = backupNewsItems
-        } else {
-            var tempNew: [NewsItem] = []
-            for newsItem in backupNewsItems {
-                if newsItem.author == selectedSource {
-                    tempNew.append(newsItem)
-                }
-            }
-            newsItems = tempNew
-        }
+        selectedSource = sources[indexPath.row]
+        applySourceFilter()
         tableView.reloadData()
     }
     

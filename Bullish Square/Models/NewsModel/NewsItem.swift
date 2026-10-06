@@ -14,7 +14,11 @@ struct NewsItem {
     var ticker: String
     var author: String
     var image: UIImage
-    
+    ///Where `image` comes from. Articles now arrive with the placeholder and the feed loads
+    ///each picture as its row appears, rather than holding the whole category back until
+    ///every picture has downloaded. Kept so the feed can be saved to disk without the pictures.
+    var imageURL: String? = nil
+
     static let previewNewsItem = [
         NewsItem(headline: "Paramount+ making‘massive’ in June and averaging a new original movie every week in 2022", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "ROKU-6.57%", author: "CNN", image: UIImage(named: "mw-logo")!),
         NewsItem(headline: "Roku stock gains after earnings, outlook top expectations", link: "No link", pubDate: "Thu, 06 May 2021 15:43:01 -0700", ticker: "VIAC-2.43", author: "", image: UIImage(named: "mw-logo")!)

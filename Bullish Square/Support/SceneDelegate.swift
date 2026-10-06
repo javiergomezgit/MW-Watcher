@@ -14,10 +14,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private var authStateHandle: AuthStateDidChangeListenerHandle?
     private var hasInitialFetchStarted = false
     
-    static func triggerNewsPrefetch() {
+    ///`force` refetches every category, for pull to refresh.
+    static func triggerNewsPrefetch(force: Bool = false) {
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let delegate = scene.delegate as? SceneDelegate {
-            delegate.startNewsPrefetch()
+            delegate.startNewsPrefetch(force: force)
+        } else {
+            //Nothing will run, but a pull to refresh is waiting to hear that it finished.
+            NotificationCenter.default.post(name: NewsCache.prefetchDidFinish, object: nil)
         }
     }
 
@@ -59,11 +63,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) {
         guard hasInitialFetchStarted else { return }
 
-        let categories = ["business", "world", "general"]
-        let anyStale = categories.contains { NewsCache.shared.isStale($0) }
-        if anyStale {
-            startNewsPrefetch()
-        }
+        startNewsPrefetch()
 
         if MarketsCache.shared.isStale() {
             startMarketsPrefetch()
@@ -72,20 +72,43 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     // MARK: - News Prefetch
     
-    func startNewsPrefetch() {
-        let categories = ["business", "world", "general"]
-        
+    ///True while a run is going, so launch, foreground and pull to refresh never overlap and
+    ///break GNews's one-request-per-second limit. Main thread only.
+    private var isPrefetchingNews = false
+
+    ///Fetches the categories that are older than five minutes, or all of them when `force`
+    ///(pull to refresh). The saved feed counts, so a quick relaunch fetches nothing.
+    ///Posts NewsCache.prefetchDidFinish when done, including when nothing needed fetching.
+    func startNewsPrefetch(force: Bool = false) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { self.startNewsPrefetch(force: force) }
+            return
+        }
+        guard !isPrefetchingNews else { return }
+
+        let categories = NewsCache.categories.filter { force || NewsCache.shared.isStale($0) }
+        guard !categories.isEmpty else {
+            NotificationCenter.default.post(name: NewsCache.prefetchDidFinish, object: nil)
+            return
+        }
+        isPrefetchingNews = true
+
         func fetchNext(_ index: Int) {
-            guard index < categories.count else { return }
+            guard index < categories.count else {
+                isPrefetchingNews = false
+                NotificationCenter.default.post(name: NewsCache.prefetchDidFinish, object: nil)
+                return
+            }
             let category = categories[index]
-            
-            DispatchQueue.global(qos: .background).async {
-                NewsCallAPI.shared.loadAllNews(keySource: category) { items in
-                    if let items = items {
+
+            NewsCallAPI.shared.loadAllNews(keySource: category) { items in
+                DispatchQueue.main.async {
+                    if let items = items, !items.isEmpty {
                         NewsCache.shared.store(category: category, items: items)
-                        print("✅ Cached: \(category) — \(items.count) articles from SceneDelegate ")
                     }
-                    DispatchQueue.global().asyncAfter(deadline: .now() + 2.0) {
+                    //GNews's free plan allows one request per second and answers 429 past
+                    //that. The pause used to be 2 s on top of every picture downloading first.
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
                         fetchNext(index + 1)
                     }
                 }

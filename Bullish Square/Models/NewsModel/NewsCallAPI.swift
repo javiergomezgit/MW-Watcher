@@ -101,18 +101,13 @@ final class NewsCallAPI {
             
             let placeholder = UIImage(named: "mw-logo") ?? UIImage()
             var newsItems = [NewsItem]()
-            var imageURLs = [Int: String]()
-            
+
             for article in articles {
                 //Skip an article that is missing anything displayed, rather than trapping
                 guard let headline = article.title,
                       let link = article.url,
                       let published = article.publishedAt else { continue }
-                
-                if let imageURL = article.image, imageURL.isValidURL {
-                    imageURLs[newsItems.count] = imageURL
-                }
-                
+
                 //The source name drives the filter chips, so a missing one is grouped rather
                 //than dropping an otherwise usable article
                 let newsItem = NewsItem(headline: headline,
@@ -120,16 +115,15 @@ final class NewsCallAPI {
                                         pubDate: Support.sharedSupport.newLocalTimeNews(timeString: published),
                                         ticker: "",
                                         author: article.source?.name ?? "Other",
-                                        image: placeholder)
+                                        image: placeholder,
+                                        imageURL: article.image.flatMap { $0.isValidURL ? $0 : nil })
                 newsItems.append(newsItem)
             }
-            
-            //Images are fetched concurrently rather than one blocking download at a time
-            //on this completion handler, which stalled the whole feed.
-            Support.sharedSupport.fillImages(into: newsItems, urls: imageURLs, imagePath: \NewsItem.image) { itemsWithImages in
-                print("✅ Cached: \(keySource) — \(itemsWithImages.count) articles from News CallAPI")
-                completion(itemsWithImages)
-            }
+
+            //Returned before any picture downloads. Waiting for all of them - each with a 15 s
+            //timeout - held the whole category back, and was most of the News tab's blank
+            //wait. The feed now loads each picture as its row appears.
+            completion(newsItems)
         })
         dataTask.resume()
     }
