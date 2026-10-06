@@ -51,6 +51,14 @@ class ChartController: UIViewController, ChartViewDelegate {
     public var nameTicker = ""
     
     public var imageCompany = UIImage(named: "mw-logo")
+
+    ///Set by search, which opens the chart as soon as a result is tapped with only the ticker
+    ///and name. The price and logo then load here alongside the history. Search used to fetch
+    ///the price, then the logo, and only then open this screen, so the chart came three round
+    ///trips after the tap. Every other entry point already passes a price and a logo.
+    public var loadsQuoteAndLogo = false
+    ///True until that price has come back; the header shows dashes rather than $0.0.
+    private var awaitingQuote = false
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,22 +84,33 @@ class ChartController: UIViewController, ChartViewDelegate {
         } else {
             segmentControl.items = ["15 min", "1 hr", "Day", "Week"]
             self.intervalStock = "15m&limit=35"
+            if loadsQuoteAndLogo {
+                loadQuoteAndLogo()
+            }
             selectedStockTicker()
         }
     }
 
         
-    let child = Spinner()
+    private let loadingView = ChartLoadingView()
+    ///A skeleton chart over the chart area only, not the screen. A dimmed spinner used to
+    ///cover everything, so the header - ticker, price, logo - and the timeframe buttons were
+    ///hidden while the history loaded, and a chart opened from search looked no faster than
+    ///when it waited on the search list.
     func startStopSpinner(start: Bool){
         if start {
-            addChild(child)
-            child.view.frame = view.frame
-            view.addSubview(child.view)
-            child.didMove(toParent: self)
+            //A timeframe switch can start it while it is already up.
+            guard loadingView.superview == nil else { return }
+            loadingView.translatesAutoresizingMaskIntoConstraints = false
+            chartView.addSubview(loadingView)
+            NSLayoutConstraint.activate([
+                loadingView.topAnchor.constraint(equalTo: chartView.topAnchor),
+                loadingView.bottomAnchor.constraint(equalTo: chartView.bottomAnchor),
+                loadingView.leadingAnchor.constraint(equalTo: chartView.leadingAnchor),
+                loadingView.trailingAnchor.constraint(equalTo: chartView.trailingAnchor)
+            ])
         } else {
-            child.willMove(toParent: nil)
-            child.view.removeFromSuperview()
-            child.removeFromParent()
+            loadingView.removeFromSuperview()
         }
     }
     
@@ -138,12 +157,65 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     
     private func selectedStockTicker() {
+        showStockHeader()
+        loadStockPrices()
+    }
+
+    ///Fetched together, not one after the other, and neither waits for the history. Answers
+    ///are matched to the ticker captured here, so a late one cannot land on another stock.
+    private func loadQuoteAndLogo() {
+        let ticker = informationStockTicker.ticker
+        awaitingQuote = true
+
+        StockAPI.shared.getPriceSingleTicker(ticker: ticker, timeRange: "&interval=1d&range=1d") { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self, self.informationStockTicker.ticker == ticker else { return }
+                self.awaitingQuote = false
+                switch result {
+                case .success(let values):
+                    //Keeps the ticker as searched, which the history and sharing are keyed by.
+                    self.informationStockTicker = TickersCurrentValues(ticker: ticker,
+                                                                       marketPrice: values.marketPrice,
+                                                                       previousPrice: values.previousPrice,
+                                                                       changePercent: values.changePercent)
+                case .failure(let error):
+                    //The chart is still worth showing; the header keeps its dashes.
+                    print("Price for \(ticker) could not be loaded for the chart header: \(error)")
+                }
+                self.showStockHeader()
+            }
+        }
+
+        //Decoration: the placeholder stays if there is no logo.
+        StockAPI.shared.getLogoStock(ticker: ticker) { [weak self] result in
+            guard case .success(let image) = result else { return }
+            DispatchQueue.main.async {
+                guard let self, self.informationStockTicker.ticker == ticker else { return }
+                self.imageCompany = image
+                self.cryptoImage.image = image
+            }
+        }
+    }
+
+    private func showStockHeader() {
         let symbol = informationStockTicker.ticker
         self.currentPrice = informationStockTicker.marketPrice
         let currentPrice = informationStockTicker.marketPrice
         let percentageChange = informationStockTicker.changePercent
         let previousPrice = informationStockTicker.previousPrice
-        
+
+        if awaitingQuote || (loadsQuoteAndLogo && currentPrice == 0) {
+            //Search opened this before the price was known, or it never came back.
+            self.symbol = symbol
+            tickerLabel.text = symbol
+            cryptoImage.image = imageCompany
+            for label in [currentPriceLabel, currentPercentageLabel, volumeLabel] {
+                label?.text = "—"
+                label?.textColor = .secondaryLabel
+            }
+            return
+        }
+
         if percentageChange < 0.0 {
             currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
             currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
@@ -167,10 +239,8 @@ class ChartController: UIViewController, ChartViewDelegate {
         cryptoImage.image = imageCompany
         currentPriceLabel.text = String(currentPrice)
         currentPercentageLabel.text = "\(percentageChange)%"
-        
-        loadStockPrices()
     }
-    
+
     private func loadStockPrices(){
         if indexMarket {
             ChartAPI.shared.getMarketValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in

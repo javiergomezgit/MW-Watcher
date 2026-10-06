@@ -18,7 +18,6 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
     private var stocks = [Stock]()
     private var filteredStocks = [Stock]()
     private var watchlist: Set<String> = [] // Tracks added tickers for isAdded state
-    var timeRange: String = "&interval=1d&range=1d"
     private var searchTimer: Timer? // Debounce timer — prevents API call on every keystroke
     
     private let searchBar: UISearchBar = {
@@ -189,49 +188,19 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
         //can keep typing, so index is not safe to hold on to until they come back.
         let individualTicker = filteredStocks[index].ticker
         let nameTicker = filteredStocks[index].nameTicker
-        
-        self.startStopSpinner(start: true)
-        
-        StockAPI.shared.getPriceSingleTicker(ticker: individualTicker, timeRange: self.timeRange) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let tickerCurrentValues):
-                StockAPI.shared.getLogoStock(ticker: individualTicker) { [weak self] result in
-                    guard let self else { return }
-                    
-                    //The logo is decoration. Pushing from inside the success branch meant a
-                    //symbol the provider has no logo for - every ETF returns an empty url -
-                    //left the spinner running and never opened the chart at all.
-                    let imageCompany: UIImage
-                    switch result {
-                    case .success(let image):
-                        imageCompany = image
-                    case .failure(let error):
-                        imageCompany = UIImage(named: "mw-logo") ?? UIImage()
-                        print(error)
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.startStopSpinner(start: false)
-                        
-                        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
-                        guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
-                        
-                        destination.informationStockTicker = tickerCurrentValues
-                        destination.nameTicker = nameTicker
-                        destination.imageCompany = imageCompany
-                        destination.modalTransitionStyle = .crossDissolve
-                        self.navigationController?.pushViewController(destination, animated: true)
-                    }
-                }
-                
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    self.startStopSpinner(start: false)
-                    ShowAlerts.showSimpleAlert(title: "Error", message: error.localizedDescription, titleButton: "Ok", over: self)
-                }
-            }
-        }
+
+        //Opens straight away. This used to wait for the price and then the logo before
+        //pushing, and the chart then fetched its history, so the tap took three round trips.
+        //The chart now loads all three itself, the price and logo alongside the history.
+        let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
+        guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
+
+        destination.informationStockTicker = TickersCurrentValues(ticker: individualTicker, marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
+        destination.nameTicker = nameTicker
+        destination.imageCompany = UIImage(named: "mw-logo")
+        destination.loadsQuoteAndLogo = true
+        destination.modalTransitionStyle = .crossDissolve
+        navigationController?.pushViewController(destination, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
