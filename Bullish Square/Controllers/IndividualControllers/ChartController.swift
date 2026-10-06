@@ -117,10 +117,11 @@ class ChartController: UIViewController, ChartViewDelegate {
     @objc func segmentValueChanged(_ sender: AnyObject?){
         
         let index = segmentControl.selectedIndex
-        
-        startStopSpinner(start: true)
-        
+
         if informationStockTicker.ticker == "" {
+            //Stocks decide for themselves in loadStockPrices: a cached timeframe shows no
+            //loading state at all.
+            startStopSpinner(start: true)
             switch index {
             case 0: self.interval = "900"
                 break
@@ -241,62 +242,74 @@ class ChartController: UIViewController, ChartViewDelegate {
         currentPercentageLabel.text = "\(percentageChange)%"
     }
 
+    ///Draws candles already seen straight away and only asks again when they are stale, so a
+    ///timeframe switch back, or a stock reopened, does not wait on the network.
+    ///
+    ///The symbol and timeframe are captured before the request and checked when the answer
+    ///lands. Answers used to be drawn in whatever order they arrived, so going 15 min -> 1 hr
+    ///-> 15 min quickly could leave the 1 hr candles on screen under the 15 min button. A late
+    ///answer is still cached, just not drawn.
     private func loadStockPrices(){
-        if indexMarket {
-            ChartAPI.shared.getMarketValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
-                guard let self else { return }
-                switch result {
-                    
-                case .success(let data):
-                    if data.count != 0  {
-                        self.stockData = data
-                        DispatchQueue.main.async {
-                            self.startStopSpinner(start: false)
-                            self.setUpStockModel()
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            self.startStopSpinner(start: false)
-                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
-                        }
-                        print ("no more API")
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        self.startStopSpinner(start: false)
-                        ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
-                    }
-                    print (error)
-                }
-            }
+        let symbol = self.symbol
+        let interval = intervalStock
+        let isIndex = indexMarket
+
+        let cached = ChartCache.shared.entry(symbol: symbol, interval: interval, isIndex: isIndex)
+        if let cached {
+            startStopSpinner(start: false)
+            stockData = cached.values
+            setUpStockModel()
+            guard ChartCache.shared.isStale(cached, interval: interval, isIndex: isIndex) else { return }
         } else {
-            ChartAPI.shared.getStockValues(intervalTime: self.intervalStock, symbol: symbol) { [weak self] result in
-                guard let self else { return }
+            startStopSpinner(start: true)
+        }
+        //With cached candles on screen a failed refresh is quiet: the chart is already there.
+        let showsCachedChart = cached != nil
+
+        let handle: (Result<[ValueStock], Error>) -> Void = { [weak self] result in
+            DispatchQueue.main.async {
+                if case .success(let data) = result, !data.isEmpty {
+                    ChartCache.shared.store(data, symbol: symbol, interval: interval, isIndex: isIndex)
+                }
+                guard let self, self.symbol == symbol, self.intervalStock == interval else { return }
+
                 switch result {
-                case .success(let data):
-                    if data.count != 0  {
-                        self.stockData = data
-                        DispatchQueue.main.async {
-                            self.startStopSpinner(start: false)
-                            self.setUpStockModel()
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            self.startStopSpinner(start: false)
-                            ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
-                        }
-                        print ("no more API")
+                case .success(let data) where !data.isEmpty:
+                    self.startStopSpinner(start: false)
+                    //A refresh that changed nothing is not redrawn, so the chart does not
+                    //flicker or lose the point being touched.
+                    if showsCachedChart, Self.sameCandles(data, cached?.values) { return }
+                    self.stockData = data
+                    self.setUpStockModel()
+                case .success:
+                    self.startStopSpinner(start: false)
+                    print("Chart for \(symbol) \(interval) came back empty")
+                    if !showsCachedChart {
+                        ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
                     }
                 case .failure(let error):
-                    DispatchQueue.main.async {
-                        self.startStopSpinner(start: false)
+                    self.startStopSpinner(start: false)
+                    print("Chart for \(symbol) \(interval) could not be loaded: \(error)")
+                    if !showsCachedChart {
                         ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
                     }
-                    print (error)
                 }
             }
         }
-        
+
+        if isIndex {
+            ChartAPI.shared.getMarketValues(intervalTime: interval, symbol: symbol, completion: handle)
+        } else {
+            ChartAPI.shared.getStockValues(intervalTime: interval, symbol: symbol, completion: handle)
+        }
+    }
+
+    ///Candles are in time order, so the count and the last candle tell whether a refresh
+    ///brought anything new.
+    private static func sameCandles(_ new: [ValueStock], _ old: [ValueStock]?) -> Bool {
+        guard let old, old.count == new.count, let a = old.last, let b = new.last else { return false }
+        return a.start_timestamp == b.start_timestamp && a.close == b.close
+            && a.high == b.high && a.low == b.low && a.volume == b.volume
     }
     
     private func selectedCryptoTicker(){
