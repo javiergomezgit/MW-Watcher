@@ -1244,7 +1244,7 @@
                             <constraint firstItem="T0F-Pa-kQO" firstAttribute="leading" secondItem="Zdc-S9-2CS" secondAttribute="leading" id="qgJ-ui-q3J"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Calculator" image="number" catalog="system" id="gKw-2l-wk8"/>
+                    <tabBarItem key="tabBarItem" title="Calculator" image="plusminus.circle" catalog="system" id="gKw-2l-wk8"/>
                     <connections>
                         <outlet property="amountBuyingText" destination="DQI-IK-5mJ" id="tBM-p5-vZQ"/>
                         <outlet property="amountOwnedText" destination="WyW-sR-CXc" id="Hse-NA-IaU"/>
@@ -1272,7 +1272,7 @@
         <image name="book.pages" catalog="system" width="107" height="128"/>
         <image name="bookmark" catalog="system" width="110" height="128"/>
         <image name="chart.bar.fill" catalog="system" width="128" height="90"/>
-        <image name="number" catalog="system" width="128" height="123"/>
+        <image name="plusminus.circle" catalog="system" width="128" height="123"/>
         <image name="play.rectangle" catalog="system" width="128" height="93"/>
         <image name="square.and.arrow.up" catalog="system" width="110" height="128"/>
         <namedColor name="AccentColor">

@@ -137,9 +137,6 @@ class WatchlistController: UIViewController {
             self.showFirstTimeNotification(whereView: self.imageViewTopRightButton)
         }
         
-        let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String
-        let appversionCharacter = appVersion.first!
-        
         
 //        if appversionCharacter.wholeNumberValue! >= 2 {
 //            loadStocks = true
