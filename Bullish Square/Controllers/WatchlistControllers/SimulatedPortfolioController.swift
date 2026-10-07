@@ -427,11 +427,15 @@ extension SimulatedPortfolioController: ChartViewDelegate {
         
         let lineChartDataSetPortfolio = LineChartDataSet(entries: linearValuesPortfolio, label: "Portfolio")
         
-        chartView.addSubview(lineChartView)
-        lineChartView.centerInSuperview()
-        lineChartView.width(to: chartView)
-        lineChartView.height(to: chartView)
-        
+        //Added and constrained once. This runs on every refresh, and re-adding the
+        //constraints each time stacked up four more identical ones per refresh.
+        if lineChartView.superview == nil {
+            chartView.addSubview(lineChartView)
+            lineChartView.centerInSuperview()
+            lineChartView.width(to: chartView)
+            lineChartView.height(to: chartView)
+        }
+
         // Set the axis range before setting data
         setAxisRange()
             

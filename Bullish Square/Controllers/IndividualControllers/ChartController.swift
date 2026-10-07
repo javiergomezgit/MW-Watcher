@@ -663,26 +663,37 @@ class ChartController: UIViewController, ChartViewDelegate {
         choseTypeChart()
     }
     
+    ///Runs on every load and timeframe switch, not only on the line/candle button. It used to
+    ///re-add the visible chart and its four constraints each time; that view was already in
+    ///place, so another identical set piled up per load. Each chart is now added and
+    ///constrained once, and switching only shows one and hides the other.
     func choseTypeChart(){
-        if selectedCandleChart {
-            lineChartView.removeFromSuperview()
-            chartView.addSubview(candleView)
-            candleView.centerInSuperview()
-            candleView.width(to: chartView)
-            candleView.height(to: chartView)
-            selectChartButton.setImage(UIImage(named: "chart.line.uptrend.xyaxis"), for: .normal)
+        installOnce(candleView)
+        installOnce(lineChartView)
+        candleView.isHidden = !selectedCandleChart
+        lineChartView.isHidden = selectedCandleChart
 
+        if selectedCandleChart {
+            selectChartButton.setImage(UIImage(named: "chart.line.uptrend.xyaxis"), for: .normal)
             setDataCandleChart()
         } else {
-            candleView.removeFromSuperview()
-            chartView.addSubview(lineChartView)
-            lineChartView.centerInSuperview()
-            lineChartView.width(to: chartView)
-            lineChartView.height(to: chartView)
-            
             selectChartButton.setImage(UIImage(named: "chart.bar.fill"), for: .normal)
             setDataLineChart()
         }
+    }
+
+    ///Under the loading skeleton when it is up, so a chart drawn from cache mid-load cannot
+    ///cover it.
+    private func installOnce(_ chart: UIView) {
+        guard chart.superview == nil else { return }
+        if loadingView.superview === chartView {
+            chartView.insertSubview(chart, belowSubview: loadingView)
+        } else {
+            chartView.addSubview(chart)
+        }
+        chart.centerInSuperview()
+        chart.width(to: chartView)
+        chart.height(to: chartView)
     }
     
     //MARK: Candle Chart

@@ -41,7 +41,6 @@ final class ChartAPI {
             cachePolicy: .useProtocolCachePolicy,
             timeoutInterval: 10.0)
         
-        dump (request.url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
@@ -96,7 +95,6 @@ final class ChartAPI {
                 
                 valuesStock.reverse()
                 
-                dump (valuesStock)
                 completion(.success(valuesStock))
             } catch {
                 completion(.failure(error))
@@ -123,7 +121,6 @@ final class ChartAPI {
         let urlString = "\(KeysChartsAPI.getGeneralMarketBaseUrl)\(symbolFixed)&interval=\(intervalTime)&diffandsplits=false"
         let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
         
-        dump (request.url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
@@ -196,7 +193,6 @@ final class ChartAPI {
         let urlString = "\(KeysChartsAPI.getMajorsMarketsBaseUrl)\(symbolFixed)&interval=\(intervalTime)&diffandsplits=false"
         let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
         
-        dump (request.url)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
