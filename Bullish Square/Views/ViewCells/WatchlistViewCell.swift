@@ -121,10 +121,16 @@ class WatchlistViewCell: UITableViewCell {
         //The price column is the price label's width on both lines, so ending at its leading
         //edge clears the price and the change. Centred on where the middle of the 75pt row
         //was, level with the price column, not on the taller row's middle.
+        //
+        //1pt from the price box, not 8: the box is a fixed quarter of the row with the text
+        //right-aligned, so most prices already leave a wide gap and the line looked pushed
+        //away from them. The longest prices shrink to fill the box (minimum scale 0.7), so
+        //they still clear it. 2pt above the old centre, to leave air above the analyst
+        //target button under the name.
         NSLayoutConstraint.activate([
-            sparklineView.trailingAnchor.constraint(equalTo: currentPriceLabel.leadingAnchor, constant: -8),
-            sparklineView.centerYAnchor.constraint(equalTo: contentView.topAnchor, constant: Self.storyboardRowHeight / 2),
-            sparklineView.widthAnchor.constraint(equalToConstant: 70),
+            sparklineView.trailingAnchor.constraint(equalTo: currentPriceLabel.leadingAnchor, constant: -1),
+            sparklineView.centerYAnchor.constraint(equalTo: contentView.topAnchor, constant: Self.storyboardRowHeight / 2 - 2),
+            sparklineView.widthAnchor.constraint(equalToConstant: 80),
             sparklineView.heightAnchor.constraint(equalToConstant: 36)
         ])
         
