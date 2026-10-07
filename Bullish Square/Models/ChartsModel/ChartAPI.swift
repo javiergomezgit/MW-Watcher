@@ -177,115 +177,72 @@ final class ChartAPI {
         task.resume()
     }
     
-    func getMajorMarketsValues(symbol: String, completion: @escaping(Result<[MarketsCandles], Error>) -> Void) {
-        
-        let headers = [
-            "X-RapidAPI-Host": KeysChartsAPI.getMajorsMarketsApiHost,
-            "X-RapidAPI-Key": KeysChartsAPI.getMajorsMarketsApiKey
-        ]
-        
-        let intervalTime = "5m"
-        
-        //Only escape a leading ^. The previous version replaced the first character
-        //unconditionally, which mangled plain symbols and trapped on an empty string.
-        let symbolFixed = symbol.hasPrefix("^") ? "%5E" + symbol.dropFirst() : symbol
-        
-        let urlString = "\(KeysChartsAPI.getMajorsMarketsBaseUrl)\(symbolFixed)&interval=\(intervalTime)&diffandsplits=false"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, response, error in
-            if let error = error {
+    //MARK: The Markets tab's three index lines, from the Bullish Square server
+    ///Today's session for the Dow, S&P 500 and Nasdaq as % change from the previous close,
+    ///keyed by symbol. A symbol missing from the answer is simply absent.
+    ///
+    ///One request for all three, answered from the server's 60 s cache shared by every user.
+    ///This replaced three mboum calls per user per refresh, which used up mboum's 500-a-month
+    ///plan and left the chart empty for everyone (BS-228). `range=1d` is the latest session,
+    ///so the chart also shows the last session before the open and at weekends; the old
+    ///"after 6:30 local" filter assumed Pacific time and showed nothing then.
+    func getMajorMarketsLines(completion: @escaping (Result<[String: [MarketsCandles]], Error>) -> Void) {
+        MarketDataServer.authorizedRequest(path: "/v1/spark?symbols=%5EDJI,%5EGSPC,%5EIXIC&interval=5m&range=1d") { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
                 completion(.failure(error))
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            do {
-                
-                let date = Date()
-                let calendar = Calendar.current
-                let day = calendar.component(.day, from: date)
-                let year = calendar.component(.year, from: date)
-                let month = calendar.component(.month, from: date)
-                let zone = TimeZone.current
-                
-                var dateComponents = DateComponents()
-                dateComponents.year = year
-                dateComponents.month = month
-                dateComponents.day = day
-                dateComponents.timeZone = zone
-                dateComponents.hour = 6
-                dateComponents.minute = 30
-                dateComponents.second = 0
-                
-                let userCalendar = Calendar(identifier: .gregorian)
-                guard let marketOpen = userCalendar.date(from: dateComponents) else {
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                guard let data = data else {
+                    completion(.failure(APIError.noData))
+                    return
+                }
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                    print("Markets server answered \(httpResponse.statusCode): \(String(data: data, encoding: .utf8) ?? "")")
                     completion(.failure(APIError.invalidJSON))
                     return
                 }
-                //Kept as a Double: Int(Double) traps on NaN or an out-of-range value.
-                let timeStartedMarket = marketOpen.timeIntervalSince1970
-                
-                let json = try JSON(data: data)
-                
-                //Every close here is a percentage move against previousClose, so without it the
-                //series is meaningless. It used to be force unwrapped, and silently defaulted to
-                //0.0 when meta was absent, which divided by zero and pushed infinities into the
-                //chart instead of failing.
-                guard let previousClose = json["meta"]["previousClose"].double, previousClose != 0 else {
+                guard let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
                     completion(.failure(APIError.invalidJSON))
                     return
                 }
-                
-                var valuesStock: [MarketsCandles] = []
-                
-                for (key, subJson):(String, JSON) in json {
-                    if key == "body" {
-                        for (_, subSubJSON):(String, JSON) in subJson {
-                            //closePrice used to be compared with `!= 0.0` while still optional,
-                            //so a null passed the check and then trapped on the force unwrap.
-                            //A null close is normal across pre/post-market gaps, which made this
-                            //a cold-start crash: SceneDelegate calls this three times on launch.
-                            guard let dateTime = subSubJSON["date_utc"].double, dateTime.isFinite,
-                                  let open = subSubJSON["open"].double,
-                                  let high = subSubJSON["high"].double,
-                                  let low = subSubJSON["low"].double,
-                                  let closePrice = subSubJSON["close"].double,
-                                  closePrice != 0.0 else { continue }
-                            
-                            //Only candles from after today's open are charted
-                            guard dateTime > timeStartedMarket else { continue }
-                            
-                            let close = ((closePrice * 100) / previousClose) - 100
-                            let value = MarketsCandles(start_timestamp: dateTime, open: open, high: high, low: low, close: close)
-                            valuesStock.append(value)
-                        }
-                        break
-                    }
-                }
-                let valuesStockSorted = valuesStock.sorted(by: { $0.start_timestamp > $1.start_timestamp })
-                valuesStock.removeAll()
-                for (index, valueStock) in valuesStockSorted.enumerated() {
-                    if index <= 78 {
-                        valuesStock.append(valueStock)
-                    }
-                }
-                valuesStock.reverse()
-                
-                completion(.success(valuesStock))
-            } catch {
-                completion(.failure(error))
-            }
+                completion(.success(Self.marketsLines(from: json)))
+            }.resume()
         }
-        task.resume()
+    }
+    
+    ///Yahoo's get-spark shape: per symbol, parallel `timestamp` and `close` arrays plus
+    ///`chartPreviousClose`. Each close becomes its % change from that previous close, which
+    ///is what the chart plots. A null close (a bar with no trade) is skipped with its
+    ///timestamp, and a symbol without a usable previous close is left out rather than
+    ///divided by zero.
+    static func marketsLines(from json: [String: Any]) -> [String: [MarketsCandles]] {
+        var lines: [String: [MarketsCandles]] = [:]
+        for (symbol, value) in json {
+            guard let series = value as? [String: Any],
+                  let previousClose = series["chartPreviousClose"] as? Double, previousClose > 0,
+                  let timestamps = series["timestamp"] as? [Double],
+                  let closes = series["close"] as? [Any] else { continue }
+            
+            var candles: [MarketsCandles] = []
+            for (timestamp, rawClose) in zip(timestamps, closes) {
+                guard let close = rawClose as? Double, close > 0 else { continue }
+                let change = ((close * 100) / previousClose) - 100
+                //Only the close is plotted; open, high and low carry the same value.
+                candles.append(MarketsCandles(start_timestamp: timestamp, open: change, high: change, low: change, close: change))
+            }
+            lines[symbol] = candles
+        }
+        return lines
     }
     
 

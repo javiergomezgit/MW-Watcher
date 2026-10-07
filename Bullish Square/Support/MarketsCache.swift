@@ -8,12 +8,12 @@ import Foundation
 ///Everything the Markets tab shows, and the one place it is fetched from.
 ///
 ///Saved to disk so the tab opens with the last data on every launch instead of a spinner,
-///and so a relaunch within five minutes spends nothing from the mboum plan (500 requests a
-///month) that the three index lines come from.
+///and so a relaunch within five minutes asks for nothing.
 ///
-///The five requests run at the same time. They used to run one after another, twice over:
-///here at launch and again in the tab, each about 1 s, and the launch chain stored nothing
-///at all if any single request failed.
+///The requests run at the same time - the three index lines as one server request, the
+///quotes and the cryptos. They used to run one after another, twice over: here at launch
+///and again in the tab, each about 1 s, and the launch chain stored nothing at all if any
+///single request failed.
 ///
 ///Main thread only.
 final class MarketsCache {
@@ -71,22 +71,22 @@ final class MarketsCache {
         var crypto: [CryptoData]?
         let group = DispatchGroup()
 
-        //Each answer is written on the main thread, so the five never race on these.
-        func index(_ symbol: String, into assign: @escaping ([MarketsCandles]) -> Void) {
-            group.enter()
-            ChartAPI.shared.getMajorMarketsValues(symbol: symbol) { result in
-                DispatchQueue.main.async {
-                    //An empty list is a real answer: getMajorMarketsValues keeps only candles
-                    //since today's open, so before the open and at weekends it is empty, and
-                    //counting that as a failure would never let the tab be fresh.
-                    if case .success(let candles) = result { assign(candles) }
-                    group.leave()
+        //Each answer is written on the main thread, so the three never race on these.
+        //The three index lines are one request to the Bullish Square server, shared by every
+        //user through its cache. They were three mboum calls per user, which used up that
+        //plan's monthly quota and blanked the chart for everyone.
+        group.enter()
+        ChartAPI.shared.getMajorMarketsLines { result in
+            DispatchQueue.main.async {
+                if case .success(let lines) = result {
+                    //An empty line is a real answer (nothing traded yet); a missing symbol is not.
+                    dji = lines["^DJI"]
+                    sp500 = lines["^GSPC"]
+                    ixic = lines["^IXIC"]
                 }
+                group.leave()
             }
         }
-        index("^DJI") { dji = $0 }
-        index("^GSPC") { sp500 = $0 }
-        index("^IXIC") { ixic = $0 }
 
         group.enter()
         StockAPI.shared.getPriceGeneralMarkets { values, timestamp in
