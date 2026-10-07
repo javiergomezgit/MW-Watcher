@@ -19,6 +19,12 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
     private var filteredStocks = [Stock]()
     private var watchlist: Set<String> = [] // Tracks added tickers for isAdded state
     private var searchTimer: Timer? // Debounce timer — prevents API call on every keystroke
+    ///Answers already received this session, by search text, including searches that
+    ///matched nothing. Typing "A", "AP", back to "A" asked the API three times.
+    private var resultsByQuery: [String: [Stock]] = [:]
+    ///Short enough to feel immediate, long enough that a quick typist does not send a request
+    ///per letter. Was 0.4 s.
+    private let typingPause: TimeInterval = 0.25
     
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
@@ -73,29 +79,61 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
         }
     }
     
-    // Fetches matching stocks from API and reloads the table.
+    ///Asks the API, remembers the answer, and shows it only if it is still what the search
+    ///bar says. Answers used to be shown in arrival order, so a slow "A" could replace the
+    ///results for "AP" typed after it.
+    private func searchStocks(query: String) {
+        StockAPI.shared.searchStocks(ticker: query) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                switch result {
+                case .success(let stocks):
+                    self.resultsByQuery[query] = stocks
+                    guard query == Self.normalized(self.searchBar.text) else { return }
+                    //An empty answer shows an empty list. It used to be ignored, leaving the
+                    //previous search's stocks on screen under the new text.
+                    self.show(stocks)
+                case .failure(let error):
+                    //Not remembered, so typing it again retries. What is on screen stays.
+                    print("Stock search for \(query) failed: \(error)")
+                }
+            }
+        }
+    }
+    
     // Uses reloadSections instead of reloadData to force full cell reconfiguration,
     // preventing stale ticker values from carrying over between searches.
     // Re-stamps cell tags after reload so didTapAddButton can look up the correct row.
-    private func searchStocks(ticker: String) {
-        StockAPI.shared.searchStocks(ticker: ticker) { stocks, error in
-            guard let stocks = stocks, !stocks.isEmpty else {
-                print(error as Any)
-                return
+    private func show(_ results: [Stock]) {
+        stocks = results
+        display(results)
+    }
+    
+    ///Draws a list without replacing `stocks`, the full answer that narrowing works from.
+    private func display(_ list: [Stock]) {
+        filteredStocks = list
+        tableView.reloadSections(IndexSet(integer: 0), with: .none)
+        
+        // Re-stamp tags on all visible cells — tags go stale when list size changes,
+        // causing didTapAddButton to look up the wrong row or go out of range
+        for cell in tableView.visibleCells {
+            if let indexPath = tableView.indexPath(for: cell) {
+                cell.tag = indexPath.row
             }
-            DispatchQueue.main.async {
-                self.stocks = stocks
-                self.filteredStocks = stocks
-                self.tableView.reloadSections(IndexSet(integer: 0), with: .none)
-                
-                // Re-stamp tags on all visible cells — tags go stale when list size changes,
-                // causing didTapAddButton to look up the wrong row or go out of range
-                for cell in self.tableView.visibleCells {
-                    if let indexPath = self.tableView.indexPath(for: cell) {
-                        cell.tag = indexPath.row
-                    }
-                }
-            }
+        }
+    }
+    
+    ///Search text as it is sent and remembered: trimmed and upper-cased, so "aapl " and
+    ///"AAPL" are one search.
+    private static func normalized(_ text: String?) -> String {
+        (text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+    }
+    
+    ///While the request for a longer search runs, narrow what is already on screen: "AP"
+    ///after "A" keeps the "A" results starting with AP or naming it, straight away.
+    private static func narrowed(_ results: [Stock], to query: String) -> [Stock] {
+        results.filter {
+            $0.ticker.uppercased().hasPrefix(query) || $0.nameTicker.uppercased().contains(query)
         }
     }
     
@@ -215,25 +253,32 @@ extension SearchStocksController: UISearchBarDelegate {
     // Prevents rapid successive calls on every keystroke. Clears results if search is empty.
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         searchTimer?.invalidate()
+        let query = Self.normalized(searchText)
         
-        guard !searchText.isEmpty else {
-            filteredStocks.removeAll()
-            stocks.removeAll()
-            tableView.reloadData()
+        guard !query.isEmpty else {
+            show([])
             return
         }
-        // Fire search only after user pauses typing for 0.4s
-        searchTimer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: false) { [weak self] _ in
-            self?.filterContentForSearchText(searchText)
+        
+        //Searched before this session: shown at once, no request.
+        if let remembered = resultsByQuery[query] {
+            show(remembered)
+            return
         }
-    }
-    
-    func filterContentForSearchText(_ searchText: String) {
-        searchStocks(ticker: searchText)
+        
+        //Something to look at while the API answers, when the results on hand cover it.
+        let narrowedNow = Self.narrowed(stocks, to: query)
+        if !narrowedNow.isEmpty {
+            display(narrowedNow)
+        }
+        
+        searchTimer = Timer.scheduledTimer(withTimeInterval: typingPause, repeats: false) { [weak self] _ in
+            self?.searchStocks(query: query)
+        }
     }
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        filteredStocks.removeAll()
-        stocks.removeAll()
+        searchTimer?.invalidate()
+        show([])
     }
 }

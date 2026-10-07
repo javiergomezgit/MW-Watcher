@@ -256,68 +256,49 @@ final class StockAPI {
     }
     
     //MARK: Search stock while user types the ticker
-    func searchStocks(ticker: String, completion: @escaping ([Stock]?, APIError?) -> Void) {
+    ///`.success([])` means nothing on NASDAQ or NYSE matched, which is an answer worth
+    ///remembering; `.failure` is anything worth asking again.
+    ///
+    ///Completes exactly once. With no matches it used to complete twice - tickerNotFound, then
+    ///an empty list. The query was not escaped, so a space or "^" made the URL nil and the
+    ///force unwrap crashed, and a quote missing its type or exchange crashed the same way.
+    func searchStocks(ticker: String, completion: @escaping (Result<[Stock], APIError>) -> Void) {
         let headers = [
             "X-RapidAPI-Key": KeysStocksAPI.searchWhileTypeKey,
             "X-RapidAPI-Host": KeysStocksAPI.searchWhileTypeHost
         ]
-        let query = ticker
-        let urlString = "\(KeysStocksAPI.searchWhileTypeBaseURL)\(query)&region=US"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        dump (request.url)
+        guard let query = ticker.addingPercentEncoding(withAllowedCharacters: .alphanumerics),
+              let url = URL(string: "\(KeysStocksAPI.searchWhileTypeBaseURL)\(query)&region=US") else {
+            completion(.failure(.invalidURL))
+            return
+        }
+        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
         request.httpMethod = "GET"
         request.allHTTPHeaderFields = headers
         
-        let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, _, error in
-            if error != nil {
-                completion(nil, .invalidJSON)
-                return
-            }
-            
-            guard let data = data else {
-                completion(nil, .invalidJSON)
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            guard error == nil, let data = data else {
+                completion(.failure(.invalidJSON))
                 return
             }
             
             do {
                 let json = try JSON(data: data)
-                print (json)
                 var stocks = [Stock]()
-                for (key, subJson):(String, JSON) in json {
-                    if key == "quotes" {
-                        print (key.count) //count 6
-                        print (key)
-                        for (_, subSubJSON):(String, JSON) in subJson {
-                            if let exchange = subSubJSON.object as? [String: Any] {
-                                if exchange["exchDisp"] as? String == "NASDAQ" || exchange["exchDisp"] as? String == "NYSE" {
-                                    if let symbolDictionary = subSubJSON.object as? [String: Any] {
-                                        let symbol = symbolDictionary["symbol"] as? String
-                                        let shortName = symbolDictionary["shortname"] as? String
-                                        let longName = symbolDictionary["longname"] as? String //Stores the long name of the stock
-                                        let name = shortName ?? longName ?? "N/A"
-                                        let stockType = symbolDictionary["quoteType"] as? String
-                                        let exchange = symbolDictionary["exchDisp"] as? String
-                                        let stock = Stock(ticker: symbol!, nameTicker: name, exchange: exchange!, stockType: stockType!)
-                                        stocks.append(stock)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                for (_, quote): (String, JSON) in json["quotes"] {
+                    //Only US-listed stocks can be added, so other exchanges are skipped
+                    guard let exchange = quote["exchDisp"].string, exchange == "NASDAQ" || exchange == "NYSE",
+                          let symbol = quote["symbol"].string else { continue }
+                    let name = quote["shortname"].string ?? quote["longname"].string ?? "N/A"
+                    stocks.append(Stock(ticker: symbol, nameTicker: name, exchange: exchange,
+                                        stockType: quote["quoteType"].string ?? "EQUITY"))
                 }
-                if stocks.count == 0 {
-                    print ("couldnt find any stock related")
-                    completion(nil, .tickerNotFound)
-                }
-                print (stocks)
-                completion(stocks, nil)
-            } catch {
-                completion(nil, .invalidJSON)
+                completion(.success(stocks))
+            } catch let error as NSError {
+                print("Stock search answer could not be read: \(error.localizedDescription)")
+                completion(.failure(.invalidJSON))
             }
-        }
-        task.resume()
+        }.resume()
     }
     
     //MARK: API call for GROUP of stocks with current price
