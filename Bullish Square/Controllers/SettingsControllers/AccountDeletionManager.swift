@@ -247,11 +247,20 @@ final class AccountDeletionManager: NSObject {
             UserDefaults.standard.removeObject(forKey: "authToken")
             //Its tickers say which stocks this account watched.
             WatchlistPriceStore.shared.clear()
+            //Which list each owner had open. Cleared by prefix rather than for one uid: the
+            //wipe below covers every owner's lists, and the user is already signed out here.
+            for key in UserDefaults.standard.dictionaryRepresentation().keys where key.hasPrefix("activeWatchlistID_") {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
 
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
             let managedContext = appDelegate.persistentContainer.viewContext
 
-            for entityName in ["WatchlistEntity", "SavedNewsEntity", "ProfileEntity", "LiveNewsEntity"] {
+            //WatchlistMetaEntity holds the watchlists' names and order. It came with multiple
+            //watchlists and was never added here, so the deleted account's list names stayed
+            //on the device, and with every ticker gone each list reappeared empty. Lists and
+            //their tickers are wiped with the same (whole-device) scope.
+            for entityName in ["WatchlistEntity", "WatchlistMetaEntity", "SavedNewsEntity", "ProfileEntity", "LiveNewsEntity"] {
                 let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
                 let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
 
