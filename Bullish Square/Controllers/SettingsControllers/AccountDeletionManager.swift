@@ -245,6 +245,8 @@ final class AccountDeletionManager: NSObject {
             }
 
             UserDefaults.standard.removeObject(forKey: "authToken")
+            //Its tickers say which stocks this account watched.
+            WatchlistPriceStore.shared.clear()
 
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
             let managedContext = appDelegate.persistentContainer.viewContext

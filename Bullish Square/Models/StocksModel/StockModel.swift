@@ -22,7 +22,8 @@ struct Stock {
     let stockType: String
 }
 
-struct TickersCurrentValues {
+///Codable so the watchlist's last prices can be saved to disk (WatchlistPriceStore).
+struct TickersCurrentValues: Codable {
     let ticker: String
     let marketPrice: Double
     let previousPrice: Double

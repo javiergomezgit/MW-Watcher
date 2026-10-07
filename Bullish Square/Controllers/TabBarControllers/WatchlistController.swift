@@ -16,11 +16,13 @@ class WatchlistController: UIViewController {
     var tickersFeatures: [TickersFeatures] = []
     //Keyed by ticker. The API can return fewer entries than the saved watchlist, or in a
     //different order, so a price must never be located by row index.
-    var tickersValues: [String: TickersCurrentValues] = [:]
+    ///Starts from the last launch's prices, so rows show numbers at once instead of a spinner.
+    var tickersValues: [String: TickersCurrentValues] = WatchlistPriceStore.shared.load().values
     ///When each ticker's price was last asked for. Per ticker rather than one timestamp for
     ///the screen, so that adding a stock or switching watchlists still fetches the tickers
-    ///that are new while skipping the ones already on hand.
-    private var priceFetchedAt: [String: Date] = [:]
+    ///that are new while skipping the ones already on hand. Saved with the prices, so a
+    ///relaunch inside the freshness window asks for nothing.
+    private var priceFetchedAt: [String: Date] = WatchlistPriceStore.shared.load().fetchedAt
     ///Prices asked for more recently than this are reused instead of requested again.
     ///Short enough that the watchlist still reads as live, long enough to absorb tab switches,
     ///returning from a chart and flipping between watchlists. Pull to refresh ignores it.
@@ -263,7 +265,12 @@ class WatchlistController: UIViewController {
         //by ticker, so anything the two lists share keeps its price and the rest fill in.
         tickersFeatures = savedTickers
         tableView.reloadData()
-        
+        //Every row already has a price, saved or recent, so there is something to read while
+        //any refresh below runs quietly. Pull to refresh keeps its own control.
+        if savedTickers.allSatisfy({ tickersValues[$0.ticker] != nil }) {
+            startStopSpinner(start: false)
+        }
+
         var mergedTickers = ""
         
         loadPendingLogos(for: savedTickers)
@@ -342,6 +349,7 @@ class WatchlistController: UIViewController {
             tickersValues[ticker] = received[ticker]
             priceFetchedAt[ticker] = now
         }
+        WatchlistPriceStore.shared.save(values: tickersValues, fetchedAt: priceFetchedAt)
     }
     
     ///Fetches missing logos one at a time. Firing one request per new ticker simultaneously
@@ -636,6 +644,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             //show the placeholder if the ticker were added straight back.
             tickersValues.removeValue(forKey: tickerFeatures.ticker)
             priceFetchedAt.removeValue(forKey: tickerFeatures.ticker)
+            WatchlistPriceStore.shared.save(values: tickersValues, fetchedAt: priceFetchedAt)
             tickersFeatures.remove(at: indexPath.row)
             
             tableView.deleteRows(at: [indexPath], with: .left)
