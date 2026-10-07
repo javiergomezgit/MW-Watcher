@@ -65,9 +65,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         startNewsPrefetch()
 
-        if MarketsCache.shared.isStale() {
-            startMarketsPrefetch()
-        }
+        startMarketsPrefetch()
     }
     
     // MARK: - News Prefetch
@@ -119,32 +117,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     // MARK: - Markets Prefetch
 
+    ///Fills MarketsCache in the background so the tab opens with data. A no-op when the
+    ///saved copy is under five minutes old, which also spares the mboum quota.
     func startMarketsPrefetch() {
-        ChartAPI.shared.getMajorMarketsValues(symbol: "^DJI") { result in
-            guard case .success(let dji) = result else { return }
-            ChartAPI.shared.getMajorMarketsValues(symbol: "^GSPC") { result in
-                guard case .success(let sp500) = result else { return }
-                ChartAPI.shared.getMajorMarketsValues(symbol: "^IXIC") { result in
-                    guard case .success(let ixic) = result else { return }
-                    StockAPI.shared.getPriceGeneralMarkets { markets, timestamp in
-                        guard let markets = markets else { return }
-                        CryptoAPI.shared.getAllCryptosData { cryptoResult in
-                            guard case .success(let cryptoData) = cryptoResult else { return }
-                            let cached = MarketsCache.CachedData(
-                                chartDJI: dji,
-                                chartSP500: sp500,
-                                chartIXIC: ixic,
-                                marketQuotes: markets,
-                                cryptoData: cryptoData,
-                                timestamp: timestamp
-                            )
-                            MarketsCache.shared.store(cached)
-                            print("✅ Markets data cached")
-                        }
-                    }
-                }
-            }
-        }
+        MarketsCache.shared.refresh()
     }
 
     // MARK: - First Launch

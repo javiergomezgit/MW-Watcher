@@ -32,7 +32,8 @@ struct TickersCurrentValues {
     var intradayCloses: [Double] = []
 }
 
-struct GeneralMarkets {
+///Codable so the Markets tab can be saved to disk (MarketsCache).
+struct GeneralMarkets: Codable {
     let indexTicker: String
     let indexName: String
     let indexPrice: Double

@@ -77,38 +77,44 @@ class MarketsController: UIViewController {
         setupUITopRightButton()
         sizeOfCell = (view.frame.width/3) - (view.frame.width/20)
 
-        startStopSpinner(start: true)
-        loadFromCacheOrFetch()
-    }
-
-    func updateAllData() {
-        startStopSpinner(start: true)
-        loadMajorMarketsChart()
-        loadCurrentPrices()
-    }
-
-    private func loadFromCacheOrFetch() {
+        NotificationCenter.default.addObserver(self, selector: #selector(marketsCacheDidUpdate(_:)),
+                                               name: MarketsCache.didUpdate, object: nil)
+        //The saved copy from the last launch, or what the launch prefetch already fetched,
+        //shows straight away. Only a first-ever launch waits behind the spinner.
         if let cached = MarketsCache.shared.get() {
             populateFromCache(cached)
         } else {
-            pollCacheUntilReady(attempt: 0)
+            startStopSpinner(start: true)
         }
+        //Fetches only if older than five minutes; the prefetch may already be running.
+        MarketsCache.shared.refresh()
     }
 
-    private func pollCacheUntilReady(attempt: Int) {
-        let maxAttempts = 20
-        if let cached = MarketsCache.shared.get() {
-            DispatchQueue.main.async { self.populateFromCache(cached) }
-        } else if attempt < maxAttempts {
-            DispatchQueue.global().asyncAfter(deadline: .now() + 1.0) {
-                self.pollCacheUntilReady(attempt: attempt + 1)
-            }
-        } else {
-            DispatchQueue.main.async {
-                self.loadMajorMarketsChart()
-                self.loadCurrentPrices()
-            }
+    ///The refresh button. The tab keeps showing its data while the icon spins; it used to be
+    ///covered by a spinner while five requests ran one after another.
+    func updateAllData() {
+        userAskedForRefresh = true
+        setRefreshIconSpinning(true)
+        MarketsCache.shared.refresh(force: true)
+    }
+
+    ///So a failure after the refresh button is reported, while a quiet background refresh
+    ///that fails over data already on screen is not.
+    private var userAskedForRefresh = false
+
+    @objc private func marketsCacheDidUpdate(_ notification: Notification) {
+        let failed = notification.userInfo?["failed"] as? Bool ?? false
+        let cached = MarketsCache.shared.get()
+        if let cached {
+            populateFromCache(cached)
         }
+        startStopSpinner(start: false)
+        setRefreshIconSpinning(false)
+
+        if failed, userAskedForRefresh || cached == nil {
+            ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
+        }
+        userAskedForRefresh = false
     }
 
     private func populateFromCache(_ cached: MarketsCache.CachedData) {
@@ -124,14 +130,31 @@ class MarketsController: UIViewController {
         majorMarketsPrices.removeAll()
         loadMajorMarkets(marketsValues: cached.marketQuotes)
 
-        let ts = Support.sharedSupport.dateFormatUnixToLocal(timeInt: cached.timestamp)
-        dateLatestDataLabel.text = ts
+        if cached.timestamp > 0 {
+            dateLatestDataLabel.text = Support.sharedSupport.dateFormatUnixToLocal(timeInt: cached.timestamp)
+        }
 
         collectionView.reloadData()
         setUpMarketModel()
+        //setUpViewModel appends, so populating twice - saved copy, then the refresh - listed
+        //every coin twice without this.
+        cryptoCoins.removeAll()
         setUpViewModel(cryptoValues: cached.cryptoData)
-        startStopSpinner(start: false)
-        print("✅ Markets populated from cache")
+    }
+    
+    private func setRefreshIconSpinning(_ spinning: Bool) {
+        let key = "refreshSpin"
+        guard spinning else {
+            imageViewTopRightButton.layer.removeAnimation(forKey: key)
+            return
+        }
+        guard imageViewTopRightButton.layer.animation(forKey: key) == nil else { return }
+        let spin = CABasicAnimation(keyPath: "transform.rotation.z")
+        spin.fromValue = 0
+        spin.toValue = Double.pi * 2
+        spin.duration = 0.9
+        spin.repeatCount = .infinity
+        imageViewTopRightButton.layer.add(spin, forKey: key)
     }
     
     let child = Spinner()
@@ -145,28 +168,6 @@ class MarketsController: UIViewController {
             child.willMove(toParent: nil)
             child.view.removeFromSuperview()
             child.removeFromParent()
-        }
-    }
-    
-    func loadCurrentPrices() {
-        StockAPI.shared.getPriceGeneralMarkets { [weak self] markets, timeStamp in
-            //This completion arrives on a URLSession queue. Everything below either presents
-            //UI or mutates state the collection view reads, so hop to main before any of it.
-            DispatchQueue.main.async {
-                guard let self else { return }
-                
-                guard let marketsValues = markets else {
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-                    return
-                }
-                
-                self.majorMarketsPrices.removeAll()
-                self.loadMajorMarkets(marketsValues: marketsValues)
-                self.loadMinorMarkets()
-                
-                self.dateLatestDataLabel.text = Support.sharedSupport.dateFormatUnixToLocal(timeInt: timeStamp)
-                self.collectionView.reloadData()
-            }
         }
     }
     
@@ -184,24 +185,6 @@ class MarketsController: UIViewController {
             if ticker == "^IXIC" {
                 let newName = GeneralMarkets(indexTicker: ticker, indexName: "NASDAQ", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
                 self.majorMarketsPrices.append(newName)
-            }
-        }
-    }
-    
-    func loadMinorMarkets(){
-        CryptoAPI.shared.getAllCryptosData { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let data):
-                DispatchQueue.main.async {
-                    self.cryptoCoins.removeAll()
-                    self.setUpViewModel(cryptoValues: data)
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
-                }
-                print (error)
             }
         }
     }
@@ -404,47 +387,6 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
 //MARK: Extension for the chart
 extension MarketsController: ChartViewDelegate {
     
-    func loadMajorMarketsChart() {
-        let tickers = ["^DJI", "^GSPC", "^IXIC"]
-        ChartAPI.shared.getMajorMarketsValues(symbol: tickers[0]) { result in
-            switch result {
-            case .success(let marketsValuesDJI):
-                self.marketsDataDJI = marketsValuesDJI
-                ChartAPI.shared.getMajorMarketsValues(symbol: tickers[1]) { result in
-                    switch result {
-                    case .success(let marketsValuesSP500):
-                        self.marketsDataSP500 = marketsValuesSP500
-                        ChartAPI.shared.getMajorMarketsValues(symbol: tickers[2]) { result in
-                            switch result {
-                            case .success(let marketsValuesIXIC):
-                                self.marketsDataIXIC = marketsValuesIXIC
-                                DispatchQueue.main.async {
-                                    self.startStopSpinner(start: false)
-                                    self.setUpMarketModel()
-                                }
-                            case .failure(_):
-                                DispatchQueue.main.async {
-                                    self.startStopSpinner(start: false)
-                                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-                                }
-                            }
-                        }
-                    case .failure(_):
-                        DispatchQueue.main.async {
-                            self.startStopSpinner(start: false)
-                            ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-                        }
-                    }
-                }
-            case .failure(_):
-                DispatchQueue.main.async {
-                    self.startStopSpinner(start: false)
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
-                }
-            }
-        }
-    }
-    
     private func setUpMarketModel(){
         
         self.linearValuesSP500.removeAll()
@@ -475,10 +417,14 @@ extension MarketsController: ChartViewDelegate {
         }
         let lineChartDataSetIXIC = LineChartDataSet(entries: linearValuesIXIC, label: "NASDAQ")
         
-        chartView.addSubview(lineChartView)
-        lineChartView.centerInSuperview()
-        lineChartView.width(to: chartView)
-        lineChartView.height(to: chartView)
+        //Added and constrained once. This runs on every refresh, and re-adding the
+        //constraints each time stacked up four more identical ones per refresh.
+        if lineChartView.superview == nil {
+            chartView.addSubview(lineChartView)
+            lineChartView.centerInSuperview()
+            lineChartView.width(to: chartView)
+            lineChartView.height(to: chartView)
+        }
         
         self.setData(centerLine: centerLine, lineChartSP500: lineChartDataSetSP500, lineChartDJI: lineChartDataSetDJI, lineChartIXIC: lineChartDataSetIXIC)
     }
