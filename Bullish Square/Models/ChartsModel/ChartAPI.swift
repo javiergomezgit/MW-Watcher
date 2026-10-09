@@ -7,7 +7,6 @@
 
 
 import Foundation
-import SwiftyJSON
 //import UIKit
 
 final class ChartAPI {
@@ -23,158 +22,90 @@ final class ChartAPI {
         case noData
     }
     
-    //MARK: API call for STOCKS chart
-    ///Input: 1day, TICKER
-    ///Output: -> ["timeStamp": "20-10-2021, "open":34,5, "high":36, "low":32.2, "close":33.1,"volume":233343]
-    ///Returns a plain Result. This used to be a custom ResultStock whose only purpose was to
-    ///carry the exchange name alongside the values, and the endpoint stopped sending that name
-    ///when the chart moved to the v2 history API, so the app no longer shows an exchange.
+    //MARK: Chart candles, from the Bullish Square server
+    ///Candles for a stock's chart. `intervalTime` is the chart's timeframe string, such as
+    ///"15m&limit=35"; only the part before "&" is used (15m, 1h, 1d or 1wk).
+    ///
+    ///Stock and index charts used to call two providers from the phone with the RapidAPI key
+    ///built into the app - yahoo-finance15 for stocks, mboum for indices, which ran out of
+    ///quota and broke the index chart. Both now ask the server's /v1/history, which holds the
+    ///key and shares each chart between every user. (BS-212)
     public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
-        
-        let headers = [
-            "X-RapidAPI-Host": KeysChartsAPI.getStockApiHost,
-            "X-RapidAPI-Key": KeysChartsAPI.getStockApiKey
-        ]
-        
-        let request = NSMutableURLRequest(
-            url: NSURL(string: KeysChartsAPI.getStockBaseUrl + symbol + "&interval=" + intervalTime )! as URL,
-            cachePolicy: .useProtocolCachePolicy,
-            timeoutInterval: 10.0)
-        
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, _, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            do {
-                
-                let json = try JSON(data: data)
-                
-                var valuesStock: [ValueStock] = []
-                
-                for (key, subJson):(String, JSON) in json {
-                    if key == "body" {
-                        for (_, subSubJSON):(String, JSON) in subJson {
-                            let dateTime =  subSubJSON["timestamp_unix"].double
-                            let open    =   subSubJSON["open"].double
-                            let high    =   subSubJSON["high"].double
-                            let low     =   subSubJSON["low"].double
-                            let close   =   subSubJSON["close"].double
-                            let volume  =   subSubJSON["volume"].double
-                            
-                            guard let dateTime = dateTime,
-                                  let open = open,
-                                  let high = high,
-                                  let low = low,
-                                  let close = close,
-                                  let volume = volume else { continue }
-                            
-                            let value = ValueStock(start_timestamp: dateTime, open: open, high: high, low: low, close: close, volume: volume)
-                            valuesStock.append(value)
-                        }
-                    }
-                }
-                let filteredValues = valuesStock.filter { $0.close != 0 }
-                let sortedValues = filteredValues.sorted(by: { $0.start_timestamp > $1.start_timestamp })
-                valuesStock.removeAll()
-                for (index, valueStock) in sortedValues.enumerated() {
-                    if index <= 59 {
-                        valuesStock.append(valueStock)
-                    }
-                }
-                
-                valuesStock.reverse()
-                
-                completion(.success(valuesStock))
-            } catch {
-                completion(.failure(error))
-            }
-        }
-        task.resume()
+        getHistory(symbol: symbol, intervalTime: intervalTime, completion: completion)
     }
     
-    
-    //MARK: API Call for chart for general markets
-    ///Input: 1day, TICKER
-    ///Output: -> ["timeStamp": "20-10-2021, "open":34,5, "high":36, "low":32.2, "close":33.1,"volume":233343]
+    ///Candles for an index chart (^DJI, ^GSPC, ^IXIC) opened from Markets. The same server route
+    ///as stocks; kept as its own entry point because ChartController and ChartCache keep the two
+    ///apart.
     func getMarketValues(intervalTime: String, symbol: String, completion: @escaping(Result<[ValueStock], Error>) -> Void) {
+        getHistory(symbol: symbol, intervalTime: intervalTime, completion: completion)
+    }
+    
+    private struct HistoryResponse: Decodable {
+        let candles: [Candle]
         
-        let headers = [
-            "X-RapidAPI-Host": KeysChartsAPI.getGeneralMarketApiHost,
-            "X-RapidAPI-Key": KeysChartsAPI.getGeneralMarketApiKey
-        ]
-        
-        //Only escape a leading ^. The previous version replaced the first character
-        //unconditionally, which mangled plain symbols and trapped on an empty string.
-        let symbolFixed = symbol.hasPrefix("^") ? "%5E" + symbol.dropFirst() : symbol
-        
-        let urlString = "\(KeysChartsAPI.getGeneralMarketBaseUrl)\(symbolFixed)&interval=\(intervalTime)&diffandsplits=false"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            do {
-                
-                let json = try JSON(data: data)
-                
-                var valuesStock: [ValueStock] = []
-                
-                for (key, subJson):(String, JSON) in json {
-                    if key == "body" {
-                        for (_, subSubJSON):(String, JSON) in subJson {
-                            //Skip incomplete candles rather than trapping on them. Intraday
-                            //series routinely carry nulls across pre/post-market gaps.
-                            //getStockValues already guarded this way; this function did not.
-                            guard let dateTime = subSubJSON["date_utc"].double,
-                                  let open = subSubJSON["open"].double,
-                                  let high = subSubJSON["high"].double,
-                                  let low = subSubJSON["low"].double,
-                                  let close = subSubJSON["close"].double,
-                                  let volume = subSubJSON["volume"].double else { continue }
-                            
-                            let value = ValueStock(start_timestamp: dateTime, open: open, high: high, low: low, close: close, volume: volume)
-                            valuesStock.append(value)
-                        }
-                    }
-                }
-                let sortedValues = valuesStock.sorted(by: { $0.start_timestamp > $1.start_timestamp })
-                valuesStock.removeAll()
-                for (index, valueStock) in sortedValues.enumerated() {
-                    if index <= 59 {
-                        valuesStock.append(valueStock)
-                    }
-                }
-                
-                valuesStock.reverse()
-                completion(.success(valuesStock))
-            } catch {
-                completion(.failure(error))
-            }
+        struct Candle: Decodable {
+            let time: Double
+            let open: Double
+            let high: Double
+            let low: Double
+            let close: Double
+            let volume: Double
         }
-        task.resume()
+    }
+    
+    ///The server sends the last 35 candles, oldest first, with the candle still forming last
+    ///and bars missing a price already removed.
+    private func getHistory(symbol: String, intervalTime: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
+        let interval = intervalTime.components(separatedBy: "&").first ?? intervalTime
+        //"^" in index symbols must be escaped in a query.
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._")
+        guard let encodedSymbol = symbol.addingPercentEncoding(withAllowedCharacters: allowed) else {
+            completion(.failure(APIError.invalidTicker))
+            return
+        }
+        
+        MarketDataServer.authorizedRequest(path: "/v1/history?symbol=\(encodedSymbol)&interval=\(interval)") { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                completion(.failure(error))
+                return
+            case .success(let authorized):
+                request = authorized
+            }
+            
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                    completion(.failure(APIError.noData))
+                    return
+                }
+                switch httpResponse.statusCode {
+                case 200:
+                    do {
+                        let decoded = try JSONDecoder().decode(HistoryResponse.self, from: data)
+                        completion(.success(decoded.candles.map {
+                            ValueStock(start_timestamp: $0.time, open: $0.open, high: $0.high,
+                                       low: $0.low, close: $0.close, volume: $0.volume)
+                        }))
+                    } catch let error as NSError {
+                        print("Chart for \(symbol) came back in an unexpected shape: \(error.localizedDescription)")
+                        completion(.failure(APIError.invalidJSON))
+                    }
+                case 404:
+                    //The server's "no_data": the provider has no chart for this symbol.
+                    completion(.failure(APIError.tickerNotFound))
+                default:
+                    print("Chart server answered \(httpResponse.statusCode) for \(symbol): \(String(data: data, encoding: .utf8) ?? "")")
+                    completion(.failure(APIError.invalidJSON))
+                }
+            }.resume()
+        }
     }
     
     //MARK: The Markets tab's three index lines, from the Bullish Square server

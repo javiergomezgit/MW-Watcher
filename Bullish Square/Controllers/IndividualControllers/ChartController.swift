@@ -259,7 +259,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             startStopSpinner(start: false)
             stockData = cached.values
             setUpStockModel()
-            guard ChartCache.shared.isStale(cached, interval: interval, isIndex: isIndex) else { return }
+            guard ChartCache.shared.isStale(cached, interval: interval) else { return }
         } else {
             startStopSpinner(start: true)
         }
@@ -490,10 +490,10 @@ class ChartController: UIViewController, ChartViewDelegate {
         let candle = candleValues[entry]
         
         pointingDateLabel.text = "Time: \(stringTime)"
-        pointingOpenLabel.text = "O: $\(candle.open)"
-        pointingLowLabel.text = "L: $\(candle.low)"
-        pointingHighLabel.text = "H: $\(candle.high)"
-        pointingCloseLabel.text = "C: $\(candle.close)"
+        pointingOpenLabel.text = "O: " + Self.ohlcText(candle.open)
+        pointingLowLabel.text = "L: " + Self.ohlcText(candle.low)
+        pointingHighLabel.text = "H: " + Self.ohlcText(candle.high)
+        pointingCloseLabel.text = "C: " + Self.ohlcText(candle.close)
         
         //Coloured by the move from the previous candle. The first candle has nothing to compare
         //against and used to leave both labels with no colour at all.
@@ -512,6 +512,25 @@ class ChartController: UIViewController, ChartViewDelegate {
         pointingCloseLabel.textColor = colorToShow
     }
     
+    ///"$334.91" for the open/high/low/close readout. The values were printed raw, and the chart
+    ///server passes Yahoo's full-precision floats through, so they read "$334.9100036621094"
+    ///and pushed High and Close off the row. Coins under $1 keep up to four decimals so they
+    ///do not all read "$0.08".
+    private static let ohlcFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = "USD"
+        formatter.locale = Locale(identifier: "en_US")
+        return formatter
+    }()
+
+    private static func ohlcText(_ value: Double) -> String {
+        let small = abs(value) < 1
+        ohlcFormatter.minimumFractionDigits = 2
+        ohlcFormatter.maximumFractionDigits = small ? 4 : 2
+        return ohlcFormatter.string(from: NSNumber(value: value)) ?? String(format: "$%.2f", value)
+    }
+
     ///Index symbols carry Yahoo's "^" prefix, which the API needs and people should not see:
     ///the index chart's header and its share text both read "^DJI". Strip it wherever a symbol
     ///is shown and keep it wherever one is requested - self.symbol still holds the raw value.

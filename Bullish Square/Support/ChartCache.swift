@@ -30,8 +30,8 @@ final class ChartCache {
 
     private init() {}
 
-    ///Index charts and stock charts come from different providers, so they never share a key
-    ///even for the same symbol.
+    ///Index and stock charts are kept apart, as ChartController treats them as two kinds of
+    ///chart; both now come from the same server route.
     private func key(symbol: String, interval: String, isIndex: Bool) -> String {
         "\(isIndex ? "index" : "stock")|\(symbol)|\(interval)"
     }
@@ -50,33 +50,16 @@ final class ChartCache {
 
     ///Whether asking again could bring anything new.
     ///
-    ///Stock 15 min and 1 hr: the stock endpoint returns completed candles only (measured
-    ///2026-10-05: at 12:44 New York the newest 15 min candle was 12:15-12:30), so nothing can
-    ///change until the candle after the newest one has closed. With 8:45-9:00 cached, 9:00-9:15
-    ///completes at 9:15, and before then a request would return the same candles.
+    ///Charts come from the server's /v1/history, which includes the candle still forming, so
+    ///an intraday chart can change every minute while the market is open: 15 min and 1 hr are
+    ///refreshed after a minute, matching the server's own cache. Day and week candles barely
+    ///move within a quarter of an hour.
     ///
-    ///At least a minute between requests either way: a provider can publish a completed
-    ///candle a few minutes late, and with the market closed no new candle ever comes, so
-    ///without it every visit after hours would ask again.
-    ///
-    ///Index charts come from mboum, whose newest point is live rather than a completed candle,
-    ///so they keep the plain one-minute rule. Day and week: fifteen minutes; whether today's
-    ///unfinished daily candle is included has not been measured.
-    func isStale(_ entry: Entry, interval: String, isIndex: Bool, now: Date = Date()) -> Bool {
-        let sinceFetch = now.timeIntervalSince(entry.fetchedAt)
-        guard let candleLength = Self.intradayCandleLength(interval) else {
-            return sinceFetch >= 15 * 60
-        }
-        guard sinceFetch >= 60 else { return false }
-        guard !isIndex, let newestStart = entry.values.last?.start_timestamp else { return true }
-        let nextCandleCompletes = newestStart + 2 * candleLength
-        return now.timeIntervalSince1970 >= nextCandleCompletes
-    }
-
-    ///Seconds per candle for the intraday timeframes, nil for day and week.
-    private static func intradayCandleLength(_ interval: String) -> TimeInterval? {
-        if interval.hasPrefix("15m") { return 15 * 60 }
-        if interval.hasPrefix("1h") { return 60 * 60 }
-        return nil
+    ///This used to wait for the next candle to close on stock charts, because the old stock
+    ///provider sent completed candles only; with the forming candle that would leave it stale
+    ///on screen for up to half an hour.
+    func isStale(_ entry: Entry, interval: String, now: Date = Date()) -> Bool {
+        let isIntraday = interval.hasPrefix("15m") || interval.hasPrefix("1h")
+        return now.timeIntervalSince(entry.fetchedAt) >= (isIntraday ? 60 : 15 * 60)
     }
 }
