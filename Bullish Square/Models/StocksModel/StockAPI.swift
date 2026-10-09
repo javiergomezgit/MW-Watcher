@@ -192,67 +192,26 @@ final class StockAPI {
     }
     
     //MARK: API call for a single stock returning current price
+    ///One stock's price, through the Bullish Square server like the watchlist's.
+    ///
+    ///This called RapidAPI from the phone with the key built into the app, one request per
+    ///chart opened from search. It now asks the server's /v1/spark for the one symbol, shared
+    ///through its cache, and reuses the watchlist's parsing - which also drops a last bar
+    ///with no trade. The old parse read that bar raw and showed a price of $0.0. (BS-212)
     func getPriceSingleTicker(ticker: String, timeRange: String, completion: @escaping (Result<TickersCurrentValues, Error>) -> Void) {
-        let headers = [
-            "x-rapidapi-key": KeysStocksAPI.apiCurrentPriceKey,
-            "x-rapidapi-host": KeysStocksAPI.apiCurrentPriceHost
-        ]
-        
-        let url = KeysStocksAPI.apiCurrentPriceBaseURL + ticker + timeRange
-        
-        let request = NSMutableURLRequest(url: NSURL(string: url)! as URL,
-                                          cachePolicy: .useProtocolCachePolicy,
-                                          timeoutInterval: 10.0)
-        
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if let error = error {
-                print(error)
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            //A rate-limit or error body still parses as JSON, so an empty object counts as a failure too
-            let decoded = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            guard let json = decoded, !json.isEmpty else {
-                completion(.failure(APIError.invalidJSON))
-                return
-            }
-            
-            for tickerJSON in json {
-                //Skip entries that aren't a ticker payload, e.g. {"message": "rate limited"}
-                guard let tickerDictionary = tickerJSON.value as? [String: Any] else { continue }
-                
-                var previousClose = tickerDictionary["chartPreviousClose"] as? Double ?? 0.0
-                let closePriceArray = tickerDictionary["close"] as? [Any]
-                let closePrice = closePriceArray?.last as? Double ?? 0.0
-                
-                //A previousClose of 0 made this infinite and pushed it straight into the UI
-                var percentageRounded = 0.0
-                if previousClose > 0 {
-                    percentageRounded = ((closePrice * 100) / previousClose) - 100
+        getPriceMultipleStocks(tickersGroup: ticker, timeRange: timeRange) { result in
+            switch result {
+            case .success(let values):
+                //The server upper-cases symbols, so match without regard to case.
+                guard let match = values.first(where: { $0.ticker.caseInsensitiveCompare(ticker) == .orderedSame }) else {
+                    completion(.failure(APIError.tickerNotFound))
+                    return
                 }
-                
-                percentageRounded = Double(round(100*percentageRounded)/100)
-                previousClose = Double(round(100*previousClose)/100)
-                
-                let tickerCurrentValues = TickersCurrentValues(ticker: tickerJSON.key, marketPrice: closePrice, previousPrice: previousClose, changePercent: percentageRounded)
-                completion(.success(tickerCurrentValues))
-                return
+                completion(.success(match))
+            case .failure(let error):
+                completion(.failure(error))
             }
-            
-            //Nothing in the response was a usable ticker payload
-            completion(.failure(APIError.tickerNotFound))
-        })
-        dataTask.resume()
+        }
     }
     
     //MARK: Search stock while user types the ticker
