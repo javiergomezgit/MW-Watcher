@@ -216,48 +216,66 @@ final class StockAPI {
     
     //MARK: Search stock while user types the ticker
     ///`.success([])` means nothing on NASDAQ or NYSE matched, which is an answer worth
-    ///remembering; `.failure` is anything worth asking again.
+    ///remembering; `.failure` is anything worth asking again. Completes exactly once.
     ///
-    ///Completes exactly once. With no matches it used to complete twice - tickerNotFound, then
-    ///an empty list. The query was not escaped, so a space or "^" made the URL nil and the
-    ///force unwrap crashed, and a quote missing its type or exchange crashed the same way.
+    ///Asks the Bullish Square server's /v1/search, which shares each search text between every
+    ///user for hours, so "A", "AP", "APP" typed by anyone cost one provider call each. It used
+    ///to call yh-finance's auto-complete from the phone with the key built into the app, and
+    ///received 8 KB of news and screener data per letter; the server sends only the matches.
+    ///(BS-212)
     func searchStocks(ticker: String, completion: @escaping (Result<[Stock], APIError>) -> Void) {
-        let headers = [
-            "X-RapidAPI-Key": KeysStocksAPI.searchWhileTypeKey,
-            "X-RapidAPI-Host": KeysStocksAPI.searchWhileTypeHost
-        ]
-        guard let query = ticker.addingPercentEncoding(withAllowedCharacters: .alphanumerics),
-              let url = URL(string: "\(KeysStocksAPI.searchWhileTypeBaseURL)\(query)&region=US") else {
+        guard let query = ticker.addingPercentEncoding(withAllowedCharacters: .alphanumerics) else {
             completion(.failure(.invalidURL))
             return
         }
-        var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
         
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            guard error == nil, let data = data else {
+        MarketDataServer.authorizedRequest(path: "/v1/search?q=" + query) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("Stock search could not reach the server: \(error)")
                 completion(.failure(.invalidJSON))
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            do {
-                let json = try JSON(data: data)
-                var stocks = [Stock]()
-                for (_, quote): (String, JSON) in json["quotes"] {
-                    //Only US-listed stocks can be added, so other exchanges are skipped
-                    guard let exchange = quote["exchDisp"].string, exchange == "NASDAQ" || exchange == "NYSE",
-                          let symbol = quote["symbol"].string else { continue }
-                    let name = quote["shortname"].string ?? quote["longname"].string ?? "N/A"
-                    stocks.append(Stock(ticker: symbol, nameTicker: name, exchange: exchange,
-                                        stockType: quote["quoteType"].string ?? "EQUITY"))
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data = data,
+                      let httpResponse = response as? HTTPURLResponse else {
+                    completion(.failure(.invalidJSON))
+                    return
                 }
-                completion(.success(stocks))
-            } catch let error as NSError {
-                print("Stock search answer could not be read: \(error.localizedDescription)")
-                completion(.failure(.invalidJSON))
-            }
-        }.resume()
+                guard httpResponse.statusCode == 200 else {
+                    print("Search server answered \(httpResponse.statusCode) for \(ticker): \(String(data: data, encoding: .utf8) ?? "")")
+                    completion(.failure(.invalidJSON))
+                    return
+                }
+                do {
+                    let decoded = try JSONDecoder().decode(SearchResponse.self, from: data)
+                    //Only US-listed stocks can be added, so other exchanges are skipped
+                    let stocks = decoded.results
+                        .filter { $0.exchange == "NASDAQ" || $0.exchange == "NYSE" }
+                        .map { Stock(ticker: $0.symbol, nameTicker: $0.name, exchange: $0.exchange,
+                                     stockType: $0.type.isEmpty ? "EQUITY" : $0.type) }
+                    completion(.success(stocks))
+                } catch let error as NSError {
+                    print("Stock search answer could not be read: \(error.localizedDescription)")
+                    completion(.failure(.invalidJSON))
+                }
+            }.resume()
+        }
+    }
+    
+    private struct SearchResponse: Decodable {
+        let results: [Match]
+        
+        struct Match: Decodable {
+            let symbol: String
+            let name: String
+            let exchange: String
+            let type: String
+        }
     }
     
     //MARK: API call for GROUP of stocks with current price
