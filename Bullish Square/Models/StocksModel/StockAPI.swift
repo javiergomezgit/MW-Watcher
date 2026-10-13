@@ -255,7 +255,7 @@ final class StockAPI {
                     let decoded = try JSONDecoder().decode(SearchResponse.self, from: data)
                     //Only US-listed stocks can be added, so other exchanges are skipped
                     let stocks = decoded.results
-                        .filter { $0.exchange == "NASDAQ" || $0.exchange == "NYSE" }
+                        .filter { Self.usExchanges.contains($0.exchange) }
                         .map { Stock(ticker: $0.symbol, nameTicker: $0.name, exchange: $0.exchange,
                                      stockType: $0.type.isEmpty ? "EQUITY" : $0.type) }
                     completion(.success(stocks))
@@ -266,6 +266,14 @@ final class StockAPI {
             }.resume()
         }
     }
+    
+    ///US exchanges as Yahoo labels them (`exchDisp`). Only NASDAQ and NYSE used to be
+    ///accepted, and most large ETFs trade elsewhere - SPY, VOO and SCHD are on NYSE Arca,
+    ///SPYI on Cboe (Yahoo's "BATS Trading") - so search never found them. Foreign listings
+    ///and futures are still left out.
+    private static let usExchanges: Set<String> = [
+        "NASDAQ", "NYSE", "NYSEArca", "BATS Trading", "NYSE American", "AMEX"
+    ]
     
     private struct SearchResponse: Decodable {
         let results: [Match]
