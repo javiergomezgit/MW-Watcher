@@ -79,56 +79,69 @@ final class CryptoAPI {
     
     
     // MARK: Fetches historical data for a specific cryptocurrency
-    // Takes a symbol and interval, returns up to 60 sorted QuoteIndividual entries
+    ///A coin's chart: `symbol` is its Investing.com pair ID (ChartController maps coins to
+    ///pairs) and `interval` is 300, 900, 3600, 18000, week or month. Up to 60 candles, oldest
+    ///first. Completes exactly once.
+    ///
+    ///Asks the Bullish Square server's /v1/crypto-chart, which shares each chart between every
+    ///user and sends Investing.com's own shape trimmed to the newest 60, so the decoding below
+    ///is unchanged. It used to call Investing.com from the phone with the RapidAPI key built
+    ///into the app - the last live call that did. (BS-212)
     public func getSelectedCrypto(interval: String, symbol: String, completion: @escaping (Result<[QuoteInvidual], Error>) -> Void) {
-        // Construct URL with query parameters
-        let urlComposed = NSMutableURLRequest(url: NSURL(string: KeysAndConstants.baseURLIndividual + symbol + KeysAndConstants.variables + interval)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        guard let url = urlComposed.url else {
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._")
+        guard let pair = symbol.addingPercentEncoding(withAllowedCharacters: allowed),
+              let timeframe = interval.addingPercentEncoding(withAllowedCharacters: allowed) else {
             completion(.failure(APIError.invalidURL))
             return
         }
         
-        // Configure request with headers
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue(KeysAndConstants.apiKeyIndividual, forHTTPHeaderField: "x-rapidapi-key")
-        request.setValue(KeysAndConstants.apiHeaderIndividual, forHTTPHeaderField: "x-rapidapi-host")
-        
-        // Perform API call
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
+        MarketDataServer.authorizedRequest(path: "/v1/crypto-chart?pair=\(pair)&interval=\(timeframe)") { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
                 completion(.failure(error))
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            // Validate HTTP response
-            guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
-                completion(.failure(APIError.invalidResponse))
-                return
-            }
-            
-            // Ensure data exists
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            // Decode response
-            do {
-                let response = try JSONDecoder().decode(CryptoIndividualAPIResponse.self, from: data)
-                guard let values = response.quotes_data.values.first else {
-                    completion(.success([]))
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
                     return
                 }
                 
-                // Limit to 60 entries and sort by timestamp
-                let candleValues = values.prefix(60).sorted { $0.start_timestamp < $1.start_timestamp }
-                completion(.success(Array(candleValues)))
-            } catch {
-                completion(.failure(error))
-            }
+                // Validate HTTP response
+                guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("Crypto chart server answered \(httpResponse.statusCode) for pair \(symbol), interval \(interval)")
+                    }
+                    completion(.failure(APIError.invalidResponse))
+                    return
+                }
+                
+                // Ensure data exists
+                guard let data = data else {
+                    completion(.failure(APIError.noData))
+                    return
+                }
+                
+                // Decode response
+                do {
+                    let response = try JSONDecoder().decode(CryptoIndividualAPIResponse.self, from: data)
+                    guard let values = response.quotes_data.values.first else {
+                        completion(.success([]))
+                        return
+                    }
+                    
+                    // Limit to 60 entries and sort by timestamp
+                    let candleValues = values.prefix(60).sorted { $0.start_timestamp < $1.start_timestamp }
+                    completion(.success(Array(candleValues)))
+                } catch {
+                    completion(.failure(error))
+                }
+            }.resume()
         }
-        task.resume()
     }
 }
