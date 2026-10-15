@@ -40,27 +40,16 @@ final class NewsCallAPI {
         }
     }
     
-    private struct TickerNewsResponse: Decodable {
-        let data: DataBlock?
+    ///The Bullish Square server's /v1/news answer.
+    private struct StockNewsResponse: Decodable {
+        let articles: [Article]
         
-        struct DataBlock: Decodable {
-            let symbolEntries: SymbolEntries?
-            
-            struct SymbolEntries: Decodable {
-                let results: [Entry]?
-                
-                struct Entry: Decodable {
-                    let description: String?
-                    let url: String?
-                    let type: String?
-                    let dateFirstPublished: String?
-                    let promoImage: PromoImage?
-                    
-                    struct PromoImage: Decodable {
-                        let url: String?
-                    }
-                }
-            }
+        struct Article: Decodable {
+            let headline: String
+            let url: String
+            let published: String
+            let type: String
+            let imageUrl: String?
         }
     }
     
@@ -129,72 +118,61 @@ final class NewsCallAPI {
     }
     
     //MARK: API call for news on specific stock
+    ///A stock's latest five news items, or nil when they could not be loaded. An empty list
+    ///means there is no news for it. Completes exactly once.
+    ///
+    ///Asks the Bullish Square server's /v1/news, which shares each symbol's news between every
+    ///user for 15 minutes. It used to ask CNBC from the phone with the RapidAPI key built into
+    ///the app - the last such call. (BS-212)
     func loadStockNews(ticker: String, name: String, completion: @escaping([TickerNews]?) -> Void){
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._")
+        guard let symbol = ticker.addingPercentEncoding(withAllowedCharacters: allowed) else {
+            completion(nil)
+            return
+        }
         
-        let headers = [
-            "x-rapidapi-key": KeysNewsCallAPI.loadStockNewsKey,
-            "x-rapidapi-host": KeysNewsCallAPI.loadStockNewsHost
-        ]
-        let urlStringSpaces = "\(KeysNewsCallAPI.loadStockNewsbaseUrl)\(ticker)"
-        
-        var urlString = urlStringSpaces.replacingOccurrences(of: " ", with: "%20")
-        urlString = urlString.replacingOccurrences(of: "^", with: "%5E")
-        
-        let request = NSMutableURLRequest(url:
-                                            NSURL(string: urlString)! as URL,
-                                          cachePolicy: .useProtocolCachePolicy,
-                                          timeoutInterval: 10.0)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if let error = error {
-                print(error)
+        MarketDataServer.authorizedRequest(path: "/v1/news/" + symbol) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("News for \(ticker) could not reach the server: \(error)")
                 completion(nil)
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            guard let data = data else {
-                completion(nil)
-                return
-            }
-            
-            //data, the decoded root, and each of data / symbolEntries / results were force
-            //unwrapped or force cast, so any error payload from the provider trapped here.
-            guard let entries = (try? JSONDecoder().decode(TickerNewsResponse.self, from: data))?
-                .data?.symbolEntries?.results else {
-                completion(nil)
-                return
-            }
-            
-            let placeholder = UIImage(named: "mw-logo") ?? UIImage()
-            var newsItems = [TickerNews]()
-            var imageURLs = [Int: String]()
-            
-            for entry in entries {
-                //Skip an entry missing anything displayed, rather than trapping
-                guard let headline = entry.description,
-                      let link = entry.url,
-                      let published = entry.dateFirstPublished else { continue }
-                
-                if let imageLink = entry.promoImage?.url, imageLink.isValidURL {
-                    imageURLs[newsItems.count] = imageLink
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data = data,
+                      let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+                      let decoded = try? JSONDecoder().decode(StockNewsResponse.self, from: data) else {
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                        print("News server answered \(httpResponse.statusCode) for \(ticker)")
+                    }
+                    completion(nil)
+                    return
                 }
                 
-                let newsItem = TickerNews(headline: headline,
-                                          pubDate: Support.sharedSupport.newLocalTime(timeString: published),
-                                          linkHeadline: link,
-                                          author: entry.type ?? "",
-                                          image: placeholder)
-                newsItems.append(newsItem)
-            }
-            
-            Support.sharedSupport.fillImages(into: newsItems, urls: imageURLs, imagePath: \TickerNews.image) { itemsWithImages in
-                completion(itemsWithImages)
-            }
-        })
-        dataTask.resume()
+                let placeholder = UIImage(named: "mw-logo") ?? UIImage()
+                var newsItems = [TickerNews]()
+                var imageURLs = [Int: String]()
+                
+                for article in decoded.articles {
+                    if let imageLink = article.imageUrl, imageLink.isValidURL {
+                        imageURLs[newsItems.count] = imageLink
+                    }
+                    newsItems.append(TickerNews(headline: article.headline,
+                                                pubDate: Support.sharedSupport.newLocalTime(timeString: article.published),
+                                                linkHeadline: article.url,
+                                                author: article.type,
+                                                image: placeholder))
+                }
+                
+                Support.sharedSupport.fillImages(into: newsItems, urls: imageURLs, imagePath: \TickerNews.image) { itemsWithImages in
+                    completion(itemsWithImages)
+                }
+            }.resume()
+        }
     }
 }
