@@ -118,77 +118,69 @@ final class StockAPI {
     }
     
     //MARK: API Call for getting logo for specific stock
+    ///The company's logo. `.failure(.logoUnavailable)` means there is none - most ETFs - and
+    ///callers record a letter avatar and stop asking; `.failure(.logoDownloadFailed)` is
+    ///worth retrying. Completes exactly once.
+    ///
+    ///Asks the Bullish Square server's /v1/logo for the image address, shared between every
+    ///user for a week, then downloads the image from that public address. It used to ask
+    ///Twelve Data from the phone with the key built into the app. (BS-212)
     func getLogoStock(ticker: String, completion: @escaping(Result<UIImage, Error>) -> Void) {
-        let headers = [
-            "X-RapidAPI-Host": KeysStocksAPI.apiKeyLogoStockHost,
-            "X-RapidAPI-Key": KeysStocksAPI.apiKeyLogoStock
-        ]
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._")
+        guard let symbol = ticker.addingPercentEncoding(withAllowedCharacters: allowed) else {
+            completion(.failure(APIError.logoUnavailable))
+            return
+        }
         
-        let urlString = "\(KeysStocksAPI.apiLogoBaseURL)\(ticker)"
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        
-        dump (request.url)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let task = session.dataTask(with: request as URLRequest) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            //Throttling and server faults have to stay retryable, so they are separated out
-            //before the body is inspected. A body with no url is otherwise indistinguishable
-            //from a symbol that genuinely has no logo.
-            if let httpResponse = response as? HTTPURLResponse,
-               httpResponse.statusCode == 429 || httpResponse.statusCode >= 500 {
+        MarketDataServer.authorizedRequest(path: "/v1/logo/" + symbol) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("Logo for \(ticker) could not reach the server: \(error)")
                 completion(.failure(APIError.logoDownloadFailed))
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            do {
-                let json = try JSON(data: data)
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data = data,
+                      let httpResponse = response as? HTTPURLResponse else {
+                    completion(.failure(APIError.logoDownloadFailed))
+                    return
+                }
                 
-                if let logoURL = json["url"].string, !logoURL.isEmpty {
-                    //Downloaded asynchronously. This used to be a blocking call made from
-                    //inside this completion handler, so adding several tickers at once starved
-                    //the session's queue and some logos silently became the placeholder.
-                    Support.sharedSupport.downloadImage(from: logoURL) { image in
+                switch httpResponse.statusCode {
+                case 200:
+                    guard let logo = try? JSONDecoder().decode(LogoResponse.self, from: data),
+                          !logo.url.isEmpty else {
+                        completion(.failure(APIError.logoDownloadFailed))
+                        return
+                    }
+                    //Downloaded asynchronously; a blocking download here once starved the
+                    //session's queue when several tickers were added at once.
+                    Support.sharedSupport.downloadImage(from: logo.url) { image in
                         guard let image = image else {
                             completion(.failure(APIError.logoDownloadFailed))
                             return
                         }
                         completion(.success(image))
                     }
-                    return
-                }
-                
-                //No usable url. Two shapes mean the logo permanently does not exist:
-                //  {"meta":{"symbol":"AAPD"},"url":""}          symbol recognised, no logo
-                //  {"code":404,"status":"error", ...}           symbol not recognised
-                //ETFs commonly return the first, with HTTP 200 and an empty url. Treating that
-                //as transient made the app re-request it on every appearance, forever.
-                //Anything else, such as a rate-limit body carrying neither meta nor a 404, is
-                //genuinely transient and worth retrying.
-                let recognisedSymbol = json["meta"]["symbol"].string != nil
-                let explicitlyNotFound = json["status"].string == "error" && json["code"].int == 404
-                
-                if recognisedSymbol || explicitlyNotFound {
+                case 404:
+                    //The server's "no_logo": the provider has none for this symbol. Permanent,
+                    //so callers record a letter avatar instead of asking on every appearance.
                     completion(.failure(APIError.logoUnavailable))
-                } else {
+                default:
+                    print("Logo server answered \(httpResponse.statusCode) for \(ticker)")
                     completion(.failure(APIError.logoDownloadFailed))
                 }
-            } catch {
-                completion(.failure(error))
-            }
+            }.resume()
         }
-        task.resume()
+    }
+    
+    private struct LogoResponse: Decodable {
+        let url: String
     }
     
     //MARK: API call for a single stock returning current price
