@@ -54,8 +54,8 @@ final class AccountDeletionManager: NSObject {
 
     // MARK: - Entry point
 
-    ///Order matters. The Firestore document goes first, while the user is still
-    ///authenticated, because security rules key on request.auth.uid and the write would be
+    ///Order matters. The Firestore data goes first - watchlists, then the user document -
+    ///while the user is still authenticated, because security rules key on request.auth.uid and the write would be
     ///refused once the auth user is gone. Local data goes last, so a failure part-way
     ///through leaves the device still able to sign in and retry.
     func deleteAccount(presentingOn presenter: UIViewController,
@@ -85,25 +85,34 @@ final class AccountDeletionManager: NSObject {
                 finish(.failure(error))
 
             case .success(let appleAuthorizationCode):
-                Firestore.firestore().collection("users").document(uid).delete { firestoreError in
-                    if let firestoreError {
-                        //Not fatal on its own, but the account must not be deleted while its
-                        //document survives: that would orphan the data with no way back in.
-                        finish(.failure(firestoreError))
+                //The watchlists first: Firestore keeps a document's subcollections when the
+                //document itself is deleted, so removing users/{uid} alone left them behind.
+                WatchlistSyncService.shared.deleteCloudData(uid: uid) { watchlistError in
+                    if let watchlistError {
+                        finish(.failure(watchlistError))
                         return
                     }
 
-                    //Apple requires apps using Sign in with Apple to revoke the token on
-                    //deletion, not merely drop the Firebase user.
-                    self.revokeAppleTokenIfNeeded(authorizationCode: appleAuthorizationCode) {
-                        user.delete { deleteError in
-                            if let deleteError {
-                                finish(.failure(deleteError))
-                                return
-                            }
+                    Firestore.firestore().collection("users").document(uid).delete { firestoreError in
+                        if let firestoreError {
+                            //Not fatal on its own, but the account must not be deleted while its
+                            //document survives: that would orphan the data with no way back in.
+                            finish(.failure(firestoreError))
+                            return
+                        }
 
-                            self.clearLocalData()
-                            finish(.success(()))
+                        //Apple requires apps using Sign in with Apple to revoke the token on
+                        //deletion, not merely drop the Firebase user.
+                        self.revokeAppleTokenIfNeeded(authorizationCode: appleAuthorizationCode) {
+                            user.delete { deleteError in
+                                if let deleteError {
+                                    finish(.failure(deleteError))
+                                    return
+                                }
+
+                                self.clearLocalData()
+                                finish(.success(()))
+                            }
                         }
                     }
                 }

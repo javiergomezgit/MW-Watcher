@@ -65,6 +65,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         startNewsPrefetch()
 
+        //Picks up what was changed on another phone meanwhile.
+        WatchlistSyncService.shared.pull()
+
         startMarketsPrefetch()
     }
     

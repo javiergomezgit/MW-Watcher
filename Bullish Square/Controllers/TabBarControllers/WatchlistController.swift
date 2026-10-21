@@ -87,6 +87,8 @@ class WatchlistController: UIViewController {
         
         WatchlistStore.shared.ensureDefaultExists()
         refreshWatchlistTitle()
+        NotificationCenter.default.addObserver(self, selector: #selector(watchlistsDidSync),
+                                               name: WatchlistSyncService.didChange, object: nil)
         
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingWatchlist")
         UserDefaults.standard.set(true, forKey: "firstLaunchingWatchlist")
@@ -756,6 +758,13 @@ extension WatchlistController {
     ///is showing now that there is more than one.
     private func refreshWatchlistTitle() {
         title = WatchlistStore.shared.activeWatchlistName
+    }
+
+    ///A sync brought in another phone's changes, or the active list itself was renamed or
+    ///removed there.
+    @objc private func watchlistsDidSync() {
+        refreshWatchlistTitle()
+        loadMultipleStocks(savedTickers: savedTickers.loadTickers())
     }
     
     private func openSimulatedPortfolio() {

@@ -42,6 +42,9 @@ class SaveTickers {
             do {
                 try managedContext.save()
                 tickerManagedObjectArray.append(tickerObject)
+                WatchlistSyncService.shared.tickerAdded(
+                    CloudTicker(ticker: tickerFeatures.ticker, nameCompany: tickerFeatures.nameTicker),
+                    watchlistID: self.activeWatchlistID, ownerUID: self.ownerUID)
             } catch let error as NSError {
                 print("Could not save. \(error), \(error.userInfo)")
             }
@@ -93,6 +96,7 @@ class SaveTickers {
                 if managedContext.hasChanges {
                     try managedContext.save()
                 }
+                WatchlistSyncService.shared.tickerRemoved(ticker, watchlistID: self.activeWatchlistID, ownerUID: self.ownerUID)
             } catch {
                 print("Failed to delete ticker \(ticker): \(error)")
             }

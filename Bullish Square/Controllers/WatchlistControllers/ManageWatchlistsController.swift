@@ -54,6 +54,12 @@ final class ManageWatchlistsController: UIViewController {
 
         store.ensureDefaultExists()
         reload()
+        NotificationCenter.default.addObserver(self, selector: #selector(watchlistsDidSync),
+                                               name: WatchlistSyncService.didChange, object: nil)
+    }
+
+    @objc private func watchlistsDidSync() {
+        reload()
     }
 
     private func reload() {

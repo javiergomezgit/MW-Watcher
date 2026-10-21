@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AppCheck.setAppCheckProviderFactory(BullishAppCheckProviderFactory())
         FirebaseApp.configure()
         print("🔍 Firebase SDK version: \(FirebaseApp.app()?.options.googleAppID ?? "unknown")")
+        WatchlistSyncService.shared.start()
         return true
     }
     
