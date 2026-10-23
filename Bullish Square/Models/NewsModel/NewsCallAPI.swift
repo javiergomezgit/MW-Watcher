@@ -21,25 +21,6 @@ final class NewsCallAPI {
     }
     
     //MARK: Decoded response shapes
-    ///Every field is optional on purpose. The previous parser force cast each one, so a single
-    ///article missing a title, url or timestamp took down the whole feed. Anything essential
-    ///that is absent now causes that one article to be skipped.
-    private struct AllNewsResponse: Decodable {
-        let articles: [Article]?
-        
-        struct Article: Decodable {
-            let title: String?
-            let url: String?
-            let image: String?
-            let publishedAt: String?
-            let source: Source?
-            
-            struct Source: Decodable {
-                let name: String?
-            }
-        }
-    }
-    
     ///The Bullish Square server's /v1/news answer.
     private struct StockNewsResponse: Decodable {
         let articles: [Article]
@@ -53,68 +34,56 @@ final class NewsCallAPI {
         }
     }
     
-    //MARK: API call for live news
-    func loadAllNews(keySource: String, completion: @escaping([NewsItem]?) -> Void){
-
-        let parameters = "category=\(keySource)&lang=en&country=us&max=20"
-        let requestURL = "\(KeysNewsCallAPI.loadNewsbaseUrl)\(parameters)&apikey=\(KeysNewsCallAPI.loadNewsKey)"
-        
-        let request = NSMutableURLRequest(url:
-                                            NSURL(string: requestURL)! as URL,
-                                          cachePolicy: .useProtocolCachePolicy,
-                                          timeoutInterval: 10.0)
-        
-        request.httpMethod = "GET"
-        
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-           
-            if let error = error {
-                print(error)
+    ///The Bullish Square server's /v1/market-news answer. Same article fields as /v1/news.
+    private struct MarketNewsResponse: Decodable {
+        let articles: [StockNewsResponse.Article]
+    }
+    
+    //MARK: API call for market news
+    ///A CNBC section's top market stories for the News tab, newest first, or nil when they
+    ///could not be loaded. Completes exactly once.
+    ///
+    ///Asks the Bullish Square server's /v1/market-news, which shares each section between every
+    ///user for an hour. The tab used to ask GNews from the phone, with its key built into the
+    ///app, for business, world and general news, which mixed in sports and politics. (BS-230)
+    func loadMarketNews(section: String, completion: @escaping([NewsItem]?) -> Void) {
+        MarketDataServer.authorizedRequest(path: "/v1/market-news/" + section) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("Market news could not reach the server: \(error)")
                 completion(nil)
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            guard let data = data else {
-                completion(nil)
-                return
-            }
-            
-            //An error payload or a missing articles array abandons the completion handler if
-            //it is not reported. SceneDelegate chains the three category fetches off this
-            //callback, so a silent failure stops the remaining categories being requested.
-            guard let articles = (try? JSONDecoder().decode(AllNewsResponse.self, from: data))?.articles else {
-                completion(nil)
-                return
-            }
-            
-            let placeholder = UIImage(named: "mw-logo") ?? UIImage()
-            var newsItems = [NewsItem]()
-
-            for article in articles {
-                //Skip an article that is missing anything displayed, rather than trapping
-                guard let headline = article.title,
-                      let link = article.url,
-                      let published = article.publishedAt else { continue }
-
-                //The source name drives the filter chips, so a missing one is grouped rather
-                //than dropping an otherwise usable article
-                let newsItem = NewsItem(headline: headline,
-                                        link: link,
-                                        pubDate: Support.sharedSupport.newLocalTimeNews(timeString: published),
-                                        ticker: "",
-                                        author: article.source?.name ?? "Other",
-                                        image: placeholder,
-                                        imageURL: article.image.flatMap { $0.isValidURL ? $0 : nil })
-                newsItems.append(newsItem)
-            }
-
-            //Returned before any picture downloads. Waiting for all of them - each with a 15 s
-            //timeout - held the whole category back, and was most of the News tab's blank
-            //wait. The feed now loads each picture as its row appears.
-            completion(newsItems)
-        })
-        dataTask.resume()
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data = data,
+                      let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+                      let decoded = try? JSONDecoder().decode(MarketNewsResponse.self, from: data) else {
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                        print("Market news server answered \(httpResponse.statusCode) for \(section)")
+                    }
+                    completion(nil)
+                    return
+                }
+                
+                //Returned before any picture downloads; the feed loads each one as its row
+                //appears. Every story is CNBC's, so that is the source shown on the chips.
+                let placeholder = UIImage(named: "mw-logo") ?? UIImage()
+                let newsItems = decoded.articles.map { article in
+                    NewsItem(headline: article.headline,
+                             link: article.url,
+                             pubDate: Support.sharedSupport.newLocalTimeNews(timeString: article.published),
+                             ticker: "",
+                             author: "CNBC",
+                             image: placeholder,
+                             imageURL: article.imageUrl.flatMap { $0.isValidURL ? $0 : nil })
+                }
+                completion(newsItems)
+            }.resume()
+        }
     }
     
     //MARK: API call for news on specific stock

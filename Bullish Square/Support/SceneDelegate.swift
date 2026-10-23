@@ -73,8 +73,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     // MARK: - News Prefetch
     
-    ///True while a run is going, so launch, foreground and pull to refresh never overlap and
-    ///break GNews's one-request-per-second limit. Main thread only.
+    ///True while a run is going, so launch, foreground and pull to refresh never overlap.
+    ///Main thread only.
     private var isPrefetchingNews = false
 
     ///Fetches the categories that are older than five minutes, or all of them when `force`
@@ -102,16 +102,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
             let category = categories[index]
 
-            NewsCallAPI.shared.loadAllNews(keySource: category) { items in
+            NewsCallAPI.shared.loadMarketNews(section: category) { items in
                 DispatchQueue.main.async {
                     if let items = items, !items.isEmpty {
                         NewsCache.shared.store(category: category, items: items)
                     }
-                    //GNews's free plan allows one request per second and answers 429 past
-                    //that. The pause used to be 2 s on top of every picture downloading first.
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.1) {
-                        fetchNext(index + 1)
-                    }
+                    //No pause between sections: GNews needed one a second, the server does not.
+                    fetchNext(index + 1)
                 }
             }
         }

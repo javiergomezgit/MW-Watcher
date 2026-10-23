@@ -7,11 +7,11 @@
 
 import UIKit
 
-///The live news feed, per category, kept in memory and on disk.
+///The live news feed, per section, kept in memory and on disk.
 ///
 ///Saved to disk so the News tab opens with the last feed straight away on every launch,
-///instead of a spinner over an empty screen while GNews answers. The saved copy also counts
-///towards freshness, so a relaunch within five minutes does not spend GNews's 100-a-day quota.
+///instead of a spinner over an empty screen while the server answers. The saved copy also
+///counts towards freshness, so a relaunch within five minutes asks for nothing.
 ///
 ///Main thread only. The prefetch hops here before storing.
 final class NewsCache {
@@ -24,7 +24,9 @@ final class NewsCache {
     ///category came back, so pull to refresh always ends.
     static let prefetchDidFinish = Notification.Name("NewsCache.prefetchDidFinish")
 
-    static let categories = ["business", "world", "general"]
+    ///The server's /v1/market-news sections. These used to be GNews categories (business,
+    ///world, general), which were not market news. (BS-230)
+    static let categories = ["finance"]
 
     ///A category older than this is fetched again.
     let freshness: TimeInterval = 300
@@ -37,8 +39,9 @@ final class NewsCache {
 
     private init() {
         //Caches, not Documents: the system may clear it, and that only costs one fetch.
+        //v2 since the switch from GNews, so the old feed is not shown after updating.
         fileURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
-            .appendingPathComponent("live-news-v1.json")
+            .appendingPathComponent("live-news-v2.json")
         loadFromDisk()
     }
 

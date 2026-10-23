@@ -185,7 +185,7 @@ extension LiveNewsController {
         if NewsCache.shared.hasAnyNews {
             populateNews()
         } else {
-            //First launch ever, or the cache was cleared: nothing to show until GNews answers.
+            //First launch ever, or the cache was cleared: nothing to show until the server answers.
             startStopSpinner(start: true)
         }
         //Anything older than five minutes is fetched; a fresh saved feed costs no request.
