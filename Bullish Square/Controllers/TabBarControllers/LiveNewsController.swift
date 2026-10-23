@@ -28,7 +28,8 @@ class LiveNewsController: UIViewController {
     }
     
     // MARK: - Properties
-    var sources = ["ALL"]
+    ///The chips: News tab topics, not sources. Each card shows its own source. (BS-231)
+    let topics = NewsCache.topics
     var newsItems: [NewsItem] = []
     var backupNewsItems: [NewsItem] = []
     let saveHeadlines = UserSaveNews()
@@ -39,11 +40,9 @@ class LiveNewsController: UIViewController {
     
     var loadedTimes = 0
     var alreadyLaunched = false
-    //Keyed by article link, not row index. The source filter replaces newsItems wholesale,
+    //Keyed by article link, not row index. Switching topic replaces newsItems wholesale,
     //so an index-keyed map rendered bookmarks against whatever article now sat at that row.
     var savedLinks: Set<String> = []
-    ///The source chip picked, kept so the feed updating in the background does not reset it.
-    private var selectedSource = "ALL"
     ///Pictures loaded so far, by article link.
     private var articleImages: [String: UIImage] = [:]
     private var imagesInFlight: Set<String> = []
@@ -167,28 +166,28 @@ extension LiveNewsController {
 extension LiveNewsController {
     
     // Handle pull-to-refresh
-    ///The feed stays on screen while it refreshes. It used to clear the cache and cover the
-    ///list with a spinner until all three categories were back.
+    ///The feed stays on screen while it refreshes. Refreshes the topic on screen only.
     @objc func refresh(_ sender: AnyObject) {
         SceneDelegate.triggerNewsPrefetch(force: true)
     }
 
-    ///Shows whatever is cached - the saved feed from the last launch, or any category already
-    ///back - and lets NewsCache.didUpdate fill in the rest. It used to wait for all three
-    ///categories, checking once a second, behind a spinner on an empty screen.
+    ///Shows the selected topic's cached stories - the saved feed from the last launch - and
+    ///lets NewsCache.didUpdate fill in the rest.
     func loadNews() {
         NotificationCenter.default.addObserver(self, selector: #selector(newsCacheDidUpdate),
                                                name: NewsCache.didUpdate, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(newsPrefetchDidFinish),
+        NotificationCenter.default.addObserver(self, selector: #selector(newsPrefetchDidFinish(_:)),
                                                name: NewsCache.prefetchDidFinish, object: nil)
+        showSelectedTopic()
+    }
 
-        if NewsCache.shared.hasAnyNews {
-            populateNews()
-        } else {
-            //First launch ever, or the cache was cleared: nothing to show until the server answers.
+    ///Shows the chip's topic from the cache straight away, or a spinner when it has nothing
+    ///yet, and fetches it if it is older than five minutes. A fresh topic costs no request.
+    private func showSelectedTopic() {
+        populateNews()
+        if !NewsCache.shared.hasNews(for: NewsCache.shared.selectedTopic) {
             startStopSpinner(start: true)
         }
-        //Anything older than five minutes is fetched; a fresh saved feed costs no request.
         SceneDelegate.triggerNewsPrefetch()
     }
 
@@ -197,8 +196,12 @@ extension LiveNewsController {
     }
 
     ///Ends the refresh control and the spinner even when nothing came back (offline, quota),
-    ///so neither can be left running.
-    @objc private func newsPrefetchDidFinish() {
+    ///so neither can be left running. A topic finishing after the reader moved to another
+    ///chip leaves that chip's spinner alone.
+    @objc private func newsPrefetchDidFinish(_ notification: Notification) {
+        if let topic = notification.object as? String, topic != NewsCache.shared.selectedTopic {
+            return
+        }
         refreshControl.endRefreshing()
         startStopSpinner(start: false)
     }
@@ -210,65 +213,44 @@ extension LiveNewsController {
             return
         }
 
-        backupNewsItems.removeAll()
-
-        var authors: Set<String> = []
-        //The same article can come back under more than one category, and was listed once
-        //per category. Keyed by link, falling back to the headline: keying an empty link would
-        //collapse every link-less article into one row.
+        let topic = NewsCache.shared.selectedTopic
+        var items: [NewsItem] = []
+        //Keyed by link, falling back to the headline: keying an empty link would collapse every
+        //link-less article into one row.
         var seenArticles: Set<String> = []
+        for var news in NewsCache.shared.get(topic) ?? [] {
+            let key = news.link.isEmpty ? news.headline : news.link
+            guard seenArticles.insert(key).inserted else { continue }
 
-        for category in NewsCache.categories {
-            guard let items = NewsCache.shared.get(category) else { continue }
-            for var news in items {
-                let key = news.link.isEmpty ? news.headline : news.link
-                guard seenArticles.insert(key).inserted else { continue }
-
-                //A picture already loaded for this article survives the category being
-                //replaced by a fresher copy.
-                if !news.link.isEmpty, let image = articleImages[news.link] {
-                    news.image = image
-                }
-                authors.insert(news.author)
-                backupNewsItems.append(news)
+            //A picture already loaded for this article survives the topic being replaced by a
+            //fresher copy, or the reader coming back to this chip.
+            if !news.link.isEmpty, let image = articleImages[news.link] {
+                news.image = image
             }
+            items.append(news)
         }
+        backupNewsItems = items
+        newsItems = items
 
-        //"ALL" used to be appended first and then sorted with the sources, so it landed
-        //alphabetically - after "ABC News", say - instead of leading the strip.
-        sources = ["ALL"] + authors.sorted()
-        //A new category arriving must not throw the reader out of the source they picked.
-        if !sources.contains(selectedSource) {
-            selectedSource = "ALL"
-        }
-        applySourceFilter()
         savedLinks = saveHeadlines.savedLinks()
         tableView.reloadData()
         collectionView.reloadData()
-        if let index = sources.firstIndex(of: selectedSource) {
+        if let index = topics.firstIndex(where: { $0.id == topic }) {
             collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
         }
 
-        if !backupNewsItems.isEmpty {
+        if !newsItems.isEmpty {
             startStopSpinner(start: false)
             if !alreadyLaunched {
-                //Once per launch: this now runs as each category arrives.
+                //Once per launch: this runs each time a topic arrives.
                 alreadyLaunched = true
                 showFirstTimeNotification(whereView: tableView)
             }
         }
     }
 
-    private func applySourceFilter() {
-        if selectedSource == "ALL" {
-            newsItems = backupNewsItems
-        } else {
-            newsItems = backupNewsItems.filter { $0.author == selectedSource }
-        }
-    }
-
     ///Loads one article's picture the first time its row is shown. Keyed by link, never by
-    ///row: the source filter and new categories both reorder the list while it downloads.
+    ///row: switching topic and fresh copies both reorder the list while it downloads.
     private func loadImageIfNeeded(for newsItem: NewsItem) {
         let link = newsItem.link
         guard !link.isEmpty,
@@ -516,13 +498,17 @@ extension LiveNewsController {
     }
     
     // Show or hide loading spinner overlay
+    ///Covers the list only, never the topic chips: a chip with nothing cached shows it while
+    ///it loads, and the reader must still be able to pick another.
     func startStopSpinner(start: Bool) {
         if start {
+            guard child.parent == nil else { return }
             addChild(child)
-            child.view.frame = view.frame
+            child.view.frame = tableView.convert(tableView.bounds, to: view)
             view.addSubview(child.view)
             child.didMove(toParent: self)
         } else {
+            guard child.parent != nil else { return }
             child.willMove(toParent: nil)
             child.view.removeFromSuperview()
             child.removeFromParent()
@@ -711,30 +697,27 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
 //
 extension LiveNewsController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    // Number of source items for collection
+    // One chip per topic
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return sources.count
+        return topics.count
     }
     
-    // Setup each source cell
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "CollectionCell", for: indexPath) as! LiveNewsCollectionViewCell
-        //cell.backgroundColor = UIColor(named: "colorSecondary")
-
-        let text = sources[indexPath.row]
-        cell.setValues(source: text)
+        cell.setValues(source: topics[indexPath.row].title)
         cell.maxWidth = collectionView.bounds.width
         return cell
     }
     
-    // Filter news items by selected source
+    // Switches topic: cached stories at once, then a fetch if they are stale
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //let cell = collectionView.cellForItem(at: indexPath)
-        //cell?.backgroundColor = UIColor(named: "colorAccent")
-        
-        selectedSource = sources[indexPath.row]
-        applySourceFilter()
-        tableView.reloadData()
+        let topic = topics[indexPath.row].id
+        guard topic != NewsCache.shared.selectedTopic else { return }
+        NewsCache.shared.selectedTopic = topic
+        refreshControl.endRefreshing()
+        startStopSpinner(start: false)
+        tableView.setContentOffset(.zero, animated: false)
+        showSelectedTopic()
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {

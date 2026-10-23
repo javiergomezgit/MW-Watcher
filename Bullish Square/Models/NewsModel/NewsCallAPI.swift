@@ -34,18 +34,28 @@ final class NewsCallAPI {
         }
     }
     
-    ///The Bullish Square server's /v1/market-news answer. Same article fields as /v1/news.
+    ///The Bullish Square server's /v1/market-news answer: the /v1/news fields plus who
+    ///published each story ("CNBC", or the publication GNews names).
     private struct MarketNewsResponse: Decodable {
-        let articles: [StockNewsResponse.Article]
+        let articles: [Article]
+        
+        struct Article: Decodable {
+            let headline: String
+            let url: String
+            let published: String
+            let source: String
+            let imageUrl: String?
+        }
     }
     
     //MARK: API call for market news
-    ///A CNBC section's top market stories for the News tab, newest first, or nil when they
-    ///could not be loaded. Completes exactly once.
+    ///One News tab topic's stories, newest first, or nil when they could not be loaded.
+    ///Completes exactly once.
     ///
-    ///Asks the Bullish Square server's /v1/market-news, which shares each section between every
-    ///user for an hour. The tab used to ask GNews from the phone, with its key built into the
-    ///app, for business, world and general news, which mixed in sports and politics. (BS-230)
+    ///Asks the Bullish Square server's /v1/market-news/<topic>, which shares each topic between
+    ///every user for an hour: CNBC for Markets, Movers, Economy and Trending, GNews for World.
+    ///The tab used to ask GNews from the phone, with its key built into the app.
+    ///(BS-230, BS-231)
     func loadMarketNews(section: String, completion: @escaping([NewsItem]?) -> Void) {
         MarketDataServer.authorizedRequest(path: "/v1/market-news/" + section) { result in
             let request: URLRequest
@@ -70,14 +80,14 @@ final class NewsCallAPI {
                 }
                 
                 //Returned before any picture downloads; the feed loads each one as its row
-                //appears. Every story is CNBC's, so that is the source shown on the chips.
+                //appears. The source is shown on each card.
                 let placeholder = UIImage(named: "mw-logo") ?? UIImage()
                 let newsItems = decoded.articles.map { article in
                     NewsItem(headline: article.headline,
                              link: article.url,
                              pubDate: Support.sharedSupport.newLocalTimeNews(timeString: article.published),
                              ticker: "",
-                             author: "CNBC",
+                             author: article.source,
                              image: placeholder,
                              imageURL: article.imageUrl.flatMap { $0.isValidURL ? $0 : nil })
                 }

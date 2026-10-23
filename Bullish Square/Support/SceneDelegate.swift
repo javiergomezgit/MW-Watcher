@@ -73,46 +73,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     // MARK: - News Prefetch
     
-    ///True while a run is going, so launch, foreground and pull to refresh never overlap.
+    ///Topics with a request out, so launch, foreground and pull to refresh never ask for the
+    ///same one twice at once. Per topic, so switching chips mid-load never blocks the new one.
     ///Main thread only.
-    private var isPrefetchingNews = false
+    private var newsTopicsInFlight: Set<String> = []
 
-    ///Fetches the categories that are older than five minutes, or all of them when `force`
-    ///(pull to refresh). The saved feed counts, so a quick relaunch fetches nothing.
-    ///Posts NewsCache.prefetchDidFinish when done, including when nothing needed fetching.
+    ///Fetches the selected topic when it is older than five minutes, or always when `force`
+    ///(pull to refresh). Only the chip on screen is fetched: the others load when picked.
+    ///The saved feed counts, so a quick relaunch fetches nothing. Posts
+    ///NewsCache.prefetchDidFinish with the topic when done, including when nothing was needed.
     func startNewsPrefetch(force: Bool = false) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async { self.startNewsPrefetch(force: force) }
             return
         }
-        guard !isPrefetchingNews else { return }
 
-        let categories = NewsCache.categories.filter { force || NewsCache.shared.isStale($0) }
-        guard !categories.isEmpty else {
-            NotificationCenter.default.post(name: NewsCache.prefetchDidFinish, object: nil)
+        let topic = NewsCache.shared.selectedTopic
+        guard !newsTopicsInFlight.contains(topic) else { return }
+        guard force || NewsCache.shared.isStale(topic) else {
+            NotificationCenter.default.post(name: NewsCache.prefetchDidFinish, object: topic)
             return
         }
-        isPrefetchingNews = true
+        newsTopicsInFlight.insert(topic)
 
-        func fetchNext(_ index: Int) {
-            guard index < categories.count else {
-                isPrefetchingNews = false
-                NotificationCenter.default.post(name: NewsCache.prefetchDidFinish, object: nil)
-                return
-            }
-            let category = categories[index]
-
-            NewsCallAPI.shared.loadMarketNews(section: category) { items in
-                DispatchQueue.main.async {
-                    if let items = items, !items.isEmpty {
-                        NewsCache.shared.store(category: category, items: items)
-                    }
-                    //No pause between sections: GNews needed one a second, the server does not.
-                    fetchNext(index + 1)
+        NewsCallAPI.shared.loadMarketNews(section: topic) { items in
+            DispatchQueue.main.async {
+                self.newsTopicsInFlight.remove(topic)
+                if let items = items, !items.isEmpty {
+                    NewsCache.shared.store(category: topic, items: items)
                 }
+                NotificationCenter.default.post(name: NewsCache.prefetchDidFinish, object: topic)
             }
         }
-        fetchNext(0)
     }
     
     // MARK: - Markets Prefetch

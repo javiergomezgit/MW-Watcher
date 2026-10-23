@@ -7,7 +7,7 @@
 
 import UIKit
 
-///The live news feed, per section, kept in memory and on disk.
+///The live news feed, per topic chip, kept in memory and on disk, and which chip is picked.
 ///
 ///Saved to disk so the News tab opens with the last feed straight away on every launch,
 ///instead of a spinner over an empty screen while the server answers. The saved copy also
@@ -20,15 +20,45 @@ final class NewsCache {
     ///Posted on the main thread after a category is stored. The News tab listens for it
     ///instead of checking the cache once a second.
     static let didUpdate = Notification.Name("NewsCache.didUpdate")
-    ///Posted on the main thread when a prefetch run has finished, whether or not every
-    ///category came back, so pull to refresh always ends.
+    ///Posted on the main thread when a topic's fetch has finished, whether or not it came
+    ///back, so pull to refresh and the spinner always end. The object is the topic's id, or
+    ///nil when nothing could run.
     static let prefetchDidFinish = Notification.Name("NewsCache.prefetchDidFinish")
 
-    ///The server's /v1/market-news sections. These used to be GNews categories (business,
-    ///world, general), which were not market news. (BS-230)
-    static let categories = ["finance"]
+    // MARK: - Topics
 
-    ///A category older than this is fetched again.
+    struct Topic: Equatable {
+        ///The server's /v1/market-news topic.
+        let id: String
+        ///The chip's title.
+        let title: String
+    }
+
+    ///The News tab's chips, in order. The first four are CNBC; World is GNews's world, general
+    ///and business headlines merged on the server. (BS-231)
+    static let topics = [
+        Topic(id: "markets", title: "Markets"),
+        Topic(id: "movers", title: "Movers"),
+        Topic(id: "economy", title: "Economy"),
+        Topic(id: "trending", title: "Trending"),
+        Topic(id: "world", title: "World")
+    ]
+
+    private static let selectedTopicKey = "newsSelectedTopic"
+
+    ///The chip picked, kept across launches. Anything no longer offered falls back to Markets.
+    var selectedTopic: String {
+        get {
+            let stored = UserDefaults.standard.string(forKey: Self.selectedTopicKey)
+            return Self.topics.first { $0.id == stored }?.id ?? Self.topics[0].id
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: Self.selectedTopicKey)
+        }
+    }
+
+    ///A topic older than this is fetched again. The server shares each topic for an hour, so
+    ///asking more often costs no provider quota.
     let freshness: TimeInterval = 300
 
     private var data: [String: [NewsItem]] = [:]
@@ -61,9 +91,8 @@ final class NewsCache {
         data[category]
     }
 
-    ///True when at least one category can be shown.
-    var hasAnyNews: Bool {
-        Self.categories.contains { !(data[$0]?.isEmpty ?? true) }
+    func hasNews(for topic: String) -> Bool {
+        !(data[topic]?.isEmpty ?? true)
     }
 
     // MARK: - Disk
@@ -88,7 +117,9 @@ final class NewsCache {
         do {
             let stored = try JSONDecoder().decode([String: StoredCategory].self, from: saved)
             let placeholder = UIImage(named: "mw-logo") ?? UIImage()
-            for (category, entry) in stored {
+            //A topic no longer offered, such as BS-230's "finance", is dropped rather than
+            //being saved again on every write.
+            for (category, entry) in stored where Self.topics.contains(where: { $0.id == category }) {
                 data[category] = entry.items.map {
                     NewsItem(headline: $0.headline, link: $0.link, pubDate: $0.pubDate, ticker: $0.ticker,
                              author: $0.author, image: placeholder, imageURL: $0.imageURL)
