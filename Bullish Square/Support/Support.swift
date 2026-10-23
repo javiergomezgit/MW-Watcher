@@ -35,7 +35,11 @@ class Support {
     //MARK: Change date format for All live news
     func newLocalTimeNews(timeString: String) -> String {
         
+        //Parses the server's timestamps, such as CNBC's "2026-10-21T13:30:01+0000" ("Z" too).
+        //POSIX locale, so a phone set to 12-hour time or a non-Gregorian calendar still parses
+        //"HH"; without it those phones would get a blank date.
         let dateFormatterGet = DateFormatter()
+        dateFormatterGet.locale = Locale(identifier: "en_US_POSIX")
         dateFormatterGet.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         dateFormatterGet.timeZone = TimeZone(abbreviation: "UTC")
 
@@ -49,31 +53,9 @@ class Support {
         dateFormatter.timeZone = .current
 
         //Was force unwrapped, so a timestamp the formatter could not parse crashed the whole
-        //news load. Degrades to an empty label instead, matching newLocalTime below.
+        //news load. Degrades to an empty label instead.
         guard let dateObj = dateFormatterGet.date(from: timeString) else { return "" }
         return dateFormatter.string(from: dateObj)
-    }
-    
-    //MARK: Change date format News specific stock
-    func newLocalTime(timeString: String) -> String {
-        //Get date and format
-        let dateFormatterGet = DateFormatter()
-        dateFormatterGet.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        dateFormatterGet.timeZone = TimeZone(identifier: "UTC")
-
-        //Convert format
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .medium
-        dateFormatter.timeZone = TimeZone.current
-
-        let dateObj: Date? = dateFormatterGet.date(from: timeString)
-        if dateObj != nil {
-            let newLocalTime = dateFormatter.string(from: dateObj!)
-            return newLocalTime
-        } else {
-            return ""
-        }
     }
     
     //MARK: Change date format News specific crypto

@@ -131,8 +131,10 @@ final class NewsCallAPI {
                     if let imageLink = article.imageUrl, imageLink.isValidURL {
                         imageURLs[newsItems.count] = imageLink
                     }
+                    //CNBC sends "2026-10-21T13:30:01+0000". This used newLocalTime, which parses
+                    //no zone, so every date failed to parse and the label stayed blank. (BS-232)
                     newsItems.append(TickerNews(headline: article.headline,
-                                                pubDate: Support.sharedSupport.newLocalTime(timeString: article.published),
+                                                pubDate: Support.sharedSupport.newLocalTimeNews(timeString: article.published),
                                                 linkHeadline: article.url,
                                                 author: article.type,
                                                 image: placeholder))
