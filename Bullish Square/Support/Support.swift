@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ImageIO
 import UIKit
 
 class Support {
@@ -105,7 +106,34 @@ class Support {
     
     
     //MARK: Download image from a url, caching the result
-    let imageCache = NSCache<NSString, UIImage>()
+    ///Bounded by decoded size, so NSCache evicts the oldest pictures instead of the app being
+    ///killed for memory. Each entry's cost is its decoded bytes. (BS-234)
+    let imageCache: NSCache<NSString, UIImage> = {
+        let cache = NSCache<NSString, UIImage>()
+        cache.totalCostLimit = 120 * 1_024 * 1_024
+        return cache
+    }()
+
+    ///Longest side, in pixels, a downloaded picture is decoded at. Sharp on a full-width card at
+    ///3x; anything bigger only costs memory. Logos are far smaller and come through unchanged.
+    static let maxImagePixelSize = 1_200
+
+    ///Decodes straight to at most `maxPixelSize` on the longest side, without ever holding the
+    ///full-size bitmap. UIImage(data:) decoded CNBC's camera originals - up to 8640x5760, 190 MB
+    ///each - and a few news topics of those ran the app out of memory. Keeps transparency and
+    ///the photo's orientation. Nil when the data is not an image.
+    static func downsampledImage(from data: Data, maxPixelSize: Int = maxImagePixelSize) -> UIImage? {
+        let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+        guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions) else { return nil }
+        let thumbnailOptions = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+        ] as CFDictionary
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions) else { return nil }
+        return UIImage(cgImage: cgImage)
+    }
     
     ///Asynchronous image download. Returns nil when the url is unusable, the request fails, or
     ///the payload is not a decodable image, so the caller decides on the fallback.
@@ -127,11 +155,12 @@ class Support {
         request.timeoutInterval = 15.0
         
         URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-            guard error == nil, let data = data, let image = UIImage(data: data) else {
+            guard error == nil, let data = data, let image = Self.downsampledImage(from: data) else {
                 completion(nil)
                 return
             }
-            self?.imageCache.setObject(image, forKey: urlString as NSString)
+            let cost = (image.cgImage?.bytesPerRow ?? 0) * (image.cgImage?.height ?? 0)
+            self?.imageCache.setObject(image, forKey: urlString as NSString, cost: cost)
             completion(image)
         }.resume()
     }

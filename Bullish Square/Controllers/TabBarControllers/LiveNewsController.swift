@@ -43,7 +43,9 @@ class LiveNewsController: UIViewController {
     //Keyed by article link, not row index. Switching topic replaces newsItems wholesale,
     //so an index-keyed map rendered bookmarks against whatever article now sat at that row.
     var savedLinks: Set<String> = []
-    ///Pictures loaded so far, by article link.
+    ///Pictures loaded so far for the topic on screen, by article link. Pruned to that topic
+    ///when the feed is rebuilt; other topics' pictures come back from Support.imageCache, which
+    ///is bounded, rather than all being held here for good. (BS-234)
     private var articleImages: [String: UIImage] = [:]
     private var imagesInFlight: Set<String> = []
     private var imagesFailed: Set<String> = []
@@ -231,6 +233,10 @@ extension LiveNewsController {
         }
         backupNewsItems = items
         newsItems = items
+        //Only this topic's pictures are kept here; a failed one may be tried again later.
+        let links = Set(items.map(\.link))
+        articleImages = articleImages.filter { links.contains($0.key) }
+        imagesFailed = imagesFailed.intersection(links)
 
         savedLinks = saveHeadlines.savedLinks()
         tableView.reloadData()
