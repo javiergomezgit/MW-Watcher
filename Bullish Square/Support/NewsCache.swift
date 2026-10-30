@@ -34,13 +34,16 @@ final class NewsCache {
         let title: String
     }
 
-    ///The News tab's chips, in order. The first four are CNBC; World is GNews's world, general
+    ///The News tab's chips, in order. The first three are CNBC; World is GNews's world, general
     ///and business headlines merged on the server. (BS-231)
+    ///
+    ///Trending was dropped after 2.2.0: CNBC's most-read list repeated most of Markets (14 of
+    ///20 stories one day). The server still serves it for 2.2.0's chip. A phone left on it opens
+    ///on Markets.
     static let topics = [
         Topic(id: "markets", title: "Markets"),
         Topic(id: "movers", title: "Movers"),
         Topic(id: "economy", title: "Economy"),
-        Topic(id: "trending", title: "Trending"),
         Topic(id: "world", title: "World")
     ]
 
