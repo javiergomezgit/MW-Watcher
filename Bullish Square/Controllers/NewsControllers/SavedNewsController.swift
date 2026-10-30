@@ -8,285 +8,185 @@
 
 import UIKit
 import AMPopTip
-import AVFoundation
+import SafariServices
 
+///The stories saved from Live News, as a compact reading list, most recently saved first.
+///Tapping a row opens the story in the app; swiping deletes it. The ElevenLabs "read aloud"
+///button that used to sit on each row was removed, along with its request and player.
 class SavedNewsController: UIViewController {
-    
+
     @IBOutlet var tableView: UITableView!
-    
+
     let savedNews = UserSaveNews()
     var newsItems: [UserSavedNewsItem] = []
     var alreadyLaunched = false
-    let refreshControl = UIRefreshControl()
     private let imageDeleteAllNavBar = UIImageView(image: UIImage(systemName: "trash.circle.fill"))
-    private var audioPlayer: AVAudioPlayer? // For playing ElevenLabs audio
-    
+
+    ///Thumbnails decoded at row size, by article link. Saved pictures can be full-size PNGs
+    ///(stories saved before BS-234 were not shrunk), so they are never decoded whole.
+    private var thumbnails: [String: UIImage] = [:]
+    private let thumbnailQueue = DispatchQueue(label: "com.bullishsquare.savednews.thumbnails", qos: .userInitiated)
+
+    private lazy var emptyStateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "No saved stories yet.\nTap the bookmark on any story in Live News to keep it here."
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.font = UIFont(name: "Avenir-Medium", size: 16) ?? .systemFont(ofSize: 16, weight: .medium)
+        label.textColor = UIColor(named: "colorSecondary")
+        return label
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupUI()
-        
+
         let isFirstLaunch = UserDefaults.standard.bool(forKey: "firstLaunchingSavedNews")
         UserDefaults.standard.set(true, forKey: "firstLaunchingSavedNews")
-        UserDefaults.standard.synchronize()
-        
-        //change to true for testing
-        if !isFirstLaunch {
-            alreadyLaunched = false
-        } else {
-            alreadyLaunched = true
-        }
-        
+        alreadyLaunched = isFirstLaunch
+
         tableView.dataSource = self
         tableView.delegate = self
-        
-        refreshControl.attributedTitle = NSAttributedString(string: "Loading")
-        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
-        tableView.addSubview(refreshControl)
+        tableView.register(SavedNewsCompactCell.self, forCellReuseIdentifier: SavedNewsCompactCell.reuseIdentifier)
+        //The storyboard's table predates the compact rows: fixed 120 pt rows and no selection.
+        tableView.allowsSelection = true
+        tableView.separatorStyle = .none
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 108
     }
-    
-    @objc func refresh(_ sender: AnyObject) {
-        newsItems = savedNews.loadNews()
-        if !newsItems.isEmpty {
-            refreshControl.endRefreshing()
-            tableView.reloadData()
-        }
-    }
-    
+
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         showImage(true)
-        
-        newsItems = savedNews.loadNews()
-        if !newsItems.isEmpty {
-            tableView.reloadData()
+        reload()
+
+        if !alreadyLaunched, !newsItems.isEmpty {
+            alreadyLaunched = true
+            showSwipeHint()
         }
+    }
+
+    ///Re-read on every appearance: stories are saved from Live News while this screen is away.
+    private func reload() {
+        newsItems = savedNews.loadNews()
+        let links = Set(newsItems.map(\.link))
+        thumbnails = thumbnails.filter { links.contains($0.key) }
+        tableView.backgroundView = newsItems.isEmpty ? emptyStateLabel : nil
+        tableView.reloadData()
+    }
+
+    private func showSwipeHint() {
+        guard let firstRow = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) else { return }
+        let popTip = PopTip()
+        popTip.delayIn = TimeInterval(1)
+        popTip.actionAnimation = .bounce(4)
+        popTip.bubbleColor = UIColor(named: "onboardingNotification") ?? .systemBlue
+        popTip.shouldDismissOnTap = true
+        let frame = firstRow.convert(firstRow.bounds, to: view)
+        popTip.show(text: "Swipe left to delete", direction: .down, maxWidth: 160, in: view, from: frame)
     }
 }
 
 
-extension SavedNewsController: UITableViewDelegate, UITableViewDataSource {
+extension SavedNewsController: UITableViewDelegate, UITableViewDataSource, SFSafariViewControllerDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return newsItems.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "headlineCell", for: indexPath) as! SavedNewsViewCell
-        
-        cell.headlineLabel.text = newsItems[indexPath.row].headline
-        cell.dateLabel.text = newsItems[indexPath.row].pubDate
-        cell.authorLabel.text = newsItems[indexPath.row].author
-        let imageData = newsItems[indexPath.row].newsImageData
-        cell.imageNews.image = UIImage(data: imageData)
-        
-        if !alreadyLaunched {
-            if indexPath.row == 0  {
-                cell.showFirstTimeNotification(whereView: cell.headlineLabel)
-            }
-            if indexPath.row == 2 {
-                cell.showSecondTimeNotification(whereView: cell.headlineLabel)
-            }
+        let cell = tableView.dequeueReusableCell(withIdentifier: SavedNewsCompactCell.reuseIdentifier, for: indexPath) as! SavedNewsCompactCell
+        let item = newsItems[indexPath.row]
+
+        cell.configure(headline: item.headline, source: item.author, date: item.pubDate, thumbnail: thumbnails[item.link])
+        if thumbnails[item.link] == nil {
+            loadThumbnail(for: item)
         }
-        //sk_c57c7bf356fe2348a00f33b1b5969b31fc52a8fe7b97027b
-        cell.linkButton.tag = indexPath.row
+
         //UIControl keeps duplicate registrations, so a reused cell fired this action once
         //per dequeue. Removing the pair first guarantees exactly one.
-        cell.linkButton.removeTarget(self, action: #selector(linkButton(_:)), for: .touchUpInside)
-        cell.linkButton.addTarget(self, action: #selector(linkButton(_:)), for: .touchUpInside)
-        
-        cell.shareButton.tag = indexPath.row
-        cell.shareButton.removeTarget(self, action: #selector(shareHeadline(_: )), for: .touchUpInside)
-        cell.shareButton.addTarget(self, action: #selector(shareHeadline(_: )), for: .touchUpInside)
-        
-        cell.readButton.tag = indexPath.row
-        cell.readButton.removeTarget(self, action: #selector(readHeadline(_:)), for: .touchUpInside)
-        cell.readButton.addTarget(self, action: #selector(readHeadline(_:)), for: .touchUpInside)
-        
+        cell.shareButton.removeTarget(self, action: #selector(shareHeadline(_:)), for: .touchUpInside)
+        cell.shareButton.addTarget(self, action: #selector(shareHeadline(_:)), for: .touchUpInside)
+
         return cell
-        
     }
-    
+
+    ///Decodes the saved picture at row size off the main thread, then fills whichever row now
+    ///shows that story. Keyed by link: a delete moves rows while it decodes.
+    private func loadThumbnail(for item: UserSavedNewsItem) {
+        let link = item.link
+        let data = item.newsImageData
+        let pixels = Int(SavedNewsCompactCell.thumbnailSide * UIScreen.main.scale)
+        thumbnailQueue.async { [weak self] in
+            let image = Support.downsampledImage(from: data, maxPixelSize: pixels) ?? UIImage(named: "mw-logo")
+            DispatchQueue.main.async {
+                guard let self, let image else { return }
+                self.thumbnails[link] = image
+                guard let row = self.newsItems.firstIndex(where: { $0.link == link }),
+                      let cell = self.tableView.cellForRow(at: IndexPath(row: row, section: 0)) as? SavedNewsCompactCell else { return }
+                cell.thumbnailView.image = image
+            }
+        }
+    }
+
+    //Opens in the app, as Live News does, rather than switching to Safari.
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        guard let url = URL(string: newsItems[indexPath.row].link) else { return }
+        let configuration = SFSafariViewController.Configuration()
+        configuration.entersReaderIfAvailable = true
+        let safari = SFSafariViewController(url: url, configuration: configuration)
+        safari.delegate = self
+        present(safari, animated: true)
+    }
+
     @objc func shareHeadline(_ sender: UIButton) {
         sender.animateButton(sender: sender, duration: 0.1)
-        
-        let newsItem = self.newsItems[sender.tag]
-        let headline = newsItem.headline
-        let date = newsItem.pubDate
-        let author = newsItem.author
-        let link = newsItem.link
-        let imageData = newsItem.newsImageData
-        
+
+        //Resolved at tap time: a row index stored on the button goes stale after a delete.
+        let point = sender.convert(CGPoint.zero, to: tableView)
+        guard let indexPath = tableView.indexPathForRow(at: point), indexPath.row < newsItems.count else { return }
+        let newsItem = newsItems[indexPath.row]
+
         let formattedText = """
-         
-         📰 \(headline)
-             
-         📅 \(date)
-         👤 Source: \(author)
-             
-         🔗 Read more: \(link)
-         
+
+         📰 \(newsItem.headline)
+
+         📅 \(newsItem.pubDate)
+         👤 Source: \(newsItem.author)
+
+         🔗 Read more: \(newsItem.link)
+
          Shared via Bullish Square 📱
          """
-        
-        // Create activity items array with both text and image
+
         var activityItems: [Any] = [formattedText]
-        
-        if let image = UIImage(data: imageData) {
-            // imageData is a valid image
-            // Add image if it's not a placeholder or empty image
-            if image.size.width > 1 && image.size.height > 1 {
-                activityItems.append(image)
-            } else {
-                activityItems.append(UIImage(named: "mw-logo")!)
-            }
-        } else {
-            // imageData is invalid or corrupted
-            activityItems.append(UIImage(named: "mw-logo")!)
+        //Shared at a sensible size; the saved picture can be a camera original.
+        if let image = Support.downsampledImage(from: newsItem.newsImageData), image.size.width > 1, image.size.height > 1 {
+            activityItems.append(image)
+        } else if let logo = UIImage(named: "mw-logo") {
+            activityItems.append(logo)
         }
-        
-        
-        
+
         let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         present(activityVC, animated: true)
-        
     }
-    
-    @objc func linkButton(_ sender: UIButton) {
-        //guard let urlString = sender.titleLabel?.text else { return }
-        let index = sender.tag
-        let urlString = newsItems[index].link
-        
-        guard let url = URL(string: urlString) else { return }
-        UIApplication.shared.open(url)
-    }
-    
-    @objc func readHeadline(_ sender: UIButton) {
-        // Stop any ongoing audio
-        audioPlayer?.stop()
-        
-        let index = sender.tag
-        let headline = newsItems[index].headline
-        
-        // Format headline for natural reading
-        let formattedHeadline = headline
-            .replacingOccurrences(of: ".", with: ". ")
-            .replacingOccurrences(of: "U.S.", with: "United States")
-        
-        
-        // ElevenLabs API request
-        guard let url = URL(string: "\(KeysNewsCallAPI.elevenLabsBaseURL)/\(KeysNewsCallAPI.voiceID)") else {
-            Utilities.showErrorAlert(on: self, message: "Invalid API URL.")
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(KeysNewsCallAPI.elevenLabsAPIKey, forHTTPHeaderField: "xi-api-key")
-        
-        let parameters: [String: Any] = [
-            "text": formattedHeadline,
-            "voice_settings": [
-                "stability": 0.6,
-                "similarity_boost": 0.8,
-                "speed": 1.0
-            ],
-            "model_id": "eleven_monolingual_v1",
-            "output_format": "mp3"
-        ]
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
-        } catch {
-            print("Error encoding JSON: \(error.localizedDescription)")
-            Utilities.showErrorAlert(on: self, message: "Failed to prepare headline audio.")
-            return
-        }
-        
-        // Debug: Log request details
-        print("Request URL: \(url.absoluteString)")
-        print("Request Headers: \(request.allHTTPHeaderFields ?? [:])")
-        print("Request Body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "No body")")
-        
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            guard let self = self else { return }
-            
-            if let error = error {
-                print("API request failed: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Unable to generate headline audio: \(error.localizedDescription)")
-                }
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("Invalid response: \(String(describing: response))")
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Invalid server response.")
-                }
-                return
-            }
-            
-            if httpResponse.statusCode == 401 {
-                print("Unauthorized: Invalid or missing API key. Key used: \(KeysNewsCallAPI.elevenLabsAPIKey.prefix(4))... (length: \(KeysNewsCallAPI.elevenLabsAPIKey.count))")
-                if let data = data, let errorBody = try? JSONSerialization.jsonObject(with: data) {
-                    print("Error Response: \(errorBody)")
-                }
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Invalid ElevenLabs API key. Please verify your API key in the ElevenLabs dashboard or generate a new one.")
-                }
-                return
-            }
-            
-            if !(200...299).contains(httpResponse.statusCode) {
-                print("HTTP Error: Status \(httpResponse.statusCode)")
-                if let data = data, let errorBody = try? JSONSerialization.jsonObject(with: data) {
-                    print("Error Response: \(errorBody)")
-                }
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Failed to generate audio. HTTP Status: \(httpResponse.statusCode)")
-                }
-                return
-            }
-            
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "No audio data received.")
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                do {
-                    self.audioPlayer = try AVAudioPlayer(data: data)
-                    self.audioPlayer?.prepareToPlay()
-                    self.audioPlayer?.play()
-                } catch {
-                    print("Error playing audio: \(error.localizedDescription)")
-                    Utilities.showErrorAlert(on: self, message: "Failed to play headline audio.")
-                }
-            }
-        }
-        task.resume()
-    }
-    
-    
+
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
         return .delete
     }
-    
+
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete{
-            _ = savedNews.deleteNews(link: newsItems[indexPath.row].link, deleteAll: false)
+        if editingStyle == .delete {
+            let link = newsItems[indexPath.row].link
+            _ = savedNews.deleteNews(link: link, deleteAll: false)
             newsItems.remove(at: indexPath.row)
+            thumbnails[link] = nil
             tableView.deleteRows(at: [indexPath], with: .left)
+            tableView.backgroundView = newsItems.isEmpty ? emptyStateLabel : nil
         }
     }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 160.0 // Adjust this value to your desired cell height
-    }
-    
-    
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         return UIView() // Empty view for transparent spacing
     }
@@ -299,16 +199,16 @@ extension SavedNewsController {
         static let ImageSizeForLargeState: CGFloat = 36
         /// Image height/width for Small NavBar state
         static let ImageSizeForSmallState: CGFloat = 28
-        
+
         /// Height of NavBar for Small state. Usually it's just 44
         static let NavBarHeightSmallState: CGFloat = 44
         /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
         static let NavBarHeightLargeState: CGFloat = 96.5
-        
-        
+
+
         /// Margin from right anchor of safe area to right anchor of Image
         static let ImageRightMargin: CGFloat = 24
-        
+
         /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
         static let ImageBottomMarginForLargeState: CGFloat = 14
         /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
@@ -316,15 +216,16 @@ extension SavedNewsController {
 
 
     }
-    
+
     private func setupUI() {
-        //        navigationController?.navigationBar.prefersLargeTitles = true
-        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
         imageDeleteAllNavBar.isUserInteractionEnabled = true
         imageDeleteAllNavBar.tintColor = UIColor(named: "colorSecondary")
         imageDeleteAllNavBar.addGestureRecognizer(tapGestureRecognizer)
-        
+        imageDeleteAllNavBar.accessibilityLabel = "Delete all saved stories"
+        imageDeleteAllNavBar.accessibilityTraits = .button
+        imageDeleteAllNavBar.isAccessibilityElement = true
+
         // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
         guard let navigationBar = self.navigationController?.navigationBar else { return }
         navigationBar.addSubview(imageDeleteAllNavBar)
@@ -336,18 +237,28 @@ extension SavedNewsController {
             imageDeleteAllNavBar.widthAnchor.constraint(equalTo: imageDeleteAllNavBar.heightAnchor)
         ])
     }
-    
+
+    ///Asks first. One tap used to wipe every saved story, with no way back.
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)  {
-        _ = savedNews.deleteNews(link: "", deleteAll: true)
-        newsItems.removeAll()
-        tableView.reloadData()
+        guard !newsItems.isEmpty else { return }
+        let count = newsItems.count
+        let alert = UIAlertController(title: "Delete all saved stories?",
+                                      message: "\(count) \(count == 1 ? "story" : "stories") will be removed. This can't be undone.",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete All", style: .destructive) { [weak self] _ in
+            guard let self else { return }
+            _ = self.savedNews.deleteNews(link: "", deleteAll: true)
+            self.reload()
+        })
+        present(alert, animated: true)
     }
-    
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         showImage(false)
     }
-    
+
     /// Show or hide the image from NavBar while going to next screen or back to initial screen
     /// - Parameter show: show or hide the image from NavBar
     private func showImage(_ show: Bool) {

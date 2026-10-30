@@ -13,6 +13,19 @@ class UserSaveNews {
     var newsManagedObjectArray: [NSManagedObject] = []
     let entityName = "SavedNewsEntity"
     
+    // MARK: - Saved order
+    
+    ///Article links, most recently saved first. SavedNewsEntity has no saved date and a fetch
+    ///has no order, so the order lives here rather than in a Core Data migration that could
+    ///lose the store. Stories saved before this list existed have no place in it; they sort
+    ///after every newer one, in fetch order.
+    private static let savedOrderKey = "savedNewsOrder"
+    
+    private var savedOrder: [String] {
+        get { UserDefaults.standard.stringArray(forKey: Self.savedOrderKey) ?? [] }
+        set { UserDefaults.standard.set(newValue, forKey: Self.savedOrderKey) }
+    }
+    
     func saveNews(headline: String, date: String, link: String, author: String, imageNews: UIImage) -> Bool {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return false }
         let managedContext = appDelegate.persistentContainer.viewContext
@@ -32,6 +45,7 @@ class UserSaveNews {
         do {
             try managedContext.save()
             newsManagedObjectArray.append(headlineObject)
+            savedOrder = [link] + savedOrder.filter { $0 != link }
             return true
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
@@ -73,6 +87,7 @@ class UserSaveNews {
             do {
                 try managedContext.execute(deleteRequest)
                 try managedContext.save()
+                savedOrder = []
                 success = true
             } catch {
                 print ("there is an error")
@@ -89,6 +104,7 @@ class UserSaveNews {
                         try managedContext.save()
                     }
                 }
+                savedOrder = savedOrder.filter { $0 != link }
                 success = true
             } catch let error as NSError {
                 print("Could not fetch. \(error), \(error.userInfo)")
@@ -127,6 +143,16 @@ class UserSaveNews {
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        return newsItemArray
+        
+        //Most recently saved first; stories older than the saved order keep fetch order after.
+        let rank = Dictionary(savedOrder.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
+        return newsItemArray.enumerated().sorted { lhs, rhs in
+            switch (rank[lhs.element.link], rank[rhs.element.link]) {
+            case let (l?, r?): return l < r
+            case (.some, .none): return true
+            case (.none, .some): return false
+            case (.none, .none): return lhs.offset < rhs.offset
+            }
+        }.map(\.element)
     }
 }
