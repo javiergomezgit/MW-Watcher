@@ -96,6 +96,83 @@ final class NewsCallAPI {
         }
     }
     
+    ///The Bullish Square server's /v1/market-brief answer.
+    private struct MarketBriefResponse: Decodable {
+        let generatedAt: String
+        let bullets: [Bullet]
+        let stories: [MarketNewsResponse.Article]
+
+        struct Bullet: Decodable {
+            let text: String
+            let sources: [Int]
+        }
+    }
+
+    //MARK: API call for the market brief
+    ///"Why markets moved", or nil when there is none to show: no key on the server, no stories
+    ///yet, or no connection. The card is decoration, so nil just means no card. Completes
+    ///exactly once. (BS-242)
+    ///
+    ///The server writes it with Claude at most hourly and shares it between every user.
+    func loadMarketBrief(completion: @escaping(MarketBrief?) -> Void) {
+        MarketDataServer.authorizedRequest(path: "/v1/market-brief") { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("Market brief could not reach the server: \(error)")
+                completion(nil)
+                return
+            case .success(let authorized):
+                request = authorized
+            }
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data = data,
+                      let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    //503 is "no brief yet", expected until the server has a key and stories.
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                        print("Market brief server answered \(httpResponse.statusCode)")
+                    }
+                    completion(nil)
+                    return
+                }
+                do {
+                    let decoded = try JSONDecoder().decode(MarketBriefResponse.self, from: data)
+                    completion(Self.marketBrief(from: decoded))
+                } catch let error as NSError {
+                    print("Market brief could not be read: \(error.localizedDescription)")
+                    completion(nil)
+                }
+            }.resume()
+        }
+    }
+
+    ///Checks the answer again rather than trusting it: a line citing a story that is not there
+    ///is dropped, and a brief with no line left, or an unreadable date, is no brief.
+    private static func marketBrief(from response: MarketBriefResponse) -> MarketBrief? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let generatedAt = formatter.date(from: response.generatedAt) else {
+            print("Market brief has an unreadable date: \(response.generatedAt)")
+            return nil
+        }
+        let stories = response.stories.map {
+            MarketBrief.Story(headline: $0.headline, link: $0.url, source: $0.source)
+        }
+        //A closed range 1...0 would trap, so no stories is checked first.
+        guard !stories.isEmpty else { return nil }
+        let lines = response.bullets.compactMap { bullet -> MarketBrief.Line? in
+            let text = bullet.text.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !text.isEmpty, !bullet.sources.isEmpty,
+                  bullet.sources.allSatisfy({ (1...stories.count).contains($0) }) else {
+                print("Market brief line dropped, it cites stories that are not there: \(bullet.sources)")
+                return nil
+            }
+            return MarketBrief.Line(text: text, sources: bullet.sources)
+        }
+        return lines.isEmpty ? nil : MarketBrief(generatedAt: generatedAt, lines: lines, stories: stories)
+    }
+
     //MARK: API call for news search
     ///Markets and Economy stories from the last 20 days whose headline matches every word,
     ///newest first, or nil when the search could not run. An empty list means nothing matched.

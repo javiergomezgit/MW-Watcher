@@ -106,6 +106,46 @@ class LiveNewsController: UIViewController {
     ///The same gap above the first story on World, which has no search field.
     private let listTopSpacer = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: LiveNewsController.listTopGap))
 
+    // MARK: - Market brief (BS-242)
+
+    ///"Why markets moved", under the search field on Markets only. Nil hides the card: it is
+    ///decoration, and the stories never wait for it.
+    private var marketBrief: MarketBrief?
+    private var briefFetchedAt: Date?
+    private var briefInFlight = false
+    ///The server rewrites the brief at most hourly; asking every five minutes, like the topics,
+    ///picks up a new one soon after.
+    private static let briefFreshness: TimeInterval = 300
+    private static let briefTopic = "markets"
+
+    private lazy var briefCard: MarketBriefCardView = {
+        let card = MarketBriefCardView()
+        card.isHidden = true
+        card.onOpenStory = { [weak self] url in self?.openArticle(url) }
+        card.onSizeChange = { [weak self] in self?.resizeListHeader() }
+        return card
+    }()
+
+    ///The header on the searchable chips: the search field, then the brief card when it shows.
+    ///Sized to fit whenever either changes, since a table header does not size itself.
+    private lazy var listHeader: UIView = {
+        let container = UIView()
+        let stack = UIStackView(arrangedSubviews: [searchHeader, briefCard])
+        stack.axis = .vertical
+        searchHeader.translatesAutoresizingMaskIntoConstraints = false
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            searchHeader.heightAnchor.constraint(equalToConstant: searchHeader.frame.height),
+            stack.topAnchor.constraint(equalTo: container.topAnchor),
+            stack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            stack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+        ])
+        return container
+    }()
+    private var sizedHeaderWidth: CGFloat = -1
+
     ///Title, chips, search field, stories and the saved button share one margin: the view's
     ///layout margin, which is the large title's (16 pt, 20 pt on the larger phones). The chips
     ///used to touch the screen edge and the stories sat at 15 pt.
@@ -150,6 +190,10 @@ class LiveNewsController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         applyMargin()
+        //The card's lines wrap to the list's width, so a new width needs a new height.
+        if tableView.bounds.width != sizedHeaderWidth {
+            resizeListHeader()
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -257,6 +301,7 @@ extension LiveNewsController {
             return
         }
         SceneDelegate.triggerNewsPrefetch(force: true)
+        loadBriefIfNeeded(force: true)
     }
 
     ///Shows the selected topic's cached stories - the saved feed from the last launch - and
@@ -272,12 +317,35 @@ extension LiveNewsController {
     ///Shows the chip's topic from the cache straight away, or a spinner when it has nothing
     ///yet, and fetches it if it is older than five minutes. A fresh topic costs no request.
     private func showSelectedTopic() {
-        updateSearchBarVisibility()
+        updateListHeader()
         populateNews()
         if !NewsCache.shared.hasNews(for: NewsCache.shared.selectedTopic) {
             startStopSpinner(start: true)
         }
         SceneDelegate.triggerNewsPrefetch()
+        loadBriefIfNeeded(force: false)
+    }
+
+    ///Asks for the brief when Markets is showing and the last answer is older than five
+    ///minutes. A failure keeps the brief already shown, or shows no card.
+    private func loadBriefIfNeeded(force: Bool) {
+        guard NewsCache.shared.selectedTopic == Self.briefTopic, !briefInFlight else { return }
+        if !force, let briefFetchedAt, Date().timeIntervalSince(briefFetchedAt) < Self.briefFreshness {
+            return
+        }
+        briefInFlight = true
+        NewsCallAPI.shared.loadMarketBrief { [weak self] brief in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.briefInFlight = false
+                self.briefFetchedAt = Date()
+                if let brief {
+                    self.marketBrief = brief
+                    self.briefCard.configure(with: brief)
+                }
+                self.updateListHeader()
+            }
+        }
     }
 
     @objc private func newsCacheDidUpdate() {
@@ -775,15 +843,17 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
     
     // Open link in Safari View Controller
     @objc func connected(sender: UIButton) {
-        guard let urlString = sender.titleLabel?.text else { return }
-        
-        if let url = URL(string: urlString) {
-            let config = SFSafariViewController.Configuration()
-            config.entersReaderIfAvailable = true
-            let vc = SFSafariViewController(url: url, configuration: config)
-            vc.delegate = self
-            present(vc, animated: true)
-        }
+        guard let urlString = sender.titleLabel?.text, let url = URL(string: urlString) else { return }
+        openArticle(url)
+    }
+
+    ///In the app, in Reader where the page allows; the brief card's sources open the same way.
+    private func openArticle(_ url: URL) {
+        let config = SFSafariViewController.Configuration()
+        config.entersReaderIfAvailable = true
+        let vc = SFSafariViewController(url: url, configuration: config)
+        vc.delegate = self
+        present(vc, animated: true)
     }
     
     // Safari delegate - placeholder for dismiss
@@ -797,7 +867,7 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
 //
 extension LiveNewsController: UISearchBarDelegate {
 
-    ///In the list's header (searchHeader), so it scrolls away with the stories and leaves the
+    ///In the list's header (listHeader), so it scrolls away with the stories and leaves the
     ///navigation bar, and the saved-news button pinned to it, alone.
     private func setupSearchBar() {
         searchBar.placeholder = "Search Markets & Economy news"
@@ -812,14 +882,34 @@ extension LiveNewsController: UISearchBarDelegate {
         tableView.keyboardDismissMode = .onDrag
     }
 
-    ///Shown only over a chip the search covers: on World it would find none of the stories
-    ///below it.
-    private func updateSearchBarVisibility() {
+    ///The search field only over a chip the search covers: on World it would find none of the
+    ///stories below it. The brief card only on Markets, with a brief, and not over search
+    ///results, which it does not describe.
+    private func updateListHeader() {
         let topic = NewsCache.shared.selectedTopic
         let searchable = topics.first { $0.id == topic }?.searchable ?? false
-        let header = searchable ? searchHeader : listTopSpacer
-        guard tableView.tableHeaderView !== header else { return }
-        tableView.tableHeaderView = header
+        briefCard.isHidden = !(topic == Self.briefTopic && marketBrief != nil && searchQuery == nil)
+        let header = searchable ? listHeader : listTopSpacer
+        if tableView.tableHeaderView !== header {
+            tableView.tableHeaderView = header
+        }
+        resizeListHeader()
+    }
+
+    ///A table header keeps the height it was given, so it is measured at the list's width and
+    ///set again whenever its content or that width changes.
+    private func resizeListHeader() {
+        let width = tableView.bounds.width
+        guard width > 0, tableView.tableHeaderView === listHeader else { return }
+        sizedHeaderWidth = width
+        let height = listHeader.systemLayoutSizeFitting(
+            CGSize(width: width, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        ).height
+        guard listHeader.frame.width != width || listHeader.frame.height != height else { return }
+        listHeader.frame = CGRect(x: 0, y: 0, width: width, height: height)
+        tableView.tableHeaderView = listHeader
     }
 
     ///Searches once typing pauses, not on every letter. Fewer than two letters shows the feed.
@@ -872,6 +962,7 @@ extension LiveNewsController: UISearchBarDelegate {
     ///cancelled - is dropped, so a slow reply cannot replace a newer one.
     private func runSearch(_ text: String) {
         searchQuery = text
+        updateListHeader()
         if newsItems.isEmpty || tableView.backgroundView != nil {
             showSearchMessage("Searching…")
         }
@@ -917,6 +1008,7 @@ extension LiveNewsController: UISearchBarDelegate {
         searchQuery = nil
         newsItems = backupNewsItems
         tableView.backgroundView = nil
+        updateListHeader()
         tableView.reloadData()
     }
 
