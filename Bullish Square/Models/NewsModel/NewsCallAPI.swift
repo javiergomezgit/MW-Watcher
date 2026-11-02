@@ -53,7 +53,7 @@ final class NewsCallAPI {
     ///Completes exactly once.
     ///
     ///Asks the Bullish Square server's /v1/market-news/<topic>, which shares each topic between
-    ///every user for an hour: CNBC for Markets, Movers and Economy, GNews for World.
+    ///every user for an hour: CNBC for Markets and Economy, GNews for World.
     ///The tab used to ask GNews from the phone, with its key built into the app.
     ///(BS-230, BS-231)
     func loadMarketNews(section: String, completion: @escaping([NewsItem]?) -> Void) {
