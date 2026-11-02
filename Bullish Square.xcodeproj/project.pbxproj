@@ -186,7 +186,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1250;
-				LastUpgradeCheck = 2700;
+				LastUpgradeCheck = 2720;
 				TargetAttributes = {
 					221236A3263DA728007EA092 = {
 						CreatedOnToolsVersion = 12.5;
@@ -449,7 +449,7 @@
 				INFOPLIST_FILE = "Bullish Square/Support/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Bullish Square";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -546,7 +546,7 @@
 				INFOPLIST_FILE = "Bullish Square/Support/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Bullish Square";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
