@@ -5,6 +5,7 @@
 //  Created by Javier Gomez on 6/3/25.
 //
 
+import FirebaseAuth
 import Foundation
 import UIKit
 
@@ -172,13 +173,16 @@ final class NewsCallAPI {
 
     ///Why Ask AI gave no answer, worded for the reader.
     enum AskError: Error {
-        case dailyLimit
+        ///The plan's questions for today are used up; the number when the server said it.
+        case dailyLimit(Int?)
         case busy
         case unavailable
 
         var message: String {
             switch self {
-            case .dailyLimit:
+            case .dailyLimit(let limit?):
+                return "You've used your \(limit) questions for today. Try again tomorrow."
+            case .dailyLimit(nil):
                 return "You've asked the most questions for today. Try again tomorrow."
             case .busy:
                 return "Ask AI is busy right now. Try again later."
@@ -191,7 +195,7 @@ final class NewsCallAPI {
     private static let installIDKey = "newsAskInstallID"
 
     ///A random ID for this install, kept in UserDefaults, that carries the server's daily
-    ///question limit. Not tied to the person or the device.
+    ///question limit while signed out. Not tied to the person or the device.
     private static var installID: String {
         if let stored = UserDefaults.standard.string(forKey: installIDKey) {
             return stored
@@ -207,7 +211,8 @@ final class NewsCallAPI {
     ///
     ///A POST to the Bullish Square server's /v1/news/ask, so the question stays out of the URL
     ///and the server's request log. The server shares an answer for an hour and limits new
-    ///questions per install a day.
+    ///questions a day by plan: by account when signed in, so the limit follows the user to a new
+    ///phone, by install when not. (BS-246)
     func askNews(question: String, completion: @escaping(Result<NewsAnswer, AskError>) -> Void) {
         //The server refuses characters questions do not use; they become spaces here.
         var askable = CharacterSet.alphanumerics
@@ -237,41 +242,72 @@ final class NewsCallAPI {
             //Haiku takes a few seconds; the 10-second default is too tight.
             request.timeoutInterval = 30
 
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                guard error == nil, let data, let httpResponse = response as? HTTPURLResponse else {
-                    print("Ask AI request failed: \(String(describing: error))")
-                    completion(.failure(.unavailable))
-                    return
+            Self.signInToken { idToken in
+                var signed = request
+                if let idToken {
+                    signed.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
                 }
-                switch httpResponse.statusCode {
-                case 200:
-                    break
-                case 429:
-                    let reason = (try? JSONDecoder().decode([String: String].self, from: data))?["error"]
-                    completion(.failure(reason == "daily_limit" ? .dailyLimit : .busy))
-                    return
-                default:
-                    print("Ask AI server answered \(httpResponse.statusCode)")
-                    completion(.failure(.unavailable))
-                    return
-                }
-                do {
-                    let decoded = try JSONDecoder().decode(NewsAnswerResponse.self, from: data)
-                    let stories = decoded.stories.map {
-                        MarketBrief.Story(headline: $0.headline, link: $0.url, source: $0.source)
-                    }
-                    let lines = Self.citedLines(decoded.bullets, storyCount: stories.count, uncitedAllowed: !decoded.answered)
-                    guard !lines.isEmpty else {
-                        completion(.failure(.unavailable))
-                        return
-                    }
-                    completion(.success(NewsAnswer(answered: decoded.answered, lines: lines, stories: stories)))
-                } catch let error as NSError {
-                    print("Ask AI answer could not be read: \(error.localizedDescription)")
-                    completion(.failure(.unavailable))
-                }
-            }.resume()
+                Self.sendQuestion(signed, completion: completion)
+            }
         }
+    }
+
+    ///The server's 429 answer: which limit, and the plan's allowance when it is the asker's.
+    private struct AskRefusal: Decodable {
+        let error: String
+        let limit: Int?
+    }
+
+    ///The signed-in user's Firebase ID token, so the server counts Ask AI by account; nil when
+    ///signed out or when no token can be had, and the question then counts by install.
+    private static func signInToken(completion: @escaping (String?) -> Void) {
+        guard let user = Auth.auth().currentUser else {
+            completion(nil)
+            return
+        }
+        user.getIDToken { token, error in
+            if let error {
+                print("Sign-in token unavailable, asking by install: \(error.localizedDescription)")
+            }
+            completion(token)
+        }
+    }
+
+    private static func sendQuestion(_ request: URLRequest, completion: @escaping(Result<NewsAnswer, AskError>) -> Void) {
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard error == nil, let data, let httpResponse = response as? HTTPURLResponse else {
+                print("Ask AI request failed: \(String(describing: error))")
+                completion(.failure(.unavailable))
+                return
+            }
+            switch httpResponse.statusCode {
+            case 200:
+                break
+            case 429:
+                let refusal = try? JSONDecoder().decode(AskRefusal.self, from: data)
+                completion(.failure(refusal?.error == "daily_limit" ? .dailyLimit(refusal?.limit) : .busy))
+                return
+            default:
+                print("Ask AI server answered \(httpResponse.statusCode)")
+                completion(.failure(.unavailable))
+                return
+            }
+            do {
+                let decoded = try JSONDecoder().decode(NewsAnswerResponse.self, from: data)
+                let stories = decoded.stories.map {
+                    MarketBrief.Story(headline: $0.headline, link: $0.url, source: $0.source)
+                }
+                let lines = Self.citedLines(decoded.bullets, storyCount: stories.count, uncitedAllowed: !decoded.answered)
+                guard !lines.isEmpty else {
+                    completion(.failure(.unavailable))
+                    return
+                }
+                completion(.success(NewsAnswer(answered: decoded.answered, lines: lines, stories: stories)))
+            } catch let error as NSError {
+                print("Ask AI answer could not be read: \(error.localizedDescription)")
+                completion(.failure(.unavailable))
+            }
+        }.resume()
     }
 
     ///The lines whose citations all point at stories that were sent. A line citing nothing is
