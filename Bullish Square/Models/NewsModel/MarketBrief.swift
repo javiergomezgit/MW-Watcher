@@ -28,3 +28,11 @@ struct MarketBrief {
     ///Only the stories the lines cite, in the order first cited.
     let stories: [Story]
 }
+
+///An Ask AI answer (BS-243), in the brief's shape. When the stories do not cover the question,
+///`answered` is false and the one line says so, citing nothing.
+struct NewsAnswer {
+    let answered: Bool
+    let lines: [MarketBrief.Line]
+    let stories: [MarketBrief.Story]
+}

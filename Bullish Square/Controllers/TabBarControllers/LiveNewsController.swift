@@ -126,11 +126,61 @@ class LiveNewsController: UIViewController {
         return card
     }()
 
-    ///The header on the searchable chips: the search field, then the brief card when it shows.
-    ///Sized to fit whenever either changes, since a table header does not size itself.
+    // MARK: - Ask AI (BS-243)
+
+    ///The question the status line or answer is for. Typing something else hides both.
+    private var askedQuestion: String?
+    ///"Asking…" or why there is no answer, for askedQuestion; nil once the answer shows.
+    private var askMessage: String?
+    private var hasAnswer = false
+
+    private lazy var askButton: UIButton = {
+        var configuration = UIButton.Configuration.filled()
+        configuration.baseBackgroundColor = UIColor(red: 0.125, green: 0.161, blue: 0.239, alpha: 1)
+        configuration.baseForegroundColor = UIColor(named: "AccentColor")
+        configuration.image = UIImage(systemName: "sparkles")
+        configuration.imagePadding = 8
+        configuration.titleLineBreakMode = .byTruncatingTail
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 14, bottom: 12, trailing: 14)
+        configuration.cornerStyle = .large
+        let button = UIButton(configuration: configuration)
+        button.contentHorizontalAlignment = .leading
+        button.addAction(UIAction { [weak self] _ in self?.askAI() }, for: .touchUpInside)
+        return button
+    }()
+
+    private let askStatusLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.font = UIFont(name: "Avenir-Medium", size: 14) ?? .systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor(named: "colorSecondary")
+        return label
+    }()
+
+    private lazy var answerCard: MarketBriefCardView = {
+        let card = MarketBriefCardView(bottomGap: 0)
+        card.onOpenStory = { [weak self] url in self?.openArticle(url) }
+        card.onSizeChange = { [weak self] in self?.resizeListHeader() }
+        return card
+    }()
+
+    ///The Ask AI row, then its status or answer, with the gap to the stories below.
+    private lazy var askContainer: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [askButton, askStatusLabel, answerCard])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: Self.searchBottomGap, trailing: 0)
+        stack.isHidden = true
+        return stack
+    }()
+
+    ///The header on the searchable chips: the search field, Ask AI while a question is typed,
+    ///then the brief card when it shows. Sized to fit whenever they change, since a table
+    ///header does not size itself.
     private lazy var listHeader: UIView = {
         let container = UIView()
-        let stack = UIStackView(arrangedSubviews: [searchHeader, briefCard])
+        let stack = UIStackView(arrangedSubviews: [searchHeader, askContainer, briefCard])
         stack.axis = .vertical
         searchHeader.translatesAutoresizingMaskIntoConstraints = false
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -889,6 +939,7 @@ extension LiveNewsController: UISearchBarDelegate {
         let topic = NewsCache.shared.selectedTopic
         let searchable = topics.first { $0.id == topic }?.searchable ?? false
         briefCard.isHidden = !(topic == Self.briefTopic && marketBrief != nil && searchQuery == nil)
+        updateAskViews()
         let header = searchable ? listHeader : listTopSpacer
         if tableView.tableHeaderView !== header {
             tableView.tableHeaderView = header
@@ -1013,8 +1064,71 @@ extension LiveNewsController: UISearchBarDelegate {
     }
 
     private func showSearchMessage(_ message: String) {
+        //An answer on screen already says more than "no stories match".
+        guard !(hasAnswer && askedQuestion == searchQuery) else { return }
         searchMessageLabel.text = message
         tableView.backgroundView = searchMessageView
+    }
+
+    // MARK: - Ask AI
+
+    ///Questions get the Ask AI row; a word or two is a keyword search. Ends in "?", starts with
+    ///a question word, or is four words or more.
+    static func looksLikeQuestion(_ text: String) -> Bool {
+        let lower = text.lowercased()
+        if lower.hasSuffix("?") { return true }
+        let words = lower.split(separator: " ")
+        let questionWords: Set<String> = ["why", "what", "how", "when", "who", "which", "where", "is", "are",
+                                          "was", "were", "did", "does", "do", "will", "should", "can", "could"]
+        if let first = words.first, questionWords.contains(String(first)), words.count >= 2 { return true }
+        return words.count >= 4
+    }
+
+    ///The row while a question is typed; its status or answer once asked, for that question only.
+    private func updateAskViews() {
+        guard let query = searchQuery, Self.looksLikeQuestion(query) else {
+            askContainer.isHidden = true
+            return
+        }
+        askContainer.isHidden = false
+        let askedThis = askedQuestion == query
+        askButton.isHidden = askedThis
+        askButton.configuration?.title = "Ask AI: “\(query)”"
+        askStatusLabel.isHidden = !(askedThis && askMessage != nil)
+        askStatusLabel.text = askMessage
+        answerCard.isHidden = !(askedThis && hasAnswer)
+    }
+
+    ///Sends the question on screen. An answer arriving after the text changed is dropped.
+    private func askAI() {
+        guard let question = searchQuery else { return }
+        searchBar.resignFirstResponder()
+        askedQuestion = question
+        askMessage = "Asking…"
+        hasAnswer = false
+        updateListHeader()
+
+        NewsCallAPI.shared.askNews(question: question) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self, self.askedQuestion == question else { return }
+                switch result {
+                case .success(let answer):
+                    self.answerCard.configure(
+                        title: answer.answered ? "Answer" : "No answer in the news",
+                        subtitle: "Last 20 days",
+                        note: "AI answer from the stories it cites · Not financial advice",
+                        lines: answer.lines,
+                        stories: answer.stories)
+                    self.askMessage = nil
+                    self.hasAnswer = true
+                    self.tableView.backgroundView = nil
+                case .failure(let error):
+                    self.askMessage = error.message
+                    self.hasAnswer = false
+                }
+                self.updateListHeader()
+            }
+        }
     }
 }
 

@@ -8,7 +8,8 @@
 import UIKit
 
 ///"Why markets moved" at the top of Markets (BS-242): the server's few cited lines, the stories
-///they cite behind a Sources toggle, and a note that it is an AI summary and not advice.
+///they cite behind a Sources toggle, and a note that it is an AI summary and not advice. Ask AI
+///answers use the same card. (BS-243)
 ///
 ///Built in code and styled like the News cards. It carries the gap to the first story below it,
 ///so the list header is just the search field and this.
@@ -30,22 +31,37 @@ final class MarketBriefCardView: UIView {
 
     ///Gap from the card to the first story, as between the search field and a story.
     static let bottomGap: CGFloat = 16
+    private let bottomGap: CGFloat
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    ///`bottomGap` 0 when what holds the card already leaves the gap, as Ask AI's row does.
+    init(bottomGap: CGFloat = MarketBriefCardView.bottomGap) {
+        self.bottomGap = bottomGap
+        super.init(frame: .zero)
         setupViews()
     }
 
     required init?(coder: NSCoder) {
+        bottomGap = Self.bottomGap
         super.init(coder: coder)
         setupViews()
     }
 
     func configure(with brief: MarketBrief) {
-        updatedLabel.text = Self.updatedText(for: brief.generatedAt)
+        configure(title: "Why markets moved",
+                  subtitle: Self.updatedText(for: brief.generatedAt),
+                  note: "AI summary of the stories it cites · Not financial advice",
+                  lines: brief.lines,
+                  stories: brief.stories)
+    }
+
+    ///The same card for an Ask AI answer (BS-243). With no stories there is no Sources toggle.
+    func configure(title: String, subtitle: String, note: String, lines: [MarketBrief.Line], stories: [MarketBrief.Story]) {
+        titleLabel.text = title
+        updatedLabel.text = subtitle
+        noteLabel.text = note
 
         linesStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        for line in brief.lines {
+        for line in lines {
             let label = UILabel()
             label.numberOfLines = 0
             label.attributedText = Self.lineText(line)
@@ -53,11 +69,12 @@ final class MarketBriefCardView: UIView {
         }
 
         sourcesStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        for (index, story) in brief.stories.enumerated() {
+        for (index, story) in stories.enumerated() {
             sourcesStack.addArrangedSubview(sourceRow(number: index + 1, story: story))
         }
-        storyCount = brief.stories.count
+        storyCount = stories.count
         sourcesStack.isHidden = true
+        sourcesButton.isHidden = stories.isEmpty
         updateSourcesButton()
     }
 
@@ -75,7 +92,8 @@ final class MarketBriefCardView: UIView {
     private static func lineText(_ line: MarketBrief.Line) -> NSAttributedString {
         let body = UIFont(name: "Avenir-Medium", size: 15) ?? .systemFont(ofSize: 15, weight: .medium)
         let small = UIFont(name: "Avenir-Heavy", size: 12) ?? .boldSystemFont(ofSize: 12)
-        let text = NSMutableAttributedString(string: "• " + line.text + " ", attributes: [
+        //A line citing nothing (an answer the stories do not cover) has no numbers after it.
+        let text = NSMutableAttributedString(string: "• " + line.text + (line.sources.isEmpty ? "" : " "), attributes: [
             .font: body,
             .foregroundColor: UIColor(named: "colorSecondary") ?? .label
         ])
@@ -181,7 +199,7 @@ final class MarketBriefCardView: UIView {
             card.topAnchor.constraint(equalTo: topAnchor),
             card.leadingAnchor.constraint(equalTo: leadingAnchor),
             card.trailingAnchor.constraint(equalTo: trailingAnchor),
-            card.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -Self.bottomGap),
+            card.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -bottomGap),
 
             content.topAnchor.constraint(equalTo: card.topAnchor, constant: 14),
             content.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 14),
