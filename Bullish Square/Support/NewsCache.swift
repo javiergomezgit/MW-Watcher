@@ -32,6 +32,8 @@ final class NewsCache {
         let id: String
         ///The chip's title.
         let title: String
+        ///Whether the server keeps this topic for news search. World is not kept. (BS-239)
+        var searchable = true
     }
 
     ///The News tab's chips, in order. The first two are CNBC; World is GNews's world, general
@@ -43,7 +45,7 @@ final class NewsCache {
     static let topics = [
         Topic(id: "markets", title: "Markets"),
         Topic(id: "economy", title: "Economy"),
-        Topic(id: "world", title: "World")
+        Topic(id: "world", title: "World", searchable: false)
     ]
 
     private static let selectedTopicKey = "newsSelectedTopic"

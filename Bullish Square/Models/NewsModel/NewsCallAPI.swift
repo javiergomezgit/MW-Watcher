@@ -96,6 +96,66 @@ final class NewsCallAPI {
         }
     }
     
+    //MARK: API call for news search
+    ///Markets and Economy stories from the last 20 days whose headline matches every word,
+    ///newest first, or nil when the search could not run. An empty list means nothing matched.
+    ///Completes exactly once. (BS-240)
+    ///
+    ///Asks the Bullish Square server's /v1/news/search, which keeps the archive (BS-239). The
+    ///server refuses characters headlines do not use, so "why is Intel down?" loses the "?"
+    ///here rather than being refused.
+    func searchNews(query: String, completion: @escaping([NewsItem]?) -> Void) {
+        var searchable = CharacterSet.alphanumerics
+        searchable.insert(charactersIn: " .,&'$%-")
+        let cleaned = String(String.UnicodeScalarView(query.unicodeScalars.map { searchable.contains($0) ? $0 : " " }))
+            .split(separator: " ")
+            .joined(separator: " ")
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._~")
+        guard !cleaned.isEmpty,
+              let encoded = String(cleaned.prefix(60)).addingPercentEncoding(withAllowedCharacters: allowed) else {
+            completion([])
+            return
+        }
+
+        MarketDataServer.authorizedRequest(path: "/v1/news/search?q=" + encoded) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("News search could not reach the server: \(error)")
+                completion(nil)
+                return
+            case .success(let authorized):
+                request = authorized
+            }
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data = data,
+                      let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+                      let decoded = try? JSONDecoder().decode(MarketNewsResponse.self, from: data) else {
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                        print("News search server answered \(httpResponse.statusCode) for \(cleaned)")
+                    }
+                    completion(nil)
+                    return
+                }
+
+                //The same shape as a topic's stories, so the same cards show them.
+                let placeholder = UIImage(named: "mw-logo") ?? UIImage()
+                let newsItems = decoded.articles.map { article in
+                    NewsItem(headline: article.headline,
+                             link: article.url,
+                             pubDate: Support.sharedSupport.newLocalTimeNews(timeString: article.published),
+                             ticker: "",
+                             author: article.source,
+                             image: placeholder,
+                             imageURL: article.imageUrl.flatMap { $0.isValidURL ? $0 : nil })
+                }
+                completion(newsItems)
+            }.resume()
+        }
+    }
+
     //MARK: API call for news on specific stock
     ///A stock's latest five news items, or nil when they could not be loaded. An empty list
     ///means there is no news for it. Completes exactly once.

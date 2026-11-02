@@ -50,6 +50,31 @@ class LiveNewsController: UIViewController {
     private var imagesInFlight: Set<String> = []
     private var imagesFailed: Set<String> = []
 
+    ///Searches the last 20 days of Markets and Economy, whichever chip is picked. While a search
+    ///is showing, the list holds its results and the chip's feed waits in backupNewsItems, so
+    ///a feed arriving meanwhile does not replace them. (BS-240)
+    private let searchBar = UISearchBar()
+    ///The text whose results are showing or on their way; nil shows the chip's feed.
+    private var searchQuery: String?
+    private var pendingSearch: DispatchWorkItem?
+    private let searchMessageLabel = UILabel()
+    ///The list's background while a search has nothing to show: the label, kept off the edges.
+    private lazy var searchMessageView: UIView = {
+        let container = UIView()
+        searchMessageLabel.numberOfLines = 0
+        searchMessageLabel.textAlignment = .center
+        searchMessageLabel.font = UIFont(name: "Avenir-Medium", size: 16) ?? .systemFont(ofSize: 16, weight: .medium)
+        searchMessageLabel.textColor = UIColor(named: "colorSecondary")
+        searchMessageLabel.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(searchMessageLabel)
+        NSLayoutConstraint.activate([
+            searchMessageLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 32),
+            searchMessageLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -32),
+            searchMessageLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor)
+        ])
+        return container
+    }()
+
     private let imageViewSavedNews = UIImageView(image: UIImage(named: "tray.2.fill"))
     private let imageViewSearchNews = UIImageView(image: UIImage(systemName: "play.circle"))
     
@@ -64,9 +89,10 @@ class LiveNewsController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupPlayerControls()
-        
+
         tableView.delegate = self
         tableView.dataSource = self
+        setupSearchBar()
         collectionView.delegate = self
         collectionView.dataSource = self
         
@@ -170,6 +196,11 @@ extension LiveNewsController {
     // Handle pull-to-refresh
     ///The feed stays on screen while it refreshes. Refreshes the topic on screen only.
     @objc func refresh(_ sender: AnyObject) {
+        //Pulling on search results searches again instead.
+        if let searchQuery {
+            runSearch(searchQuery)
+            return
+        }
         SceneDelegate.triggerNewsPrefetch(force: true)
     }
 
@@ -186,6 +217,7 @@ extension LiveNewsController {
     ///Shows the chip's topic from the cache straight away, or a spinner when it has nothing
     ///yet, and fetches it if it is older than five minutes. A fresh topic costs no request.
     private func showSelectedTopic() {
+        updateSearchBarVisibility()
         populateNews()
         if !NewsCache.shared.hasNews(for: NewsCache.shared.selectedTopic) {
             startStopSpinner(start: true)
@@ -232,14 +264,21 @@ extension LiveNewsController {
             items.append(news)
         }
         backupNewsItems = items
-        newsItems = items
-        //Only this topic's pictures are kept here; a failed one may be tried again later.
-        let links = Set(items.map(\.link))
+        //Search results stay on screen; the feed is shown again when the search ends.
+        let searching = searchQuery != nil
+        if !searching {
+            newsItems = items
+        }
+        //Only the pictures of what is on screen or waiting are kept; a failed one may be tried
+        //again later.
+        let links = Set(items.map(\.link)).union(newsItems.map(\.link))
         articleImages = articleImages.filter { links.contains($0.key) }
         imagesFailed = imagesFailed.intersection(links)
 
         savedLinks = saveHeadlines.savedLinks()
-        tableView.reloadData()
+        if !searching {
+            tableView.reloadData()
+        }
         collectionView.reloadData()
         if let index = topics.firstIndex(where: { $0.id == topic }) {
             collectionView.selectItem(at: IndexPath(item: index, section: 0), animated: false, scrollPosition: [])
@@ -699,6 +738,140 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
 }
 
 //
+// MARK: - News Search
+//
+extension LiveNewsController: UISearchBarDelegate {
+
+    ///The list's header, so it scrolls away with the stories and leaves the navigation bar,
+    ///and the saved-news button pinned to it, alone.
+    private func setupSearchBar() {
+        searchBar.placeholder = "Search Markets & Economy news"
+        searchBar.searchBarStyle = .minimal
+        searchBar.autocapitalizationType = .none
+        searchBar.autocorrectionType = .no
+        searchBar.returnKeyType = .search
+        searchBar.tintColor = UIColor(named: "colorSecondary")
+        searchBar.searchTextField.textColor = UIColor(named: "colorSecondary")
+        searchBar.delegate = self
+        searchBar.sizeToFit()
+        tableView.keyboardDismissMode = .onDrag
+    }
+
+    ///Shown only over a chip the search covers: on World it would find none of the stories
+    ///below it.
+    private func updateSearchBarVisibility() {
+        let topic = NewsCache.shared.selectedTopic
+        let searchable = topics.first { $0.id == topic }?.searchable ?? false
+        let header: UIView? = searchable ? searchBar : nil
+        guard tableView.tableHeaderView !== header else { return }
+        tableView.tableHeaderView = header
+    }
+
+    ///Searches once typing pauses, not on every letter. Fewer than two letters shows the feed.
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        pendingSearch?.cancel()
+        let text = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard text.count >= 2 else {
+            endSearch()
+            return
+        }
+        let work = DispatchWorkItem { [weak self] in
+            self?.runSearch(text)
+        }
+        pendingSearch = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        pendingSearch?.cancel()
+        searchBar.resignFirstResponder()
+        let text = (searchBar.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard text.count >= 2 else { return }
+        runSearch(text)
+    }
+
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        if (searchBar.text ?? "").isEmpty {
+            searchBar.setShowsCancelButton(false, animated: true)
+        }
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        clearSearch()
+    }
+
+    ///Empties the field and goes back to the chip's feed.
+    private func clearSearch() {
+        pendingSearch?.cancel()
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+        endSearch()
+    }
+
+    ///Asks the server. An answer for text that is no longer the search - typed over, or
+    ///cancelled - is dropped, so a slow reply cannot replace a newer one.
+    private func runSearch(_ text: String) {
+        searchQuery = text
+        if newsItems.isEmpty || tableView.backgroundView != nil {
+            showSearchMessage("Searching…")
+        }
+        NewsCallAPI.shared.searchNews(query: text) { [weak self] items in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.refreshControl.endRefreshing()
+                guard self.searchQuery == text else { return }
+                guard let items else {
+                    self.newsItems = []
+                    self.tableView.reloadData()
+                    self.showSearchMessage("Search isn't available right now.\nPull down to try again.")
+                    return
+                }
+                self.showSearchResults(items, for: text)
+            }
+        }
+    }
+
+    private func showSearchResults(_ items: [NewsItem], for text: String) {
+        var results: [NewsItem] = []
+        var seenLinks: Set<String> = []
+        for var news in items where seenLinks.insert(news.link).inserted {
+            if let image = articleImages[news.link] {
+                news.image = image
+            }
+            results.append(news)
+        }
+        newsItems = results
+        savedLinks = saveHeadlines.savedLinks()
+        tableView.reloadData()
+        if results.isEmpty {
+            showSearchMessage("No Markets or Economy stories from the last 20 days match “\(text)”.")
+        } else {
+            tableView.backgroundView = nil
+            tableView.setContentOffset(.zero, animated: false)
+        }
+    }
+
+    ///Back to the chip's feed, as it stands now; it kept updating during the search.
+    private func endSearch() {
+        guard searchQuery != nil else { return }
+        searchQuery = nil
+        newsItems = backupNewsItems
+        tableView.backgroundView = nil
+        tableView.reloadData()
+    }
+
+    private func showSearchMessage(_ message: String) {
+        searchMessageLabel.text = message
+        tableView.backgroundView = searchMessageView
+    }
+}
+
+//
 // MARK: - Collection View Delegate/DataSource & FlowLayout
 //
 extension LiveNewsController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -717,6 +890,10 @@ extension LiveNewsController: UICollectionViewDelegate, UICollectionViewDataSour
     
     // Switches topic: cached stories at once, then a fetch if they are stale
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        //A chip is a way back to the feeds, even the one already picked.
+        if searchQuery != nil || !(searchBar.text ?? "").isEmpty {
+            clearSearch()
+        }
         let topic = topics[indexPath.row].id
         guard topic != NewsCache.shared.selectedTopic else { return }
         NewsCache.shared.selectedTopic = topic
