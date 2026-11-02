@@ -62,7 +62,7 @@
                                 </cells>
                             </collectionView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" allowsSelection="NO" allowsSelectionDuringEditing="YES" rowHeight="250" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="1xv-7D-zQI">
-                                <rect key="frame" x="15" y="175.66666666666669" width="363" height="608.33333333333326"/>
+                                <rect key="frame" x="16" y="160.66666666666669" width="361" height="623.33333333333326"/>
                                 <color key="backgroundColor" name="colorPrimary"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="LiveNewsViewCell" rowHeight="250" id="vvv-qM-afb" customClass="LiveNewsViewCell" customModule="Bullish_Square" customModuleProvider="target">
@@ -241,12 +241,12 @@
                             <constraint firstItem="X7h-qB-31g" firstAttribute="leading" secondItem="tWZ-lG-IDb" secondAttribute="leading" id="Ja2-ca-Sdl"/>
                             <constraint firstItem="X7h-qB-31g" firstAttribute="top" secondItem="tWZ-lG-IDb" secondAttribute="top" id="Ko9-ez-gvi"/>
                             <constraint firstItem="1xv-7D-zQI" firstAttribute="bottom" secondItem="tWZ-lG-IDb" secondAttribute="bottom" id="Pvf-5q-bmi"/>
-                            <constraint firstItem="1xv-7D-zQI" firstAttribute="leading" secondItem="tWZ-lG-IDb" secondAttribute="leading" constant="15" id="QP4-xq-Ss0"/>
-                            <constraint firstAttribute="trailing" secondItem="1xv-7D-zQI" secondAttribute="trailing" constant="15" id="QpE-go-klu"/>
+                            <constraint firstItem="1xv-7D-zQI" firstAttribute="leading" secondItem="5Bn-ls-3BD" secondAttribute="leadingMargin" id="QP4-xq-Ss0"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="1xv-7D-zQI" secondAttribute="trailing" id="QpE-go-klu"/>
                             <constraint firstItem="cD1-qp-9W3" firstAttribute="leading" secondItem="tWZ-lG-IDb" secondAttribute="leading" id="Und-sK-B4U"/>
                             <constraint firstItem="tWZ-lG-IDb" firstAttribute="bottom" secondItem="cD1-qp-9W3" secondAttribute="bottom" id="WVp-wS-Cja"/>
                             <constraint firstItem="tWZ-lG-IDb" firstAttribute="trailing" secondItem="cD1-qp-9W3" secondAttribute="trailing" id="phk-H9-3sd"/>
-                            <constraint firstItem="1xv-7D-zQI" firstAttribute="top" secondItem="X7h-qB-31g" secondAttribute="bottom" constant="15" id="qyB-MF-rIz"/>
+                            <constraint firstItem="1xv-7D-zQI" firstAttribute="top" secondItem="X7h-qB-31g" secondAttribute="bottom" id="qyB-MF-rIz"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Live News" largeTitleDisplayMode="always" id="qFl-4F-aZZ"/>

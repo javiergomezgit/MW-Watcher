@@ -67,13 +67,50 @@ class LiveNewsController: UIViewController {
         searchMessageLabel.textColor = UIColor(named: "colorSecondary")
         searchMessageLabel.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(searchMessageLabel)
+        //In the upper third: centred, it sat just above the keyboard. (BS-244)
         NSLayoutConstraint.activate([
             searchMessageLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 32),
             searchMessageLabel.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: -32),
-            searchMessageLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor)
+            NSLayoutConstraint(item: searchMessageLabel, attribute: .centerY, relatedBy: .equal,
+                               toItem: container, attribute: .centerY, multiplier: 0.5, constant: 0)
         ])
         return container
     }()
+
+    // MARK: - Margins (BS-244)
+
+    ///Gap from the chips to whatever starts the list, the search field or the first story.
+    ///With the chip row's own padding it matches the gap between the title and the chips.
+    private static let listTopGap: CGFloat = 8
+    ///Gap from the search field to the first story.
+    private static let searchBottomGap: CGFloat = 16
+    ///UISearchBar pads its field 8 pt at each side and 10 pt at the top. The header undoes it,
+    ///so the field's edges are the stories' edges.
+    private static let searchBarSidePadding: CGFloat = 8
+    private static let searchBarTopPadding: CGFloat = 10
+    private static let searchFieldHeight: CGFloat = 36
+
+    ///The search bar, placed so its field lines up with the stories.
+    private lazy var searchHeader: UIView = {
+        let height = Self.listTopGap + Self.searchFieldHeight + Self.searchBottomGap
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: height))
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(searchBar)
+        NSLayoutConstraint.activate([
+            searchBar.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: -Self.searchBarSidePadding),
+            searchBar.trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: Self.searchBarSidePadding),
+            searchBar.topAnchor.constraint(equalTo: container.topAnchor, constant: Self.listTopGap - Self.searchBarTopPadding)
+        ])
+        return container
+    }()
+    ///The same gap above the first story on World, which has no search field.
+    private let listTopSpacer = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: LiveNewsController.listTopGap))
+
+    ///Title, chips, search field, stories and the saved button share one margin: the view's
+    ///layout margin, which is the large title's (16 pt, 20 pt on the larger phones). The chips
+    ///used to touch the screen edge and the stories sat at 15 pt.
+    private var appliedMargin: CGFloat = -1
+    private var savedNewsTrailing: NSLayoutConstraint?
 
     private let imageViewSavedNews = UIImageView(image: UIImage(named: "tray.2.fill"))
     private let imageViewSearchNews = UIImageView(image: UIImage(systemName: "play.circle"))
@@ -110,6 +147,11 @@ class LiveNewsController: UIViewController {
         loadNews()
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        applyMargin()
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         showImage(false)
@@ -154,8 +196,10 @@ extension LiveNewsController {
         imageViewSavedNews.translatesAutoresizingMaskIntoConstraints = false
         imageViewSearchNews.translatesAutoresizingMaskIntoConstraints = false
         
+        let savedNewsTrailing = imageViewSavedNews.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin)
+        self.savedNewsTrailing = savedNewsTrailing
         NSLayoutConstraint.activate([
-            imageViewSavedNews.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin),
+            savedNewsTrailing,
             imageViewSavedNews.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
             imageViewSavedNews.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
             imageViewSavedNews.widthAnchor.constraint(equalTo: imageViewSavedNews.heightAnchor),
@@ -166,6 +210,17 @@ extension LiveNewsController {
         ])
     }
     
+    ///Insets the chips and the saved button to the view's margin; the stories follow it through
+    ///the storyboard. Only when the margin changes, as this runs on every layout pass.
+    private func applyMargin() {
+        let margin = view.layoutMargins.left
+        guard margin != appliedMargin else { return }
+        appliedMargin = margin
+        collectionLayout.sectionInset = UIEdgeInsets(top: 0, left: margin, bottom: 0, right: margin)
+        collectionLayout.invalidateLayout()
+        savedNewsTrailing?.constant = -margin
+    }
+
     // Animate showing/hiding top bar buttons
     private func showImage(_ show: Bool) {
         UIView.animate(withDuration: 0.2) {
@@ -742,8 +797,8 @@ extension LiveNewsController: UITableViewDelegate, UITableViewDataSource, SFSafa
 //
 extension LiveNewsController: UISearchBarDelegate {
 
-    ///The list's header, so it scrolls away with the stories and leaves the navigation bar,
-    ///and the saved-news button pinned to it, alone.
+    ///In the list's header (searchHeader), so it scrolls away with the stories and leaves the
+    ///navigation bar, and the saved-news button pinned to it, alone.
     private func setupSearchBar() {
         searchBar.placeholder = "Search Markets & Economy news"
         searchBar.searchBarStyle = .minimal
@@ -762,7 +817,7 @@ extension LiveNewsController: UISearchBarDelegate {
     private func updateSearchBarVisibility() {
         let topic = NewsCache.shared.selectedTopic
         let searchable = topics.first { $0.id == topic }?.searchable ?? false
-        let header: UIView? = searchable ? searchBar : nil
+        let header = searchable ? searchHeader : listTopSpacer
         guard tableView.tableHeaderView !== header else { return }
         tableView.tableHeaderView = header
     }
