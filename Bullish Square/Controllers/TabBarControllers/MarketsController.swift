@@ -529,64 +529,33 @@ extension MarketsController: ChartViewDelegate {
 }
 
 
-//MARK: Right top button in navigation controller
+//MARK: Title row
 extension MarketsController {
-    private struct ConstTopRightButton {
-        /// Image height/width for Large NavBar state
-        static let ImageSizeForLargeState: CGFloat = 36
-        /// Margin from right anchor of safe area to right anchor of Image
-        static let ImageRightMargin: CGFloat = 18
-        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
-        static let ImageBottomMarginForLargeState: CGFloat = 14
-        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
-        static let ImageBottomMarginForSmallState: CGFloat = 5
-        /// Image height/width for Small NavBar state
-        static let ImageSizeForSmallState: CGFloat = 28
-        /// Height of NavBar for Small state. Usually it's just 44
-        static let NavBarHeightSmallState: CGFloat = 44
-        /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
-        static let NavBarHeightLargeState: CGFloat = 96.5
-    }
-    
+    ///"U.S. Markets" and the refresh button, in the tab's own title row. (BS-251)
     private func setupUITopRightButton() {
-        //        navigationController?.navigationBar.prefersLargeTitles = true
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
         imageViewTopRightButton.isUserInteractionEnabled = true
         imageViewTopRightButton.tintColor = .label
+        imageViewTopRightButton.contentMode = .scaleAspectFit
         imageViewTopRightButton.addGestureRecognizer(tapGestureRecognizer)
-        
-        // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
-        guard let navigationBar = self.navigationController?.navigationBar else { return }
-        navigationBar.addSubview(imageViewTopRightButton)
-        //        imageView.layer.cornerRadius = Const.ImageSizeForLargeState / 2
-        //        imageView.clipsToBounds = true
-        imageViewTopRightButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            imageViewTopRightButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -ConstTopRightButton.ImageRightMargin),
-            imageViewTopRightButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
-            imageViewTopRightButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
-            imageViewTopRightButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor)
-        ])
+        imageViewTopRightButton.isAccessibilityElement = true
+        imageViewTopRightButton.accessibilityLabel = "Refresh"
+        imageViewTopRightButton.accessibilityTraits = .button
+
+        TabTitleRow(title: navigationItem.title ?? title, buttons: [imageViewTopRightButton]).install(in: self)
     }
     
     @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer) {
         updateAllData()
     }
+    ///The bar is hidden behind the title row, and back for the screens Markets opens. (BS-251)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        TabTitleRow.setBarHidden(true, for: self, animated: animated)
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        showImage(false)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        showImage(true)
-    }
-    
-    /// Show or hide the image from NavBar while going to next screen or back to initial screen
-    /// - Parameter show: show or hide the image from NavBar
-    private func showImage(_ show: Bool) {
-        UIView.animate(withDuration: 0.2) {
-            self.imageViewTopRightButton.alpha = show ? 1.0 : 0.0
-        }
+        TabTitleRow.setBarHidden(false, for: self, animated: animated)
     }
 }

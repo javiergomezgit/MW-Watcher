@@ -58,6 +58,10 @@ class WatchlistController: UIViewController {
         return imageView
     }()
     
+    ///The tab's title row (BS-251); its title follows the active watchlist.
+    private lazy var titleRow = TabTitleRow(title: navigationItem.title ?? title,
+                                            buttons: [imageViewManageWatchlistsButton, imageViewTopRightButton])
+
     ///Floating action button, bottom right, for the simulated portfolio. The plain symbol
     ///rather than the .circle variant, which would draw a circle inside a circular button.
     private let simulatedPortfolioButton: UIButton = {
@@ -165,7 +169,10 @@ class WatchlistController: UIViewController {
         popTip.delayIn = TimeInterval(1)
         popTip.actionAnimation = .bounce(2)
         
-        let positionPoptip = CGRect(x: whereView.frame.maxX - 70, y: whereView.frame.minY - 30, width: 100, height: 100)
+        //The button is in the title row now, not the bar, so its frame is converted to this
+        //view's coordinates, after layout so it has one. (BS-251)
+        view.layoutIfNeeded()
+        let positionPoptip = whereView.convert(whereView.bounds, to: view)
         popTip.show(text: "Add your favorite stocks", direction: .left, maxWidth: 100, in: view, from: positionPoptip)
         
         popTip.bubbleColor = UIColor(named: "onboardingNotification")!
@@ -648,53 +655,29 @@ extension WatchlistController {
 
 
 
-//MARK: Right top button in navigation controller
+//MARK: Title row
 extension WatchlistController {
-    private struct ConstTopRightButton {
-        /// Image height/width for Large NavBar state
-        static let ImageSizeForLargeState: CGFloat = 36
-        /// Margin from right anchor of safe area to right anchor of Image
-        static let ImageRightMargin: CGFloat = 18
-        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Large NavBar state
-        static let ImageBottomMarginForLargeState: CGFloat = 14
-        /// Margin from bottom anchor of NavBar to bottom anchor of Image for Small NavBar state
-        static let ImageBottomMarginForSmallState: CGFloat = 5
-        /// Image height/width for Small NavBar state
-        static let ImageSizeForSmallState: CGFloat = 28
-        /// Height of NavBar for Small state. Usually it's just 44
-        static let NavBarHeightSmallState: CGFloat = 44
-        /// Height of NavBar for Large state. Usually it's just 96.5 but if you have a custom font for the title, please make sure to edit this value since it changes the height for Large state of NavBar
-        static let NavBarHeightLargeState: CGFloat = 96.5
-    }
-    
+    ///The active watchlist's name, the switcher and the add button, in the tab's own title
+    ///row. (BS-251)
     private func setupUITopRightButton() {
-        //        navigationController?.navigationBar.prefersLargeTitles = true
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(addingTicketTapped(tapGestureRecognizer:)))
         imageViewTopRightButton.isUserInteractionEnabled = true
         imageViewTopRightButton.tintColor = UIColor(named: "colorSecondary")
+        imageViewTopRightButton.contentMode = .scaleAspectFit
         imageViewTopRightButton.addGestureRecognizer(tapGestureRecognizer)
+        imageViewTopRightButton.isAccessibilityElement = true
+        imageViewTopRightButton.accessibilityLabel = "Add stocks"
+        imageViewTopRightButton.accessibilityTraits = .button
         
         let tapGestureRecognizerManage = UITapGestureRecognizer(target: self, action: #selector(manageWatchlistsTapped(tapGestureRecognizer:)))
         imageViewManageWatchlistsButton.isUserInteractionEnabled = true
         imageViewManageWatchlistsButton.tintColor = UIColor(named: "colorSecondary")
         imageViewManageWatchlistsButton.addGestureRecognizer(tapGestureRecognizerManage)
-        
-        // Initial setup for image for Large NavBar state since the the screen always has Large NavBar once it gets opened
-        guard let navigationBar = self.navigationController?.navigationBar else { return }
-        navigationBar.addSubview(imageViewTopRightButton)
-        navigationBar.addSubview(imageViewManageWatchlistsButton)
-        imageViewManageWatchlistsButton.translatesAutoresizingMaskIntoConstraints = false
-        imageViewTopRightButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            imageViewTopRightButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -ConstTopRightButton.ImageRightMargin),
-            imageViewTopRightButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
-            imageViewTopRightButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
-            imageViewTopRightButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor),
-            imageViewManageWatchlistsButton.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -(imageViewTopRightButton.frame.width*2.9)),
-            imageViewManageWatchlistsButton.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -ConstTopRightButton.ImageBottomMarginForLargeState),
-            imageViewManageWatchlistsButton.heightAnchor.constraint(equalToConstant: ConstTopRightButton.ImageSizeForLargeState),
-            imageViewManageWatchlistsButton.widthAnchor.constraint(equalTo: imageViewTopRightButton.heightAnchor)
-        ])
+        imageViewManageWatchlistsButton.isAccessibilityElement = true
+        imageViewManageWatchlistsButton.accessibilityLabel = "Watchlists"
+        imageViewManageWatchlistsButton.accessibilityTraits = .button
+
+        titleRow.install(in: self)
     }
     
     ///On the view rather than the navigation bar, so it stays put while the table scrolls.
@@ -740,6 +723,7 @@ extension WatchlistController {
     ///is showing now that there is more than one.
     private func refreshWatchlistTitle() {
         title = WatchlistStore.shared.activeWatchlistName
+        titleRow.title = navigationItem.title
     }
 
     ///A sync brought in another phone's changes, or the active list itself was renamed or
@@ -764,27 +748,14 @@ extension WatchlistController {
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        showImage(false)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        showImage(true)
+        TabTitleRow.setBarHidden(false, for: self, animated: animated)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        TabTitleRow.setBarHidden(true, for: self, animated: animated)
         let loadSavedTickers = savedTickers.loadTickers()
         loadMultipleStocks(savedTickers: loadSavedTickers)
-    }
-    
-    /// Show or hide the image from NavBar while going to next screen or back to initial screen
-    /// - Parameter show: show or hide the image from NavBar
-    private func showImage(_ show: Bool) {
-        UIView.animate(withDuration: 0.2) {
-            self.imageViewTopRightButton.alpha = show ? 1.0 : 0.0
-            self.imageViewManageWatchlistsButton.alpha = show ? 1.0 : 0.0
-        }
     }
 }
 

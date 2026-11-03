@@ -218,7 +218,6 @@ class LiveNewsController: UIViewController {
     ///layout margin, which is the large title's (16 pt, 20 pt on the larger phones). The chips
     ///used to touch the screen edge and the stories sat at 15 pt.
     private var appliedMargin: CGFloat = -1
-    private var savedNewsTrailing: NSLayoutConstraint?
 
     private let imageViewSavedNews = UIImageView(image: UIImage(named: "tray.2.fill"))
     private let imageViewSearchNews = UIImageView(image: UIImage(systemName: "play.circle"))
@@ -271,15 +270,21 @@ class LiveNewsController: UIViewController {
         }
     }
 
+    ///News draws its own title row, so the bar is hidden here and back for what it opens:
+    ///Saved News needs its title and back button. (BS-251)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        TabTitleRow.setBarHidden(true, for: self, animated: animated)
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        showImage(false)
+        TabTitleRow.setBarHidden(false, for: self, animated: animated)
         audioPlayer?.stop()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        showImage(true)
         
         //Articles can be unsaved from the Saved News tab, so re-read rather than trusting
         //whatever this screen last wrote.
@@ -296,37 +301,24 @@ class LiveNewsController: UIViewController {
 //
 extension LiveNewsController {
     
-    // Navigation bar setup with action buttons
+    ///"Live News" and the saved-news button in the tab's own title row. (BS-251)
     private func setupUI() {
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageSavedNewsTapped(tapGestureRecognizer:)))
         imageViewSavedNews.isUserInteractionEnabled = true
         imageViewSavedNews.tintColor = .label
+        imageViewSavedNews.contentMode = .scaleAspectFit
         imageViewSavedNews.addGestureRecognizer(tapGestureRecognizer)
+        imageViewSavedNews.isAccessibilityElement = true
+        imageViewSavedNews.accessibilityLabel = "Saved news"
+        imageViewSavedNews.accessibilityTraits = .button
         
         // Temporarily hide the "play headlines" entry point until the picker flow is finalized.
         // TODO: Re-enable this button and gesture when the headline-count picker UX is ready.
         imageViewSearchNews.isHidden = true
         imageViewSearchNews.isUserInteractionEnabled = false
         imageViewSearchNews.tintColor = .label
-        
-        guard let navigationBar = navigationController?.navigationBar else { return }
-        navigationBar.addSubview(imageViewSavedNews)
-        navigationBar.addSubview(imageViewSearchNews)
-        imageViewSavedNews.translatesAutoresizingMaskIntoConstraints = false
-        imageViewSearchNews.translatesAutoresizingMaskIntoConstraints = false
-        
-        let savedNewsTrailing = imageViewSavedNews.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -Const.ImageRightMargin)
-        self.savedNewsTrailing = savedNewsTrailing
-        NSLayoutConstraint.activate([
-            savedNewsTrailing,
-            imageViewSavedNews.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
-            imageViewSavedNews.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
-            imageViewSavedNews.widthAnchor.constraint(equalTo: imageViewSavedNews.heightAnchor),
-            imageViewSearchNews.rightAnchor.constraint(equalTo: navigationBar.rightAnchor, constant: -(imageViewSavedNews.frame.width * 3)),
-            imageViewSearchNews.bottomAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: -Const.ImageBottomMarginForLargeState),
-            imageViewSearchNews.heightAnchor.constraint(equalToConstant: Const.ImageSizeForLargeState),
-            imageViewSearchNews.widthAnchor.constraint(equalTo: imageViewSavedNews.heightAnchor)
-        ])
+
+        TabTitleRow(title: navigationItem.title ?? title, buttons: [imageViewSearchNews, imageViewSavedNews]).install(in: self)
     }
     
     ///Insets the chips and the saved button to the view's margin; the stories follow it through
@@ -337,15 +329,6 @@ extension LiveNewsController {
         appliedMargin = margin
         collectionLayout.sectionInset = UIEdgeInsets(top: 0, left: margin, bottom: 0, right: margin)
         collectionLayout.invalidateLayout()
-        savedNewsTrailing?.constant = -margin
-    }
-
-    // Animate showing/hiding top bar buttons
-    private func showImage(_ show: Bool) {
-        UIView.animate(withDuration: 0.2) {
-            self.imageViewSavedNews.alpha = show ? 1.0 : 0.0
-            self.imageViewSearchNews.alpha = show ? 1.0 : 0.0
-        }
     }
     
     // Show onboarding tip for new users
@@ -811,16 +794,6 @@ extension LiveNewsController {
 // MARK: - Navigation Button Handling
 //
 extension LiveNewsController {
-    
-    private struct Const {
-        static let ImageSizeForLargeState: CGFloat = 36
-        static let ImageRightMargin: CGFloat = 18
-        static let ImageBottomMarginForLargeState: CGFloat = 14
-        static let ImageBottomMarginForSmallState: CGFloat = 5
-        static let ImageSizeForSmallState: CGFloat = 20
-        static let NavBarHeightSmallState: CGFloat = 44
-        static let NavBarHeightLargeState: CGFloat = 96.5
-    }
     
     // Show or hide loading spinner overlay
     ///Covers the list only, never the topic chips: a chip with nothing cached shows it while
