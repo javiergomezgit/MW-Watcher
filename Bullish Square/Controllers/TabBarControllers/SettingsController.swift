@@ -91,10 +91,10 @@ class SettingsController: UITableViewController {
     }
     
     private func handleLegalSection(row: Int) {
-        //Only the first three rows are links. The rows below them hold the Logout and
+        //Only the first five rows are links. The rows below them hold the Logout and
         //Delete Account buttons, and tapping the cell around a button used to fall through
         //to openBrowser's default case and open the website.
-        guard row <= 2 else { return }
+        guard row <= 4 else { return }
         openBrowser(selectedCell: row)
     }
     
@@ -239,8 +239,12 @@ class SettingsController: UITableViewController {
         case 0:
             urlString = "https://jdevit.com/privacy-policy-bullish-square/"
         case 1:
-            urlString = "https://jdevit.com/contact-bullish-square/"
+            urlString = "https://www.jdevit.com/terms-of-service-bullish-square/"
         case 2:
+            urlString = "https://www.jdevit.com/disclaimer-bullish-square/"
+        case 3:
+            urlString = "https://jdevit.com/contact-bullish-square/"
+        case 4:
             urlString = "https://jdevit.com/contact-bullish-square/"
         default:
             urlString = "https://www.jdevit.com/"
