@@ -116,6 +116,9 @@ class LiveNewsController: UIViewController {
     ///The server rewrites the brief at most hourly; asking every five minutes, like the topics,
     ///picks up a new one soon after.
     private static let briefFreshness: TimeInterval = 300
+    ///A failed ask is tried once more after this, rather than waiting for a pull to refresh.
+    ///Right after launch App Check may not have a token yet.
+    private static let briefRetryDelay: TimeInterval = 5
     private static let briefTopic = "markets"
 
     private lazy var briefCard: MarketBriefCardView = {
@@ -233,6 +236,13 @@ class LiveNewsController: UIViewController {
         UserDefaults.standard.set(true, forKey: "firstLaunchingLiveNews")
         alreadyLaunched = isFirstLaunch
         
+        //The last brief, before the list is first laid out, so the card is there from the
+        //start instead of pushing the stories down when the server answers. (BS-249)
+        if let saved = NewsCache.shared.marketBrief() {
+            marketBrief = saved
+            briefCard.configure(with: saved)
+        }
+
         // Initial load
         loadNews()
     }
@@ -378,7 +388,11 @@ extension LiveNewsController {
 
     ///Asks for the brief when Markets is showing and the last answer is older than five
     ///minutes. A failure keeps the brief already shown, or shows no card.
-    private func loadBriefIfNeeded(force: Bool) {
+    ///
+    ///A failure is not counted as an answer, and is tried once more after a few seconds. It
+    ///used to count, so a launch whose first ask failed showed no card for five minutes unless
+    ///the list was pulled to refresh. (BS-249)
+    private func loadBriefIfNeeded(force: Bool, retryOnFailure: Bool = true) {
         guard NewsCache.shared.selectedTopic == Self.briefTopic, !briefInFlight else { return }
         if !force, let briefFetchedAt, Date().timeIntervalSince(briefFetchedAt) < Self.briefFreshness {
             return
@@ -388,11 +402,17 @@ extension LiveNewsController {
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.briefInFlight = false
-                self.briefFetchedAt = Date()
-                if let brief {
-                    self.marketBrief = brief
-                    self.briefCard.configure(with: brief)
+                guard let brief else {
+                    guard retryOnFailure else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Self.briefRetryDelay) { [weak self] in
+                        self?.loadBriefIfNeeded(force: false, retryOnFailure: false)
+                    }
+                    return
                 }
+                self.briefFetchedAt = Date()
+                self.marketBrief = brief
+                self.briefCard.configure(with: brief)
+                NewsCache.shared.store(brief: brief)
                 self.updateListHeader()
             }
         }

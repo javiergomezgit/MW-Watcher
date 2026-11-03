@@ -69,14 +69,17 @@ final class NewsCache {
     private var fetchedAt: [String: Date] = [:]
 
     private let fileURL: URL?
+    private let briefFileURL: URL?
     private let diskQueue = DispatchQueue(label: "com.bullishsquare.newscache", qos: .utility)
 
     private init() {
         //Caches, not Documents: the system may clear it, and that only costs one fetch.
         //v2 since the switch from GNews, so the old feed is not shown after updating.
-        fileURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?
-            .appendingPathComponent("live-news-v2.json")
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+        fileURL = caches?.appendingPathComponent("live-news-v2.json")
+        briefFileURL = caches?.appendingPathComponent("market-brief-v1.json")
         loadFromDisk()
+        loadBriefFromDisk()
     }
 
     func isStale(_ category: String, now: Date = Date()) -> Bool {
@@ -99,7 +102,57 @@ final class NewsCache {
         !(data[topic]?.isEmpty ?? true)
     }
 
+    // MARK: - Market brief
+
+    ///A saved brief the server gave longer ago than this is not shown: it would describe a
+    ///day that has passed.
+    private static let briefMaxAge: TimeInterval = 24 * 3600
+
+    private var brief: MarketBrief?
+    private var briefStoredAt: Date?
+
+    ///The last "Why markets moved", so Markets opens with the card already there. It used to
+    ///appear only after the server answered, seconds in, on every launch. (BS-249)
+    func marketBrief(now: Date = Date()) -> MarketBrief? {
+        guard let briefStoredAt, now.timeIntervalSince(briefStoredAt) < Self.briefMaxAge else { return nil }
+        return brief
+    }
+
+    func store(brief: MarketBrief, at now: Date = Date()) {
+        self.brief = brief
+        briefStoredAt = now
+        guard let briefFileURL else { return }
+        do {
+            let encoded = try JSONEncoder().encode(StoredBrief(storedAt: now, brief: brief))
+            diskQueue.async {
+                do {
+                    try encoded.write(to: briefFileURL, options: .atomic)
+                } catch let error as NSError {
+                    print("Market brief could not be saved to disk: \(error.localizedDescription)")
+                }
+            }
+        } catch let error as NSError {
+            print("Market brief could not be encoded for saving: \(error.localizedDescription)")
+        }
+    }
+
     // MARK: - Disk
+
+    private struct StoredBrief: Codable {
+        let storedAt: Date
+        let brief: MarketBrief
+    }
+
+    private func loadBriefFromDisk() {
+        guard let briefFileURL, let saved = try? Data(contentsOf: briefFileURL) else { return }
+        do {
+            let stored = try JSONDecoder().decode(StoredBrief.self, from: saved)
+            brief = stored.brief
+            briefStoredAt = stored.storedAt
+        } catch let error as NSError {
+            print("Saved market brief could not be read, starting without one: \(error.localizedDescription)")
+        }
+    }
 
     ///Pictures are not saved: they are large, and each row reloads its own from the URL.
     private struct StoredCategory: Codable {

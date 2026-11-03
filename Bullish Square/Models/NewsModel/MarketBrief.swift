@@ -9,14 +9,16 @@ import Foundation
 
 ///"Why markets moved": a few lines the server has Claude write from the day's Markets and
 ///Economy stories, each citing the stories it rests on. (BS-241, BS-242)
-struct MarketBrief {
-    struct Line {
+///
+///Codable so the last one is kept on disk by `NewsCache`.
+struct MarketBrief: Codable {
+    struct Line: Codable {
         let text: String
         ///Numbers into `stories`, from 1, as the card shows them.
         let sources: [Int]
     }
 
-    struct Story {
+    struct Story: Codable {
         let headline: String
         let link: String
         ///Who published it: "CNBC".
