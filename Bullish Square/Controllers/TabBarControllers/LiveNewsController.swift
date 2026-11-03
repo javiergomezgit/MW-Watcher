@@ -158,6 +158,13 @@ class LiveNewsController: UIViewController {
     ///"Asking…" or why there is no answer, for askedQuestion; nil once the answer shows.
     private var askMessage: String?
     private var hasAnswer = false
+    ///The search whose keyword results came back empty. It gets the Ask AI row too: a search
+    ///that finds nothing used to end at "No stories match". (BS-253)
+    private var noMatchesFor: String?
+    ///Text sent with the keyboard's Search key, asked automatically once its keyword results
+    ///are in, when they are empty or it reads as a question. Typing alone never asks, so a
+    ///question is not spent on every pause.
+    private var askWhenSearched: String?
 
     private lazy var askButton: UIButton = {
         var configuration = UIButton.Configuration.filled()
@@ -1069,6 +1076,7 @@ extension LiveNewsController: UISearchBarDelegate {
         searchBar.resignFirstResponder()
         let text = (searchBar.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard text.count >= 2 else { return }
+        askWhenSearched = text
         runSearch(text)
     }
 
@@ -1112,9 +1120,11 @@ extension LiveNewsController: UISearchBarDelegate {
                     self.newsItems = []
                     self.tableView.reloadData()
                     self.showSearchMessage("Search isn't available right now.\nPull down to try again.")
+                    self.searchFinished(text, found: false)
                     return
                 }
                 self.showSearchResults(items, for: text)
+                self.searchFinished(text, found: !self.newsItems.isEmpty)
             }
         }
     }
@@ -1139,8 +1149,23 @@ extension LiveNewsController: UISearchBarDelegate {
         }
     }
 
+    ///Offers the AI when the words found nothing, and asks it straight away when the text came
+    ///from the Search key: the keyword results show first, the answer above them.
+    private func searchFinished(_ text: String, found: Bool) {
+        noMatchesFor = found ? nil : text
+        if askWhenSearched == text {
+            askWhenSearched = nil
+            if (!found || Self.looksLikeQuestion(text)) && askedQuestion != text {
+                askAI()
+                return
+            }
+        }
+        updateListHeader()
+    }
+
     ///Back to the chip's feed, as it stands now; it kept updating during the search.
     private func endSearch() {
+        askWhenSearched = nil
         guard searchQuery != nil else { return }
         searchQuery = nil
         newsItems = backupNewsItems
@@ -1159,20 +1184,23 @@ extension LiveNewsController: UISearchBarDelegate {
     // MARK: - Ask AI
 
     ///Questions get the Ask AI row; a word or two is a keyword search. Ends in "?", starts with
-    ///a question word, or is four words or more.
+    ///a question word, names a time ("apple yesterday"), or is three words or more. Was four,
+    ///which left "apple earnings yesterday" a keyword search. (BS-253)
     static func looksLikeQuestion(_ text: String) -> Bool {
         let lower = text.lowercased()
         if lower.hasSuffix("?") { return true }
-        let words = lower.split(separator: " ")
+        let words = lower.split(separator: " ").map(String.init)
         let questionWords: Set<String> = ["why", "what", "how", "when", "who", "which", "where", "is", "are",
                                           "was", "were", "did", "does", "do", "will", "should", "can", "could"]
-        if let first = words.first, questionWords.contains(String(first)), words.count >= 2 { return true }
-        return words.count >= 4
+        if let first = words.first, questionWords.contains(first), words.count >= 2 { return true }
+        let timeWords: Set<String> = ["today", "yesterday", "tonight", "tomorrow", "week", "month", "lately", "recently"]
+        if words.count >= 2, words.contains(where: timeWords.contains) { return true }
+        return words.count >= 3
     }
 
     ///The row while a question is typed; its status or answer once asked, for that question only.
     private func updateAskViews() {
-        guard let query = searchQuery, Self.looksLikeQuestion(query) else {
+        guard let query = searchQuery, Self.looksLikeQuestion(query) || noMatchesFor == query else {
             askContainer.isHidden = true
             return
         }
