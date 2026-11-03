@@ -164,6 +164,77 @@ final class NewsCallAPI {
         return lines.isEmpty ? nil : MarketBrief(generatedAt: generatedAt, lines: lines, stories: stories)
     }
 
+    ///The Bullish Square server's /v1/news/cards answer: per topic chip, the answers held.
+    private struct CardAnswersResponse: Decodable {
+        let topics: [String: [Card]]
+
+        struct Card: Decodable {
+            let label: String
+            let question: String
+            let answered: Bool
+            let generatedAt: String
+            let bullets: [MarketBriefResponse.Bullet]
+            let stories: [MarketNewsResponse.Article]
+        }
+    }
+
+    //MARK: API call for the cards' answers
+    ///The answers the News cards switch between, by topic chip id, or nil when there are none to
+    ///show: no connection, or the server could not say. A topic may hold fewer than its pills.
+    ///Completes exactly once. (BS-250)
+    ///
+    ///The server writes them with Claude ahead of time, at most hourly, for everyone; they do
+    ///not count against anyone's Ask AI questions.
+    func loadCardAnswers(completion: @escaping([String: [CardAnswer]]?) -> Void) {
+        MarketDataServer.authorizedRequest(path: "/v1/news/cards") { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("Card answers could not reach the server: \(error)")
+                completion(nil)
+                return
+            case .success(let authorized):
+                request = authorized
+            }
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data = data,
+                      let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                        print("Card answers server answered \(httpResponse.statusCode)")
+                    }
+                    completion(nil)
+                    return
+                }
+                do {
+                    let decoded = try JSONDecoder().decode(CardAnswersResponse.self, from: data)
+                    completion(decoded.topics.mapValues { $0.compactMap(Self.cardAnswer(from:)) })
+                } catch let error as NSError {
+                    print("Card answers could not be read: \(error.localizedDescription)")
+                    completion(nil)
+                }
+            }.resume()
+        }
+    }
+
+    ///Checked like a brief: lines citing stories that are not there are dropped, and a card
+    ///with no line left, or an unreadable date, is left out.
+    private static func cardAnswer(from card: CardAnswersResponse.Card) -> CardAnswer? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let generatedAt = formatter.date(from: card.generatedAt) else {
+            print("Card answer has an unreadable date: \(card.generatedAt)")
+            return nil
+        }
+        let stories = card.stories.map {
+            MarketBrief.Story(headline: $0.headline, link: $0.url, source: $0.source)
+        }
+        let lines = citedLines(card.bullets, storyCount: stories.count, uncitedAllowed: !card.answered)
+        guard !lines.isEmpty else { return nil }
+        return CardAnswer(label: card.label, title: card.question, generatedAt: generatedAt,
+                          answered: card.answered, lines: lines, stories: stories)
+    }
+
     ///The Bullish Square server's /v1/news/ask answer: the brief's shape plus whether it answered.
     private struct NewsAnswerResponse: Decodable {
         let answered: Bool

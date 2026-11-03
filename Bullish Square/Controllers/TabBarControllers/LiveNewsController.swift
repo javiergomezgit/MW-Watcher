@@ -108,7 +108,7 @@ class LiveNewsController: UIViewController {
 
     // MARK: - Market brief (BS-242)
 
-    ///"Why markets moved", under the search field on Markets only. Nil hides the card: it is
+    ///"Why markets moved", the first answer on the Markets card. Nil leaves it out: it is
     ///decoration, and the stories never wait for it.
     private var marketBrief: MarketBrief?
     private var briefFetchedAt: Date?
@@ -121,13 +121,28 @@ class LiveNewsController: UIViewController {
     private static let briefRetryDelay: TimeInterval = 5
     private static let briefTopic = "markets"
 
+    ///The card under the search field on Markets and Economy. Its pills switch between the
+    ///brief, on Markets, and the answers the server writes ahead for each chip. (BS-250)
     private lazy var briefCard: MarketBriefCardView = {
         let card = MarketBriefCardView()
         card.isHidden = true
         card.onOpenStory = { [weak self] url in self?.openArticle(url) }
         card.onSizeChange = { [weak self] in self?.resizeListHeader() }
+        card.onSelectOption = { [weak self] index in self?.selectCardAnswer(at: index) }
         return card
     }()
+
+    // MARK: - Card answers (BS-250)
+
+    ///The server's answers by topic chip, saved or fetched.
+    private var cardAnswers: [String: [CardAnswer]] = [:]
+    private var cardsFetchedAt: Date?
+    private var cardsInFlight = false
+    ///The pill picked on each chip, by label, so it survives the answers being replaced.
+    private var selectedCardLabel: [String: String] = [:]
+    ///What the card was last filled with. Filling it again would close an open Sources list
+    ///every time the header is updated.
+    private var shownCardKey: String?
 
     // MARK: - Ask AI (BS-243)
 
@@ -240,8 +255,8 @@ class LiveNewsController: UIViewController {
         //start instead of pushing the stories down when the server answers. (BS-249)
         if let saved = NewsCache.shared.marketBrief() {
             marketBrief = saved
-            briefCard.configure(with: saved)
         }
+        cardAnswers = NewsCache.shared.cardAnswers()
 
         // Initial load
         loadNews()
@@ -362,6 +377,7 @@ extension LiveNewsController {
         }
         SceneDelegate.triggerNewsPrefetch(force: true)
         loadBriefIfNeeded(force: true)
+        loadCardsIfNeeded(force: true)
     }
 
     ///Shows the selected topic's cached stories - the saved feed from the last launch - and
@@ -384,6 +400,7 @@ extension LiveNewsController {
         }
         SceneDelegate.triggerNewsPrefetch()
         loadBriefIfNeeded(force: false)
+        loadCardsIfNeeded(force: false)
     }
 
     ///Asks for the brief when Markets is showing and the last answer is older than five
@@ -411,11 +428,81 @@ extension LiveNewsController {
                 }
                 self.briefFetchedAt = Date()
                 self.marketBrief = brief
-                self.briefCard.configure(with: brief)
                 NewsCache.shared.store(brief: brief)
                 self.updateListHeader()
             }
         }
+    }
+
+    ///Asks for the cards' answers on a chip that has a card, as the brief is asked for: at
+    ///most every five minutes, a failure not counted and tried once more. A topic the server
+    ///sent nothing for keeps the answers already shown.
+    private func loadCardsIfNeeded(force: Bool, retryOnFailure: Bool = true) {
+        let topic = NewsCache.shared.selectedTopic
+        guard topics.first(where: { $0.id == topic })?.searchable == true, !cardsInFlight else { return }
+        if !force, let cardsFetchedAt, Date().timeIntervalSince(cardsFetchedAt) < Self.briefFreshness {
+            return
+        }
+        cardsInFlight = true
+        NewsCallAPI.shared.loadCardAnswers { [weak self] answers in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.cardsInFlight = false
+                guard let answers else {
+                    guard retryOnFailure else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Self.briefRetryDelay) { [weak self] in
+                        self?.loadCardsIfNeeded(force: false, retryOnFailure: false)
+                    }
+                    return
+                }
+                self.cardsFetchedAt = Date()
+                NewsCache.shared.store(cardAnswers: answers)
+                self.cardAnswers = NewsCache.shared.cardAnswers()
+                self.updateListHeader()
+            }
+        }
+    }
+
+    ///What the card switches between on a chip: the brief first on Markets, then the server's
+    ///answers. Empty hides the card.
+    private func cardOptions(for topic: String) -> [CardAnswer] {
+        var options: [CardAnswer] = []
+        if topic == Self.briefTopic, let marketBrief {
+            options.append(CardAnswer(brief: marketBrief))
+        }
+        return options + (cardAnswers[topic] ?? [])
+    }
+
+    ///Fills the card with the chip's picked answer, or its first; hidden over search results,
+    ///which it does not describe.
+    private func updateCard(topic: String) {
+        let options = cardOptions(for: topic)
+        guard searchQuery == nil, !options.isEmpty else {
+            briefCard.isHidden = true
+            return
+        }
+        let selected = options.firstIndex { $0.label == selectedCardLabel[topic] } ?? 0
+        let answer = options[selected]
+        let key = ([topic, answer.label, "\(answer.generatedAt.timeIntervalSince1970)"] + options.map(\.label))
+            .joined(separator: "|")
+        if key != shownCardKey {
+            shownCardKey = key
+            briefCard.setOptions(options.map(\.label), selected: selected)
+            briefCard.configure(title: answer.title,
+                                subtitle: MarketBriefCardView.updatedText(for: answer.generatedAt),
+                                note: "AI summary of the stories it cites · Not financial advice",
+                                lines: answer.lines,
+                                stories: answer.stories)
+        }
+        briefCard.isHidden = false
+    }
+
+    private func selectCardAnswer(at index: Int) {
+        let topic = NewsCache.shared.selectedTopic
+        let options = cardOptions(for: topic)
+        guard index < options.count else { return }
+        selectedCardLabel[topic] = options[index].label
+        updateListHeader()
     }
 
     @objc private func newsCacheDidUpdate() {
@@ -953,12 +1040,11 @@ extension LiveNewsController: UISearchBarDelegate {
     }
 
     ///The search field only over a chip the search covers: on World it would find none of the
-    ///stories below it. The brief card only on Markets, with a brief, and not over search
-    ///results, which it does not describe.
+    ///stories below it. The card on Markets and Economy, when it has an answer to show.
     private func updateListHeader() {
         let topic = NewsCache.shared.selectedTopic
         let searchable = topics.first { $0.id == topic }?.searchable ?? false
-        briefCard.isHidden = !(topic == Self.briefTopic && marketBrief != nil && searchQuery == nil)
+        updateCard(topic: topic)
         updateAskViews()
         let header = searchable ? listHeader : listTopSpacer
         if tableView.tableHeaderView !== header {

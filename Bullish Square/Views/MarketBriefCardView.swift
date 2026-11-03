@@ -9,7 +9,8 @@ import UIKit
 
 ///"Why markets moved" at the top of Markets (BS-242): the server's few cited lines, the stories
 ///they cite behind a Sources toggle, and a note that it is an AI summary and not advice. Ask AI
-///answers use the same card. (BS-243)
+///answers use the same card (BS-243), and on Markets and Economy pills switch it between
+///answers written ahead (BS-250).
 ///
 ///Built in code and styled like the News cards. It carries the gap to the first story below it,
 ///so the list header is just the search field and this.
@@ -19,8 +20,12 @@ final class MarketBriefCardView: UIView {
     var onOpenStory: ((URL) -> Void)?
     ///Sources were shown or hidden; the list header has to change height.
     var onSizeChange: (() -> Void)?
+    ///A pill was tapped: its index in the labels last given to `setOptions`. (BS-250)
+    var onSelectOption: ((Int) -> Void)?
 
     private let card = UIView()
+    private let pillsStack = UIStackView()
+    private let pillsRow = UIStackView()
     private let titleLabel = UILabel()
     private let updatedLabel = UILabel()
     private let linesStack = UIStackView()
@@ -46,15 +51,8 @@ final class MarketBriefCardView: UIView {
         setupViews()
     }
 
-    func configure(with brief: MarketBrief) {
-        configure(title: "Why markets moved",
-                  subtitle: Self.updatedText(for: brief.generatedAt),
-                  note: "AI summary of the stories it cites · Not financial advice",
-                  lines: brief.lines,
-                  stories: brief.stories)
-    }
-
-    ///The same card for an Ask AI answer (BS-243). With no stories there is no Sources toggle.
+    ///A brief, an answer written ahead, or an Ask AI answer (BS-243). With no stories there is
+    ///no Sources toggle.
     func configure(title: String, subtitle: String, note: String, lines: [MarketBrief.Line], stories: [MarketBrief.Story]) {
         titleLabel.text = title
         updatedLabel.text = subtitle
@@ -76,6 +74,39 @@ final class MarketBriefCardView: UIView {
         sourcesStack.isHidden = true
         sourcesButton.isHidden = stories.isEmpty
         updateSourcesButton()
+    }
+
+    ///The pills above the title, one per answer the card switches between, `selected` lit.
+    ///Fewer than two labels hide the row: there is nothing to switch to. (BS-250)
+    func setOptions(_ labels: [String], selected: Int) {
+        pillsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        for (index, label) in labels.enumerated() {
+            pillsStack.addArrangedSubview(pill(label, index: index, isSelected: index == selected))
+        }
+        pillsRow.isHidden = labels.count < 2
+    }
+
+    private func pill(_ label: String, index: Int, isSelected: Bool) -> UIButton {
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = label
+        configuration.cornerStyle = .capsule
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12)
+        configuration.baseBackgroundColor = isSelected
+            ? UIColor(named: "AccentColor")
+            : UIColor(named: "colorSecondary")?.withAlphaComponent(0.1)
+        configuration.baseForegroundColor = isSelected ? card.backgroundColor : UIColor(named: "colorSecondary")
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = UIFont(name: "Avenir-Heavy", size: 13) ?? .boldSystemFont(ofSize: 13)
+            return outgoing
+        }
+        let button = UIButton(configuration: configuration)
+        button.accessibilityTraits.insert(isSelected ? .selected : [])
+        button.addAction(UIAction { [weak self] _ in
+            guard !isSelected else { return }
+            self?.onSelectOption?(index)
+        }, for: .touchUpInside)
+        return button
     }
 
     // MARK: - Content
@@ -152,12 +183,17 @@ final class MarketBriefCardView: UIView {
         titleLabel.text = "Why markets moved"
         titleLabel.font = UIFont(name: "Avenir-Heavy", size: 17) ?? .boldSystemFont(ofSize: 17)
         titleLabel.textColor = UIColor(named: "colorSecondary")
-        titleLabel.setContentHuggingPriority(.required, for: .horizontal)
+        //A card's question can be longer than the row (BS-250): the title wraps and the time
+        //keeps its width.
+        titleLabel.numberOfLines = 0
+        titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         updatedLabel.font = UIFont(name: "Avenir-Book", size: 12) ?? .systemFont(ofSize: 12)
         updatedLabel.textColor = UIColor(named: "colorSecondary")?.withAlphaComponent(0.7)
         updatedLabel.textAlignment = .right
-        updatedLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        updatedLabel.setContentHuggingPriority(.required, for: .horizontal)
+        updatedLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         let titleRow = UIStackView(arrangedSubviews: [titleLabel, updatedLabel])
         titleRow.axis = .horizontal
@@ -186,7 +222,17 @@ final class MarketBriefCardView: UIView {
         noteLabel.font = UIFont(name: "Avenir-Book", size: 11) ?? .systemFont(ofSize: 11)
         noteLabel.textColor = UIColor(named: "colorSecondary")?.withAlphaComponent(0.6)
 
-        let content = UIStackView(arrangedSubviews: [titleRow, linesStack, sourcesButton, sourcesStack, noteLabel])
+        pillsStack.axis = .horizontal
+        pillsStack.spacing = 8
+        //The pills keep their size at the leading edge; the empty view takes the rest.
+        let rest = UIView()
+        rest.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        pillsRow.addArrangedSubview(pillsStack)
+        pillsRow.addArrangedSubview(rest)
+        pillsRow.axis = .horizontal
+        pillsRow.isHidden = true
+
+        let content = UIStackView(arrangedSubviews: [pillsRow, titleRow, linesStack, sourcesButton, sourcesStack, noteLabel])
         content.axis = .vertical
         content.spacing = 10
         content.alignment = .fill

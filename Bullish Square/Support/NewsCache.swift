@@ -70,6 +70,7 @@ final class NewsCache {
 
     private let fileURL: URL?
     private let briefFileURL: URL?
+    private let cardsFileURL: URL?
     private let diskQueue = DispatchQueue(label: "com.bullishsquare.newscache", qos: .utility)
 
     private init() {
@@ -78,8 +79,10 @@ final class NewsCache {
         let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
         fileURL = caches?.appendingPathComponent("live-news-v2.json")
         briefFileURL = caches?.appendingPathComponent("market-brief-v1.json")
+        cardsFileURL = caches?.appendingPathComponent("card-answers-v1.json")
         loadFromDisk()
         loadBriefFromDisk()
+        loadCardsFromDisk()
     }
 
     func isStale(_ category: String, now: Date = Date()) -> Bool {
@@ -121,18 +124,45 @@ final class NewsCache {
     func store(brief: MarketBrief, at now: Date = Date()) {
         self.brief = brief
         briefStoredAt = now
-        guard let briefFileURL else { return }
+        write(StoredBrief(storedAt: now, brief: brief), to: briefFileURL, what: "Market brief")
+    }
+
+    // MARK: - Card answers
+
+    private var cards: [String: [CardAnswer]] = [:]
+    private var cardsStoredAt: Date?
+
+    ///The answers the News cards switch between, by topic, so the card opens already filled.
+    ///Kept no longer than the brief, for the same reason. (BS-250)
+    func cardAnswers(now: Date = Date()) -> [String: [CardAnswer]] {
+        guard let cardsStoredAt, now.timeIntervalSince(cardsStoredAt) < Self.briefMaxAge else { return [:] }
+        return cards
+    }
+
+    ///A topic the server held nothing for keeps what was saved: after a deploy the server may
+    ///not have written its answers yet.
+    func store(cardAnswers: [String: [CardAnswer]], at now: Date = Date()) {
+        for (topic, answers) in cardAnswers where !answers.isEmpty {
+            cards[topic] = answers
+        }
+        cardsStoredAt = now
+        write(StoredCards(storedAt: now, cards: cards), to: cardsFileURL, what: "Card answers")
+    }
+
+    ///Encoded here on the main thread; only the write happens off it.
+    private func write<T: Encodable>(_ value: T, to fileURL: URL?, what: String) {
+        guard let fileURL else { return }
         do {
-            let encoded = try JSONEncoder().encode(StoredBrief(storedAt: now, brief: brief))
+            let encoded = try JSONEncoder().encode(value)
             diskQueue.async {
                 do {
-                    try encoded.write(to: briefFileURL, options: .atomic)
+                    try encoded.write(to: fileURL, options: .atomic)
                 } catch let error as NSError {
-                    print("Market brief could not be saved to disk: \(error.localizedDescription)")
+                    print("\(what) could not be saved to disk: \(error.localizedDescription)")
                 }
             }
         } catch let error as NSError {
-            print("Market brief could not be encoded for saving: \(error.localizedDescription)")
+            print("\(what) could not be encoded for saving: \(error.localizedDescription)")
         }
     }
 
@@ -141,6 +171,22 @@ final class NewsCache {
     private struct StoredBrief: Codable {
         let storedAt: Date
         let brief: MarketBrief
+    }
+
+    private struct StoredCards: Codable {
+        let storedAt: Date
+        let cards: [String: [CardAnswer]]
+    }
+
+    private func loadCardsFromDisk() {
+        guard let cardsFileURL, let saved = try? Data(contentsOf: cardsFileURL) else { return }
+        do {
+            let stored = try JSONDecoder().decode(StoredCards.self, from: saved)
+            cards = stored.cards
+            cardsStoredAt = stored.storedAt
+        } catch let error as NSError {
+            print("Saved card answers could not be read, starting without them: \(error.localizedDescription)")
+        }
     }
 
     private func loadBriefFromDisk() {

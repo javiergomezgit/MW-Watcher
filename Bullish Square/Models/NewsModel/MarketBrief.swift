@@ -38,3 +38,25 @@ struct NewsAnswer {
     let lines: [MarketBrief.Line]
     let stories: [MarketBrief.Story]
 }
+
+///One of the answers a News card switches between with its pills (BS-250): the brief, or a
+///fixed question the server answers ahead for everyone. Codable so `NewsCache` keeps them.
+struct CardAnswer: Codable {
+    ///The pill: "Tech stocks".
+    let label: String
+    ///The card's title: "Why markets moved", or the question as written.
+    let title: String
+    let generatedAt: Date
+    ///False when the stories do not cover the question; the one line then says so.
+    let answered: Bool
+    let lines: [MarketBrief.Line]
+    let stories: [MarketBrief.Story]
+}
+
+extension CardAnswer {
+    ///The brief as Markets' first answer.
+    init(brief: MarketBrief) {
+        self.init(label: "Why markets moved", title: "Why markets moved", generatedAt: brief.generatedAt,
+                  answered: true, lines: brief.lines, stories: brief.stories)
+    }
+}
