@@ -129,8 +129,15 @@ class LiveNewsController: UIViewController {
         card.onOpenStory = { [weak self] url in self?.openArticle(url) }
         card.onSizeChange = { [weak self] in self?.resizeListHeader() }
         card.onSelectOption = { [weak self] index in self?.selectCardAnswer(at: index) }
+        //Hidden stays hidden, on every chip and across launches, until a pill or the chevron.
+        card.isCollapsible = true
+        card.isCollapsed = UserDefaults.standard.bool(forKey: Self.cardCollapsedKey)
+        card.onCollapseChange = { collapsed in
+            UserDefaults.standard.set(collapsed, forKey: Self.cardCollapsedKey)
+        }
         return card
     }()
+    private static let cardCollapsedKey = "newsCardCollapsed"
 
     // MARK: - Card answers (BS-250)
 

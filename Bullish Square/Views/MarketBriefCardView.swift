@@ -22,10 +22,25 @@ final class MarketBriefCardView: UIView {
     var onSizeChange: (() -> Void)?
     ///A pill was tapped: its index in the labels last given to `setOptions`. (BS-250)
     var onSelectOption: ((Int) -> Void)?
+    ///The reader hid or showed the answer with the chevron, or a pill showed it again.
+    var onCollapseChange: ((Bool) -> Void)?
+
+    ///Gives the card the chevron that hides its answer and keeps the pills. Off for Ask AI's
+    ///card, which goes away by itself when the question does.
+    var isCollapsible = false {
+        didSet { updatePillsRow() }
+    }
+    ///Only the pills and the chevron show. Set by the screen, which remembers it.
+    var isCollapsed = false {
+        didSet { applyCollapse() }
+    }
+    private var labelCount = 0
 
     private let card = UIView()
     private let pillsStack = UIStackView()
     private let pillsRow = UIStackView()
+    private let collapseButton = UIButton(type: .system)
+    private let titleRow = UIStackView()
     private let titleLabel = UILabel()
     private let updatedLabel = UILabel()
     private let linesStack = UIStackView()
@@ -72,8 +87,8 @@ final class MarketBriefCardView: UIView {
         }
         storyCount = stories.count
         sourcesStack.isHidden = true
-        sourcesButton.isHidden = stories.isEmpty
         updateSourcesButton()
+        applyCollapse()
     }
 
     ///The pills above the title, one per answer the card switches between, `selected` lit.
@@ -83,7 +98,38 @@ final class MarketBriefCardView: UIView {
         for (index, label) in labels.enumerated() {
             pillsStack.addArrangedSubview(pill(label, index: index, isSelected: index == selected))
         }
-        pillsRow.isHidden = labels.count < 2
+        labelCount = labels.count
+        updatePillsRow()
+    }
+
+    ///With the chevron the row shows even for one answer, so the card can still be hidden.
+    private func updatePillsRow() {
+        pillsStack.isHidden = labelCount < 2
+        collapseButton.isHidden = !isCollapsible
+        pillsRow.isHidden = labelCount < 2 && !isCollapsible
+    }
+
+    ///Hidden, the card is its pills and the chevron: the answer, sources and note go.
+    private func applyCollapse() {
+        let hidden = isCollapsible && isCollapsed
+        titleRow.isHidden = hidden
+        linesStack.isHidden = hidden
+        sourcesButton.isHidden = hidden || storyCount == 0
+        noteLabel.isHidden = hidden
+        if hidden {
+            sourcesStack.isHidden = true
+            updateSourcesButton()
+        }
+        let symbol = UIImage.SymbolConfiguration(pointSize: 11, weight: .semibold)
+        collapseButton.setImage(UIImage(systemName: hidden ? "chevron.down" : "chevron.up", withConfiguration: symbol), for: .normal)
+        collapseButton.accessibilityLabel = hidden ? "Show summary" : "Hide summary"
+    }
+
+    private func setCollapsed(_ collapsed: Bool) {
+        guard collapsed != isCollapsed else { return }
+        isCollapsed = collapsed
+        onCollapseChange?(collapsed)
+        onSizeChange?()
     }
 
     private func pill(_ label: String, index: Int, isSelected: Bool) -> UIButton {
@@ -103,8 +149,11 @@ final class MarketBriefCardView: UIView {
         let button = UIButton(configuration: configuration)
         button.accessibilityTraits.insert(isSelected ? .selected : [])
         button.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            //A pill on a hidden card is a wish to read it.
+            self.setCollapsed(false)
             guard !isSelected else { return }
-            self?.onSelectOption?(index)
+            self.onSelectOption?(index)
         }, for: .touchUpInside)
         return button
     }
@@ -195,7 +244,8 @@ final class MarketBriefCardView: UIView {
         updatedLabel.setContentHuggingPriority(.required, for: .horizontal)
         updatedLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
-        let titleRow = UIStackView(arrangedSubviews: [titleLabel, updatedLabel])
+        titleRow.addArrangedSubview(titleLabel)
+        titleRow.addArrangedSubview(updatedLabel)
         titleRow.axis = .horizontal
         titleRow.alignment = .firstBaseline
         titleRow.spacing = 8
@@ -227,10 +277,27 @@ final class MarketBriefCardView: UIView {
         //The pills keep their size at the leading edge; the empty view takes the rest.
         let rest = UIView()
         rest.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        //Like the Sources toggle, in the accent colour; a wider target than the chevron.
+        collapseButton.tintColor = UIColor(named: "AccentColor")
+        collapseButton.contentHorizontalAlignment = .trailing
+        collapseButton.isHidden = true
+        collapseButton.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            self.setCollapsed(!self.isCollapsed)
+        }, for: .touchUpInside)
+        collapseButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            collapseButton.widthAnchor.constraint(equalToConstant: 44),
+            collapseButton.heightAnchor.constraint(equalToConstant: 30)
+        ])
+
         pillsRow.addArrangedSubview(pillsStack)
         pillsRow.addArrangedSubview(rest)
+        pillsRow.addArrangedSubview(collapseButton)
         pillsRow.axis = .horizontal
+        pillsRow.alignment = .center
         pillsRow.isHidden = true
+        applyCollapse()
 
         let content = UIStackView(arrangedSubviews: [pillsRow, titleRow, linesStack, sourcesButton, sourcesStack, noteLabel])
         content.axis = .vertical
