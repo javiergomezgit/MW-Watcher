@@ -75,6 +75,16 @@ class WatchlistController: UIViewController {
         return button
     }()
     
+    ///Behind the table when the active watchlist has no stocks. A new list, or one emptied by
+    ///deleting its rows, was a blank screen under the title. (BS-121)
+    private lazy var emptyWatchlistView = EmptyStateView(
+        title: "No stocks yet",
+        message: "Search for a stock or crypto and add it to this watchlist.",
+        actionTitle: "Add a stock"
+    ) { [weak self] in
+        self?.addingTicker()
+    }
+
     //MARK: Outlets and IBActions
     @IBOutlet var tableView: UITableView!
     
@@ -254,6 +264,7 @@ class WatchlistController: UIViewController {
             tickersValues = [:]
             priceFetchedAt = [:]
             tableView.reloadData()
+            updateEmptyState()
             finishLoading()
             return
         }
@@ -264,6 +275,7 @@ class WatchlistController: UIViewController {
         //by ticker, so anything the two lists share keeps its price and the rest fill in.
         tickersFeatures = savedTickers
         tableView.reloadData()
+        updateEmptyState()
         //Every row already has a price, saved or recent, so there is something to read while
         //any refresh below runs quietly. Pull to refresh keeps its own control.
         if savedTickers.allSatisfy({ tickersValues[$0.ticker] != nil }) {
@@ -308,8 +320,9 @@ class WatchlistController: UIViewController {
                     //they were previously replaced from a URLSession queue.
                     self.tickersFeatures = savedTickers
                     self.recordPrices(tickersGroupPrices, for: requestedTickers)
-                    
+
                     self.tableView.reloadData()
+                    self.updateEmptyState()
                     self.finishLoading()
                 }
                 
@@ -326,6 +339,12 @@ class WatchlistController: UIViewController {
         }
     }
     
+    ///Called wherever `tickersFeatures` changes, so the message never outlives the last row
+    ///or stays up after the first one arrives.
+    private func updateEmptyState() {
+        tableView.backgroundView = tickersFeatures.isEmpty ? emptyWatchlistView : nil
+    }
+
     ///True only when every ticker on screen had its price asked for within `priceFreshness`.
     ///A ticker never asked about - just added, or new to this watchlist - makes it false.
     private func pricesAreFresh(for tickers: [TickersFeatures], now: Date = Date()) -> Bool {
@@ -647,6 +666,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             tickersFeatures.remove(at: indexPath.row)
             
             tableView.deleteRows(at: [indexPath], with: .left)
+            updateEmptyState()
         }
     }
 }

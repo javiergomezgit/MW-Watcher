@@ -71,6 +71,29 @@ class MarketsController: UIViewController {
     private var majorMarketsPrices = [GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0)]
     private var cryptoCoins: [GeneralMarkets] = []
 
+    ///Over the whole tab when nothing has ever loaded: a first launch offline. It used to be an
+    ///alert over an empty chart and lists, with nothing to do after closing it. (BS-121)
+    private lazy var unavailableView: EmptyStateView = {
+        let emptyView = EmptyStateView(title: "", message: "")
+        emptyView.backgroundColor = view.backgroundColor ?? UIColor(named: "colorPrimary")
+        emptyView.isHidden = true
+        emptyView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(emptyView)
+        NSLayoutConstraint.activate([
+            emptyView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            emptyView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            emptyView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            emptyView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        return emptyView
+    }()
+
+    ///Behind the crypto list when the rest of the tab loaded but the coins did not.
+    private let cryptoUnavailableView = EmptyStateView(
+        title: "Crypto prices aren't available",
+        message: "Tap refresh at the top to try again."
+    )
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -111,10 +134,30 @@ class MarketsController: UIViewController {
         startStopSpinner(start: false)
         setRefreshIconSpinning(false)
 
-        if failed, userAskedForRefresh || cached == nil {
+        //With nothing to show, the message on screen says it; an alert on top would repeat it
+        //each time Try again fails. Over data already showing, a refresh the user asked for
+        //still reports its failure.
+        if cached == nil {
+            showUnavailable()
+        } else {
+            unavailableView.isHidden = true
+        }
+        if failed, userAskedForRefresh, cached != nil {
             ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
         }
         userAskedForRefresh = false
+    }
+
+    ///Try again swaps the button for a loading line, so the tap visibly did something while
+    ///the requests run; the next didUpdate puts the button back if they fail again.
+    private func showUnavailable() {
+        unavailableView.configure(title: "Markets couldn't load",
+                                  message: "Check your connection, then try again.",
+                                  actionTitle: "Try again") { [weak self] in
+            self?.unavailableView.configure(title: "Loading markets\u{2026}", message: "")
+            self?.updateAllData()
+        }
+        unavailableView.isHidden = false
     }
 
     private func populateFromCache(_ cached: MarketsCache.CachedData) {
@@ -216,6 +259,7 @@ class MarketsController: UIViewController {
             self.cryptoCoins.append(cryptoCoin)
         }
         tableView.reloadData()
+        tableView.backgroundView = cryptoCoins.isEmpty ? cryptoUnavailableView : nil
     }
 }
 

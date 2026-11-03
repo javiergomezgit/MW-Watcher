@@ -38,6 +38,9 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
         table.backgroundColor = UIColor(named: "colorPrimary")
         return table
     }()
+
+    ///Near the top: the screen opens with the keyboard up, which covers the middle.
+    private let emptyView = EmptyStateView(title: "", message: "", nearTop: true)
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -96,6 +99,8 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
                 case .failure(let error):
                     //Not remembered, so typing it again retries. What is on screen stays.
                     print("Stock search for \(query) failed: \(error)")
+                    guard query == Self.normalized(self.searchBar.text) else { return }
+                    self.updateEmptyState(failed: true)
                 }
             }
         }
@@ -121,6 +126,26 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
                 cell.tag = indexPath.row
             }
         }
+        updateEmptyState()
+    }
+
+    ///Says why a search shows no rows. A search that matched nothing was a blank list, which
+    ///read the same as one still loading. Nothing for an empty search bar, and nothing while
+    ///there are rows, even stale ones from a failed search. (BS-121)
+    private func updateEmptyState(failed: Bool = false) {
+        let query = Self.normalized(searchBar.text)
+        guard filteredStocks.isEmpty, !query.isEmpty else {
+            tableView.backgroundView = nil
+            return
+        }
+        if failed {
+            emptyView.configure(title: "Search isn't available right now",
+                                message: "Check your connection and try again.")
+        } else {
+            emptyView.configure(title: "No matches for \u{201C}\(query)\u{201D}",
+                                message: "Check the symbol, or try the company's name.")
+        }
+        tableView.backgroundView = emptyView
     }
     
     ///Search text as it is sent and remembered: trimmed and upper-cased, so "aapl " and
@@ -270,6 +295,9 @@ extension SearchStocksController: UISearchBarDelegate {
         let narrowedNow = Self.narrowed(stocks, to: query)
         if !narrowedNow.isEmpty {
             display(narrowedNow)
+        } else if filteredStocks.isEmpty {
+            //Still waiting. "No matches" for the previous text must not sit under the new one.
+            tableView.backgroundView = nil
         }
         
         searchTimer = Timer.scheduledTimer(withTimeInterval: typingPause, repeats: false) { [weak self] _ in
