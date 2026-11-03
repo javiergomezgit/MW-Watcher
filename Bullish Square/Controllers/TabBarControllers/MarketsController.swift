@@ -234,18 +234,26 @@ class MarketsController: UIViewController {
     
     private func setUpViewModel(cryptoValues: [CryptoData]) {
         
-        let models = cryptoValues
-        
-        let cryptosSortedByVolume = models.sorted { first, second -> Bool in
-            return first.quote["USD"]!.volume_24h > second.quote["USD"]!.volume_24h
+        ///Coins without a USD quote are left out, one by one. The sort force-unwrapped the quote
+        ///and crashed the tab, and the loop returned on the first one, skipping the reload so
+        ///the list kept the previous coins. (BS-247)
+        var priced: [(model: CryptoData, usd: Quote)] = []
+        for model in cryptoValues {
+            guard let usd = model.quote["USD"] else {
+                print("Crypto \(model.symbol) has no USD quote, so it is left out of Markets.")
+                continue
+            }
+            priced.append((model, usd))
         }
-        
-        for model in cryptosSortedByVolume {
-            guard let price = model.quote["USD"]?.price else { return }
-            guard let change = model.quote["USD"]?.percent_change_24h else { return }
+
+        let cryptosSortedByVolume = priced.sorted { $0.usd.volume_24h > $1.usd.volume_24h }
+
+        for (model, usd) in cryptosSortedByVolume {
+            let price = usd.price
+            let change = usd.percent_change_24h
 //            guard let changeMonth = model.quote["USD"]?.percent_change_30d else { return }
 //            guard let volume = model.quote["USD"]?.volume_24h else { return }
-            
+
             //TODO: add this information in table view (FUTURE)
             //---//
 //            let percentM = NSNumber(value: changeMonth)
