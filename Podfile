@@ -6,7 +6,6 @@ target 'Bullish Square' do
     use_frameworks!
 
     # Pods for MW Watcher
-    pod 'SwiftSoup'
     pod 'SwiftyOnboard'
 #    pod 'AMPopTip'
     pod 'Firebase/Analytics'

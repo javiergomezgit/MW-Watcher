@@ -17,9 +17,6 @@
 
 /* Begin PBXFileReference section */
 		221236A4263DA728007EA092 /* Bullish Square.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Bullish Square.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		223B10B32958D7B300C6A04C /* SwiftSoup.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftSoup.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		223B10BF2958DA4000C6A04C /* SwiftSoup.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftSoup.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		223B10C32958DA5800C6A04C /* SwiftSoup.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftSoup.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2245E3702640C01D00D340DE /* Podfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		225CF9A5264216A400D19929 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		225CF9A7264216A400D19929 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -92,9 +89,6 @@
 			isa = PBXGroup;
 			children = (
 				22FF59132E0497DC00B9B9D6 /* FirebaseAnalytics.xcframework */,
-				223B10C32958DA5800C6A04C /* SwiftSoup.framework */,
-				223B10BF2958DA4000C6A04C /* SwiftSoup.framework */,
-				223B10B32958D7B300C6A04C /* SwiftSoup.framework */,
 				229554F1267A3C260082235C /* CloudKit.framework */,
 				226463E926691EEE00A915D2 /* LocalAuthentication.framework */,
 				225CF9A5264216A400D19929 /* WidgetKit.framework */,
@@ -502,8 +496,6 @@
 					"-framework",
 					"\"StoreKit\"",
 					"-framework",
-					"\"SwiftSoup\"",
-					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",
 					"\"SwiftyOnboard\"",
@@ -598,8 +590,6 @@
 					"\"Security\"",
 					"-framework",
 					"\"StoreKit\"",
-					"-framework",
-					"\"SwiftSoup\"",
 					"-framework",
 					"\"SwiftyJSON\"",
 					"-framework",

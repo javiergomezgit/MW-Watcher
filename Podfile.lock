@@ -1473,7 +1473,6 @@ PODS:
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
   - RecaptchaInterop (101.0.0)
-  - SwiftSoup (2.7.6)
   - SwiftyJSON (4.3.0)
   - SwiftyOnboard (1.4.0)
   - TinyConstraints (4.0.2)
@@ -1486,7 +1485,6 @@ DEPENDENCIES:
   - Firebase/Storage
   - FirebaseAuth
   - FirebaseFirestore
-  - SwiftSoup
   - SwiftyJSON (~> 4.0)
   - SwiftyOnboard
   - TinyConstraints
@@ -1526,7 +1524,6 @@ SPEC REPOS:
     - PromisesObjC
     - PromisesSwift
     - RecaptchaInterop
-    - SwiftSoup
     - SwiftyJSON
     - SwiftyOnboard
     - TinyConstraints
@@ -1565,11 +1562,10 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
-  SwiftSoup: 9ec2526c76ebc3fe5d3157c82b40b45a27eeb82d
   SwiftyJSON: 6faa0040f8b59dead0ee07436cbf76b73c08fd08
   SwiftyOnboard: 76a648dc1dcbc844343b6b95fe5883cb64a62f4a
   TinyConstraints: 7b7ccc0c485bb3bb47082138ff28bc33cd49897f
 
-PODFILE CHECKSUM: 7dcc712edf7f8bb0bbe0a25999e473f2dd7ab7a2
+PODFILE CHECKSUM: 8ece456a4c0690d0f65e67318a2991c33386b74a
 
 COCOAPODS: 1.16.2
