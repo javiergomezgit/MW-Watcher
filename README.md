@@ -19,8 +19,8 @@ Shipping as **Bullish Square** on the App Store (2.0.5). The repository, bundle 
 
 UIKit + Storyboards (one storyboard per tab), MVC, no dependency injection. Firebase for
 auth and the user document; Core Data for everything the device keeps. Charts are drawn
-with DGCharts. Market, news and crypto data come from RapidAPI, yfapi.net, CoinMarketCap,
-GNews, Marketaux and ElevenLabs over plain `URLSession`.
+with DGCharts. Market, news and crypto data come from the Bullish Square server (`MarketDataServer`,
+the separate `bullish-square-api` repo) over plain `URLSession`; the app holds no API keys.
 
 Deployment target iOS 15.6. Dependencies are split across CocoaPods and Swift Package
 Manager — `Pods/` is committed, so a clone builds without running `pod install` first.

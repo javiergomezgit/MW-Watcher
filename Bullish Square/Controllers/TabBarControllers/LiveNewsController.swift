@@ -9,17 +9,12 @@ import UIKit
 import CoreData
 import SafariServices
 import AMPopTip
-import AVFoundation
 
 class LiveNewsController: UIViewController {
     
     // MARK: - Outlets
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var stackViewPlayer: UIStackView!
-    @IBOutlet weak var backwardButton: UIButton!
-    @IBOutlet weak var playButton: UIButton!
-    @IBOutlet weak var loopButton: UIButton!
     
     @IBOutlet weak var collectionLayout: UICollectionViewFlowLayout! {
         didSet {
@@ -234,19 +229,11 @@ class LiveNewsController: UIViewController {
     private var appliedMargin: CGFloat = -1
 
     private let imageViewSavedNews = UIImageView(image: UIImage(named: "tray.2.fill"))
-    private let imageViewSearchNews = UIImageView(image: UIImage(systemName: "play.circle"))
-    
-    // MARK: - Audio Properties
-    private var audioPlayer: AVAudioPlayer?
-    private var audioData: Data?
-    private var isLoopEnabled = false
-    private var headlineUpdateTimer: Timer?
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupPlayerControls()
 
         tableView.delegate = self
         tableView.dataSource = self
@@ -294,7 +281,6 @@ class LiveNewsController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         TabTitleRow.setBarHidden(false, for: self, animated: animated)
-        audioPlayer?.stop()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -325,14 +311,9 @@ extension LiveNewsController {
         imageViewSavedNews.isAccessibilityElement = true
         imageViewSavedNews.accessibilityLabel = "Saved news"
         imageViewSavedNews.accessibilityTraits = .button
-        
-        // Temporarily hide the "play headlines" entry point until the picker flow is finalized.
-        // TODO: Re-enable this button and gesture when the headline-count picker UX is ready.
-        imageViewSearchNews.isHidden = true
-        imageViewSearchNews.isUserInteractionEnabled = false
-        imageViewSearchNews.tintColor = .label
 
-        TabTitleRow(title: navigationItem.title ?? title, buttons: [imageViewSearchNews, imageViewSavedNews]).install(in: self)
+
+        TabTitleRow(title: navigationItem.title ?? title, buttons: [imageViewSavedNews]).install(in: self)
     }
     
     ///Insets the chips and the saved button to the view's margin; the stories follow it through
@@ -608,203 +589,6 @@ extension LiveNewsController {
 }
 
 //
-// MARK: - Audio Management
-//
-extension LiveNewsController {
-    
-    // Prepare and request combined audio for selected headlines using API
-    func loadAudioForSelectedHeadlines(numberOfHeadlines: Int) {
-        startStopSpinner(start: true)
-        audioData = nil
-        audioPlayer?.stop()
-        stopHeadlineUpdateTimer()
-        audioPlayer = nil
-        
-        let selectedHeadlines = Array(newsItems.prefix(numberOfHeadlines))
-        let combinedHeadlines = selectedHeadlines.map { news in
-            news.headline
-                .replacingOccurrences(of: ".", with: ". ")
-                .replacingOccurrences(of: "U.S.", with: "United States")
-            + ". "
-        }.joined()
-        
-        if combinedHeadlines.count > 10000 {
-            DispatchQueue.main.async {
-                self.startStopSpinner(start: false)
-                Utilities.showErrorAlert(on: self, message: "Selected headlines exceed 10,000 characters. Please select fewer headlines.")
-            }
-            return
-        }
-        
-        guard let url = URL(string: "\(KeysNewsCallAPI.elevenLabsBaseURL)/\(KeysNewsCallAPI.voiceID)") else {
-            DispatchQueue.main.async {
-                self.startStopSpinner(start: false)
-                Utilities.showErrorAlert(on: self, message: "Invalid API URL.")
-            }
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(KeysNewsCallAPI.elevenLabsAPIKey, forHTTPHeaderField: "xi-api-key")
-        
-        let parameters: [String: Any] = [
-            "text": combinedHeadlines,
-            "voice_settings": [
-                "stability": 0.6,
-                "similarity_boost": 0.8,
-                "speed": 1.0
-            ],
-            "model_id": "eleven_monolingual_v1",
-            "output_format": "mp3"
-        ]
-        
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
-        } catch {
-            print("Error encoding JSON: \(error.localizedDescription)")
-            DispatchQueue.main.async {
-                self.startStopSpinner(start: false)
-                Utilities.showErrorAlert(on: self, message: "Failed to prepare audio.")
-            }
-            return
-        }
-        
-        print("Fetching audio for \(numberOfHeadlines) headlines, total characters: \(combinedHeadlines.count)")
-        print("Request URL: \(url.absoluteString)")
-        
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            guard let self = self else { return }
-            
-            DispatchQueue.main.async {
-                self.startStopSpinner(start: false)
-            }
-            
-            if let error = error {
-                print("API request failed: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Unable to generate audio: \(error.localizedDescription)")
-                }
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("Invalid response")
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Invalid server response.")
-                }
-                return
-            }
-            
-            if httpResponse.statusCode == 401 {
-                //Never the key itself, nor any part of it: these lines reach device logs. (BS-254)
-                print("Unauthorized: the ElevenLabs key is invalid or missing.")
-                if let data = data, let errorBody = try? JSONSerialization.jsonObject(with: data) {
-                    print("Error Response: \(errorBody)")
-                }
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Invalid ElevenLabs API key. Please verify your API key in the ElevenLabs dashboard or generate a new one.")
-                }
-                return
-            }
-            
-            if !(200...299).contains(httpResponse.statusCode) {
-                print("HTTP Error: Status \(httpResponse.statusCode)")
-                if let data = data, let errorBody = try? JSONSerialization.jsonObject(with: data) {
-                    print("Error Response: \(errorBody)")
-                }
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "Failed to generate audio. HTTP Status: \(httpResponse.statusCode)")
-                }
-                return
-            }
-            
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    Utilities.showErrorAlert(on: self, message: "No audio data received.")
-                }
-                return
-            }
-            
-            DispatchQueue.main.async {
-                self.audioData = data
-                do {
-                    self.audioPlayer = try AVAudioPlayer(data: data)
-                    self.audioPlayer?.delegate = self
-                    self.audioPlayer?.numberOfHeadlines = numberOfHeadlines
-                    self.audioPlayer?.prepareToPlay()
-                    self.audioPlayer?.play()
-                    self.playButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-                    self.stackViewPlayer.isHidden = false
-                    print("Playing combined audio for \(numberOfHeadlines) headlines")
-                } catch {
-                    print("Error playing audio: \(error.localizedDescription)")
-                    Utilities.showErrorAlert(on: self, message: "Failed to play audio.")
-                }
-            }
-        }
-        task.resume()
-    }
-    
-    // Setup player controls button images and actions
-    private func setupPlayerControls() {
-        backwardButton.setImage(UIImage(systemName: "backward.fill"), for: .normal)
-        playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
-        loopButton.setImage(UIImage(systemName: "repeat"), for: .normal)
-        
-        backwardButton.addTarget(self, action: #selector(restartAudio), for: .touchUpInside)
-        playButton.addTarget(self, action: #selector(togglePlayPause), for: .touchUpInside)
-        loopButton.addTarget(self, action: #selector(toggleLoop), for: .touchUpInside)
-        
-        backwardButton.accessibilityLabel = "Restart audio"
-        playButton.accessibilityLabel = "Play or pause audio"
-        loopButton.accessibilityLabel = "Toggle loop mode"
-        
-        stackViewPlayer.isHidden = true
-    }
-    
-    // Restart audio from beginning and play if paused
-    @objc func restartAudio() {
-        audioPlayer?.currentTime = 0
-        if audioPlayer?.isPlaying == false {
-            audioPlayer?.play()
-            playButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-        }
-    }
-    
-    // Toggle play/pause audio state
-    @objc func togglePlayPause() {
-        guard audioPlayer != nil else {
-            Utilities.showErrorAlert(on: self, message: "No audio available. Please select headlines to play.")
-            return
-        }
-        
-        if audioPlayer?.isPlaying == true {
-            audioPlayer?.pause()
-            playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
-            stopHeadlineUpdateTimer()
-        } else {
-            audioPlayer?.play()
-            playButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-        }
-    }
-    
-    // Toggle looping playback state
-    @objc func toggleLoop() {
-        isLoopEnabled.toggle()
-        loopButton.tintColor = isLoopEnabled ? .red : .label
-        loopButton.setImage(UIImage(systemName: "repeat"), for: .normal)
-    }
-    
-    // Stop audio headline update timer
-    private func stopHeadlineUpdateTimer() {
-        headlineUpdateTimer?.invalidate()
-        headlineUpdateTimer = nil
-    }
-}
-
-//
 // MARK: - Navigation Button Handling
 //
 extension LiveNewsController {
@@ -834,41 +618,6 @@ extension LiveNewsController {
         destination!.modalTransitionStyle = .coverVertical
         destination!.modalPresentationStyle = .fullScreen
         self.show(destination!, sender: self)
-    }
-    
-    // Show alert to select number of news headlines to play audio
-    // TODO: Re-enable this flow after product sign-off for the headline-count picker UI.
-    @objc func imagePlayAudioNewsTapped(tapGestureRecognizer: UITapGestureRecognizer) {
-        let numberOfNews = newsItems.count
-        if numberOfNews == 0 {
-            Utilities.showErrorAlert(on: self, message: "No news items available.")
-            return
-        }
-        
-        let alert = UIAlertController(title: "Select Number of News", message: "Choose how many news headlines to listen to (1 - \(numberOfNews)).", preferredStyle: .alert)
-        
-        let picker = UIPickerView()
-        picker.dataSource = self
-        picker.delegate = self
-        picker.tag = 100
-        
-        alert.view.addSubview(picker)
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            picker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 40),
-            picker.leftAnchor.constraint(equalTo: alert.view.leftAnchor, constant: 20),
-            picker.rightAnchor.constraint(equalTo: alert.view.rightAnchor, constant: -20),
-            picker.bottomAnchor.constraint(equalTo: alert.view.bottomAnchor, constant: -60)
-        ])
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
-            let selectedRow = picker.selectedRow(inComponent: 0)
-            let numberOfHeadlines = selectedRow + 1
-            self.loadAudioForSelectedHeadlines(numberOfHeadlines: numberOfHeadlines)
-        })
-        
-        present(alert, animated: true)
     }
 }
 
@@ -1296,56 +1045,5 @@ extension LiveNewsController: UICollectionViewDelegate, UICollectionViewDataSour
     // Minimum vertical line spacing for cells
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 10.0
-    }
-}
-
-//
-// MARK: - Picker View Delegate/DataSource
-//
-extension LiveNewsController: UIPickerViewDelegate, UIPickerViewDataSource {
-    
-    // One component in picker
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-    
-    // Number of rows equals number of news items
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return newsItems.count
-    }
-    
-    // Row title is simply the number
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return "\(row + 1)"
-    }
-}
-
-//
-// MARK: - AVAudioPlayer Delegate
-//
-extension LiveNewsController: AVAudioPlayerDelegate {
-    
-    // Loop or stop audio when finished playing
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        if flag && isLoopEnabled {
-            player.currentTime = 0
-            player.play()
-            playButton.setImage(UIImage(systemName: "pause.fill"), for: .normal)
-        } else {
-            playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
-            stackViewPlayer.isHidden = true
-            stopHeadlineUpdateTimer()
-        }
-    }
-    
-    // Handle audio decode errors
-    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        print("Audio decode error: \(error?.localizedDescription ?? "Unknown")")
-        DispatchQueue.main.async {
-            Utilities.showErrorAlert(on: self, message: "Failed to decode audio.")
-            self.playButton.setImage(UIImage(systemName: "play.fill"), for: .normal)
-            self.stackViewPlayer.isHidden = true
-            self.stopHeadlineUpdateTimer()
-        }
     }
 }
