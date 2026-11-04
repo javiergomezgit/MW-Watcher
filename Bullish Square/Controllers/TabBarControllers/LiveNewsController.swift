@@ -673,7 +673,6 @@ extension LiveNewsController {
         
         print("Fetching audio for \(numberOfHeadlines) headlines, total characters: \(combinedHeadlines.count)")
         print("Request URL: \(url.absoluteString)")
-        print("Request Headers: \(request.allHTTPHeaderFields ?? [:])")
         
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             guard let self = self else { return }
@@ -699,7 +698,8 @@ extension LiveNewsController {
             }
             
             if httpResponse.statusCode == 401 {
-                print("Unauthorized: Invalid or missing API key. Key used: \(KeysNewsCallAPI.elevenLabsAPIKey.prefix(4))... (length: \(KeysNewsCallAPI.elevenLabsAPIKey.count))")
+                //Never the key itself, nor any part of it: these lines reach device logs. (BS-254)
+                print("Unauthorized: the ElevenLabs key is invalid or missing.")
                 if let data = data, let errorBody = try? JSONSerialization.jsonObject(with: data) {
                     print("Error Response: \(errorBody)")
                 }
