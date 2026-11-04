@@ -17,9 +17,7 @@ struct TickerNews {
 
 class TickerNewsController: UIViewController {
     
-    @IBOutlet weak var tickerLabel: UILabel!
     @IBOutlet var tableView: UITableView!
-    @IBOutlet weak var nameStock: UILabel!
     
     var ticker = ""
     var name = ""
@@ -44,14 +42,45 @@ class TickerNewsController: UIViewController {
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         tableView.addSubview(refreshControl)
         
-        tickerLabel.text = ticker
-        nameStock.text = name
+        tableView.separatorStyle = .none
+        installTitle()
         
         savedLinks = saveHeadlines.savedLinks()
         
         loadNews()
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(dismissController))
+    }
+    
+    // MARK: - Title
+    
+    ///Ticker over name in the navigation bar, level with the close button. They were a 90 pt
+    ///block of their own under an empty bar, which pushed the stories half a screen down.
+    private func installTitle() {
+        let tickerLabel = UILabel()
+        tickerLabel.text = ticker
+        tickerLabel.font = UIFont(name: "Avenir-Heavy", size: 18) ?? .systemFont(ofSize: 18, weight: .heavy)
+        tickerLabel.textColor = .label
+        
+        let nameLabel = UILabel()
+        nameLabel.text = name == ticker ? nil : name
+        nameLabel.isHidden = nameLabel.text?.isEmpty ?? true
+        nameLabel.font = UIFont(name: "Avenir-Medium", size: 13) ?? .systemFont(ofSize: 13, weight: .medium)
+        nameLabel.textColor = ProfileStyle.secondaryText
+        nameLabel.lineBreakMode = .byTruncatingTail
+        
+        let stack = UIStackView(arrangedSubviews: [tickerLabel, nameLabel])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 0
+        navigationItem.titleView = stack
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = ProfileStyle.background
+        appearance.shadowColor = .clear
+        navigationItem.standardAppearance = appearance
+        navigationItem.scrollEdgeAppearance = appearance
     }
     
     @objc func dismissController() {
@@ -122,7 +151,6 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TickerNewsCell", for: indexPath) as! TickerNewsViewCell
-        tickerLabel.text = ticker
         
         cell.headlineLabel.text = tickerNewsArray[indexPath.row].headline
         cell.dateLabel.text = tickerNewsArray[indexPath.row].pubDate
