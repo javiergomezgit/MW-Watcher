@@ -25,25 +25,6 @@ final class StockAPI {
         case logoDownloadFailed //transport or decode failure; worth retrying
     }
     
-    //MARK: Decoded response shapes
-    ///Every field is optional. The previous parser force cast each one, so a single index
-    ///missing a short name or reporting a null price crashed the launch prefetch.
-    private struct GeneralMarketsResponse: Decodable {
-        let quoteResponse: QuoteResponse?
-        
-        struct QuoteResponse: Decodable {
-            let result: [Quote]?
-            
-            struct Quote: Decodable {
-                let symbol: String?
-                let shortName: String?
-                let regularMarketPrice: Double?
-                let regularMarketChangePercent: Double?
-                let regularMarketTime: Int?
-            }
-        }
-    }
-    
     //MARK: API Call for getting logo for specific stock
     ///The company's logo. `.failure(.logoUnavailable)` means there is none - most ETFs - and
     ///callers record a letter avatar and stop asking; `.failure(.logoDownloadFailed)` is
@@ -340,68 +321,66 @@ final class StockAPI {
     }
 
     //MARK: API call for general markets
+    ///The Markets tab's three index cards: price and day change, from the server's /v1/spark
+    ///at one daily bar. This called Yahoo straight from the phone with a key built into the
+    ///app (BS-254). Completes exactly once with the quotes and the latest bar's time, or nil.
+    static let generalMarketSymbols = ["^DJI", "^GSPC", "^IXIC"]
+    ///Placeholders only: MarketsController shows its own short names for these three.
+    private static let generalMarketNames = ["^DJI": "Dow Jones Industrial Average",
+                                             "^GSPC": "S&P 500",
+                                             "^IXIC": "NASDAQ Composite"]
+
     func getPriceGeneralMarkets(completion: @escaping([GeneralMarkets]?, Int) -> Void) {
-        let headers = [
-            "x-api-key": KeysStocksAPI.generalMarketKey,
-            "x-rapidapi-host": KeysStocksAPI.generalMarketHost
-        ]
-        
-        let urlString = KeysStocksAPI.generalBaseURL
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
-                                          cachePolicy: .useProtocolCachePolicy,
-                                          timeoutInterval: 10.0)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if let error = error {
-                print(error)
+        let symbols = Self.generalMarketSymbols.joined(separator: ",")
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        MarketDataServer.authorizedRequest(path: "/v1/spark?symbols=" + symbols + "&interval=1d&range=1d") { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("Index prices could not reach the server: \(error)")
                 completion(nil, 0)
                 return
+            case .success(let authorized):
+                request = authorized
             }
-            
-            guard let data = data else {
-                completion(nil, 0)
-                return
-            }
-            
-            //data, the quoteResponse lookup and every field inside result were force unwrapped
-            //or force cast. This runs from SceneDelegate on every cold start, so a rate-limit
-            //body crashed the launch before the loop was even reached.
-            guard let quotes = (try? JSONDecoder().decode(GeneralMarketsResponse.self, from: data))?
-                .quoteResponse?.result else {
-                completion(nil, 0)
-                return
-            }
-            
-            var marketsValues = [GeneralMarkets]()
-            var timeStamp = 0
-            
-            for quote in quotes {
-                //Skip an index missing anything displayed, rather than trapping on it
-                guard let ticker = quote.symbol,
-                      let shortName = quote.shortName,
-                      let marketPrice = quote.regularMarketPrice,
-                      let changePercentage = quote.regularMarketChangePercent else { continue }
-                
-                timeStamp = quote.regularMarketTime ?? timeStamp
-                
-                marketsValues.append(GeneralMarkets(indexTicker: ticker,
-                                                    indexName: shortName,
-                                                    indexPrice: marketPrice,
-                                                    changePercentage: Double(round(100*changePercentage)/100)))
-            }
-            
-            //The request always asks for the same four indices, so nothing usable means the
-            //response shape changed. Report it rather than showing an empty Markets screen.
-            guard !marketsValues.isEmpty else {
-                completion(nil, 0)
-                return
-            }
-            
-            completion(marketsValues, timeStamp)
-        })
-        dataTask.resume()
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                guard error == nil, let data,
+                      let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+                      let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+                    if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                        print("Index price server answered \(httpResponse.statusCode)")
+                    }
+                    completion(nil, 0)
+                    return
+                }
+
+                var marketsValues = [GeneralMarkets]()
+                var timeStamp = 0
+                for symbol in Self.generalMarketSymbols {
+                    //Skip an index missing anything displayed, rather than trapping on it
+                    guard let series = json[symbol] as? [String: Any],
+                          let previousClose = series["chartPreviousClose"] as? Double, previousClose > 0,
+                          let price = (series["close"] as? [Any])?.compactMap({ $0 as? Double }).last else { continue }
+
+                    if let time = (series["timestamp"] as? [Double])?.last {
+                        timeStamp = max(timeStamp, Int(time))
+                    }
+                    let changePercentage = ((price * 100) / previousClose) - 100
+                    marketsValues.append(GeneralMarkets(indexTicker: symbol,
+                                                        indexName: Self.generalMarketNames[symbol] ?? symbol,
+                                                        indexPrice: price,
+                                                        changePercentage: Double(round(100*changePercentage)/100)))
+                }
+
+                //The request always asks for the same three indices, so nothing usable means the
+                //response shape changed. Report it rather than showing an empty Markets screen.
+                guard !marketsValues.isEmpty else {
+                    completion(nil, 0)
+                    return
+                }
+                completion(marketsValues, timeStamp)
+            }.resume()
+        }
     }
 }
