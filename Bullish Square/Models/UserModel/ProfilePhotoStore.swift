@@ -93,12 +93,25 @@ final class ProfilePhotoStore {
                     print("Reading the profile photo URL failed: \(error?.localizedDescription ?? "no URL")")
                     return done(error ?? PhotoError.unreadable)
                 }
-                PublicProfileStore.shared.update(["photoURL": url.absoluteString]) { error in
-                    if error == nil { self?.cache(data, uid: uid, from: url.absoluteString) }
+                let address = Self.versioned(url)
+                PublicProfileStore.shared.update(["photoURL": address]) { error in
+                    if error == nil { self?.cache(data, uid: uid, from: address) }
                     done(error)
                 }
             }
         }
+    }
+
+    ///The download URL with the upload's time added. Storage keeps the same URL when a photo is
+    ///replaced, so every cache keyed by it - this store's, Community's, URLSession's - kept
+    ///showing the old one, and other phones never saw the change. Storage ignores the extra
+    ///parameter.
+    static func versioned(_ url: URL, now: Date = Date()) -> String {
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return url.absoluteString }
+        var items = (components.queryItems ?? []).filter { $0.name != "v" }
+        items.append(URLQueryItem(name: "v", value: String(Int(now.timeIntervalSince1970))))
+        components.queryItems = items
+        return components.url?.absoluteString ?? url.absoluteString
     }
 
     ///Fetches the photo at `urlString` when the cached copy is missing or from another URL.
