@@ -97,7 +97,16 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
 
     ///The buttons in the tab's title row.
     private func titleButtons() -> [UIView] {
-        []
+        [titleButton("square.and.pencil", label: "New post") { [weak self] in self?.composeTapped() }]
+    }
+
+    private func titleButton(_ symbol: String, label: String, action: @escaping () -> Void) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: symbol, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)), for: .normal)
+        button.tintColor = .label
+        button.accessibilityLabel = label
+        button.addAction(UIAction { _ in action() }, for: .touchUpInside)
+        return button
     }
 
     // MARK: - Loading
@@ -220,11 +229,58 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         cell.configure(shown: shown, resharedBy: post.isReshare ? post.authorUid : nil,
                        liked: false, reshared: false, isOwn: shown?.authorUid == store.currentUid)
         cell.onTicker = { [weak self] symbol in self?.openChart(symbol) }
+        cell.onPhoto = { [weak self] urls, index in
+            self?.present(PhotoViewerController(urls: urls, startIndex: index), animated: true)
+        }
+        cell.onMore = { [weak self] in self?.moreTapped(post, from: cell) }
         return cell
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row >= posts.count - 3 { loadMore() }
+    }
+
+    // MARK: - Posting
+
+    private func composeTapped() {
+        guard Auth.auth().currentUser != nil else {
+            return Utilities.showAlert(on: self, title: "Sign In", message: "Sign in to post in Community.")
+        }
+        let composer = ComposePostController()
+        composer.onPosted = { [weak self] post in
+            guard let self else { return }
+            self.posts.insert(post, at: 0)
+            self.tableView.backgroundView = nil
+            self.tableView.reloadData()
+            self.tableView.setContentOffset(.zero, animated: true)
+        }
+        present(UINavigationController(rootViewController: composer), animated: true)
+    }
+
+    ///Your own post (or reshare) can be deleted.
+    private func moreTapped(_ post: Post, from cell: UITableViewCell) {
+        let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        if post.authorUid == store.currentUid {
+            sheet.addAction(UIAlertAction(title: post.isReshare ? "Undo Reshare" : "Delete Post", style: .destructive) { [weak self] _ in
+                self?.delete(post)
+            })
+        }
+        guard !sheet.actions.isEmpty else { return }
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        sheet.popoverPresentationController?.sourceView = cell
+        present(sheet, animated: true)
+    }
+
+    private func delete(_ post: Post) {
+        store.deletePost(post) { [weak self] error in
+            guard let self else { return }
+            if let error {
+                return Utilities.showAlert(on: self, title: "Can't Delete", message: error.localizedDescription)
+            }
+            self.posts.removeAll { $0.id == post.id }
+            self.tableView.reloadData()
+            self.updateEmptyState(failed: false)
+        }
     }
 
     // MARK: - Navigation

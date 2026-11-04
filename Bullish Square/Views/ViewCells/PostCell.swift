@@ -19,6 +19,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     var onLike: (() -> Void)?
     var onReshare: (() -> Void)?
     var onTicker: ((String) -> Void)?
+    ///A photo was tapped: the post's photo URLs and which one.
+    var onPhoto: (([String], Int) -> Void)?
 
     // MARK: - Views
 
@@ -212,6 +214,11 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
                 let imageView = UIImageView()
                 imageView.contentMode = .scaleAspectFill
                 imageView.clipsToBounds = true
+                imageView.isUserInteractionEnabled = true
+                imageView.accessibilityLabel = "Photo"
+                imageView.accessibilityTraits = .button
+                let index = urls.firstIndex(of: url) ?? 0
+                imageView.addGestureRecognizer(PhotoTap(index: index, target: self, action: #selector(photoTapped(_:))))
                 imageView.backgroundColor = ProfileStyle.text.withAlphaComponent(0.06)
                 line.addArrangedSubview(imageView)
                 RemoteImageCache.shared.load(url) { [weak self, weak imageView] image in
@@ -263,6 +270,10 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         onAuthor?()
     }
 
+    @objc private func photoTapped(_ recognizer: PhotoTap) {
+        onPhoto?(imageURLs, recognizer.index)
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         postId = nil
@@ -271,5 +282,16 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         onLike = nil
         onReshare = nil
         onTicker = nil
+        onPhoto = nil
+    }
+}
+
+///A tap on one photo of a post, carrying which one.
+private final class PhotoTap: UITapGestureRecognizer {
+    let index: Int
+
+    init(index: Int, target: Any?, action: Selector?) {
+        self.index = index
+        super.init(target: target, action: action)
     }
 }
