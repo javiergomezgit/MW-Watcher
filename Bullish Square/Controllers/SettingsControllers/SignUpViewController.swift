@@ -17,9 +17,13 @@ class SignUpViewController: UIViewController {
     @IBOutlet weak var verifyTextField: UITextField!
     @IBOutlet weak var appleButton: UIButton!
     @IBOutlet weak var signUpButton: UIButton!
+    @IBOutlet weak var skipButton: UIButton!
+    @IBOutlet weak var footerLabel: UILabel!
+    @IBOutlet weak var footerButton: UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyStyle()
         
         signUpButton.isEnabled = !emailTextField.text!.isEmpty && !passwordTextField.text!.isEmpty && !verifyTextField.text!.isEmpty
         
@@ -30,6 +34,17 @@ class SignUpViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         view.addGestureRecognizer(tapGesture)
         
+    }
+    
+    private func applyStyle() {
+        AuthStyle.style(emailTextField, placeholder: "Email")
+        AuthStyle.style(passwordTextField, placeholder: "Password")
+        AuthStyle.style(verifyTextField, placeholder: "Confirm password")
+        AuthStyle.stylePrimary(signUpButton, title: "Sign Up")
+        AuthStyle.styleApple(appleButton)
+        AuthStyle.styleSkip(skipButton)
+        //It said "Don't have account?" here too, above a Sign In link.
+        AuthStyle.styleFooter(label: footerLabel, text: "Already have an account?", button: footerButton, title: "Sign In")
     }
     
     @objc override func dismissKeyboard() {

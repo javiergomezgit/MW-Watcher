@@ -13,19 +13,33 @@ class SignInViewController: UIViewController {
     @IBOutlet weak var signInButton: UIButton!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
+    @IBOutlet weak var appleButton: UIButton!
+    @IBOutlet weak var skipButton: UIButton!
+    @IBOutlet weak var footerLabel: UILabel!
+    @IBOutlet weak var footerButton: UIButton!
     
     ///There was no way back into an account whose password was forgotten. (BS-256)
     private let forgotPasswordButton = UIButton(configuration: .plain())
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        applyStyle()
         installForgotPassword()
+    }
+    
+    private func applyStyle() {
+        AuthStyle.style(emailTextField, placeholder: "Email")
+        AuthStyle.style(passwordTextField, placeholder: "Password")
+        AuthStyle.stylePrimary(signInButton, title: "Sign In")
+        AuthStyle.styleApple(appleButton)
+        AuthStyle.styleSkip(skipButton)
+        AuthStyle.styleFooter(label: footerLabel, text: "Don't have an account?", button: footerButton, title: "Sign Up")
     }
     
     ///Under the password field, trailing, in the 50 pt gap above the Sign In button.
     private func installForgotPassword() {
         forgotPasswordButton.configuration?.title = "Forgot password?"
-        forgotPasswordButton.configuration?.baseForegroundColor = UIColor(named: "AccentColor")
+        forgotPasswordButton.configuration?.baseForegroundColor = ProfileStyle.secondaryText
         forgotPasswordButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0)
         forgotPasswordButton.addAction(UIAction { [weak self] _ in self?.forgotPasswordTapped() }, for: .touchUpInside)
         forgotPasswordButton.translatesAutoresizingMaskIntoConstraints = false
@@ -115,8 +129,6 @@ class SignInViewController: UIViewController {
     }
     
     @IBAction func signInButtonTapped(_ sender: UIButton) {
-        sender.layer.cornerRadius = 8
-        sender.clipsToBounds = true
         print("Attempting sign-in with email and Firebase Authentication")
 
         guard let email = emailTextField.text, let password = passwordTextField.text, !email.isEmpty, !password.isEmpty else {

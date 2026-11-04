@@ -122,7 +122,7 @@
                                     <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gju-Vi-Uh0">
                                         <rect key="frame" x="37.333333333333343" y="302.66666666666663" width="299" height="49.666666666666686"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" secondItem="Gju-Vi-Uh0" secondAttribute="height" multiplier="30:5" id="L1y-8R-Iwk"/>
+                                            <constraint firstAttribute="width" secondItem="Gju-Vi-Uh0" secondAttribute="height" multiplier="25:4" id="L1y-8R-Iwk"/>
                                         </constraints>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="Continue with Apple" image="appleStock">
@@ -146,7 +146,7 @@
                                     <constraint firstItem="oIq-0a-JFG" firstAttribute="top" secondItem="uf4-vL-EcP" secondAttribute="bottom" constant="25" id="Ac3-LQ-LGx"/>
                                     <constraint firstItem="K5f-zU-y78" firstAttribute="leading" secondItem="D6v-WJ-fXd" secondAttribute="leading" constant="28" id="FJo-G9-snE"/>
                                     <constraint firstItem="oIq-0a-JFG" firstAttribute="centerX" secondItem="uf4-vL-EcP" secondAttribute="centerX" id="G8Q-EP-ifw"/>
-                                    <constraint firstAttribute="bottom" secondItem="tNZ-DJ-Hvj" secondAttribute="bottom" id="NrP-BX-Rqh"/>
+                                    <constraint firstItem="tNZ-DJ-Hvj" firstAttribute="centerY" secondItem="K5f-zU-y78" secondAttribute="centerY" id="NrP-BX-Rqh"/>
                                     <constraint firstItem="Gju-Vi-Uh0" firstAttribute="width" secondItem="D6v-WJ-fXd" secondAttribute="width" multiplier="0.8" id="QWR-Go-x3y"/>
                                     <constraint firstItem="W91-sT-UxJ" firstAttribute="centerX" secondItem="D6v-WJ-fXd" secondAttribute="centerX" id="UoX-lj-MIj"/>
                                     <constraint firstItem="oIq-0a-JFG" firstAttribute="height" secondItem="uf4-vL-EcP" secondAttribute="height" id="WMq-LM-ZCv"/>
@@ -177,6 +177,10 @@
                         <outlet property="emailTextField" destination="uf4-vL-EcP" id="RSm-Pi-KmV"/>
                         <outlet property="passwordTextField" destination="oIq-0a-JFG" id="d8F-wx-vfQ"/>
                         <outlet property="signInButton" destination="W91-sT-UxJ" id="sQ7-pu-yIt"/>
+                        <outlet property="appleButton" destination="Gju-Vi-Uh0" id="aU1-sI-ap1"/>
+                        <outlet property="skipButton" destination="SG9-ch-MXf" id="aU1-sI-sk1"/>
+                        <outlet property="footerLabel" destination="K5f-zU-y78" id="aU1-sI-fl1"/>
+                        <outlet property="footerButton" destination="tNZ-DJ-Hvj" id="aU1-sI-fb1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cah-15-dgq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -308,7 +312,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LEj-nI-1xx">
                                         <rect key="frame" x="37.333333333333343" y="361.66666666666663" width="299" height="49.666666666666686"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" secondItem="LEj-nI-1xx" secondAttribute="height" multiplier="30:5" id="4om-YA-8Kq"/>
+                                            <constraint firstAttribute="width" secondItem="LEj-nI-1xx" secondAttribute="height" multiplier="25:4" id="4om-YA-8Kq"/>
                                         </constraints>
                                         <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -334,7 +338,7 @@
                                     <constraint firstItem="cSw-Lc-8HP" firstAttribute="top" secondItem="h3p-VY-ilI" secondAttribute="bottom" constant="17" id="Dft-lU-tXx"/>
                                     <constraint firstItem="h3p-VY-ilI" firstAttribute="centerX" secondItem="cON-j1-qCE" secondAttribute="centerX" id="Fbv-nF-K2y"/>
                                     <constraint firstItem="cON-j1-qCE" firstAttribute="width" secondItem="ayD-oQ-2ra" secondAttribute="width" multiplier="0.85" id="OVl-76-w3l"/>
-                                    <constraint firstAttribute="bottom" secondItem="Fiq-lH-jT6" secondAttribute="bottom" id="RKd-V1-WCN"/>
+                                    <constraint firstItem="Fiq-lH-jT6" firstAttribute="centerY" secondItem="4Lt-7a-8r7" secondAttribute="centerY" id="RKd-V1-WCN"/>
                                     <constraint firstItem="h3p-VY-ilI" firstAttribute="top" secondItem="cON-j1-qCE" secondAttribute="bottom" constant="17" id="SuK-im-MmP"/>
                                     <constraint firstItem="LEj-nI-1xx" firstAttribute="width" secondItem="ayD-oQ-2ra" secondAttribute="width" multiplier="0.8" id="TMb-10-Gnh"/>
                                     <constraint firstItem="wzy-Pl-oAs" firstAttribute="centerX" secondItem="ayD-oQ-2ra" secondAttribute="centerX" id="VZE-2K-DhB"/>
@@ -370,6 +374,9 @@
                         <outlet property="passwordTextField" destination="h3p-VY-ilI" id="awb-zz-N9I"/>
                         <outlet property="signUpButton" destination="wzy-Pl-oAs" id="tba-y6-Jdv"/>
                         <outlet property="verifyTextField" destination="cSw-Lc-8HP" id="Ifa-Ro-AZP"/>
+                        <outlet property="skipButton" destination="Mk4-IF-wcI" id="aU1-sU-sk1"/>
+                        <outlet property="footerLabel" destination="4Lt-7a-8r7" id="aU1-sU-fl1"/>
+                        <outlet property="footerButton" destination="Fiq-lH-jT6" id="aU1-sU-fb1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fbV-XL-yFk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
