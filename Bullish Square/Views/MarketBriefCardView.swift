@@ -38,6 +38,9 @@ final class MarketBriefCardView: UIView {
 
     private let card = UIView()
     private let pillsStack = UIStackView()
+    ///Holds the pills, so on a narrow phone they scroll sideways instead of squeezing until
+    ///"Why markets moved" wrapped onto two lines.
+    private let pillsScroll = UIScrollView()
     private let pillsRow = UIStackView()
     private let collapseButton = UIButton(type: .system)
     private let titleRow = UIStackView()
@@ -104,7 +107,7 @@ final class MarketBriefCardView: UIView {
 
     ///With the chevron the row shows even for one answer, so the card can still be hidden.
     private func updatePillsRow() {
-        pillsStack.isHidden = labelCount < 2
+        pillsScroll.isHidden = labelCount < 2
         collapseButton.isHidden = !isCollapsible
         pillsRow.isHidden = labelCount < 2 && !isCollapsible
     }
@@ -137,6 +140,8 @@ final class MarketBriefCardView: UIView {
         configuration.title = label
         configuration.cornerStyle = .capsule
         configuration.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 12, bottom: 6, trailing: 12)
+        //Always one line, at its full width; the row scrolls when they don't all fit.
+        configuration.titleLineBreakMode = .byClipping
         configuration.baseBackgroundColor = isSelected
             ? UIColor(named: "AccentColor")
             : UIColor(named: "colorSecondary")?.withAlphaComponent(0.1)
@@ -147,6 +152,8 @@ final class MarketBriefCardView: UIView {
             return outgoing
         }
         let button = UIButton(configuration: configuration)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+        button.titleLabel?.numberOfLines = 1
         button.accessibilityTraits.insert(isSelected ? .selected : [])
         button.addAction(UIAction { [weak self] _ in
             guard let self else { return }
@@ -291,7 +298,23 @@ final class MarketBriefCardView: UIView {
             collapseButton.heightAnchor.constraint(equalToConstant: 30)
         ])
 
-        pillsRow.addArrangedSubview(pillsStack)
+        pillsScroll.showsHorizontalScrollIndicator = false
+        pillsScroll.alwaysBounceHorizontal = false
+        pillsStack.translatesAutoresizingMaskIntoConstraints = false
+        pillsScroll.addSubview(pillsStack)
+        //As wide as the pills when they fit, so the chevron stays at the trailing edge;
+        //narrower than them when they don't, and then it scrolls.
+        let hugPills = pillsScroll.widthAnchor.constraint(equalTo: pillsStack.widthAnchor)
+        hugPills.priority = .defaultHigh
+        NSLayoutConstraint.activate([
+            pillsStack.topAnchor.constraint(equalTo: pillsScroll.contentLayoutGuide.topAnchor),
+            pillsStack.bottomAnchor.constraint(equalTo: pillsScroll.contentLayoutGuide.bottomAnchor),
+            pillsStack.leadingAnchor.constraint(equalTo: pillsScroll.contentLayoutGuide.leadingAnchor),
+            pillsStack.trailingAnchor.constraint(equalTo: pillsScroll.contentLayoutGuide.trailingAnchor),
+            pillsScroll.heightAnchor.constraint(equalTo: pillsStack.heightAnchor),
+            hugPills
+        ])
+        pillsRow.addArrangedSubview(pillsScroll)
         pillsRow.addArrangedSubview(rest)
         pillsRow.addArrangedSubview(collapseButton)
         pillsRow.axis = .horizontal
