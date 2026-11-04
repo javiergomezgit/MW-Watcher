@@ -94,9 +94,8 @@ class SettingsController: UITableViewController {
             // Profile info cell - navigate to edit profile
             navigateToEditProfile()
         case 1:
-            // Password and Security cell - navigate to security settings
-            //navigateToSecuritySettings()
-            print ("Future implementation")
+            //Password and Security. The row only printed "Future implementation". (BS-256)
+            navigateToChangePassword()
         default:
             break
         }
@@ -148,14 +147,9 @@ class SettingsController: UITableViewController {
         }
     }
     
-    private func navigateToSecuritySettings() {
-        let storyboard = UIStoryboard(name: "SettingsTab", bundle: nil)
-        if let securityVC = storyboard.instantiateViewController(withIdentifier: "SecuritySettingsController") as? SecuritySettingsController {
-            securityVC.currentSettings = getSecuritySettings()
-            
-            let navigationController = UINavigationController(rootViewController: securityVC)
-            present(navigationController, animated: true)
-        }
+    private func navigateToChangePassword() {
+        let navigationController = UINavigationController(rootViewController: ChangePasswordController())
+        present(navigationController, animated: true)
     }
     
     // Helper methods to get current data
@@ -247,11 +241,6 @@ class SettingsController: UITableViewController {
             }
         }
         task.resume()
-    }
-    
-    private func getSecuritySettings() -> SecuritySettings {
-        // Return current security settings
-        return SecuritySettings()
     }
     
     func openBrowser(selectedCell: Int) {

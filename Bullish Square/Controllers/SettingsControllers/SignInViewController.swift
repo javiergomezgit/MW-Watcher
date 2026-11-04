@@ -14,6 +14,64 @@ class SignInViewController: UIViewController {
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     
+    ///There was no way back into an account whose password was forgotten. (BS-256)
+    private let forgotPasswordButton = UIButton(configuration: .plain())
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        installForgotPassword()
+    }
+    
+    ///Under the password field, trailing, in the 50 pt gap above the Sign In button.
+    private func installForgotPassword() {
+        forgotPasswordButton.configuration?.title = "Forgot password?"
+        forgotPasswordButton.configuration?.baseForegroundColor = UIColor(named: "AccentColor")
+        forgotPasswordButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0)
+        forgotPasswordButton.addAction(UIAction { [weak self] _ in self?.forgotPasswordTapped() }, for: .touchUpInside)
+        forgotPasswordButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(forgotPasswordButton)
+        NSLayoutConstraint.activate([
+            forgotPasswordButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 6),
+            forgotPasswordButton.trailingAnchor.constraint(equalTo: passwordTextField.trailingAnchor)
+        ])
+    }
+    
+    ///Asks for the address, filled in from the email field. Firebase does not say whether an
+    ///account exists for it, so neither does the message.
+    private func forgotPasswordTapped() {
+        let alert = UIAlertController(title: "Reset Password",
+                                      message: "We'll email you a link to set a new password.",
+                                      preferredStyle: .alert)
+        alert.addTextField { [weak self] field in
+            field.placeholder = "Email"
+            field.text = self?.emailTextField.text
+            field.keyboardType = .emailAddress
+            field.textContentType = .emailAddress
+            field.autocapitalizationType = .none
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Send Link", style: .default) { [weak self, weak alert] _ in
+            guard let self else { return }
+            let email = (alert?.textFields?.first?.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard email.contains("@") else {
+                Utilities.showAlert(on: self, title: "Missing Information", message: "Please enter your email address.")
+                return
+            }
+            Auth.auth().sendPasswordReset(withEmail: email) { error in
+                DispatchQueue.main.async {
+                    if let error = error as NSError? {
+                        print("Sending the password reset email failed: \(error.localizedDescription)")
+                        Utilities.showErrorAlert(on: self, message: error.localizedDescription)
+                        return
+                    }
+                    Utilities.showAlert(on: self, title: "Check Your Email",
+                                        message: "If there's an account for \(email), a link to reset its password is on its way.")
+                }
+            }
+        })
+        present(alert, animated: true)
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         //        let gradient = CAGradientLayer()
