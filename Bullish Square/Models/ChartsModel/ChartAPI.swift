@@ -178,35 +178,42 @@ final class ChartAPI {
     
 
     //MARK: API call for general markets and watchlist
+    ///The Simulated Portfolio: the indexes and the watchlist over `timeRange`, from the
+    ///server's /v1/spark. This called Yahoo straight from the phone with a key built into the
+    ///app (BS-254). `tickersWatchlist` arrives joined with "%2C". Completes exactly once; a
+    ///body that was not JSON used to return without calling back, leaving the spinner up.
     func getPricesMarketsAndWatchlist(tickersWatchlist: String, timeRange: String, completion: @escaping([PerformersPrices]?) -> Void) {
-        let headers = [
-            "x-api-key": KeysChartsAPI.getGeneralWatchkey,
-            "x-rapidapi-host": KeysChartsAPI.getGeneralWatchHost
-        ]
-        let urlString = "\(KeysChartsAPI.getGeneralWatchBaseUrl)\(timeRange)&symbols=%5EDJI%2C%5EGSPC%2C%5EIXIC%2C%5EVIX%2C\(tickersWatchlist)"
-        print (urlString)
-        let request = NSMutableURLRequest(url: NSURL(string: urlString)! as URL,
-                                          cachePolicy: .useProtocolCachePolicy,
-                                          timeoutInterval: 10.0)
-        request.httpMethod = "GET"
-        request.allHTTPHeaderFields = headers
-        
-        let session = URLSession.shared
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in
-            if (error != nil) {
+        let path = "/v1/spark?symbols=%5EDJI%2C%5EGSPC%2C%5EIXIC%2C%5EVIX%2C\(tickersWatchlist)\(timeRange)"
+        MarketDataServer.authorizedRequest(path: path) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                print("Portfolio prices could not reach the server: \(error)")
+                completion(nil)
+                return
+            case .success(let authorized):
+                request = authorized
+            }
+            Self.loadPerformers(request, completion: completion)
+        }
+    }
+    
+    private static func loadPerformers(_ request: URLRequest, completion: @escaping([PerformersPrices]?) -> Void) {
+        let dataTask = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) -> Void in
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+                print("Portfolio price server answered \(httpResponse.statusCode)")
+                completion(nil)
+            } else if error != nil {
                 completion(nil)
             } else {
-                let json = try? JSONSerialization.jsonObject(with: data!, options: []) as? [String: Any]
-                print (json as Any)
-                
-                guard let arrayJSON = json else {
+                guard let data,
+                      let arrayJSON = (try? JSONSerialization.jsonObject(with: data, options: [])) as? [String: Any] else {
+                    completion(nil)
                     return
                 }
                 
                 var marketsValues = [PerformersPrices]()
                 for tickerJSON in arrayJSON {
-                    print (tickerJSON)
-                    
                     guard let tickerDict = tickerJSON.value as? [String: Any],
                           let previousClose = tickerDict["chartPreviousClose"] as? Double,
                           let rawPrices = tickerDict["close"] as? [Any],
