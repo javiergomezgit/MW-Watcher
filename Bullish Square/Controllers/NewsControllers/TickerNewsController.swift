@@ -58,7 +58,8 @@ class TickerNewsController: UIViewController {
     ///block of their own under an empty bar, which pushed the stories half a screen down.
     private func installTitle() {
         let tickerLabel = UILabel()
-        tickerLabel.text = ticker
+        //An index's "^" is for the server, not for people.
+        tickerLabel.text = ticker.hasPrefix("^") ? String(ticker.dropFirst()) : ticker
         tickerLabel.font = UIFont(name: "Avenir-Heavy", size: 18) ?? .systemFont(ofSize: 18, weight: .heavy)
         tickerLabel.textColor = .label
         
@@ -101,6 +102,11 @@ class TickerNewsController: UIViewController {
         NewsCallAPI.shared.loadStockNews(ticker: ticker, name: name) { [weak self] loadedNews in
             DispatchQueue.main.async {
                 guard let self else { return }
+                if loadedNews?.isEmpty == true {
+                    self.loadMarketFallback()
+                    return
+                }
+                self.setFallbackNote(visible: false)
                 self.refreshControl.endRefreshing()
                 self.startStopSpinner(start: false)
                 //A failed refresh keeps the stories already on screen.
@@ -111,6 +117,53 @@ class TickerNewsController: UIViewController {
                 self.updateEmptyState(failed: loadedNews == nil)
             }
         }
+    }
+    
+    // MARK: - Market news fallback
+    
+    ///A symbol with no stories of its own shows the latest market news under a note saying so,
+    ///rather than an empty sheet. Only when neither has anything is the empty state shown. (BS-261)
+    private func loadMarketFallback() {
+        NewsCallAPI.shared.loadMarketNews(section: "markets") { [weak self] items in
+            let stories = Array((items ?? []).prefix(Self.fallbackCount))
+            let placeholder = UIImage(named: "mw-logo") ?? UIImage()
+            var urls = [Int: String]()
+            let news = stories.enumerated().map { index, item in
+                if let imageURL = item.imageURL { urls[index] = imageURL }
+                return TickerNews(headline: item.headline, pubDate: item.pubDate,
+                                  linkHeadline: item.link, author: item.author, image: placeholder)
+            }
+            Support.sharedSupport.fillImages(into: news, urls: urls, imagePath: \TickerNews.image) { filled in
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.refreshControl.endRefreshing()
+                    self.startStopSpinner(start: false)
+                    self.tickerNewsArray = filled
+                    self.setFallbackNote(visible: !filled.isEmpty)
+                    self.tableView.reloadData()
+                    self.updateEmptyState(failed: false)
+                }
+            }
+        }
+    }
+    
+    private static let fallbackCount = 5
+    
+    private func setFallbackNote(visible: Bool) {
+        guard visible else {
+            tableView.tableHeaderView = nil
+            return
+        }
+        let symbol = ticker.hasPrefix("^") ? String(ticker.dropFirst()) : ticker
+        let label = UILabel()
+        label.text = "No recent stories for \(symbol). Here's the latest market news."
+        label.numberOfLines = 0
+        label.font = UIFont(name: "Avenir-Medium", size: 14) ?? .systemFont(ofSize: 14, weight: .medium)
+        label.textColor = ProfileStyle.secondaryText
+        let width = tableView.bounds.width
+        let height = label.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude)).height
+        label.frame = CGRect(x: 0, y: 0, width: width, height: height + 12)
+        tableView.tableHeaderView = label
     }
     
     private func updateEmptyState(failed: Bool) {

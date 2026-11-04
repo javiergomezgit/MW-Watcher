@@ -868,7 +868,9 @@ class ChartController: UIViewController, ChartViewDelegate {
             let ticker = informationStockTicker.ticker
             
             if indexMarket {
-                destination.ticker = indexName
+                //The ticker, "^GSPC". This sent the name, "S&P 500", which the server refuses
+                //as a symbol, so index news was always empty. (BS-261)
+                destination.ticker = ticker
                 destination.name = indexName
             } else {
                 destination.ticker = ticker
