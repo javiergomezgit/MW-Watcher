@@ -18,6 +18,9 @@ final class CommunityNavigationController: UINavigationController {
 ///The Community tab: posts from the people you follow, or the latest from everyone, 20 at a
 ///time. (BS-266)
 ///
+///Opened with a uid it is that person's profile instead: their details, counts and Follow
+///above their posts, with the same cards and actions as the feeds. (BS-269)
+///
 ///People you blocked and people who blocked you are left out of both feeds. A reshare shows
 ///the original post under "@x reshared"; originals are read once each.
 final class CommunityController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -49,13 +52,34 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private let store = CommunityStore.shared
     private let directory = AuthorDirectory.shared
 
+    ///nil for the tab's feeds; a uid for that person's profile. (BS-269)
+    private let profileUid: String?
+    private lazy var profileHeader = CommunityProfileHeaderView()
+    private var profileCounts: CommunityStore.Counts?
+    private var isFollowingProfile: Bool?
+
+    init(profileOf uid: String? = nil) {
+        profileUid = uid
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     // MARK: - Lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Community"
         view.backgroundColor = ProfileStyle.background
-        TabTitleRow(title: title, buttons: titleButtons()).install(in: self)
+        if profileUid == nil {
+            title = "Community"
+            TabTitleRow(title: title, buttons: titleButtons()).install(in: self)
+        } else {
+            navigationItem.largeTitleDisplayMode = .never
+            ProfileStyle.style(navigationController)
+            setUpProfileHeader()
+        }
 
         feedControl.selectedSegmentIndex = feed.rawValue
         feedControl.selectedSegmentTintColor = ProfileStyle.card
@@ -73,15 +97,22 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         refreshControl.addAction(UIAction { [weak self] _ in self?.reload() }, for: .valueChanged)
         tableView.refreshControl = refreshControl
 
-        for subview in [feedControl, tableView] as [UIView] {
+        let showsFeeds = profileUid == nil
+        for subview in (showsFeeds ? [feedControl, tableView] : [tableView]) as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
         }
+        if showsFeeds {
+            NSLayoutConstraint.activate([
+                feedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
+                feedControl.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+                feedControl.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+                tableView.topAnchor.constraint(equalTo: feedControl.bottomAnchor, constant: 8)
+            ])
+        } else {
+            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        }
         NSLayoutConstraint.activate([
-            feedControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 4),
-            feedControl.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
-            feedControl.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: feedControl.bottomAnchor, constant: 8),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
@@ -89,14 +120,22 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         reload()
     }
 
+    ///The tab draws its own title row; a profile uses the navigation bar and its back button.
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        TabTitleRow.setBarHidden(true, for: self, animated: animated)
+        TabTitleRow.setBarHidden(profileUid == nil, for: self, animated: animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        TabTitleRow.setBarHidden(false, for: self, animated: animated)
+        if profileUid == nil {
+            TabTitleRow.setBarHidden(false, for: self, animated: animated)
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        sizeProfileHeader()
     }
 
     ///The buttons in the tab's title row.
@@ -137,6 +176,7 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         let current = generation
         isLoading = true
         directory.forgetAll()
+        if profileUid != nil { loadProfileHeader() }
         store.blockLists { [weak self] blocked, blockedBy in
             guard let self, current == self.generation else { return }
             self.hidden = blocked.union(blockedBy)
@@ -164,6 +204,9 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
                     self.finish(failed: false)
                 }
             }
+        }
+        if let profileUid {
+            return store.posts(byUser: profileUid, before: before, completion: completion)
         }
         switch feed {
         case .following: store.following(before: before, completion: completion)
@@ -207,6 +250,9 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     }
 
     private func updateEmptyState(failed: Bool) {
+        if profileUid != nil {
+            return showProfileFooter(failed: failed)
+        }
         guard posts.isEmpty else {
             tableView.backgroundView = nil
             return
@@ -247,6 +293,9 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             cell.onReshare = { [weak self] in self?.reshareTapped(shown.id, from: cell) }
         }
         cell.onTicker = { [weak self] symbol in self?.openChart(symbol) }
+        if let author = shown?.authorUid {
+            cell.onAuthor = { [weak self] in self?.openProfile(author) }
+        }
         cell.onPhoto = { [weak self] urls, index in
             self?.present(PhotoViewerController(urls: urls, startIndex: index), animated: true)
         }
@@ -386,7 +435,106 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         }
     }
 
+    // MARK: - Profile
+
+    private func setUpProfileHeader() {
+        profileHeader.onFollow = { [weak self] in self?.followTapped() }
+        profileHeader.onFollowers = { [weak self] in self?.openList(followers: true) }
+        profileHeader.onFollowing = { [weak self] in self?.openList(followers: false) }
+        //The posts are already below the header; the count takes you to them.
+        profileHeader.onPosts = { [weak self] in
+            guard let self, !self.posts.isEmpty else { return }
+            self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        }
+        tableView.tableHeaderView = profileHeader
+    }
+
+    ///The header's height follows its content and the table's width.
+    private func sizeProfileHeader() {
+        guard profileUid != nil, tableView.bounds.width > 0 else { return }
+        let size = profileHeader.systemLayoutSizeFitting(
+            CGSize(width: tableView.bounds.width, height: UIView.layoutFittingCompressedSize.height),
+            withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel)
+        guard profileHeader.frame.size != size else { return }
+        profileHeader.frame = CGRect(origin: .zero, size: size)
+        tableView.tableHeaderView = profileHeader
+    }
+
+    private func loadProfileHeader() {
+        guard let uid = profileUid else { return }
+        let isOwn = uid == store.currentUid
+        profileHeader.setCounts(profileCounts)
+        directory.load([uid]) { [weak self] in
+            guard let self else { return }
+            //The header shows the @username large; the bar stays empty so it isn't said twice.
+            //The back button on screens opened from here still reads it.
+            self.navigationItem.backButtonTitle = self.directory.handle(uid)
+            self.profileHeader.configure(uid: uid)
+            self.view.setNeedsLayout()
+        }
+        store.counts(for: uid) { [weak self] counts in
+            self?.profileCounts = counts
+            self?.profileHeader.setCounts(counts)
+        }
+        guard !isOwn else { return profileHeader.setFollow(isOwn: true, isFollowing: nil) }
+        store.isFollowing(uid) { [weak self] following in
+            self?.isFollowingProfile = following
+            self?.profileHeader.setFollow(isOwn: false, isFollowing: following)
+            self?.view.setNeedsLayout()
+        }
+    }
+
+    ///Changes at once, with the follower count; put back if the server refuses.
+    private func followTapped() {
+        guard let uid = profileUid, let wasFollowing = isFollowingProfile else { return }
+        setFollowing(!wasFollowing)
+        profileHeader.setFollowEnabled(false)
+        let done: (Error?) -> Void = { [weak self] error in
+            guard let self else { return }
+            self.profileHeader.setFollowEnabled(true)
+            guard let error else { return }
+            self.setFollowing(wasFollowing)
+            Utilities.showAlert(on: self, title: wasFollowing ? "Can't Unfollow" : "Can't Follow", message: error.localizedDescription)
+        }
+        wasFollowing ? store.unfollow(uid, completion: done) : store.follow(uid, completion: done)
+    }
+
+    private func setFollowing(_ following: Bool) {
+        if let before = isFollowingProfile, before != following, var counts = profileCounts {
+            counts.followers = max(0, counts.followers + (following ? 1 : -1))
+            profileCounts = counts
+            profileHeader.setCounts(counts)
+        }
+        isFollowingProfile = following
+        profileHeader.setFollow(isOwn: false, isFollowing: following)
+    }
+
+    ///Under the header, so it doesn't cover it as a background would.
+    private func showProfileFooter(failed: Bool) {
+        guard posts.isEmpty else {
+            tableView.tableFooterView = nil
+            return
+        }
+        let label = UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 80))
+        label.text = failed ? "Posts couldn't be loaded. Pull to try again." : "No posts yet."
+        label.font = UIFont(name: "Avenir-Medium", size: 15) ?? .systemFont(ofSize: 15, weight: .medium)
+        label.textColor = ProfileStyle.secondaryText
+        label.textAlignment = .center
+        tableView.tableFooterView = label
+    }
+
+    private func openList(followers: Bool) {
+        guard let uid = profileUid else { return }
+        navigationController?.pushViewController(UserListController(uid: uid, followers: followers), animated: true)
+    }
+
     // MARK: - Navigation
+
+    ///Someone's profile; not again for the one already showing.
+    private func openProfile(_ uid: String) {
+        guard uid != profileUid else { return }
+        navigationController?.pushViewController(CommunityController(profileOf: uid), animated: true)
+    }
 
     ///The same chart a search result opens, loading its own price and logo.
     private func openChart(_ symbol: String) {

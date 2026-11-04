@@ -27,11 +27,12 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
     // MARK: - Properties
 
     private enum Row {
-        case header, personalInfo, privacy, terms, disclaimer, contact, logOut, deleteAccount
+        case header, communityProfile, personalInfo, privacy, terms, disclaimer, contact, logOut, deleteAccount
     }
 
     private let sections: [(title: String?, rows: [Row])] = [
         (nil, [.header]),
+        ("Community", [.communityProfile]),
         ("Account", [.personalInfo]),
         ("Legal", [.privacy, .terms, .disclaimer]),
         ("Support", [.contact]),
@@ -205,6 +206,9 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         ProfileStyle.style(&content)
         cell.accessoryType = .disclosureIndicator
         switch row {
+        case .communityProfile:
+            content.text = "My Posts and Followers"
+            content.image = UIImage(systemName: "person.2")
         case .personalInfo:
             content.text = "Personal Information"
             content.image = UIImage(systemName: "person.text.rectangle")
@@ -245,6 +249,7 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         tableView.deselectRow(at: indexPath, animated: true)
         switch sections[indexPath.section].rows[indexPath.row] {
         case .header: editBio()
+        case .communityProfile: openCommunityProfile()
         case .personalInfo: openPersonalInfo()
         case .privacy: openBrowser("https://jdevit.com/privacy-policy-bullish-square/")
         case .terms: openBrowser("https://www.jdevit.com/terms-of-service-bullish-square/")
@@ -267,6 +272,12 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
     }
 
     // MARK: - Screens
+
+    ///Your profile as others see it in Community, with your posts and counts. (BS-269)
+    private func openCommunityProfile() {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        navigationController?.pushViewController(CommunityController(profileOf: uid), animated: true)
+    }
 
     private func editBio() {
         let editor = EditBioController(bio: profile.bio ?? "", photo: currentPhoto())
