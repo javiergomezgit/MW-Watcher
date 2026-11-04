@@ -23,15 +23,16 @@ class TickerNewsController: UIViewController {
     
     var ticker = ""
     var name = ""
-    var cryptoCoin = false
     var tickerNewsArray: [TickerNews] = []
     let saveHeadlines = UserSaveNews()
     //Keyed by article link. cellForRowAt never rendered this at all, so a reused cell kept
     //whatever bookmark the previous article left on it.
     var savedLinks: Set<String> = []
     var refreshControl = UIRefreshControl()
-    var notFound = false
     let child = Spinner()
+    ///Says why the list is empty, in place of the alerts that closed the screen on OK: no
+    ///news for the ticker, or a request that failed, with a way to try again. (BS-248)
+    private lazy var emptyView = EmptyStateView(title: "", message: "")
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,11 +49,7 @@ class TickerNewsController: UIViewController {
         
         savedLinks = saveHeadlines.savedLinks()
         
-        if cryptoCoin {
-            loadCryptoNews()
-        } else {
-            loadTickerNews()
-        }
+        loadNews()
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(dismissController))
     }
@@ -62,85 +59,45 @@ class TickerNewsController: UIViewController {
     }
     
     @objc func refresh(_ sender: AnyObject) {
-        if cryptoCoin {
-            loadCryptoNews()
-        } else {
-            loadTickerNews()
-        }    }
+        loadNews()
+    }
     
-
-    func loadCryptoNews() {
+    ///Stocks and crypto ask the same endpoint; they had two copies of this that differed only
+    ///in their alerts.
+    func loadNews() {
         startStopSpinner(start: true)
         refreshControl.beginRefreshing()
-
-        NewsCallAPI.shared.loadStockNews(ticker: ticker, name: self.name) { loadedCryptoNewsArray in
-            if loadedCryptoNewsArray != nil && loadedCryptoNewsArray?.count != 0{
-                self.tickerNewsArray = loadedCryptoNewsArray!
-                DispatchQueue.main.async {
+        tableView.backgroundView = nil
+        
+        NewsCallAPI.shared.loadStockNews(ticker: ticker, name: name) { [weak self] loadedNews in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.refreshControl.endRefreshing()
+                self.startStopSpinner(start: false)
+                //A failed refresh keeps the stories already on screen.
+                if let loadedNews {
+                    self.tickerNewsArray = loadedNews
                     self.tableView.reloadData()
-                    self.refreshControl.endRefreshing()
-                    self.startStopSpinner(start: false)
                 }
-            } else {
-                DispatchQueue.main.async {
-                    self.refreshControl.endRefreshing()
-                    self.startStopSpinner(start: false)
-                    self.notFound = true
-                    
-                    // Create custom alert with completion handler
-                    let alertController = UIAlertController(title: "Error", message: "We couldn't find any news about it", preferredStyle: .alert)
-                    let okAction = UIAlertAction(title: "OK", style: .default) { _ in
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                    alertController.addAction(okAction)
-                    self.present(alertController, animated: true, completion: nil)
-                }
+                self.updateEmptyState(failed: loadedNews == nil)
             }
         }
     }
     
-    func loadTickerNews() {
-        startStopSpinner(start: true)
-        refreshControl.beginRefreshing()
-
-        NewsCallAPI.shared.loadStockNews(ticker: ticker, name: self.name) { loadedNewsArray in
-            if loadedNewsArray != nil {
-                self.tickerNewsArray = loadedNewsArray!
-                    DispatchQueue.main.async {
-                        self.tableView.reloadData()
-                        self.refreshControl.endRefreshing()
-                        self.startStopSpinner(start: false)
-                    }
-                if loadedNewsArray?.count == 0 {
-                    DispatchQueue.main.async {
-                        self.startStopSpinner(start: false)
-                        self.notFound = true
-                        
-                        // Create custom alert with completion handler
-                        let alertController = UIAlertController(title: "Warning", message: "Didn't find any related news", preferredStyle: .alert)
-                        let okAction = UIAlertAction(title: "OK", style: .default) { _ in
-                            self.dismiss(animated: true, completion: nil)
-                        }
-                        alertController.addAction(okAction)
-                        self.present(alertController, animated: true, completion: nil)
-                    }
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.refreshControl.endRefreshing()
-                    self.startStopSpinner(start: false)
-                    self.notFound = true
-                    
-                    // Create custom alert with completion handler
-                    let alertController = UIAlertController(title: "Error", message: "Didn't find any related news", preferredStyle: .alert)
-                    let okAction = UIAlertAction(title: "OK", style: .default) { _ in
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                    alertController.addAction(okAction)
-                    self.present(alertController, animated: true, completion: nil)
-                }
-            }
+    private func updateEmptyState(failed: Bool) {
+        guard tickerNewsArray.isEmpty else {
+            tableView.backgroundView = nil
+            return
         }
+        if failed {
+            emptyView.configure(title: "News isn't available right now",
+                                message: "Check your connection and try again.",
+                                actionTitle: "Try again") { [weak self] in self?.loadNews() }
+        } else {
+            emptyView.configure(title: "No recent news for \(ticker)",
+                                message: "Stories about it will show here when there are some.")
+        }
+        tableView.backgroundView = emptyView
     }
     
     func startStopSpinner(start: Bool){

@@ -876,7 +876,6 @@ class ChartController: UIViewController, ChartViewDelegate {
             }
         } else {
             destination.ticker = informationCryptoTicker.symbol
-            destination.cryptoCoin = true
             destination.name = informationCryptoTicker.name
         }
         
