@@ -168,7 +168,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func sceneDidDisconnect(_ scene: UIScene) {}
-    func sceneDidBecomeActive(_ scene: UIScene) {}
+    ///Launch and every return to the app: a version the server no longer supports is blocked
+    ///until it is updated. (BS-233)
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        AppUpdateGate.shared.check(in: windowScene)
+    }
     func sceneWillResignActive(_ scene: UIScene) {}
     func sceneDidEnterBackground(_ scene: UIScene) {}
 }
