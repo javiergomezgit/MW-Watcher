@@ -13,11 +13,12 @@ final class PersonalInfoController: UITableViewController {
     // MARK: - Properties
 
     private enum Row {
-        case name, username, email, phone, password, memberSince
+        case name, username, experience, interests, email, phone, password, memberSince
     }
 
     private let sections: [(title: String?, footer: String?, rows: [Row])] = [
         ("Public", "Shown on your profile to other members.", [.name, .username]),
+        ("Trading", "Helps match you with the right Bulls and content.", [.experience, .interests]),
         ("Private", "Only you can see these.", [.email, .phone]),
         ("Security", nil, [.password]),
         (nil, nil, [.memberSince])
@@ -89,6 +90,12 @@ final class PersonalInfoController: UITableViewController {
         case .username:
             content.text = "Username"
             content.secondaryText = profile.username.map { "@\($0)" } ?? "Choose"
+        case .experience:
+            content.text = "Experience"
+            content.secondaryText = profile.experience?.title ?? "Choose"
+        case .interests:
+            content.text = "Interests"
+            content.secondaryText = interestsSummary()
         case .email:
             content.text = "Email"
             content.secondaryText = profile.email
@@ -117,6 +124,8 @@ final class PersonalInfoController: UITableViewController {
         switch sections[indexPath.section].rows[indexPath.row] {
         case .name: editName()
         case .username: editUsername()
+        case .experience: editExperience()
+        case .interests: editInterests()
         case .email: editEmail()
         case .phone: editPhone()
         case .password:
@@ -176,6 +185,52 @@ final class PersonalInfoController: UITableViewController {
                 }
             }
         }
+    }
+
+    ///"Stocks, Crypto +2", short enough for the value column.
+    private func interestsSummary() -> String {
+        let titles = profile.interests.map(\.title)
+        guard !titles.isEmpty else { return "Choose" }
+        guard titles.count > 2 else { return titles.joined(separator: ", ") }
+        return titles.prefix(2).joined(separator: ", ") + " +\(titles.count - 2)"
+    }
+
+    private func editExperience() {
+        let options = TradingExperience.allCases.map { OptionPickerController.Option(id: $0.rawValue, title: $0.title, detail: $0.detail) }
+        let picker = OptionPickerController(title: "Experience", options: options,
+                                            selected: profile.experience.map { [$0.rawValue] } ?? [],
+                                            allowsMultiple: false)
+        picker.onSave = { [weak self] ids, done in
+            guard let self, let experience = ids.first.flatMap(TradingExperience.init(rawValue:)) else { return done(nil) }
+            PublicProfileStore.shared.update(["experience": experience.rawValue]) { error in
+                if let error { return done(error.localizedDescription) }
+                DispatchQueue.main.async {
+                    self.profile.experience = experience
+                    self.changed()
+                }
+                done(nil)
+            }
+        }
+        navigationController?.pushViewController(picker, animated: true)
+    }
+
+    private func editInterests() {
+        let options = TradingInterest.allCases.map { OptionPickerController.Option(id: $0.rawValue, title: $0.title) }
+        let picker = OptionPickerController(title: "Interests", options: options,
+                                            selected: profile.interests.map(\.rawValue),
+                                            allowsMultiple: true, footer: "Pick as many as you like.")
+        picker.onSave = { [weak self] ids, done in
+            guard let self else { return done(nil) }
+            PublicProfileStore.shared.update(["interests": ids]) { error in
+                if let error { return done(error.localizedDescription) }
+                DispatchQueue.main.async {
+                    self.profile.interests = ids.compactMap(TradingInterest.init(rawValue:))
+                    self.changed()
+                }
+                done(nil)
+            }
+        }
+        navigationController?.pushViewController(picker, animated: true)
     }
 
     private func editPhone() {

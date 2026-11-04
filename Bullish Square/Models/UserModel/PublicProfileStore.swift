@@ -164,6 +164,9 @@ final class PublicProfileStore {
         var name: String?
         var bio: String?
         var memberSince: Date?
+        var experience: TradingExperience?
+        ///Unknown values, from a newer app version, are left out.
+        var interests: [TradingInterest] = []
     }
 
     ///nil when it could not be read; empty fields when the account has none yet.
@@ -175,10 +178,13 @@ final class PublicProfileStore {
                 return
             }
             let data = snapshot?.data() ?? [:]
+            let interests = Set((data["interests"] as? [String] ?? []).compactMap(TradingInterest.init(rawValue:)))
             completion(PublicProfile(username: data["username"] as? String,
                                      name: data["name"] as? String,
                                      bio: data["bio"] as? String,
-                                     memberSince: (data["memberSince"] as? Timestamp)?.dateValue()))
+                                     memberSince: (data["memberSince"] as? Timestamp)?.dateValue(),
+                                     experience: (data["experience"] as? String).flatMap(TradingExperience.init(rawValue:)),
+                                     interests: TradingInterest.allCases.filter(interests.contains)))
         }
     }
 

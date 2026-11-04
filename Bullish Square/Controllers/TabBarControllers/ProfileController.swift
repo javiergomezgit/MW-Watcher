@@ -139,6 +139,8 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
                 self.profile.username = publicProfile.username
                 self.profile.bio = publicProfile.bio
                 self.profile.memberSince = publicProfile.memberSince ?? Auth.auth().currentUser?.metadata.creationDate
+                self.profile.experience = publicProfile.experience
+                self.profile.interests = publicProfile.interests
                 self.tableView.reloadData()
             }
             guard (publicProfile.username ?? "").isEmpty else { return }
@@ -150,6 +152,14 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
                 }
             }
         }
+    }
+
+    ///"Intermediate · Stocks, Crypto, ETFs", or nil when neither is set.
+    private func tradingSummary() -> String? {
+        let parts = [profile.experience?.title,
+                     profile.interests.isEmpty ? nil : profile.interests.map(\.title).joined(separator: ", ")]
+            .compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     ///A zero-sized image means none is stored; the placeholder is drawn, no longer saved as if
@@ -177,7 +187,8 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         let row = sections[indexPath.section].rows[indexPath.row]
         if row == .header {
             let cell = tableView.dequeueReusableCell(withIdentifier: ProfileHeaderCell.identifier, for: indexPath) as! ProfileHeaderCell
-            cell.configure(photo: currentPhoto(), name: profile.name, username: profile.username, bio: profile.bio)
+            cell.configure(photo: currentPhoto(), name: profile.name, username: profile.username, bio: profile.bio,
+                           trading: tradingSummary())
             ProfileStyle.style(cell)
             return cell
         }
@@ -439,6 +450,7 @@ final class ProfileHeaderCell: UITableViewCell {
     private let nameLabel = UILabel()
     private let usernameLabel = UILabel()
     private let bioLabel = UILabel()
+    private let tradingLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -457,8 +469,11 @@ final class ProfileHeaderCell: UITableViewCell {
         usernameLabel.textColor = ProfileStyle.accent
         bioLabel.font = .preferredFont(forTextStyle: .subheadline)
         bioLabel.numberOfLines = 0
+        tradingLabel.font = .preferredFont(forTextStyle: .footnote)
+        tradingLabel.textColor = ProfileStyle.secondaryText
+        tradingLabel.numberOfLines = 0
 
-        let text = UIStackView(arrangedSubviews: [nameLabel, usernameLabel])
+        let text = UIStackView(arrangedSubviews: [nameLabel, usernameLabel, tradingLabel])
         text.axis = .vertical
         text.spacing = 2
         let top = UIStackView(arrangedSubviews: [photoView, text])
@@ -484,7 +499,9 @@ final class ProfileHeaderCell: UITableViewCell {
     }
 
     ///An empty bio invites one instead of leaving a gap.
-    func configure(photo: UIImage?, name: String, username: String?, bio: String?) {
+    func configure(photo: UIImage?, name: String, username: String?, bio: String?, trading: String?) {
+        tradingLabel.text = trading
+        tradingLabel.isHidden = trading == nil
         photoView.image = photo
         nameLabel.text = name.isEmpty ? "Your name" : name
         usernameLabel.text = username.map { "@\($0)" } ?? " "
