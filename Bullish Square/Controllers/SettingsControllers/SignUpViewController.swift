@@ -111,7 +111,8 @@ class SignUpViewController: UIViewController {
                 let nameWithoutDomain = email.split(separator: "@")
                 
                 let db = Firestore.firestore()
-                let name = "\(nameWithoutDomain[0]) "
+                //The part before the @ until the user sets one; it carried a trailing space.
+                let name = String(nameWithoutDomain.first ?? "")
                 let userData: [String: Any] = [
                     "name": name,
                     "email": email
@@ -122,6 +123,9 @@ class SignUpViewController: UIViewController {
                         print("Failed to save user data: \(error.localizedDescription)")
                     }
                 }
+                //The public profile with the same name, and a generated @username. (BS-257)
+                PublicProfileStore.shared.publish(name: name)
+                PublicProfileStore.shared.ensureUsername()
                 
                 if KeychainManager.saveUID(authResult.user.uid) {
                     print ("Saved UID to Keychain")

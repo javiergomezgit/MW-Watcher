@@ -365,6 +365,46 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
+                            <tableViewSection id="6i3-rY-jYi">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="Pqd-JX-fzL">
+                                        <rect key="frame" x="20" y="232" width="353" height="28.333333969116211"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="Pqd-JX-fzL" id="Fw3-Ff-YVZ">
+                                            <rect key="frame" x="0.0" y="0.0" width="353" height="28.333333969116211"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <listContentConfiguration key="contentConfiguration" style="plainFooter" text="Username"/>
+                                    </tableViewCell>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="PUu-rA-cGX">
+                                        <rect key="frame" x="20" y="260.33333396911621" width="353" height="47.666667938232422"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="PUu-rA-cGX" id="NnE-WB-AGt">
+                                            <rect key="frame" x="0.0" y="0.0" width="353" height="47.666667938232422"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="leading" contentVerticalAlignment="center" placeholder="Choose a username" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="GoO-q6-rPF">
+                                                    <rect key="frame" x="20" y="0.0" width="333" height="35"/>
+                                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="height" constant="35" id="bvT-2s-flp"/>
+                                                    </constraints>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="no" autocorrectionType="no" spellCheckingType="no" textContentType="username"/>
+                                                </textField>
+                                            </subviews>
+                                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                            <constraints>
+                                                <constraint firstItem="GoO-q6-rPF" firstAttribute="leading" secondItem="NnE-WB-AGt" secondAttribute="leading" constant="20" id="UTV-GA-s2o"/>
+                                                <constraint firstItem="GoO-q6-rPF" firstAttribute="top" secondItem="NnE-WB-AGt" secondAttribute="top" id="oeU-nT-iuZ"/>
+                                                <constraint firstAttribute="trailing" secondItem="GoO-q6-rPF" secondAttribute="trailing" id="LKJ-Ic-pvf"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
                             <tableViewSection id="lFk-fc-sKg">
                                 <cells>
                                     <tableViewCell clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="xbG-sS-bQn">
@@ -455,6 +495,7 @@
                         <outlet property="imageViewProfile" destination="VDO-P6-dSd" id="gYG-Ms-7fR"/>
                         <outlet property="nameTextField" destination="y63-eX-1R4" id="yko-Af-2Ld"/>
                         <outlet property="phoneTextField" destination="uPa-Z5-iHJ" id="uUy-qZ-td9"/>
+                        <outlet property="usernameTextField" destination="GoO-q6-rPF" id="U77-jP-SMf"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="rwG-Ki-uGh" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

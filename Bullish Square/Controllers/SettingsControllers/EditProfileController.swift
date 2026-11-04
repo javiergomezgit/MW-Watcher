@@ -16,6 +16,7 @@ class EditProfileController: UITableViewController {
     @IBOutlet weak var nameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var phoneTextField: UITextField!
+    @IBOutlet weak var usernameTextField: UITextField!
     @IBOutlet weak var imageViewProfile: UIImageView!
     
     override func viewDidLoad() {
@@ -46,6 +47,7 @@ class EditProfileController: UITableViewController {
         nameTextField.text = currentProfile?.name
         emailTextField.text = currentProfile?.email
         phoneTextField.text = currentProfile?.phoneNumber
+        usernameTextField.text = currentProfile?.username
     }
     
     private func setupFieldEditing() {
@@ -146,9 +148,43 @@ class EditProfileController: UITableViewController {
             Utilities.showErrorAlert(on: self, message: "Please enter your name.")
             return
         }
+        let username = PublicProfileStore.normalized(usernameTextField.text ?? "")
+        let previousUsername = currentProfile?.username ?? ""
+        if username.isEmpty, !previousUsername.isEmpty {
+            Utilities.showErrorAlert(on: self, message: "Your username can be changed, but not removed.")
+            return
+        }
+        if !username.isEmpty, !PublicProfileStore.isValid(username) {
+            Utilities.showErrorAlert(on: self, message: PublicProfileStore.UsernameError.invalid.localizedDescription)
+            return
+        }
         updatedProfile = Profile(name: name, email: email, phoneNumber: phone,
-                                 profileImage: currentProfile?.profileImage)
+                                 profileImage: currentProfile?.profileImage,
+                                 username: username.isEmpty ? nil : username)
 
+        //The username first: when it is taken nothing else is saved, so the user fixes one
+        //thing and saves again.
+        guard !username.isEmpty, username != previousUsername else {
+            saveNameEmailAndPhone(name: name, email: email)
+            return
+        }
+        navigationItem.rightBarButtonItem?.isEnabled = false
+        PublicProfileStore.shared.claimUsername(username) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.navigationItem.rightBarButtonItem?.isEnabled = true
+                switch result {
+                case .success:
+                    self.currentProfile?.username = username
+                    self.saveNameEmailAndPhone(name: name, email: email)
+                case .failure(let error):
+                    Utilities.showErrorAlert(on: self, message: error.localizedDescription)
+                }
+            }
+        }
+    }
+
+    private func saveNameEmailAndPhone(name: String, email: String) {
         let currentEmail = currentProfile?.email ?? Auth.auth().currentUser?.email ?? ""
         guard hasPasswordAccount, email.lowercased() != currentEmail.lowercased() else {
             saveProfileFields()
@@ -183,6 +219,7 @@ class EditProfileController: UITableViewController {
                 if self.imageChanged, let image = self.imageViewProfile.image {
                     SaveProfileInformation().saveImageProfile(imageProfile: image)
                 }
+                PublicProfileStore.shared.publish(name: self.updatedProfile.name)
                 //The email shown stays the current one until the new one is confirmed.
                 var saved = self.updatedProfile
                 saved.email = self.currentProfile?.email ?? saved.email

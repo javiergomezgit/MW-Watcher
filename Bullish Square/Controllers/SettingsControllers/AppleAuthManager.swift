@@ -108,8 +108,11 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
             if let fullName = appleIDCredential.fullName,
                authResult.additionalUserInfo?.isNewUser == true {
                 //First time this Apple ID signs into Firebase
-                var name = "\(fullName.givenName ?? "")_\(fullName.familyName ?? "")"
-                if name == "" {
+                //"Javier Gomez", not "Javier_Gomez"; and "_" was never empty, so a missing name
+                //was saved as "_" instead of falling back to the email. (BS-257)
+                var name = [fullName.givenName, fullName.familyName].compactMap { $0 }
+                    .joined(separator: " ").trimmingCharacters(in: .whitespaces)
+                if name.isEmpty {
                     let tempName = appleIDCredential.email?.split(separator: "@") ?? authResult.user.email?.split(separator: "@") ?? ["Without Name"]
                     name = String(tempName[0])
                 }
@@ -123,7 +126,11 @@ class AppleAuthManager: NSObject, ASAuthorizationControllerDelegate {
                         print("Failed to save user data: \(error.localizedDescription)")
                     }
                 }
+                PublicProfileStore.shared.publish(name: name)
             }
+            //Every Apple sign-in, not only the first: one made before usernames existed gets
+            //one too. Does nothing when the account has a handle.
+            PublicProfileStore.shared.ensureUsername()
 
             print("Signed in with Apple: \(authResult.user.email ?? "No email")")
             self.completionHandler?(.success(authResult))

@@ -93,25 +93,33 @@ final class AccountDeletionManager: NSObject {
                         return
                     }
 
-                    Firestore.firestore().collection("users").document(uid).delete { firestoreError in
-                        if let firestoreError {
-                            //Not fatal on its own, but the account must not be deleted while its
-                            //document survives: that would orphan the data with no way back in.
-                            finish(.failure(firestoreError))
+                    //The public profile next, which frees its @username for someone else.
+                    PublicProfileStore.shared.deleteProfile(uid: uid) { profileError in
+                        if let profileError {
+                            finish(.failure(profileError))
                             return
                         }
 
-                        //Apple requires apps using Sign in with Apple to revoke the token on
-                        //deletion, not merely drop the Firebase user.
-                        self.revokeAppleTokenIfNeeded(authorizationCode: appleAuthorizationCode) {
-                            user.delete { deleteError in
-                                if let deleteError {
-                                    finish(.failure(deleteError))
-                                    return
-                                }
+                        Firestore.firestore().collection("users").document(uid).delete { firestoreError in
+                            if let firestoreError {
+                                //Not fatal on its own, but the account must not be deleted while its
+                                //document survives: that would orphan the data with no way back in.
+                                finish(.failure(firestoreError))
+                                return
+                            }
 
-                                self.clearLocalData()
-                                finish(.success(()))
+                            //Apple requires apps using Sign in with Apple to revoke the token on
+                            //deletion, not merely drop the Firebase user.
+                            self.revokeAppleTokenIfNeeded(authorizationCode: appleAuthorizationCode) {
+                                user.delete { deleteError in
+                                    if let deleteError {
+                                        finish(.failure(deleteError))
+                                        return
+                                    }
+
+                                    self.clearLocalData()
+                                    finish(.success(()))
+                                }
                             }
                         }
                     }

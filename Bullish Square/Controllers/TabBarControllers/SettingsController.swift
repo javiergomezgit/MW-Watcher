@@ -138,7 +138,8 @@ class SettingsController: UITableViewController {
             if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) {
                 var content = cell.defaultContentConfiguration()
                 content.text = self.currentProfile.name
-                content.secondaryText = self.currentProfile.email
+                content.secondaryText = [self.currentProfile.username.map { "@\($0)" }, self.currentProfile.email]
+                    .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
                 content.image = UIImage(systemName: "person.crop.square.fill")!
                 cell.contentConfiguration = content
                 //Maybe need to add something similar whe the image is updated too
@@ -152,16 +153,9 @@ class SettingsController: UITableViewController {
         present(navigationController, animated: true)
     }
     
-    // Helper methods to get current data
+    ///A copy for the editor, every field, the username included.
     private func getCurrentProfile() -> Profile {
-        // Return current profile data
-        
-        let name = self.currentProfile.name
-        let email = self.currentProfile.email
-        let phoneNumber = self.currentProfile.phoneNumber
-        let imageProfileURL = self.currentProfile.profileImage
-        
-        return Profile(name: name, email: email, phoneNumber: phoneNumber, profileImage: imageProfileURL)
+        currentProfile
     }
     
     ///Fills the profile from `users/{uid}`. The email comes from the account itself: a
@@ -197,6 +191,24 @@ class SettingsController: UITableViewController {
                     self.currentProfile.email = accountEmail
                     self.currentProfile.phoneNumber = data["phoneNumber"] as? String ?? ""
                     self.currentProfile.profileImage = data["profileURL"] as? String ?? ""
+                    self.refreshUI()
+                    self.loadPublicProfile(uid: user.uid, privateName: self.currentProfile.name)
+                }
+            }
+        }
+    }
+    
+    ///The @handle, and the public name kept in step with the private one: accounts made
+    ///before profiles/{uid} existed get theirs on the first visit. (BS-257)
+    private func loadPublicProfile(uid: String, privateName: String) {
+        PublicProfileStore.shared.loadProfile(uid: uid) { profile in
+            if !privateName.isEmpty, let profile, profile.name != privateName {
+                PublicProfileStore.shared.publish(name: privateName)
+            }
+            PublicProfileStore.shared.ensureUsername { [weak self] username in
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.currentProfile.username = username
                     self.refreshUI()
                 }
             }
