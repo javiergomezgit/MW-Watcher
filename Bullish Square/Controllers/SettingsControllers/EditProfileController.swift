@@ -23,6 +23,7 @@ class EditProfileController: UITableViewController {
         setupNavigationBar()
         populateFields()
         setupFieldEditing()
+        lockEmailUnlessPasswordAccount()
         
         imageViewProfile.image = SaveProfileInformation().loadImageProfile()
     }
@@ -54,8 +55,7 @@ class EditProfileController: UITableViewController {
             case "name":
                 nameTextField.becomeFirstResponder()
             case "email":
-                //emailTextField.becomeFirstResponder()
-                print("somet")
+                if hasPasswordAccount { emailTextField.becomeFirstResponder() }
             case "phone":
                 phoneTextField.becomeFirstResponder()
             default:
@@ -113,11 +113,6 @@ class EditProfileController: UITableViewController {
         
         picker.didFinishPicking { [unowned picker] items, _ in
             if let photo = items.singlePhoto {
-                print(photo.fromCamera) // Image source (camera or library)
-                print(photo.image) // Final image selected by the user
-                print(photo.originalImage) // original image selected by the user, unfiltered
-                //                print(photo.modifiedImage) // Transformed image, can be nil
-                //                print(photo.exifMeta) // Print exif meta data of original image.
                 self.imageViewProfile.image = photo.image
                 self.imageChanged = true
             }
@@ -126,196 +121,124 @@ class EditProfileController: UITableViewController {
         present(picker, animated: true, completion: nil)
     }
     
+    ///Only an email-and-password account can change its email here: the change is confirmed
+    ///with the password. An Apple account has none, and was asked for one anyway. (BS-255)
+    private var hasPasswordAccount: Bool {
+        Auth.auth().currentUser?.providerData.contains { $0.providerID == EmailAuthProviderID } ?? false
+    }
+
+    private func lockEmailUnlessPasswordAccount() {
+        guard !hasPasswordAccount else { return }
+        emailTextField.isEnabled = false
+        emailTextField.textColor = .secondaryLabel
+    }
+
     @objc private func cancelTapped() {
         dismiss(animated: true)
     }
     
     @objc private func saveTapped() {
-        // Save the changes
-        saveProfile()
-        //dismiss(animated: true)
+        view.endEditing(true)
+        let name = (nameTextField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let email = (emailTextField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let phone = (phoneTextField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else {
+            Utilities.showErrorAlert(on: self, message: "Please enter your name.")
+            return
+        }
+        updatedProfile = Profile(name: name, email: email, phoneNumber: phone,
+                                 profileImage: currentProfile?.profileImage)
+
+        let currentEmail = currentProfile?.email ?? Auth.auth().currentUser?.email ?? ""
+        guard hasPasswordAccount, email.lowercased() != currentEmail.lowercased() else {
+            saveProfileFields()
+            return
+        }
+        guard email.contains("@"), email.contains(".") else {
+            Utilities.showErrorAlert(on: self, message: "Please enter a valid email address.")
+            return
+        }
+        confirmEmailChange(from: currentEmail, to: email)
     }
-    
-    private func saveProfile() {
-        // Update the profile with new values
-        updatedProfile.name = nameTextField.text ?? ""
-        updatedProfile.email = emailTextField.text ?? ""
-        updatedProfile.phoneNumber = phoneTextField.text ?? ""
-        
-        // Implement save logic
-        // Update UserDefaults, Core Data, or API call
-        saveUpdatedProfileFirebase()
-    }
-    
-    private func saveUpdatedProfileFirebase() {
+
+    ///Name and phone to `users/{uid}`, then the photo, so a save that failed does not leave a
+    ///new photo on the phone. merge, not updateData, which fails when the document is missing.
+    private func saveProfileFields(pendingEmail: String? = nil) {
         guard let user = Auth.auth().currentUser else { return }
-        if self.currentProfile!.email != self.updatedProfile.email {
-            self.showPasswordAlert()
-        } else {
-            
-            if imageChanged {
-                
-                guard let image = imageViewProfile.image else {
-                    print("❌ No/invalid image data")
+        var profileData: [String: Any] = [
+            "name": updatedProfile.name,
+            "phoneNumber": updatedProfile.phoneNumber ?? ""
+        ]
+        if let pendingEmail {
+            profileData["pendingEmail"] = pendingEmail
+        }
+        Firestore.firestore().collection("users").document(user.uid).setData(profileData, merge: true) { [weak self] error in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                if let error = error as NSError? {
+                    print("Saving the profile failed: \(error.localizedDescription)")
+                    Utilities.showErrorAlert(on: self, message: error.localizedDescription)
                     return
                 }
-                
-                print("Image size:", image.size)
-                
-                SaveProfileInformation().saveImageProfile(imageProfile: image)
-                
-                let profileData: [String: Any] = [
-                    "name": self.updatedProfile.name,
-                    "phoneNumber": self.updatedProfile.phoneNumber!
-                ]
-                
-                Firestore.firestore().collection("users").document(user.uid).updateData(profileData) { error in
-                    if let error = error {
-                        print("Error updating profile: \(error.localizedDescription)")
-                        Utilities.showErrorAlert(on: self, message: error.localizedDescription)
-                        return
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.currentProfile?.name = self.updatedProfile.name
-                        self.currentProfile?.phoneNumber = self.updatedProfile.phoneNumber
-                        self.nameTextField.text = self.updatedProfile.name
-                        self.phoneTextField.text = self.updatedProfile.phoneNumber
-                        
-                        Utilities.showAlertWithCompletion(on: self, title: "Updated successfully", message: "Your profile was updated successfully.") {
-                            let updated = self.updatedProfile
-                            self.onSave?(updated)
-                            self.dismiss(animated: true) {
-                                if let nav = self.navigationController {
-                                    nav.popViewController(animated: true)
-                                } else {
-                                    self.dismiss(animated: true)
-                                }
-                            }
-                        }
-                        print("Profile updated successfully!")
-                    }
+                if self.imageChanged, let image = self.imageViewProfile.image {
+                    SaveProfileInformation().saveImageProfile(imageProfile: image)
                 }
-                
-            } else {
-                
-                let profileData: [String: Any] = [
-                    "name": self.updatedProfile.name,
-                    "phoneNumber": self.updatedProfile.phoneNumber!,
-                ]
-                Firestore.firestore().collection("users").document(user.uid).updateData(profileData) { error in
-                    if let error = error {
-                        print("Error updating profile: \(error.localizedDescription)")
-                        Utilities.showErrorAlert(on: self, message: error.localizedDescription)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.currentProfile?.name = self.updatedProfile.name
-                        self.currentProfile?.phoneNumber = self.updatedProfile.phoneNumber
-                        self.nameTextField.text = self.updatedProfile.name
-                        self.phoneTextField.text = self.updatedProfile.phoneNumber
-                        
-                        Utilities.showAlertWithCompletion(on: self, title: "Updated successfully", message: "Your profile was updated successfully.") {
-                            
-                            let updated = self.updatedProfile
-                            self.onSave?(updated)
-                            self.dismiss(animated: true) {
-                                if let nav = self.navigationController {
-                                    nav.popViewController(animated: true)
-                                } else {
-                                    self.dismiss(animated: true)
-                                }
-                            }
-                        }
-                        print("Profile updated successfully!")
-                    }
+                //The email shown stays the current one until the new one is confirmed.
+                var saved = self.updatedProfile
+                saved.email = self.currentProfile?.email ?? saved.email
+                self.currentProfile = saved
+                self.onSave?(saved)
+
+                let message = pendingEmail.map {
+                    "We sent a link to \($0). Your email changes when you open it."
+                } ?? "Your profile was updated."
+                Utilities.showAlertWithCompletion(on: self, title: "Saved", message: message) {
+                    self.dismiss(animated: true)
                 }
             }
         }
     }
-    
-    func showPasswordAlert() {
-        
-        let alert = UIAlertController(title: "Enter Password", message: "Please enter your password to proceed.", preferredStyle: .alert)
-        
+
+    ///Changing the sign-in email needs a recent sign-in, so the password is asked for first.
+    ///The link goes to the new address; the email changes once it is opened.
+    private func confirmEmailChange(from currentEmail: String, to newEmail: String) {
+        let alert = UIAlertController(title: "Confirm with your password",
+                                      message: "Enter your password to change your email to \(newEmail).",
+                                      preferredStyle: .alert)
         alert.addTextField { textField in
             textField.placeholder = "Password"
             textField.isSecureTextEntry = true
+            textField.textContentType = .password
         }
-        
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] _ in
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Continue", style: .default) { [weak self, weak alert] _ in
+            guard let self, let user = Auth.auth().currentUser else { return }
             guard let password = alert?.textFields?.first?.text, !password.isEmpty else {
-                print("No password entered")
+                Utilities.showErrorAlert(on: self, message: "Please enter your password.")
                 return
             }
-            print("Entered password: \(password)")
-            
-            let credential = EmailAuthProvider.credential(withEmail: self.currentProfile!.email, password: password)
-            guard let user = Auth.auth().currentUser else { return }
-            
-            user.reauthenticate(with: credential) { result, error in
-                if let error = error {
-                    print("Reauthentication failed: \(error.localizedDescription)")
+            let credential = EmailAuthProvider.credential(withEmail: currentEmail, password: password)
+            user.reauthenticate(with: credential) { _, error in
+                if let error = error as NSError? {
+                    print("Confirming the password failed: \(error.localizedDescription)")
                     DispatchQueue.main.async {
                         Utilities.showErrorAlert(on: self, message: error.localizedDescription)
                     }
-                } else {
-                    print("Reauthentication successful ✅")
-                    
-                    let profileData: [String: Any] = [
-                        "name": self.updatedProfile.name,
-                        "email": self.currentProfile!.email,
-                        "phoneNumber": self.updatedProfile.phoneNumber!,
-                        "pendingEmail": self.updatedProfile.email
-                    ]
-                    
-                    user.sendEmailVerification(beforeUpdatingEmail: self.currentProfile!.email) { error in
-                        if let error = error {
-                            print("Failed to update email in Auth: \(error.localizedDescription)")
-                            DispatchQueue.main.async {
-                                Utilities.showErrorAlert(on: self, message: error.localizedDescription)
-                            }
+                    return
+                }
+                user.sendEmailVerification(beforeUpdatingEmail: newEmail) { error in
+                    DispatchQueue.main.async {
+                        if let error = error as NSError? {
+                            print("Sending the email change link failed: \(error.localizedDescription)")
+                            Utilities.showErrorAlert(on: self, message: error.localizedDescription)
                             return
                         }
-                        
-                        let verifyAlert = UIAlertController(
-                            title: "Verify Email",
-                            message: "A verification link was sent to \(self.updatedProfile.email). Please confirm it to complete the update.",
-                            preferredStyle: .alert
-                        )
-                        
-                        verifyAlert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-                            DispatchQueue.main.async {
-                                // Always dismiss any alert first
-                                self.dismiss(animated: true) {
-                                    if let nav = self.navigationController {
-                                        nav.popViewController(animated: true)
-                                    } else {
-                                        self.dismiss(animated: true)
-                                    }
-                                }
-                            }
-                        }))
-                        
-                        DispatchQueue.main.async {
-                            self.present(verifyAlert, animated: true)
-                        }
-                        
-                        Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).updateData(profileData) { error in
-                            if let error = error {
-                                print("Error updating profile: \(error.localizedDescription)")
-                                return
-                            }
-                            print("Profile updated successfully!")
-                        }
+                        self.saveProfileFields(pendingEmail: newEmail)
                     }
                 }
             }
-        }))
-        DispatchQueue.main.async {
-            self.present(alert, animated: true)
-        }
+        })
+        present(alert, animated: true)
     }
     
 }

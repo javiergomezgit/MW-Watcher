@@ -18,6 +18,8 @@ class SettingsController: UITableViewController {
     
     var currentProfile = Profile(name: "Name", email: "Email")
     private var overlayView: UIView?
+    ///One "sign in again" alert, not one per reload while it is up.
+    private var showingSessionEnded = false
 
     
     override func viewWillAppear(_ animated: Bool) {
@@ -31,7 +33,16 @@ class SettingsController: UITableViewController {
         } else {
             // User is authenticated – proceed as normal
             hideLoginOverlay()
+            //Every time, not just once: an email confirmed from the link, or a profile saved on
+            //another phone, used to wait for the next launch. (BS-255)
+            getUserInfoFromFirebase()
         }
+    }
+    
+    ///Back from the Mail app after opening the email-change link.
+    @objc private func appWillEnterForeground() {
+        guard viewIfLoaded?.window != nil, Auth.auth().currentUser != nil else { return }
+        getUserInfoFromFirebase()
     }
         
     override func viewDidLoad() {
@@ -52,7 +63,8 @@ class SettingsController: UITableViewController {
                 self.profileImageView.image = imageProfile
             }
         }
-        getUserInfoFromFirebase()
+        NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground),
+                                               name: UIApplication.willEnterForegroundNotification, object: nil)
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -158,43 +170,52 @@ class SettingsController: UITableViewController {
         return Profile(name: name, email: email, phoneNumber: phoneNumber, profileImage: imageProfileURL)
     }
     
-    //Populates fields with firebase information
-    //Stores in local variable
+    ///Fills the profile from `users/{uid}`. The email comes from the account itself: a
+    ///confirmed email change updates the account, not the document, and a document without
+    ///an email (an Apple account that hid it, an old account) used to crash here. (BS-255)
     func getUserInfoFromFirebase() {
-        let user = Auth.auth().currentUser
-        
-        if let user = user {
-            let uid = user.uid
-            let db = Firestore.firestore()
-
-            db.collection("users").document(uid).getDocument { document, error in
-                if let document = document, document.exists {
-                    let data = document.data()!
-                    print(data)
-                    
-                    let name = data["name"] as? String ?? ""
-                    self.currentProfile.name = name
-                    self.currentProfile.email = (data["email"] as? String)!
-                    let phoneNumber = data["phoneNumber"] as? String ?? ""
-                    self.currentProfile.phoneNumber = phoneNumber
-                    let profileURL = data["profileURL"] as? String ?? ""
-                    self.currentProfile.profileImage = profileURL
-                    
-                    DispatchQueue.main.async {
-                        if let cell = self.tableView.cellForRow(at: IndexPath(row: 0, section: 1)) {
-                            var content = cell.defaultContentConfiguration()
-                            content.text = self.currentProfile.name
-                            content.secondaryText = self.currentProfile.email
-                            //Not working yet, Firebase storage not working properly, saving in local database temporarily
-                            //Calling downloading image from firebase to load the image in the profile view
-                            content.image = UIImage(systemName: "person.crop.square.fill")!
-                            cell.contentConfiguration = content
-                        }
-                    }
-                } else {
-                    print("Document does not exist")
+        guard let user = Auth.auth().currentUser else { return }
+        //Reloaded first, so an email change confirmed from the link is seen.
+        user.reload { [weak self] error in
+            //Firebase ends the session once a new email is confirmed, so the reload is refused
+            //and the cached account still has the old address. Sign in again with the new one.
+            if let error = error as NSError?,
+               [AuthErrorCode.userTokenExpired.rawValue, AuthErrorCode.invalidUserToken.rawValue].contains(error.code) {
+                DispatchQueue.main.async { self?.sessionEnded() }
+                return
+            }
+            let user = Auth.auth().currentUser ?? user
+            let document = Firestore.firestore().collection("users").document(user.uid)
+            document.getDocument { snapshot, error in
+                if let error = error as NSError? {
+                    print("Loading the profile failed: \(error.localizedDescription)")
+                    return
+                }
+                let data = snapshot?.data() ?? [:]
+                let accountEmail = user.email ?? data["email"] as? String ?? ""
+                //The confirmed change reaches the document once, here.
+                if let stored = data["email"] as? String, !accountEmail.isEmpty, stored != accountEmail {
+                    document.setData(["email": accountEmail, "pendingEmail": FieldValue.delete()], merge: true)
+                }
+                DispatchQueue.main.async {
+                    guard let self else { return }
+                    self.currentProfile.name = data["name"] as? String ?? ""
+                    self.currentProfile.email = accountEmail
+                    self.currentProfile.phoneNumber = data["phoneNumber"] as? String ?? ""
+                    self.currentProfile.profileImage = data["profileURL"] as? String ?? ""
+                    self.refreshUI()
                 }
             }
+        }
+    }
+    
+    private func sessionEnded() {
+        guard !showingSessionEnded else { return }
+        showingSessionEnded = true
+        Utilities.showAlertWithCompletion(on: self, title: "Please Sign In Again",
+                                          message: "Your account details changed, for example your email. Sign in again, with your new email if you changed it.") {
+            self.showingSessionEnded = false
+            self.logoutFirebase()
         }
     }
     
