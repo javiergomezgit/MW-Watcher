@@ -41,6 +41,10 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private var generation = 0
     private var originals: [String: Post] = [:]
     private var hidden = Set<String>()
+    ///Posts you liked or reshared, by the id of the post whose content shows: the original
+    ///for a reshare. (BS-268)
+    private var liked = Set<String>()
+    private var reshared = Set<String>()
 
     private let store = CommunityStore.shared
     private let directory = AuthorDirectory.shared
@@ -183,7 +187,15 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         group.notify(queue: .main) { [weak self] in
             guard let self else { return }
             let authors = visible.map(\.authorUid) + visible.compactMap { $0.reshareOf.flatMap { self.originals[$0]?.authorUid } }
-            self.directory.load(authors) { completion(visible) }
+            let shownIDs = visible.map { $0.reshareOf ?? $0.id }
+            let group = DispatchGroup()
+            group.enter()
+            self.directory.load(authors) { group.leave() }
+            group.enter()
+            self.store.likedPostIDs(shownIDs) { ids in self.liked.formUnion(ids); group.leave() }
+            group.enter()
+            self.store.resharedPostIDs(shownIDs) { ids in self.reshared.formUnion(ids); group.leave() }
+            group.notify(queue: .main) { completion(visible) }
         }
     }
 
@@ -227,7 +239,13 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         let post = posts[indexPath.row]
         let shown = post.reshareOf.map { originals[$0] } ?? post
         cell.configure(shown: shown, resharedBy: post.isReshare ? post.authorUid : nil,
-                       liked: false, reshared: false, isOwn: shown?.authorUid == store.currentUid)
+                       liked: shown.map { liked.contains($0.id) } ?? false,
+                       reshared: shown.map { reshared.contains($0.id) } ?? false,
+                       isOwn: shown?.authorUid == store.currentUid)
+        if let shown {
+            cell.onLike = { [weak self] in self?.likeTapped(shown.id) }
+            cell.onReshare = { [weak self] in self?.reshareTapped(shown.id, from: cell) }
+        }
         cell.onTicker = { [weak self] symbol in self?.openChart(symbol) }
         cell.onPhoto = { [weak self] urls, index in
             self?.present(PhotoViewerController(urls: urls, startIndex: index), animated: true)
@@ -238,6 +256,91 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row >= posts.count - 3 { loadMore() }
+    }
+
+    // MARK: - Likes and reshares
+
+    ///The current copy of a post whose content shows, from the feed or the originals.
+    private func shownPost(_ id: String) -> Post? {
+        originals[id] ?? posts.first { $0.id == id }
+    }
+
+    ///Changes a shown post's counts everywhere it appears: as itself and as reshares' original.
+    private func adjust(_ id: String, likes: Int = 0, reshares: Int = 0) {
+        for index in posts.indices where posts[index].id == id {
+            posts[index].likeCount = max(0, posts[index].likeCount + likes)
+            posts[index].reshareCount = max(0, posts[index].reshareCount + reshares)
+        }
+        if var original = originals[id] {
+            original.likeCount = max(0, original.likeCount + likes)
+            original.reshareCount = max(0, original.reshareCount + reshares)
+            originals[id] = original
+        }
+    }
+
+    ///Shows the change at once and puts it back if the server refuses.
+    private func likeTapped(_ id: String) {
+        guard let post = shownPost(id) else { return }
+        let wasLiked = liked.contains(id)
+        setLiked(id, !wasLiked)
+        adjust(id, likes: wasLiked ? -1 : 1)
+        tableView.reloadData()
+        let done: (Error?) -> Void = { [weak self] error in
+            guard let self, error != nil else { return }
+            self.setLiked(id, wasLiked)
+            self.adjust(id, likes: wasLiked ? 1 : -1)
+            self.tableView.reloadData()
+        }
+        wasLiked ? store.unlike(post, completion: done) : store.like(post, completion: done)
+    }
+
+    private func setLiked(_ id: String, _ isLiked: Bool) {
+        if isLiked { liked.insert(id) } else { liked.remove(id) }
+    }
+
+    ///Reshares at once; undoing asks first, as it removes your post.
+    private func reshareTapped(_ id: String, from cell: UITableViewCell) {
+        guard let post = shownPost(id), post.authorUid != store.currentUid || reshared.contains(id) else { return }
+        guard reshared.contains(id) else { return reshare(post) }
+        let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        sheet.addAction(UIAlertAction(title: "Undo Reshare", style: .destructive) { [weak self] _ in self?.unreshare(post) })
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        sheet.popoverPresentationController?.sourceView = cell
+        present(sheet, animated: true)
+    }
+
+    private func reshare(_ post: Post) {
+        reshared.insert(post.id)
+        adjust(post.id, reshares: 1)
+        tableView.reloadData()
+        store.reshare(post) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let mine):
+                self.originals[post.id] = self.shownPost(post.id)
+                self.posts.insert(mine, at: 0)
+                self.tableView.reloadData()
+            case .failure(let error):
+                self.reshared.remove(post.id)
+                self.adjust(post.id, reshares: -1)
+                self.tableView.reloadData()
+                Utilities.showAlert(on: self, title: "Can't Reshare", message: error.localizedDescription)
+            }
+        }
+    }
+
+    private func unreshare(_ post: Post) {
+        store.unreshare(post) { [weak self] error in
+            guard let self else { return }
+            if let error {
+                return Utilities.showAlert(on: self, title: "Can't Undo", message: error.localizedDescription)
+            }
+            self.reshared.remove(post.id)
+            self.adjust(post.id, reshares: -1)
+            self.posts.removeAll { $0.reshareOf == post.id && $0.authorUid == self.store.currentUid }
+            self.tableView.reloadData()
+            self.updateEmptyState(failed: false)
+        }
     }
 
     // MARK: - Posting
