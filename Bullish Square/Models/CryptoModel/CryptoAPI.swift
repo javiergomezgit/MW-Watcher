@@ -26,55 +26,53 @@ final class CryptoAPI {
     }
     
     // MARK: Fetches data for a predefined group of cryptocurrencies
-    // Uses a hardcoded list of symbols and returns an array of CryptoData
+    ///The Markets tab's coins. Completes exactly once.
+    ///
+    ///Asks the Bullish Square server's /v1/crypto-quotes, which shares one copy between every
+    ///user for five minutes in CoinMarketCap's own shape, so the decoding below is unchanged.
+    ///It used to call CoinMarketCap from the phone with the key built into the app, and the
+    ///server now holds the list of coins. (BS-254)
     public func getAllCryptosData(completion: @escaping (Result<[CryptoData], Error>) -> Void) {
-        // Construct URL with query parameters
-        guard var urlComponents = URLComponents(string: KeysAndConstants.baseUrl + KeysAndConstants.endpoint) else {
-            completion(.failure(APIError.invalidURL))
-            return
-        }
-        urlComponents.queryItems = [URLQueryItem(name: "symbol", value: KeysAndConstants.symbols)]
-        
-        guard let url = urlComponents.url else {
-            completion(.failure(APIError.invalidURL))
-            return
-        }
-        
-        // Configure request with API key header
-        var request = URLRequest(url: url)
-        request.setValue(KeysAndConstants.apiKey, forHTTPHeaderField: KeysAndConstants.apiHeader)
-        request.httpMethod = "GET"
-        
-        // Perform API call
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
+        MarketDataServer.authorizedRequest(path: "/v1/crypto-quotes") { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
                 completion(.failure(error))
                 return
+            case .success(let authorized):
+                request = authorized
             }
             
-            // Validate HTTP response
-            guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
-                completion(.failure(APIError.invalidResponse))
-                return
-            }
-            
-            
-            // Ensure data exists
-            guard let data = data else {
-                completion(.failure(APIError.noData))
-                return
-            }
-            
-            // Decode response
-            do {
-                let response = try JSONDecoder().decode(CryptoAPIResponse.self, from: data)
-                let cryptoData = Array(response.data.values)
-                completion(.success(cryptoData))
-            } catch {
-                completion(.failure(error))
-            }
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                
+                // Validate HTTP response
+                guard let httpResponse = response as? HTTPURLResponse, 200...299 ~= httpResponse.statusCode else {
+                    if let httpResponse = response as? HTTPURLResponse {
+                        print("Crypto price server answered \(httpResponse.statusCode)")
+                    }
+                    completion(.failure(APIError.invalidResponse))
+                    return
+                }
+                
+                // Ensure data exists
+                guard let data = data else {
+                    completion(.failure(APIError.noData))
+                    return
+                }
+                
+                // Decode response
+                do {
+                    let response = try JSONDecoder().decode(CryptoAPIResponse.self, from: data)
+                    completion(.success(Array(response.data.values)))
+                } catch {
+                    completion(.failure(error))
+                }
+            }.resume()
         }
-        task.resume()
     }
     
     
