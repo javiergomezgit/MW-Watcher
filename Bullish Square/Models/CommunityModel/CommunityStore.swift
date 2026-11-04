@@ -483,6 +483,32 @@ final class CommunityStore {
         group.notify(queue: .global()) { done(counts) }
     }
 
+    // MARK: - Finding people
+
+    ///Up to 20 accounts whose @username starts with `prefix` ("wol" finds @wolf_7908), as
+    ///(handle, uid), alphabetical. Reads `usernames/{handle}` by document ID, so it needs no
+    ///index. (BS-270)
+    func searchUsernames(prefix: String, completion: @escaping ([(handle: String, uid: String)]) -> Void) {
+        let done = main(completion)
+        let handle = PublicProfileStore.normalized(prefix)
+        guard !handle.isEmpty, handle.allSatisfy({ ("a"..."z").contains($0) || ("0"..."9").contains($0) || $0 == "_" }) else {
+            return done([])
+        }
+        db.collection("usernames")
+            .order(by: FieldPath.documentID())
+            .start(at: [handle])
+            .end(at: [handle + "\u{f8ff}"])
+            .limit(to: 20)
+            .getDocuments { snapshot, error in
+                if let error = error as NSError? {
+                    print("Searching usernames failed: \(error.localizedDescription)")
+                }
+                done(snapshot?.documents.compactMap { document in
+                    (document.data()["uid"] as? String).map { (document.documentID, $0) }
+                } ?? [])
+            }
+    }
+
     // MARK: - Blocking
 
     ///Writes the block and removes the follows both ways. Their posts disappear from your

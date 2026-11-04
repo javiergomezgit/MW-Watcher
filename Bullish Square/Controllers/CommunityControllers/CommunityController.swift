@@ -140,7 +140,8 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
 
     ///The buttons in the tab's title row.
     private func titleButtons() -> [UIView] {
-        [titleButton("square.and.pencil", label: "New post") { [weak self] in self?.composeTapped() }]
+        [titleButton("magnifyingglass", label: "Find people") { [weak self] in self?.findPeopleTapped() },
+         titleButton("square.and.pencil", label: "New post") { [weak self] in self?.composeTapped() }]
     }
 
     private func titleButton(_ symbol: String, label: String, action: @escaping () -> Void) -> UIButton {
@@ -529,6 +530,14 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     }
 
     // MARK: - Navigation
+
+    ///Search by @username. (BS-270)
+    private func findPeopleTapped() {
+        guard Auth.auth().currentUser != nil else {
+            return Utilities.showAlert(on: self, title: "Sign In", message: "Sign in to find people in Community.")
+        }
+        navigationController?.pushViewController(UserSearchController(), animated: true)
+    }
 
     ///Someone's profile; not again for the one already showing.
     private func openProfile(_ uid: String) {
