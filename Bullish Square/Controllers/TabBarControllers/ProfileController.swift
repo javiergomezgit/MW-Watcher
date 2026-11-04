@@ -40,6 +40,8 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
     ]
 
     private var profile = Profile(name: "", email: "")
+    ///This account's photo; nil draws the placeholder. Set from the cache, then the cloud.
+    private var photo: UIImage?
     ///Signed out, the table has no sections and this is its background. It used to be laid
     ///over the table, whose section headers showed through it.
     private lazy var signedOutView = makeSignedOutView()
@@ -84,6 +86,8 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         TabTitleRow.setBarHidden(true, for: self, animated: animated)
+        ProfilePhotoStore.shared.removeLegacyPhoto()
+        photo = Auth.auth().currentUser.flatMap { ProfilePhotoStore.shared.cachedPhoto(uid: $0.uid) }
         updateSignedInState()
         if isSignedIn {
             loadProfile()
@@ -143,6 +147,11 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
                 self.profile.interests = publicProfile.interests
                 self.tableView.reloadData()
             }
+            ProfilePhotoStore.shared.refresh(uid: uid, urlString: publicProfile.photoURL) { [weak self] image in
+                guard let self, let image else { return }
+                self.photo = image
+                self.tableView.reloadData()
+            }
             guard (publicProfile.username ?? "").isEmpty else { return }
             PublicProfileStore.shared.ensureUsername { username in
                 DispatchQueue.main.async {
@@ -162,11 +171,8 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
-    ///A zero-sized image means none is stored; the placeholder is drawn, no longer saved as if
-    ///it were the user's photo.
     private func currentPhoto() -> UIImage? {
-        let stored = SaveProfileInformation().loadImageProfile()
-        return stored.size.width > 0 ? stored : UIImage(systemName: "person.crop.circle.fill")
+        photo ?? UIImage(systemName: "person.crop.circle.fill")
     }
 
     // MARK: - Table
@@ -266,8 +272,8 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         let editor = EditBioController(bio: profile.bio ?? "", photo: currentPhoto())
         editor.onSave = { [weak self] bio, photo in
             guard let self else { return }
-            if let photo {
-                SaveProfileInformation().saveImageProfile(imageProfile: photo)
+            if let newPhoto = photo {
+                self.uploadPhoto(newPhoto)
             }
             guard bio != (self.profile.bio ?? "") else {
                 self.tableView.reloadData()
@@ -285,6 +291,19 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
             }
         }
         present(UINavigationController(rootViewController: editor), animated: true)
+    }
+
+    ///Shown straight away; on failure the previous photo comes back with the reason.
+    private func uploadPhoto(_ newPhoto: UIImage) {
+        let previous = photo
+        photo = newPhoto
+        tableView.reloadData()
+        ProfilePhotoStore.shared.upload(newPhoto) { [weak self] error in
+            guard let self, let error else { return }
+            self.photo = previous
+            self.tableView.reloadData()
+            Utilities.showErrorAlert(on: self, message: "Your photo couldn't be saved. \(error.localizedDescription)")
+        }
     }
 
     private func openPersonalInfo() {

@@ -9,7 +9,7 @@ import YPImagePicker
 ///What the profile card shows of you that Personal Information does not: the photo and a
 ///short bio. Opened by tapping the card. (BS-260)
 ///
-///The photo is still kept on this phone only; BS-258 moves it to the cloud.
+///The profile screen uploads the photo through ProfilePhotoStore. (BS-258)
 final class EditBioController: UIViewController, UITextViewDelegate {
 
     // MARK: - Properties

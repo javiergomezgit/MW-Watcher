@@ -164,6 +164,8 @@ final class PublicProfileStore {
         var name: String?
         var bio: String?
         var memberSince: Date?
+        ///ProfilePhotoStore's download URL. (BS-258)
+        var photoURL: String?
         var experience: TradingExperience?
         ///Unknown values, from a newer app version, are left out.
         var interests: [TradingInterest] = []
@@ -183,6 +185,7 @@ final class PublicProfileStore {
                                      name: data["name"] as? String,
                                      bio: data["bio"] as? String,
                                      memberSince: (data["memberSince"] as? Timestamp)?.dateValue(),
+                                     photoURL: data["photoURL"] as? String,
                                      experience: (data["experience"] as? String).flatMap(TradingExperience.init(rawValue:)),
                                      interests: TradingInterest.allCases.filter(interests.contains)))
         }
