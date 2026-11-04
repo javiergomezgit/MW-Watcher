@@ -70,7 +70,7 @@
         <scene sceneID="J03-gy-t0o">
             <objects>
                 <viewControllerPlaceholder storyboardName="SettingsTab" referencedIdentifier="SettingsTab" id="Jkl-DU-TWb" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Settings" id="rRl-l7-yXe"/>
+                    <tabBarItem key="tabBarItem" title="Profile" image="person.crop.circle" catalog="system" id="rRl-l7-yXe"/>
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OUM-qm-fzE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -108,6 +108,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="person.crop.circle" catalog="system" width="128" height="121"/>
         <image name="BS-Logo-WhitePrimary" width="4292" height="4291"/>
         <namedColor name="colorPrimary">
             <color red="0.097999997437000275" green="0.12200000137090683" blue="0.18400000035762787" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>

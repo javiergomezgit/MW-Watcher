@@ -53,8 +53,8 @@ class SaveProfileInformation {
         }
     }
     
-    //Returns a zero-sized UIImage when nothing is stored. SettingsController tests
-    //size.width == 0 to decide whether to seed the default avatar, so that stays.
+    //Returns a zero-sized UIImage when nothing is stored. ProfileController tests
+    //size.width == 0 to decide whether to draw the placeholder, so that stays.
     func loadImageProfile() -> UIImage {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return UIImage() }
         let managedContext = appDelegate.persistentContainer.viewContext

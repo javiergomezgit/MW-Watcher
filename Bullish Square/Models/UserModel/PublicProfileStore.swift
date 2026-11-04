@@ -197,6 +197,24 @@ final class PublicProfileStore {
         }
     }
 
+    static let bioMaximumLength = 160
+
+    ///Merges public fields, the bio for one. Calls back with the error, nil on success.
+    func update(_ fields: [String: Any], completion: @escaping (Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            completion(UsernameError.notSignedIn)
+            return
+        }
+        var data = fields
+        data["updatedAt"] = FieldValue.serverTimestamp()
+        profiles.document(uid).setData(data, merge: true) { error in
+            if let error = error as NSError? {
+                print("Updating the public profile failed: \(error.localizedDescription)")
+            }
+            completion(error)
+        }
+    }
+
     ///Account deletion: the profile and the handle it holds, so the handle is free again.
     func deleteProfile(uid: String, completion: @escaping (Error?) -> Void) {
         let profileRef = profiles.document(uid)

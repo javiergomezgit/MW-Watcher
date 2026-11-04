@@ -34,7 +34,8 @@ final class ChangePasswordController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Password"
-        view.backgroundColor = UIColor(named: "colorPrimary") ?? .systemGroupedBackground
+        view.backgroundColor = ProfileStyle.background
+        ProfileStyle.style(navigationController)
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(closeTapped))
         hasPasswordAccount ? buildPasswordForm() : buildManagedByApple()
     }
@@ -52,7 +53,7 @@ final class ChangePasswordController: UIViewController {
         field.textContentType = contentType
         field.autocapitalizationType = .none
         field.autocorrectionType = .no
-        field.borderStyle = .roundedRect
+        ProfileStyle.style(field)
         field.heightAnchor.constraint(equalToConstant: 44).isActive = true
         return field
     }
@@ -63,12 +64,12 @@ final class ChangePasswordController: UIViewController {
 
         updateButton.configuration?.title = "Update Password"
         updateButton.configuration?.cornerStyle = .medium
-        updateButton.configuration?.baseBackgroundColor = UIColor(named: "AccentColor")
+        updateButton.configuration?.baseBackgroundColor = ProfileStyle.accent
         updateButton.heightAnchor.constraint(equalToConstant: 48).isActive = true
         updateButton.addAction(UIAction { [weak self] _ in self?.updateTapped() }, for: .touchUpInside)
 
         resetButton.configuration?.title = "Forgot your password?"
-        resetButton.configuration?.baseForegroundColor = UIColor(named: "AccentColor")
+        resetButton.configuration?.baseForegroundColor = ProfileStyle.accent
         resetButton.addAction(UIAction { [weak self] _ in self?.sendResetEmail() }, for: .touchUpInside)
 
         spinner.hidesWhenStopped = true
@@ -91,7 +92,7 @@ final class ChangePasswordController: UIViewController {
     private func styleMessage() {
         messageLabel.numberOfLines = 0
         messageLabel.font = UIFont(name: "Avenir-Medium", size: 14) ?? .systemFont(ofSize: 14, weight: .medium)
-        messageLabel.textColor = UIColor(named: "colorSecondary") ?? .secondaryLabel
+        messageLabel.textColor = ProfileStyle.secondaryText
     }
 
     private func install(_ stack: UIStackView) {
