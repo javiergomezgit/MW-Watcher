@@ -14,6 +14,10 @@ final class ComposePostController: UIViewController, UITextViewDelegate {
 
     ///The post as saved, for the feed to show at the top straight away.
     var onPosted: ((Post) -> Void)?
+    ///Text to start from, such as a shared article's headline and link; set before showing.
+    var initialText: String?
+    ///Photos to start with, such as a shared chart's picture; set before showing.
+    var initialPhotos: [UIImage] = []
 
     private let textView = UITextView()
     private let placeholderLabel = UILabel()
@@ -31,7 +35,6 @@ final class ComposePostController: UIViewController, UITextViewDelegate {
         title = "New Post"
         view.backgroundColor = ProfileStyle.background
         ProfileStyle.style(navigationController)
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Post", style: .done, target: self, action: #selector(postTapped))
         isModalInPresentation = true
 
@@ -87,8 +90,12 @@ final class ComposePostController: UIViewController, UITextViewDelegate {
             stack.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor)
         ])
 
+        textView.text = initialText.map { String($0.prefix(Post.textMaximumLength)) }
+        photos = Array(initialPhotos.prefix(Post.imageMaximumCount))
         refresh()
         textView.becomeFirstResponder()
+        //At the top, above a shared article, where the person's own words go.
+        textView.selectedRange = NSRange(location: 0, length: 0)
     }
 
     // MARK: - Text
@@ -106,6 +113,7 @@ final class ComposePostController: UIViewController, UITextViewDelegate {
     private func refresh() {
         let text = textView.text ?? ""
         placeholderLabel.isHidden = !text.isEmpty
+        updateCancelButton()
         counterLabel.text = "\(text.count)/\(Post.textMaximumLength)"
         let tickers = Post.tickers(in: text)
         tickersLabel.text = tickers.isEmpty ? nil : tickers.map { "$\($0)" }.joined(separator: " ")
@@ -174,14 +182,26 @@ final class ComposePostController: UIViewController, UITextViewDelegate {
 
     // MARK: - Posting
 
-    @objc private func cancelTapped() {
+    ///Cancel closes an empty post straight away. With a draft it opens a menu with Discard,
+    ///which closes at once; an action sheet's choice ran only after the sheet had animated
+    ///away, so the composer then took a second animation to go. Rebuilt only when the draft
+    ///starts or ends, not on every keystroke.
+    private func updateCancelButton() {
         let hasDraft = !(textView.text ?? "").isEmpty || !photos.isEmpty
-        guard hasDraft else { return dismiss(animated: true) }
-        let alert = UIAlertController(title: "Discard this post?", message: nil, preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: "Discard", style: .destructive) { [weak self] _ in self?.dismiss(animated: true) })
-        alert.addAction(UIAlertAction(title: "Keep Editing", style: .cancel))
-        alert.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
-        present(alert, animated: true)
+        if let item = navigationItem.leftBarButtonItem, (item.menu != nil) == hasDraft { return }
+        let close = UIAction { [weak self] _ in
+            self?.view.endEditing(true)
+            self?.dismiss(animated: true)
+        }
+        guard hasDraft else {
+            navigationItem.leftBarButtonItem = UIBarButtonItem(systemItem: .cancel, primaryAction: close)
+            return
+        }
+        let discard = UIAction(title: "Discard Post", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
+            self?.view.endEditing(true)
+            self?.dismiss(animated: true)
+        }
+        navigationItem.leftBarButtonItem = UIBarButtonItem(systemItem: .cancel, menu: UIMenu(children: [discard]))
     }
 
     @objc private func postTapped() {

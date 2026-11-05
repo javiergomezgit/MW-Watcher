@@ -17,11 +17,12 @@ class TickerNewsViewCell: UITableViewCell {
     @IBOutlet weak var authorLabel: UILabel!
     @IBOutlet weak var bottomView: UIView!
     @IBOutlet weak var shareButton: UIButton!
-    
+    ///Next to share; the controller sets what it posts. (BS-285)
+    private(set) var communityButton: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        communityButton = PostToCommunity.addButton(before: shareButton)
     }
     
     override func layoutSubviews() {

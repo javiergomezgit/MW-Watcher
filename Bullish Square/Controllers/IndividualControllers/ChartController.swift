@@ -587,9 +587,21 @@ class ChartController: UIViewController, ChartViewDelegate {
                     
         let activityItems: [Any] = [formattedText, chartImage]
         
-        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        let post = communityPost()
+        let activityVC = PostToCommunity.shareSheet(items: activityItems, text: post.text, photos: post.photos, from: self)
         present(activityVC, animated: true)
         
+    }
+
+    ///What "Post to Community" starts with: the $TICKER and company name, and the chart.
+    ///Crypto charts leave the stock ticker empty, and an index's "^GSPC" can't be linked.
+    private func communityPost() -> (text: String, photos: [UIImage]) {
+        let fields = Self.shareFields(stock: informationStockTicker, crypto: informationCryptoTicker,
+                                      nameTicker: nameTicker, indexName: indexName)
+        let stockTicker = informationStockTicker.ticker
+        let text = PostToCommunity.chartDraft(symbol: fields.symbol, name: fields.name,
+                                              ticker: stockTicker.isEmpty ? nil : stockTicker)
+        return (text, chartWithTimes.asImage().map { [$0] } ?? [])
     }
     
     func transformTime(entry: Double) -> String? {

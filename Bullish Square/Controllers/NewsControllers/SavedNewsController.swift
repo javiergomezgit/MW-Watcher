@@ -168,7 +168,8 @@ extension SavedNewsController: UITableViewDelegate, UITableViewDataSource, SFSaf
             activityItems.append(logo)
         }
 
-        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        let activityVC = PostToCommunity.shareSheet(items: activityItems, headline: newsItem.headline,
+                                                    link: newsItem.link, from: self)
         present(activityVC, animated: true)
     }
 

@@ -17,10 +17,12 @@ class LiveNewsViewCell: UITableViewCell {
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var bottomView: UIView!
+    ///Next to share; the controller sets what it posts. (BS-285)
+    private(set) var communityButton: UIButton!
     
     override func awakeFromNib() {
         super.awakeFromNib()
-
+        communityButton = PostToCommunity.addButton(before: shareButton)
     }
     
     override func layoutSubviews() {

@@ -225,6 +225,14 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
         cell.shareButton.tag = indexPath.row
         cell.shareButton.removeTarget(self, action: #selector(shareHeadline(sender:)), for: .touchUpInside)
         cell.shareButton.addTarget(self, action: #selector(shareHeadline(sender:)), for: .touchUpInside)
+
+        //Same identifier, so a reused row's action is replaced rather than stacked.
+        let newsItem = tickerNewsArray[indexPath.row]
+        let draft = PostToCommunity.draft(headline: newsItem.headline, link: newsItem.linkHeadline, ticker: ticker)
+        cell.communityButton.addAction(UIAction(identifier: PostToCommunity.buttonActionID) { [weak self] _ in
+            guard let self else { return }
+            PostToCommunity.start(text: draft, from: self)
+        }, for: .touchUpInside)
         
         return cell
     }
@@ -253,7 +261,8 @@ extension TickerNewsController: UITableViewDelegate, UITableViewDataSource {
             activityItems.append(UIImage(named: "mw-logo")!)
         }
         
-        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+        let activityVC = PostToCommunity.shareSheet(items: activityItems, headline: headline, link: link,
+                                                    ticker: ticker, from: self)
         present(activityVC, animated: true)
     }
     
