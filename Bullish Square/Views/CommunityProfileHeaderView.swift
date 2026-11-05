@@ -27,6 +27,8 @@ final class CommunityProfileHeaderView: UIView {
     private let followersCount = UIButton(type: .system)
     private let followingCount = UIButton(type: .system)
     private let followButton = UIButton(configuration: .filled())
+    ///On your own profile, says this is the public view, what anyone else sees.
+    private let previewLabel = UILabel()
     private var photoURL: String?
 
     // MARK: - Setup
@@ -72,10 +74,19 @@ final class CommunityProfileHeaderView: UIView {
         followButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
         followButton.isHidden = true
 
-        let stack = UIStackView(arrangedSubviews: [avatar, handleLabel, nameLabel, bioLabel, tradingLabel, counts, followButton])
+        let eye = NSTextAttachment(image: UIImage(systemName: "eye")?.withTintColor(ProfileStyle.secondaryText, renderingMode: .alwaysOriginal) ?? UIImage())
+        let preview = NSMutableAttributedString(attachment: eye)
+        preview.append(NSAttributedString(string: "  This is how others see your profile"))
+        previewLabel.attributedText = preview
+        previewLabel.font = UIFont(name: "Avenir-Medium", size: 13) ?? .systemFont(ofSize: 13, weight: .medium)
+        previewLabel.textColor = ProfileStyle.secondaryText
+        previewLabel.isHidden = true
+
+        let stack = UIStackView(arrangedSubviews: [previewLabel, avatar, handleLabel, nameLabel, bioLabel, tradingLabel, counts, followButton])
         stack.axis = .vertical
         stack.alignment = .center
         stack.spacing = 6
+        stack.setCustomSpacing(12, after: previewLabel)
         stack.setCustomSpacing(12, after: avatar)
         stack.setCustomSpacing(12, after: tradingLabel)
         stack.setCustomSpacing(12, after: counts)
@@ -141,6 +152,10 @@ final class CommunityProfileHeaderView: UIView {
         button.configuration = config
         button.titleLabel?.numberOfLines = 2
         button.titleLabel?.textAlignment = .center
+    }
+
+    func setPreview(_ isOwn: Bool) {
+        previewLabel.isHidden = !isOwn
     }
 
     ///Hidden on your own profile. Following shows as a quieter outline.

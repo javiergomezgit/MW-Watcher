@@ -207,8 +207,9 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         cell.accessoryType = .disclosureIndicator
         switch row {
         case .communityProfile:
-            content.text = "My Posts and Followers"
-            content.image = UIImage(systemName: "person.2")
+            content.text = "View My Public Profile"
+            content.secondaryText = "How others see you in Community"
+            content.image = UIImage(systemName: "eye")
         case .blockedAccounts:
             content.text = "Blocked Accounts"
             content.image = UIImage(systemName: "hand.raised")

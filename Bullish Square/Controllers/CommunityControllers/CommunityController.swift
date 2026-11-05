@@ -493,6 +493,7 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private func loadProfileHeader() {
         guard let uid = profileUid else { return }
         let isOwn = uid == store.currentUid
+        profileHeader.setPreview(isOwn)
         profileHeader.setCounts(profileCounts)
         directory.load([uid]) { [weak self] in
             guard let self else { return }
