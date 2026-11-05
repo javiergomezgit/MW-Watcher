@@ -19,6 +19,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     var onLike: (() -> Void)?
     var onReshare: (() -> Void)?
     var onTicker: ((String) -> Void)?
+    ///A web link in the text was tapped.
+    var onLink: ((URL) -> Void)?
     ///A photo was tapped: the post's photo URLs and which one.
     var onPhoto: (([String], Int) -> Void)?
 
@@ -93,7 +95,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.delegate = self
-        textView.linkTextAttributes = [.foregroundColor: UIColor(named: "uptrend") ?? ProfileStyle.accent]
+        //Empty, so each link keeps the colour and weight `attributed` gives it.
+        textView.linkTextAttributes = [:]
 
         gallery.axis = .vertical
         gallery.spacing = 2
@@ -239,24 +242,45 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
 
     // MARK: - Text
 
-    ///The text in the body font, with each $TICKER a link the delegate opens as a chart.
+    ///Links are bold. Web links are a light blue, so they stand apart from the green $tickers.
+    private static let webLinkColor = UIColor(red: 0.302, green: 0.698, blue: 1, alpha: 1)
+    private static let tickerColor = UIColor(named: "uptrend") ?? ProfileStyle.accent
+
+    ///The text in the body font, with each $TICKER a link the delegate opens as a chart, and
+    ///each web address ("https://…", "www.…", "cnbc.com/…") a link opened in the app.
     static func attributed(_ text: String, tickers: [String]) -> NSAttributedString {
         let font = UIFont(name: "Avenir-Medium", size: 16) ?? .systemFont(ofSize: 16, weight: .medium)
+        let boldFont = UIFont(name: "Avenir-Heavy", size: 16) ?? .systemFont(ofSize: 16, weight: .bold)
         let result = NSMutableAttributedString(string: text, attributes: [.font: font, .foregroundColor: ProfileStyle.text])
-        guard !tickers.isEmpty, let regex = try? NSRegularExpression(pattern: #"\$([A-Za-z]{1,5}(?:\.[A-Za-z])?)\b"#) else { return result }
-        for match in regex.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
-            guard let range = Range(match.range(at: 1), in: text) else { continue }
-            let symbol = text[range].uppercased()
-            guard tickers.contains(symbol), let url = URL(string: "bullishsquare-ticker:\(symbol)") else { continue }
-            result.addAttribute(.link, value: url, range: match.range)
+        let whole = NSRange(text.startIndex..., in: text)
+        if !tickers.isEmpty, let regex = try? NSRegularExpression(pattern: #"\$([A-Za-z]{1,5}(?:\.[A-Za-z])?)\b"#) {
+            for match in regex.matches(in: text, range: whole) {
+                guard let range = Range(match.range(at: 1), in: text) else { continue }
+                let symbol = text[range].uppercased()
+                guard tickers.contains(symbol), let url = URL(string: "bullishsquare-ticker:\(symbol)") else { continue }
+                result.addAttributes([.link: url, .foregroundColor: tickerColor, .font: boldFont], range: match.range)
+            }
+        }
+        //Web pages only: the detector also finds mailto: and other schemes, which stay text.
+        if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
+            for match in detector.matches(in: text, range: whole) {
+                guard let url = match.url, let scheme = url.scheme?.lowercased(),
+                      scheme == "http" || scheme == "https" else { continue }
+                result.addAttributes([.link: url, .foregroundColor: webLinkColor, .font: boldFont], range: match.range)
+            }
         }
         return result
     }
 
     func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
-        guard case .link(let url) = textItem.content, url.scheme == "bullishsquare-ticker" else { return defaultAction }
-        let symbol = url.absoluteString.replacingOccurrences(of: "bullishsquare-ticker:", with: "")
-        return UIAction { [weak self] _ in self?.onTicker?(symbol) }
+        guard case .link(let url) = textItem.content else { return defaultAction }
+        if url.scheme == "bullishsquare-ticker" {
+            let symbol = url.absoluteString.replacingOccurrences(of: "bullishsquare-ticker:", with: "")
+            return UIAction { [weak self] _ in self?.onTicker?(symbol) }
+        }
+        //A web link opens inside the app, like a news article, not by leaving for Safari.
+        guard onLink != nil else { return defaultAction }
+        return UIAction { [weak self] _ in self?.onLink?(url) }
     }
 
     ///"now", "5m", "3h", "2d", then the date.
@@ -289,6 +313,7 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         onLike = nil
         onReshare = nil
         onTicker = nil
+        onLink = nil
         onPhoto = nil
     }
 }

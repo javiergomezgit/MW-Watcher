@@ -5,6 +5,7 @@
 
 import UIKit
 import FirebaseAuth
+import SafariServices
 
 ///The Community tab's navigation stack, set up in code like the Profile tab's.
 final class CommunityNavigationController: UINavigationController {
@@ -298,6 +299,7 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             cell.onReshare = { [weak self] in self?.reshareTapped(shown.id, from: cell) }
         }
         cell.onTicker = { [weak self] symbol in self?.openChart(symbol) }
+        cell.onLink = { [weak self] url in self?.openLink(url) }
         if let author = shown?.authorUid {
             cell.onAuthor = { [weak self] in self?.openProfile(author) }
         }
@@ -685,6 +687,13 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private func openProfile(_ uid: String) {
         guard uid != profileUid else { return }
         navigationController?.pushViewController(CommunityController(profileOf: uid), animated: true)
+    }
+
+    ///A link in a post opens in the app, in Reader where the page allows, like a news article.
+    private func openLink(_ url: URL) {
+        let config = SFSafariViewController.Configuration()
+        config.entersReaderIfAvailable = true
+        present(SFSafariViewController(url: url, configuration: config), animated: true)
     }
 
     ///The same chart a search result opens, loading its own price and logo.
