@@ -169,6 +169,9 @@ final class PublicProfileStore {
         var experience: TradingExperience?
         ///Unknown values, from a newer app version, are left out.
         var interests: [TradingInterest] = []
+        ///A Community bot run by the server (BS-279). Only the server sets it; the console
+        ///rules refuse it from the app. A profile without the field is a person.
+        var isAutomated = false
     }
 
     ///nil when it could not be read; empty fields when the account has none yet.
@@ -187,7 +190,8 @@ final class PublicProfileStore {
                                      memberSince: (data["memberSince"] as? Timestamp)?.dateValue(),
                                      photoURL: data["photoURL"] as? String,
                                      experience: (data["experience"] as? String).flatMap(TradingExperience.init(rawValue:)),
-                                     interests: TradingInterest.allCases.filter(interests.contains)))
+                                     interests: TradingInterest.allCases.filter(interests.contains),
+                                     isAutomated: data["isAutomated"] as? Bool == true))
         }
     }
 

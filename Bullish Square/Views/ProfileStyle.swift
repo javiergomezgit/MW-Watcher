@@ -41,6 +41,17 @@ enum ProfileStyle {
         view.contentConfiguration = content
     }
 
+    ///"Automated", with a chip symbol, wherever a Community bot appears: posts, its profile,
+    ///search and follow lists. Labelled so no one mistakes a bot for a person. (BS-279)
+    static func automatedBadge(font: UIFont, color: UIColor = secondaryText) -> NSMutableAttributedString {
+        let symbol = UIImage(systemName: "cpu", withConfiguration: UIImage.SymbolConfiguration(font: font))?
+            .withTintColor(color, renderingMode: .alwaysOriginal)
+        let badge = NSMutableAttributedString(attachment: NSTextAttachment(image: symbol ?? UIImage()))
+        badge.append(NSAttributedString(string: " Automated"))
+        badge.addAttributes([.font: font, .foregroundColor: color], range: NSRange(location: 0, length: badge.length))
+        return badge
+    }
+
     static func style(_ content: inout UIListContentConfiguration) {
         content.textProperties.color = text
         content.secondaryTextProperties.color = secondaryText

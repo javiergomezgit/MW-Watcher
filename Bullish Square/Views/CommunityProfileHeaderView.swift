@@ -29,6 +29,8 @@ final class CommunityProfileHeaderView: UIView {
     private let followButton = UIButton(configuration: .filled())
     ///On your own profile, says this is the public view, what anyone else sees.
     private let previewLabel = UILabel()
+    ///A bot's profile says so under the @username. (BS-279)
+    private let automatedLabel = UILabel()
     private var photoURL: String?
 
     // MARK: - Setup
@@ -82,7 +84,16 @@ final class CommunityProfileHeaderView: UIView {
         previewLabel.textColor = ProfileStyle.secondaryText
         previewLabel.isHidden = true
 
-        let stack = UIStackView(arrangedSubviews: [previewLabel, avatar, handleLabel, nameLabel, bioLabel, tradingLabel, counts, followButton])
+        let automatedFont = UIFont(name: "Avenir-Medium", size: 13) ?? .systemFont(ofSize: 13, weight: .medium)
+        let automated = ProfileStyle.automatedBadge(font: automatedFont)
+        automated.append(NSAttributedString(string: " account. Posts are written by software from market data.",
+                                            attributes: [.font: automatedFont, .foregroundColor: ProfileStyle.secondaryText]))
+        automatedLabel.attributedText = automated
+        automatedLabel.numberOfLines = 0
+        automatedLabel.textAlignment = .center
+        automatedLabel.isHidden = true
+
+        let stack = UIStackView(arrangedSubviews: [previewLabel, avatar, handleLabel, automatedLabel, nameLabel, bioLabel, tradingLabel, counts, followButton])
         stack.axis = .vertical
         stack.alignment = .center
         stack.spacing = 6
@@ -111,6 +122,7 @@ final class CommunityProfileHeaderView: UIView {
         let directory = AuthorDirectory.shared
         let profile = directory.profile(uid)
         handleLabel.text = directory.handle(uid)
+        automatedLabel.isHidden = !directory.isAutomated(uid)
         nameLabel.text = profile?.name
         nameLabel.isHidden = (profile?.name ?? "").isEmpty
         bioLabel.text = profile?.bio

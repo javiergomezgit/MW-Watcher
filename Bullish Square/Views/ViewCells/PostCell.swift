@@ -169,7 +169,14 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         let directory = AuthorDirectory.shared
         //The @username is who posted; the name stays on their profile.
         nameLabel.text = directory.handle(post.authorUid)
-        metaLabel.text = Self.age(of: post.createdAt)
+        if directory.isAutomated(post.authorUid) {
+            let meta = ProfileStyle.automatedBadge(font: metaLabel.font)
+            meta.append(NSAttributedString(string: " · \(Self.age(of: post.createdAt))",
+                                           attributes: [.font: metaLabel.font as Any, .foregroundColor: ProfileStyle.secondaryText]))
+            metaLabel.attributedText = meta
+        } else {
+            metaLabel.text = Self.age(of: post.createdAt)
+        }
         loadAvatar(directory.profile(post.authorUid)?.photoURL, for: post.id)
 
         textView.attributedText = Self.attributed(post.text, tickers: post.tickers)

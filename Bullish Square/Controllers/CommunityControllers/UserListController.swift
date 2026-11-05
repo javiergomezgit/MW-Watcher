@@ -83,6 +83,10 @@ final class UserListController: UITableViewController {
         var content = UIListContentConfiguration.subtitleCell()
         content.text = directory.handle(uid)
         content.secondaryText = directory.profile(uid)?.name
+        if directory.isAutomated(uid) {
+            //Bots are labelled in every list they appear in. (BS-279)
+            content.secondaryText = ["Automated", directory.profile(uid)?.name].compactMap { $0 }.joined(separator: " · ")
+        }
         content.image = UIImage(systemName: "person.crop.circle.fill")
         content.imageProperties.maximumSize = CGSize(width: 36, height: 36)
         content.imageProperties.cornerRadius = 18

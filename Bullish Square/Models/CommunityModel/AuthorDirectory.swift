@@ -25,6 +25,12 @@ final class AuthorDirectory {
         profiles[uid]?.username.map { "@\($0)" } ?? "Member"
     }
 
+    ///False for a profile not read yet, so a bot shows its badge once its profile is loaded,
+    ///which the feeds wait for before showing a post. (BS-279)
+    func isAutomated(_ uid: String) -> Bool {
+        profiles[uid]?.isAutomated == true
+    }
+
     ///The name, or the handle when there is none.
     func displayName(_ uid: String) -> String {
         if let name = profiles[uid]?.name, !name.isEmpty { return name }
