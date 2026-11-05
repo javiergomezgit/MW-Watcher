@@ -89,7 +89,7 @@ final class CommunityStore {
         }
     }
 
-    ///Posts by the people you follow, and your own.
+    ///Posts by the people you follow. Your own are in Discover and on your profile, not here.
     func following(before: Date?, completion: @escaping (Result<Page, Error>) -> Void) {
         guard let uid = currentUid else { return main(completion)(.failure(CommunityError.notSignedIn)) }
         followingUIDs(of: uid) { [weak self] result in
@@ -98,7 +98,7 @@ final class CommunityStore {
             case .failure(let error):
                 completion(.failure(error))
             case .success(let uids):
-                self.posts(by: [uid] + uids, before: before, completion: completion)
+                self.posts(by: uids, before: before, completion: completion)
             }
         }
     }

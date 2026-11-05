@@ -376,7 +376,8 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             switch result {
             case .success(let mine):
                 self.originals[post.id] = self.shownPost(post.id)
-                self.posts.insert(mine, at: 0)
+                //Following leaves out your own posts, reshares included.
+                if self.profileUid != nil || self.feed == .discover { self.posts.insert(mine, at: 0) }
                 self.tableView.reloadData()
             case .failure(let error):
                 self.reshared.remove(post.id)
@@ -414,6 +415,11 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         let composer = ComposePostController()
         composer.onPosted = { [weak self] post in
             guard let self else { return }
+            //Following leaves out your own posts, so go to Discover, where the new one is first.
+            if self.profileUid == nil, self.feed == .following {
+                self.feedControl.selectedSegmentIndex = Feed.discover.rawValue
+                return self.feedChanged()
+            }
             self.posts.insert(post, at: 0)
             self.tableView.backgroundView = nil
             self.tableView.reloadData()
