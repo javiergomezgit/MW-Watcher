@@ -88,6 +88,32 @@ class ChartController: UIViewController, ChartViewDelegate {
                 loadQuoteAndLogo()
             }
             selectedStockTicker()
+            loadCompanyNameIfNeeded()
+        }
+        addActionRow()
+    }
+
+    ///A chart opened from a $TICKER in a post knows only the symbol. The name comes from the
+    ///watchlist when the stock is in it, else from search (shared on the server for hours).
+    ///Decoration: without it the header shows the symbol.
+    private func loadCompanyNameIfNeeded() {
+        let ticker = informationStockTicker.ticker
+        guard !indexMarket, !ticker.isEmpty,
+              nameTicker.isEmpty || nameTicker.uppercased() == ticker.uppercased() else { return }
+        if let saved = SaveTickers().loadTickers().first(where: { $0.ticker == ticker }),
+           !saved.nameTicker.isEmpty, saved.nameTicker.uppercased() != ticker.uppercased() {
+            nameTicker = saved.nameTicker
+            return setHeaderTitle(symbol: ticker)
+        }
+        StockAPI.shared.searchStocks(ticker: ticker) { [weak self] result in
+            guard case .success(let matches) = result,
+                  let match = matches.first(where: { $0.ticker.uppercased() == ticker.uppercased() }),
+                  !match.nameTicker.isEmpty else { return }
+            DispatchQueue.main.async {
+                guard let self, self.informationStockTicker.ticker == ticker else { return }
+                self.nameTicker = match.nameTicker
+                self.setHeaderTitle(symbol: ticker)
+            }
         }
     }
 
@@ -198,6 +224,19 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
     }
 
+    ///The symbol once, Apple Stocks style: small in the bar, with the company's name by the
+    ///logo. Without a name (a chart opened from a $TICKER in a post knows only the symbol),
+    ///the symbol goes by the logo and the bar stays empty; it used to say AAPL in both.
+    private func setHeaderTitle(symbol: String, name: String? = nil) {
+        let name = (name ?? nameTicker).trimmingCharacters(in: .whitespaces)
+        let hasName = !name.isEmpty && name.uppercased() != symbol.uppercased()
+            && name.uppercased() != Self.displaySymbol(symbol).uppercased()
+        navigationItem.title = hasName ? symbol : nil
+        tickerLabel.text = hasName ? name : symbol
+        tickerLabel.adjustsFontSizeToFitWidth = true
+        tickerLabel.minimumScaleFactor = 0.6
+    }
+
     private func showStockHeader() {
         let symbol = informationStockTicker.ticker
         self.currentPrice = informationStockTicker.marketPrice
@@ -208,7 +247,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         if awaitingQuote || (loadsQuoteAndLogo && currentPrice == 0) {
             //Search opened this before the price was known, or it never came back.
             self.symbol = symbol
-            tickerLabel.text = symbol
+            setHeaderTitle(symbol: symbol)
             cryptoImage.image = imageCompany
             for label in [currentPriceLabel, currentPercentageLabel, volumeLabel] {
                 label?.text = "—"
@@ -229,12 +268,12 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         self.symbol = symbol
         if indexMarket {
-            tickerLabel.text = Self.displaySymbol(symbol)
+            setHeaderTitle(symbol: Self.displaySymbol(symbol))
             volumeLabel.text = ""
         } else {
             //The symbol alone. The header used to add " - <exchange>", but the chart
             //endpoint stopped sending an exchange name, so it only ever showed a dangling dash.
-            tickerLabel.text = symbol
+            setHeaderTitle(symbol: symbol)
             volumeLabel.text = "$\(previousPrice)"
         }
         cryptoImage.image = imageCompany
@@ -324,7 +363,7 @@ class ChartController: UIViewController, ChartViewDelegate {
             currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
         }
         
-        tickerLabel.text = symbol
+        setHeaderTitle(symbol: symbol, name: informationCryptoTicker.name)
         self.currentPrice = informationCryptoTicker.price
         currentPriceLabel.text = String(informationCryptoTicker.price)
         currentPercentageLabel.text = "\(informationCryptoTicker.change)% Day"
@@ -595,7 +634,7 @@ class ChartController: UIViewController, ChartViewDelegate {
 
     ///What "Post to Community" starts with: the $TICKER and company name, and the chart.
     ///Crypto charts leave the stock ticker empty, and an index's "^GSPC" can't be linked.
-    private func communityPost() -> (text: String, photos: [UIImage]) {
+    fileprivate func communityPost() -> (text: String, photos: [UIImage]) {
         let fields = Self.shareFields(stock: informationStockTicker, crypto: informationCryptoTicker,
                                       nameTicker: nameTicker, indexName: indexName)
         let stockTicker = informationStockTicker.ticker
@@ -899,6 +938,177 @@ class ChartController: UIViewController, ChartViewDelegate {
         navController.modalPresentationStyle = .pageSheet
         navController.modalTransitionStyle = .crossDissolve
         self.present(navController, animated: true)
+    }
+}
+
+
+// MARK: - Action row (BS-286)
+
+///News, Share, Community and Watchlist as one row of equal buttons under the price, like the
+///row under a name in Contacts. The share and news icons used to float at the top right,
+///apart from everything else, and the chart had no way to post about it or follow it.
+///Built here rather than in Singles.storyboard so the watchlist, search and markets entry
+///points keep the same scene.
+extension ChartController {
+
+    fileprivate func addActionRow() {
+        //The storyboard's own icons; their actions now live in the row.
+        shareButton.isHidden = true
+        shareButton.superview?.subviews
+            .compactMap { $0 as? UIButton }
+            .filter { $0.actions(forTarget: self, forControlEvent: .touchUpInside)?.contains("openNewsButton:") == true }
+            .forEach { $0.isHidden = true }
+
+        let news = actionButton(title: "News", symbol: "newspaper") { [weak self] button in
+            self?.openNewsButton(button)
+        }
+        let share = actionButton(title: "Share", symbol: "square.and.arrow.up") { [weak self] button in
+            self?.shareButtonTapped(button)
+        }
+        let community = actionButton(title: "Community", symbol: PostToCommunity.symbolName) { [weak self] _ in
+            guard let self else { return }
+            let post = self.communityPost()
+            PostToCommunity.start(text: post.text, photos: post.photos, from: self)
+        }
+        let watchlist = actionButton(title: "Watchlist", symbol: "plus") { [weak self] button in
+            self?.watchlistTapped(button)
+        }
+        //Crypto has its own list; the watchlist holds stocks and indexes.
+        watchlist.isEnabled = !informationStockTicker.ticker.isEmpty
+        updateWatchlistButton(watchlist)
+
+        let row = UIStackView(arrangedSubviews: [news, share, community, watchlist])
+        row.distribution = .fillEqually
+        row.spacing = 8
+        row.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(row)
+
+        //The O/H/L/C labels sat under the price; they now sit under the row.
+        let constraints = view.constraints + (pointingViewLabels.superview?.constraints ?? [])
+        for constraint in constraints where constraint.firstItem === pointingViewLabels
+            && constraint.firstAttribute == .top && constraint.secondItem === currentPriceLabel {
+            constraint.isActive = false
+        }
+        NSLayoutConstraint.activate([
+            row.topAnchor.constraint(equalTo: currentPriceLabel.bottomAnchor, constant: 14),
+            row.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            row.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            row.heightAnchor.constraint(equalToConstant: 58),
+            pointingViewLabels.topAnchor.constraint(equalTo: row.bottomAnchor, constant: 12)
+        ])
+    }
+
+    private func actionButton(title: String, symbol: String, action: @escaping (UIButton) -> Void) -> ActionTile {
+        let button = ActionTile()
+        button.set(title: title, symbol: symbol)
+        button.addAction(UIAction { [weak button] _ in
+            guard let button else { return }
+            action(button)
+        }, for: .touchUpInside)
+        return button
+    }
+
+    // MARK: Watchlist
+
+    ///Asked of the store each time, so a ticker added or removed elsewhere shows right.
+    private var isInWatchlist: Bool {
+        let ticker = informationStockTicker.ticker
+        return !ticker.isEmpty && SaveTickers().loadTickers().contains { $0.ticker == ticker }
+    }
+
+    private func updateWatchlistButton(_ button: UIButton) {
+        let added = isInWatchlist
+        (button as? ActionTile)?.set(title: added ? "Added" : "Watchlist", symbol: added ? "checkmark" : "plus")
+        button.accessibilityLabel = added ? "Remove from Watchlist" : "Add to Watchlist"
+    }
+
+    ///Adds the stock to the active watchlist, or after asking removes it.
+    private func watchlistTapped(_ button: UIButton) {
+        let ticker = informationStockTicker.ticker
+        guard !ticker.isEmpty else { return }
+        guard isInWatchlist else {
+            //Like search: no logo yet, so the watchlist fetches it.
+            let name = indexMarket ? indexName : nameTicker
+            let features = TickersFeatures(ticker: ticker, nameTicker: name,
+                                           imageTicker: UIImage(named: "mw-logo") ?? UIImage(), imageTickerName: "")
+            SaveTickers().saveTicker(tickerFeatures: features)
+            //saveTicker writes on the next main-queue turn; read the store after it.
+            DispatchQueue.main.async { [weak self] in self?.updateWatchlistButton(button) }
+            return
+        }
+        let sheet = UIAlertController(title: "Remove \(Self.displaySymbol(ticker)) from your watchlist?",
+                                      message: nil, preferredStyle: .actionSheet)
+        sheet.addAction(UIAlertAction(title: "Remove", style: .destructive) { [weak self] _ in
+            SaveTickers().deleteTicker(ticker: ticker)
+            DispatchQueue.main.async { self?.updateWatchlistButton(button) }
+        })
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        sheet.popoverPresentationController?.sourceView = button
+        present(sheet, animated: true)
+    }
+}
+
+
+///One button of the chart's action row: an icon over a short label, centred both ways.
+///A configured button's image-over-title layout sat high in the tile, as Avenir's tall line
+///box pushes the title's bottom down; this centres the pair as one block instead.
+private final class ActionTile: UIButton {
+
+    private let icon = UIImageView()
+    private let label = UILabel()
+
+    init() {
+        super.init(frame: .zero)
+        var background = UIButton.Configuration.filled()
+        background.baseBackgroundColor = ProfileStyle.card
+        background.cornerStyle = .large
+        configuration = background
+
+        icon.tintColor = UIColor(named: "uptrend") ?? ProfileStyle.accent
+        icon.contentMode = .scaleAspectFit
+        icon.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold)
+        label.font = UIFont(name: "Avenir-Heavy", size: 12) ?? .systemFont(ofSize: 12, weight: .semibold)
+        label.textColor = ProfileStyle.text
+        label.textAlignment = .center
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.8
+
+        let stack = UIStackView(arrangedSubviews: [icon, label])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 4
+        stack.isUserInteractionEnabled = false
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stack)
+        NSLayoutConstraint.activate([
+            icon.heightAnchor.constraint(equalToConstant: 22),
+            //Wide symbols (the two figures of Community) are scaled to the others' width.
+            icon.widthAnchor.constraint(lessThanOrEqualToConstant: 24),
+            stack.centerXAnchor.constraint(equalTo: centerXAnchor),
+            //Two points low: the symbol's box has room above the glyph and Avenir's line box
+            //room below the text, so the exact centre reads as high.
+            stack.centerYAnchor.constraint(equalTo: centerYAnchor, constant: 2),
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 4),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -4)
+        ])
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func set(title: String, symbol: String) {
+        label.text = title
+        icon.image = UIImage(systemName: symbol)
+        accessibilityLabel = title
+    }
+
+    override var isHighlighted: Bool {
+        didSet { alpha = isHighlighted ? 0.6 : 1 }
+    }
+
+    override var isEnabled: Bool {
+        didSet { alpha = isEnabled ? 1 : 0.4 }
     }
 }
 
