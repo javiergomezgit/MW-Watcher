@@ -44,6 +44,8 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private var generation = 0
     private var originals: [String: Post] = [:]
     private var hidden = Set<String>()
+    ///Who you blocked, as opposed to who blocked you: a profile offers Unblock for these.
+    private var blockedByMe = Set<String>()
     ///Posts you liked or reshared, by the id of the post whose content shows: the original
     ///for a reshare. (BS-268)
     private var liked = Set<String>()
@@ -181,6 +183,8 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         store.blockLists { [weak self] blocked, blockedBy in
             guard let self, current == self.generation else { return }
             self.hidden = blocked.union(blockedBy)
+            self.blockedByMe = blocked
+            self.updateProfileMenu()
             self.loadPage(before: nil, generation: current)
         }
     }
@@ -360,6 +364,10 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     }
 
     private func reshare(_ post: Post) {
+        requireTerms { [weak self] in self?.confirmedReshare(post) }
+    }
+
+    private func confirmedReshare(_ post: Post) {
         reshared.insert(post.id)
         adjust(post.id, reshares: 1)
         tableView.reloadData()
@@ -399,6 +407,10 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         guard Auth.auth().currentUser != nil else {
             return Utilities.showAlert(on: self, title: "Sign In", message: "Sign in to post in Community.")
         }
+        requireTerms { [weak self] in self?.openComposer() }
+    }
+
+    private func openComposer() {
         let composer = ComposePostController()
         composer.onPosted = { [weak self] post in
             guard let self else { return }
@@ -410,12 +422,23 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         present(UINavigationController(rootViewController: composer), animated: true)
     }
 
-    ///Your own post (or reshare) can be deleted.
+    ///Your own post (or reshare) can be deleted; anyone else's reported, and its author
+    ///blocked. (BS-271)
     private func moreTapped(_ post: Post, from cell: UITableViewCell) {
         let sheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         if post.authorUid == store.currentUid {
             sheet.addAction(UIAlertAction(title: post.isReshare ? "Undo Reshare" : "Delete Post", style: .destructive) { [weak self] _ in
                 self?.delete(post)
+            })
+        }
+        let shown = post.reshareOf.map { originals[$0] } ?? post
+        if let shown, shown.authorUid != store.currentUid {
+            let handle = directory.handle(shown.authorUid)
+            sheet.addAction(UIAlertAction(title: "Report Post", style: .default) { [weak self] _ in
+                self?.report(postId: shown.id, userUid: shown.authorUid, from: cell)
+            })
+            sheet.addAction(UIAlertAction(title: "Block \(handle)", style: .destructive) { [weak self] _ in
+                self?.confirmBlock(shown.authorUid)
             })
         }
         guard !sheet.actions.isEmpty else { return }
@@ -479,9 +502,11 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         }
         guard !isOwn else { return profileHeader.setFollow(isOwn: true, isFollowing: nil) }
         store.isFollowing(uid) { [weak self] following in
-            self?.isFollowingProfile = following
-            self?.profileHeader.setFollow(isOwn: false, isFollowing: following)
-            self?.view.setNeedsLayout()
+            guard let self else { return }
+            self.isFollowingProfile = following
+            //No Follow while a block stands either way; the rules would refuse it.
+            self.profileHeader.setFollow(isOwn: self.hidden.contains(uid), isFollowing: following)
+            self.view.setNeedsLayout()
         }
     }
 
@@ -517,7 +542,14 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             return
         }
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 80))
-        label.text = failed ? "Posts couldn't be loaded. Pull to try again." : "No posts yet."
+        label.numberOfLines = 0
+        if let uid = profileUid, blockedByMe.contains(uid) {
+            label.text = "You blocked \(directory.handle(uid)). Unblock them from the … menu to see their posts."
+        } else if let uid = profileUid, hidden.contains(uid) {
+            label.text = "This account isn't available."
+        } else {
+            label.text = failed ? "Posts couldn't be loaded. Pull to try again." : "No posts yet."
+        }
         label.font = UIFont(name: "Avenir-Medium", size: 15) ?? .systemFont(ofSize: 15, weight: .medium)
         label.textColor = ProfileStyle.secondaryText
         label.textAlignment = .center
@@ -527,6 +559,109 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private func openList(followers: Bool) {
         guard let uid = profileUid else { return }
         navigationController?.pushViewController(UserListController(uid: uid, followers: followers), animated: true)
+    }
+
+    // MARK: - Guidelines, reports and blocks (BS-271)
+
+    ///Runs `action` once the community terms are accepted, asking first if they aren't.
+    private func requireTerms(_ action: @escaping () -> Void) {
+        CommunityGuidelines.hasAccepted { [weak self] accepted in
+            guard let self else { return }
+            if accepted { return action() }
+            let terms = CommunityTermsController()
+            terms.onAccept = action
+            self.present(UINavigationController(rootViewController: terms), animated: true)
+        }
+    }
+
+    ///A post, or with no post an account, with a reason. Then offers to block them too.
+    private func report(postId: String?, userUid: String, from source: UIView?) {
+        let sheet = UIAlertController(title: postId == nil ? "Report Account" : "Report Post",
+                                      message: "Why are you reporting this?", preferredStyle: .actionSheet)
+        for reason in CommunityStore.ReportReason.allCases {
+            sheet.addAction(UIAlertAction(title: reason.title, style: .default) { [weak self] _ in
+                self?.store.report(postId: postId, userUid: userUid, reason: reason) { error in
+                    guard let self else { return }
+                    if let error {
+                        return Utilities.showAlert(on: self, title: "Can't Report", message: error.localizedDescription)
+                    }
+                    self.reportSent(userUid: userUid)
+                }
+            })
+        }
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        sheet.popoverPresentationController?.sourceView = source ?? view
+        present(sheet, animated: true)
+    }
+
+    private func reportSent(userUid: String) {
+        let alert = UIAlertController(title: "Thanks for reporting",
+                                      message: "We review reports within 24 hours. You can also block \(directory.handle(userUid)) so you no longer see each other.",
+                                      preferredStyle: .alert)
+        if !blockedByMe.contains(userUid) {
+            alert.addAction(UIAlertAction(title: "Block", style: .destructive) { [weak self] _ in self?.block(userUid) })
+        }
+        alert.addAction(UIAlertAction(title: blockedByMe.contains(userUid) ? "OK" : "Not Now", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func confirmBlock(_ uid: String) {
+        let alert = UIAlertController(title: "Block \(directory.handle(uid))?",
+                                      message: "You won't see each other's posts, and neither of you can follow the other. They aren't told.",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Block", style: .destructive) { [weak self] _ in self?.block(uid) })
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    ///Their posts leave this screen at once; on their profile, it closes.
+    private func block(_ uid: String) {
+        store.block(uid) { [weak self] error in
+            guard let self else { return }
+            if let error {
+                return Utilities.showAlert(on: self, title: "Can't Block", message: error.localizedDescription)
+            }
+            self.hidden.insert(uid)
+            self.blockedByMe.insert(uid)
+            self.posts.removeAll { $0.authorUid == uid || $0.reshareOfAuthor == uid }
+            self.tableView.reloadData()
+            self.updateEmptyState(failed: false)
+            if self.profileUid == uid {
+                self.navigationController?.popViewController(animated: true)
+            }
+        }
+    }
+
+    private func unblock(_ uid: String) {
+        store.unblock(uid) { [weak self] error in
+            guard let self else { return }
+            if let error {
+                return Utilities.showAlert(on: self, title: "Can't Unblock", message: error.localizedDescription)
+            }
+            self.reload()
+        }
+    }
+
+    ///On someone else's profile: Report, and Block or Unblock. Follow is hidden while either
+    ///of you has blocked the other.
+    private func updateProfileMenu() {
+        guard let uid = profileUid, uid != store.currentUid else { return }
+        var actions = [UIAction(title: "Report Account", image: UIImage(systemName: "flag")) { [weak self] _ in
+            self?.report(postId: nil, userUid: uid, from: nil)
+        }]
+        if blockedByMe.contains(uid) {
+            actions.append(UIAction(title: "Unblock", image: UIImage(systemName: "hand.raised.slash")) { [weak self] _ in
+                self?.unblock(uid)
+            })
+        } else {
+            actions.append(UIAction(title: "Block", image: UIImage(systemName: "hand.raised"), attributes: .destructive) { [weak self] _ in
+                self?.confirmBlock(uid)
+            })
+        }
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "ellipsis"), menu: UIMenu(children: actions))
+        if hidden.contains(uid) {
+            profileHeader.setFollow(isOwn: true, isFollowing: nil)
+        }
     }
 
     // MARK: - Navigation

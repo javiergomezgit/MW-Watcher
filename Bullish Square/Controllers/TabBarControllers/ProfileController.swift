@@ -27,12 +27,12 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
     // MARK: - Properties
 
     private enum Row {
-        case header, communityProfile, personalInfo, privacy, terms, disclaimer, contact, logOut, deleteAccount
+        case header, communityProfile, blockedAccounts, personalInfo, privacy, terms, disclaimer, contact, logOut, deleteAccount
     }
 
     private let sections: [(title: String?, rows: [Row])] = [
         (nil, [.header]),
-        ("Community", [.communityProfile]),
+        ("Community", [.communityProfile, .blockedAccounts]),
         ("Account", [.personalInfo]),
         ("Legal", [.privacy, .terms, .disclaimer]),
         ("Support", [.contact]),
@@ -209,6 +209,9 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         case .communityProfile:
             content.text = "My Posts and Followers"
             content.image = UIImage(systemName: "person.2")
+        case .blockedAccounts:
+            content.text = "Blocked Accounts"
+            content.image = UIImage(systemName: "hand.raised")
         case .personalInfo:
             content.text = "Personal Information"
             content.image = UIImage(systemName: "person.text.rectangle")
@@ -250,6 +253,7 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         switch sections[indexPath.section].rows[indexPath.row] {
         case .header: editBio()
         case .communityProfile: openCommunityProfile()
+        case .blockedAccounts: navigationController?.pushViewController(BlockedAccountsController(), animated: true)
         case .personalInfo: openPersonalInfo()
         case .privacy: openBrowser("https://jdevit.com/privacy-policy-bullish-square/")
         case .terms: openBrowser("https://www.jdevit.com/terms-of-service-bullish-square/")

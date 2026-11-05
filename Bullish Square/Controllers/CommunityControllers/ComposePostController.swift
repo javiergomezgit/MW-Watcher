@@ -186,6 +186,11 @@ final class ComposePostController: UIViewController, UITextViewDelegate {
 
     @objc private func postTapped() {
         view.endEditing(true)
+        //The community guidelines' filter (BS-271).
+        guard !CommunityGuidelines.containsObjectionableLanguage(textView.text ?? "") else {
+            return Utilities.showAlert(on: self, title: "Can't Post",
+                                       message: "Your post contains language that isn't allowed in Community. Edit it and try again.")
+        }
         setBusy(true)
         CommunityStore.shared.createPost(text: textView.text ?? "", images: photos) { [weak self] result in
             guard let self else { return }
