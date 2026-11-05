@@ -46,6 +46,7 @@ class SearchStocksController: UIViewController, SearchStocksViewCellDelegate {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
         tableView.tableFooterView = UIView(frame: .zero)
+        emptyView.topInset = tableView.adjustedContentInset.top
     }
     
     override func viewDidLoad() {

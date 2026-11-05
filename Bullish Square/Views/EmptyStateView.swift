@@ -16,6 +16,15 @@ final class EmptyStateView: UIView {
     private let messageLabel = UILabel()
     private let actionButton = UIButton(type: .system)
     private var action: (() -> Void)?
+    ///Pins the message below the top in `nearTop` mode; nil when centred.
+    private var messageTopConstraint: NSLayoutConstraint?
+
+    ///What covers the view's top, such as a navigation bar, for `nearTop` to clear. A table's
+    ///`backgroundView` gets no safe area, so the message sat under the search bar; the screen
+    ///passes its table's `adjustedContentInset.top` instead.
+    var topInset: CGFloat = 0 {
+        didSet { messageTopConstraint?.constant = topInset + 32 }
+    }
 
     ///`nearTop` keeps the message above the keyboard on screens that open with it up; the
     ///default centres it a little above the middle.
@@ -67,8 +76,9 @@ final class EmptyStateView: UIView {
         addSubview(stack)
 
         let vertical = nearTop
-            ? stack.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 48)
+            ? stack.topAnchor.constraint(equalTo: topAnchor, constant: topInset + 32)
             : stack.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -40)
+        if nearTop { messageTopConstraint = vertical }
         NSLayoutConstraint.activate([
             stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
             stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32),
