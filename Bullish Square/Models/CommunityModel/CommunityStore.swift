@@ -559,6 +559,96 @@ final class CommunityStore {
         group.notify(queue: .global()) { done(blocked, blockedBy) }
     }
 
+    // MARK: - Account deletion
+
+    ///Everything Community holds for `uid`, for account deletion (BS-272): their posts and
+    ///photos, reshares (with the originals' counts), follows both ways, and the blocks they
+    ///made. Calls back once with the first error, or nil.
+    ///
+    ///Not removed: their likes on other people's posts, which hold only a uid and are counted
+    ///in those posts, and blocks other people made of them, which belong to those people.
+    func deleteAllCommunityData(uid: String, completion: @escaping (Error?) -> Void) {
+        let done = main(completion)
+        deleteAllPosts(uid: uid) { [weak self] error in
+            guard let self else { return }
+            if let error { return done(error) }
+            self.deleteAllFollows(uid: uid) { error in
+                if let error { return done(error) }
+                self.blocks.whereField("blocker", isEqualTo: uid).getDocuments { snapshot, error in
+                    if let error { return done(error) }
+                    self.deleteDocuments(snapshot?.documents.map(\.reference) ?? [], completion: done)
+                }
+            }
+        }
+    }
+
+    private func deleteAllPosts(uid: String, completion: @escaping (Error?) -> Void) {
+        posts.whereField("authorUid", isEqualTo: uid).getDocuments { [weak self] snapshot, error in
+            guard let self else { return }
+            if let error { return completion(error) }
+            let all = snapshot?.documents.compactMap(Post.init(document:)) ?? []
+            let group = DispatchGroup()
+            let lock = NSLock()
+            var firstError: Error?
+            for post in all {
+                group.enter()
+                let finished: (Error?) -> Void = { error in
+                    lock.lock(); if firstError == nil { firstError = error }; lock.unlock()
+                    group.leave()
+                }
+                if let original = post.reshareOf {
+                    self.removeReshare(postId: post.id, original: original, uid: uid, completion: finished)
+                } else {
+                    self.posts.document(post.id).delete { error in
+                        if error == nil { self.deleteImages(paths: post.imagePaths) }
+                        finished(error)
+                    }
+                }
+            }
+            group.notify(queue: .global()) { completion(firstError) }
+        }
+    }
+
+    ///Both halves of every follow, theirs and the other person's. The rules let either side
+    ///remove a follow.
+    private func deleteAllFollows(uid: String, completion: @escaping (Error?) -> Void) {
+        let profile = profiles.document(uid)
+        let group = DispatchGroup()
+        let lock = NSLock()
+        var references: [DocumentReference] = []
+        var firstError: Error?
+        for (mine, theirs) in [("following", "followers"), ("followers", "following")] {
+            group.enter()
+            profile.collection(mine).getDocuments { [weak self] snapshot, error in
+                guard let self else { return group.leave() }
+                lock.lock()
+                if let error, firstError == nil { firstError = error }
+                for document in snapshot?.documents ?? [] {
+                    references.append(document.reference)
+                    references.append(self.profiles.document(document.documentID).collection(theirs).document(uid))
+                }
+                lock.unlock()
+                group.leave()
+            }
+        }
+        group.notify(queue: .global()) { [weak self] in
+            if let firstError { return completion(firstError) }
+            self?.deleteDocuments(references, completion: completion)
+        }
+    }
+
+    ///In batches of 400, under Firestore's 500 writes a batch.
+    private func deleteDocuments(_ references: [DocumentReference], completion: @escaping (Error?) -> Void) {
+        guard !references.isEmpty else { return completion(nil) }
+        let chunk = Array(references.prefix(400))
+        let batch = db.batch()
+        chunk.forEach { batch.deleteDocument($0) }
+        batch.commit { [weak self] error in
+            if let error { return completion(error) }
+            self?.deleteDocuments(Array(references.dropFirst(400)), completion: completion)
+        }
+    }
+
     // MARK: - Reporting
 
     enum ReportReason: String, CaseIterable {
