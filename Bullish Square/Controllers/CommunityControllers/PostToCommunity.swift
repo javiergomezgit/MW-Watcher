@@ -65,8 +65,10 @@ enum PostToCommunity {
 
     // MARK: - Composing
 
-    ///Signed in, guidelines accepted, then the composer with `text` and `photos`.
-    static func start(text: String, photos: [UIImage] = [], from presenter: UIViewController) {
+    ///Signed in, guidelines accepted, then the composer with `text` and `photos`. Without
+    ///`onPosted`, a posted message says where the post went.
+    static func start(text: String, photos: [UIImage] = [], from presenter: UIViewController,
+                      onPosted: ((Post) -> Void)? = nil) {
         guard Auth.auth().currentUser != nil else {
             return Utilities.showAlert(on: presenter, title: "Sign In", message: "Sign in to post in Community.")
         }
@@ -77,7 +79,8 @@ enum PostToCommunity {
                 let composer = ComposePostController()
                 composer.initialText = text
                 composer.initialPhotos = photos
-                composer.onPosted = { [weak presenter] _ in
+                composer.onPosted = { [weak presenter] post in
+                    if let onPosted { return onPosted(post) }
                     guard let presenter else { return }
                     Utilities.showAlert(on: presenter, title: "Posted",
                                         message: "Your post is in Community, in Discover and on your profile.")

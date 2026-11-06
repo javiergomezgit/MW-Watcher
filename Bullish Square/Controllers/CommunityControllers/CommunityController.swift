@@ -22,6 +22,9 @@ final class CommunityNavigationController: UINavigationController {
 ///Opened with a uid it is that person's profile instead: their details, counts and Follow
 ///above their posts, with the same cards and actions as the feeds. (BS-269)
 ///
+///Opened with a ticker it is the posts that mention `$TICKER`, from a stock's chart, with a
+///button to post about it. (BS-287)
+///
 ///People you blocked and people who blocked you are left out of both feeds. A reshare shows
 ///the original post under "@x reshared"; originals are read once each.
 final class CommunityController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -61,8 +64,25 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private var profileCounts: CommunityStore.Counts?
     private var isFollowingProfile: Bool?
 
+    ///A ticker's posts: the upper-case symbol, and the post the chart starts. (BS-287)
+    private let ticker: String?
+    private let tickerDraft: (() -> (text: String, photos: [UIImage]))?
+
+    ///The Community tab itself, as opposed to a profile or a ticker's posts.
+    private var isTab: Bool { profileUid == nil && ticker == nil }
+
     init(profileOf uid: String? = nil) {
         profileUid = uid
+        ticker = nil
+        tickerDraft = nil
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    ///Posts about `symbol`; `draft` is what the Post button starts with.
+    init(ticker symbol: String, draft: @escaping () -> (text: String, photos: [UIImage])) {
+        profileUid = nil
+        ticker = symbol.uppercased()
+        tickerDraft = draft
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -75,9 +95,18 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = ProfileStyle.background
-        if profileUid == nil {
+        if isTab {
             title = "Community"
             TabTitleRow(title: title, buttons: titleButtons()).install(in: self)
+        } else if let ticker {
+            title = "$\(ticker)"
+            navigationItem.largeTitleDisplayMode = .never
+            ProfileStyle.style(navigationController)
+            let post = UIBarButtonItem(image: UIImage(systemName: "square.and.pencil"), primaryAction: UIAction { [weak self] _ in
+                self?.postAboutTicker()
+            })
+            post.accessibilityLabel = "Post about \(ticker)"
+            navigationItem.rightBarButtonItem = post
         } else {
             navigationItem.largeTitleDisplayMode = .never
             ProfileStyle.style(navigationController)
@@ -100,7 +129,7 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         refreshControl.addAction(UIAction { [weak self] _ in self?.reload() }, for: .valueChanged)
         tableView.refreshControl = refreshControl
 
-        let showsFeeds = profileUid == nil
+        let showsFeeds = isTab
         for subview in (showsFeeds ? [feedControl, tableView] : [tableView]) as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
@@ -123,15 +152,16 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         reload()
     }
 
-    ///The tab draws its own title row; a profile uses the navigation bar and its back button.
+    ///The tab draws its own title row; a profile or a ticker uses the navigation bar and its
+    ///back button.
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        TabTitleRow.setBarHidden(profileUid == nil, for: self, animated: animated)
+        TabTitleRow.setBarHidden(isTab, for: self, animated: animated)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if profileUid == nil {
+        if isTab {
             TabTitleRow.setBarHidden(false, for: self, animated: animated)
         }
     }
@@ -214,6 +244,9 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         if let profileUid {
             return store.posts(byUser: profileUid, before: before, completion: completion)
         }
+        if let ticker {
+            return store.posts(aboutTicker: ticker, before: before, completion: completion)
+        }
         switch feed {
         case .following: store.following(before: before, completion: completion)
         case .discover: store.discover(before: before, completion: completion)
@@ -267,6 +300,10 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             emptyView.configure(title: "Community isn't available right now",
                                 message: "Check your connection and try again.",
                                 actionTitle: "Try again") { [weak self] in self?.reload() }
+        } else if let ticker {
+            emptyView.configure(title: "No posts about $\(ticker) yet",
+                                message: "Be the first to share your take.",
+                                actionTitle: "Post") { [weak self] in self?.postAboutTicker() }
         } else if feed == .following {
             emptyView.configure(title: "Your feed is empty",
                                 message: "Follow people to see their posts here, or see what everyone is sharing.",
@@ -378,8 +415,9 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             switch result {
             case .success(let mine):
                 self.originals[post.id] = self.shownPost(post.id)
-                //Following leaves out your own posts, reshares included.
-                if self.profileUid != nil || self.feed == .discover { self.posts.insert(mine, at: 0) }
+                //Following leaves out your own posts, reshares included, and a reshare has no
+                //text, so no $TICKER of its own.
+                if self.profileUid != nil || (self.isTab && self.feed == .discover) { self.posts.insert(mine, at: 0) }
                 self.tableView.reloadData()
             case .failure(let error):
                 self.reshared.remove(post.id)
@@ -418,7 +456,7 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         composer.onPosted = { [weak self] post in
             guard let self else { return }
             //Following leaves out your own posts, so go to Discover, where the new one is first.
-            if self.profileUid == nil, self.feed == .following {
+            if self.isTab, self.feed == .following {
                 self.feedControl.selectedSegmentIndex = Feed.discover.rawValue
                 return self.feedChanged()
             }
@@ -428,6 +466,19 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             self.tableView.setContentOffset(.zero, animated: true)
         }
         present(UINavigationController(rootViewController: composer), animated: true)
+    }
+
+    ///The chart's draft and picture; the new post shows at the top if it still names the
+    ///ticker, since the text can be changed before posting.
+    private func postAboutTicker() {
+        guard let ticker, let draft = tickerDraft?() else { return }
+        PostToCommunity.start(text: draft.text, photos: draft.photos, from: self) { [weak self] post in
+            guard let self, post.tickers.contains(ticker) else { return }
+            self.posts.insert(post, at: 0)
+            self.tableView.backgroundView = nil
+            self.tableView.reloadData()
+            self.tableView.setContentOffset(.zero, animated: true)
+        }
     }
 
     ///Your own post (or reshare) can be deleted; anyone else's reported, and its author
@@ -696,8 +747,13 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         present(SFSafariViewController(url: url, configuration: config), animated: true)
     }
 
-    ///The same chart a search result opens, loading its own price and logo.
+    ///The same chart a search result opens, loading its own price and logo. On a ticker's
+    ///posts, its own $TICKER goes back to the chart it came from.
     private func openChart(_ symbol: String) {
+        if symbol.uppercased() == ticker, navigationController?.viewControllers.dropLast().last is ChartController {
+            navigationController?.popViewController(animated: true)
+            return
+        }
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         guard let destination = storyboard.instantiateViewController(withIdentifier: "ChartController") as? ChartController else { return }
         destination.informationStockTicker = TickersCurrentValues(ticker: symbol, marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)

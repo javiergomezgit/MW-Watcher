@@ -966,9 +966,7 @@ extension ChartController {
             self?.shareButtonTapped(button)
         }
         let community = actionButton(title: "Community", symbol: PostToCommunity.symbolName) { [weak self] _ in
-            guard let self else { return }
-            let post = self.communityPost()
-            PostToCommunity.start(text: post.text, photos: post.photos, from: self)
+            self?.communityTapped()
         }
         let watchlist = actionButton(title: "Watchlist", symbol: "plus") { [weak self] button in
             self?.watchlistTapped(button)
@@ -1006,6 +1004,25 @@ extension ChartController {
             action(button)
         }, for: .touchUpInside)
         return button
+    }
+
+    // MARK: Community
+
+    ///A stock opens what people are saying about it, with Post there (BS-287). Crypto and
+    ///indexes can't be a $TICKER, so they have no posts to show and go straight to posting.
+    private func communityTapped() {
+        let ticker = informationStockTicker.ticker.uppercased()
+        guard !indexMarket, !ticker.isEmpty, Post.tickers(in: "$\(ticker)") == [ticker] else {
+            let post = communityPost()
+            return PostToCommunity.start(text: post.text, photos: post.photos, from: self)
+        }
+        let posts = CommunityController(ticker: ticker) { [weak self] in
+            self?.communityPost() ?? (text: "\n\n$\(ticker)", photos: [])
+        }
+        guard let navigationController else {
+            return present(UINavigationController(rootViewController: posts), animated: true)
+        }
+        navigationController.pushViewController(posts, animated: true)
     }
 
     // MARK: Watchlist

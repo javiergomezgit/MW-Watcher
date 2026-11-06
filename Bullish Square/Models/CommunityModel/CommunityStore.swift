@@ -76,13 +76,26 @@ final class CommunityStore {
 
     ///The latest posts from everyone.
     func discover(before: Date?, completion: @escaping (Result<Page, Error>) -> Void) {
-        var query: Query = posts
+        newest(posts, before: before, feed: "the Discover feed", completion: completion)
+    }
+
+    ///The latest posts that mention `$symbol`, for a stock's chart. (BS-287)
+    ///
+    ///Needs the composite index `posts`: tickers (array-contains) + createdAt DESC. Until it
+    ///exists Firestore refuses the query, and the printed error carries a link that creates it.
+    func posts(aboutTicker symbol: String, before: Date?, completion: @escaping (Result<Page, Error>) -> Void) {
+        newest(posts.whereField("tickers", arrayContains: symbol.uppercased()), before: before,
+               feed: "posts about \(symbol)", completion: completion)
+    }
+
+    private func newest(_ base: Query, before: Date?, feed: String, completion: @escaping (Result<Page, Error>) -> Void) {
+        var query = base
         if let before { query = query.whereField("createdAt", isLessThan: Timestamp(date: before)) }
         query = query.order(by: "createdAt", descending: true).limit(to: Self.pageSize)
         let done = main(completion)
         query.getDocuments { snapshot, error in
             if let error = error as NSError? {
-                print("Loading the Discover feed failed: \(error.localizedDescription)")
+                print("Loading \(feed) failed: \(error.localizedDescription)")
                 return done(.failure(error))
             }
             done(.success(Self.page(from: snapshot?.documents ?? [])))
