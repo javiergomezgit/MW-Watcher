@@ -32,6 +32,9 @@ struct Post: Hashable {
     var reshareCount: Int
     let reshareOf: String?
     let reshareOfAuthor: String?
+    ///The article a bot's post is about, written by the server next to the text. Its link card
+    ///opens it, so the address itself need not show. Web pages only.
+    let sourceURL: URL?
 
     var isReshare: Bool { reshareOf != nil }
 
@@ -54,6 +57,7 @@ struct Post: Hashable {
         reshareCount = data["reshareCount"] as? Int ?? 0
         reshareOf = data["reshareOf"] as? String
         reshareOfAuthor = data["reshareOfAuthor"] as? String
+        sourceURL = (data["sourceURL"] as? String).flatMap(Self.webPage)
     }
 
     init(id: String, authorUid: String, text: String, imageURLs: [String], imagePaths: [String],
@@ -69,6 +73,13 @@ struct Post: Hashable {
         self.reshareCount = 0
         self.reshareOf = reshareOf
         self.reshareOfAuthor = reshareOfAuthor
+        self.sourceURL = nil
+    }
+
+    private static func webPage(_ string: String) -> URL? {
+        guard let url = URL(string: string), let scheme = url.scheme?.lowercased(),
+              scheme == "https" || scheme == "http" else { return nil }
+        return url
     }
 
     // MARK: - Tickers

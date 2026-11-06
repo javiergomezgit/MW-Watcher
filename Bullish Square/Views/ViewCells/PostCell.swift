@@ -6,7 +6,7 @@
 import UIKit
 
 ///One post in a Community feed: who and when, the text with tappable $tickers, up to four
-///photos, and like and reshare counts. A reshare shows "@x reshared" above the original.
+///photos or a link's preview card, and like and reshare counts. A reshare shows "@x reshared" above the original.
 ///Built in code; the controller owns what the buttons do. (BS-266)
 final class PostCell: UITableViewCell, UITextViewDelegate {
 
@@ -34,6 +34,7 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     private let moreButton = UIButton(type: .system)
     private let textView = UITextView()
     private let gallery = UIStackView()
+    private let linkPreview = LinkPreviewView()
     private let likeButton = UIButton(type: .system)
     private let reshareButton = UIButton(type: .system)
     private var imageURLs: [String] = []
@@ -98,6 +99,11 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         //Empty, so each link keeps the colour and weight `attributed` gives it.
         textView.linkTextAttributes = [:]
 
+        linkPreview.addAction(UIAction { [weak self] _ in
+            guard let self, let url = self.linkPreview.url else { return }
+            self.onLink?(url)
+        }, for: .touchUpInside)
+
         gallery.axis = .vertical
         gallery.spacing = 2
         gallery.layer.cornerRadius = 10
@@ -117,7 +123,7 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         let footer = UIStackView(arrangedSubviews: [likeButton, reshareButton, UIView()])
         footer.spacing = 16
 
-        let stack = UIStackView(arrangedSubviews: [reshareLabel, header, textView, gallery, footer])
+        let stack = UIStackView(arrangedSubviews: [reshareLabel, header, textView, gallery, linkPreview, footer])
         stack.axis = .vertical
         stack.spacing = 10
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -162,6 +168,7 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
             textView.attributedText = nil
             textView.isHidden = true
             gallery.isHidden = true
+            linkPreview.isHidden = true
             likeButton.isHidden = true
             reshareButton.isHidden = true
             return
@@ -182,9 +189,12 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         }
         loadAvatar(directory.profile(post.authorUid)?.photoURL, for: post.id)
 
-        textView.attributedText = Self.attributed(post.text, tickers: post.tickers)
-        textView.isHidden = post.text.isEmpty
+        let link = Self.previewLink(for: post)
+        let text = Self.attributed(post, link: link)
+        textView.attributedText = text
+        textView.isHidden = text.length == 0
         showGallery(post.imageURLs, for: post.id)
+        showLinkPreview(link, for: post)
 
         setCount(likeButton, post.likeCount, symbol: liked ? "heart.fill" : "heart",
                  tint: liked ? (UIColor(named: "downtrend") ?? .systemRed) : ProfileStyle.secondaryText)
@@ -240,11 +250,71 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         }
     }
 
+    ///The first link's card, for a post without photos; photos say more than a page's
+    ///picture. (BS-289)
+    private func showLinkPreview(_ url: URL?, for post: Post) {
+        guard let url else {
+            linkPreview.isHidden = true
+            return
+        }
+        linkPreview.isHidden = false
+        let store = LinkPreviewStore.shared
+        linkPreview.show(url, preview: store.cached(url))
+        guard store.cached(url) == nil else { return }
+        store.load(url) { [weak self] preview in
+            guard let self, self.postId == post.id else { return }
+            self.linkPreview.show(url, preview: preview)
+        }
+    }
+
     // MARK: - Text
 
     ///Links are bold. Web links are a light blue, so they stand apart from the green $tickers.
     private static let webLinkColor = UIColor(red: 0.302, green: 0.698, blue: 1, alpha: 1)
     private static let tickerColor = UIColor(named: "uptrend") ?? ProfileStyle.accent
+
+    ///The page a post's card shows: the article a bot named in `sourceURL`, else the first web
+    ///link in the text. None when the post has photos; they take the card's place.
+    static func previewLink(for post: Post) -> URL? {
+        guard post.imageURLs.isEmpty else { return nil }
+        return post.sourceURL ?? LinkPreviewStore.firstLink(in: post.text)
+    }
+
+    ///A post's text under its card: the card's address is left out when it ends the text, as
+    ///tapping the card opens it, and the name in a "Source: CNBC" line links to it instead.
+    static func attributed(_ post: Post, link: URL?) -> NSAttributedString {
+        guard let link else { return attributed(post.text, tickers: post.tickers) }
+        let text = withoutTrailingLink(link, in: post.text)
+        let result = NSMutableAttributedString(attributedString: attributed(text, tickers: post.tickers))
+        let boldFont = UIFont(name: "Avenir-Heavy", size: 16) ?? .systemFont(ofSize: 16, weight: .bold)
+        if let regex = try? NSRegularExpression(pattern: #"(?m)^Source: ([^·\n]*[^·\s])"#),
+           let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)) {
+            result.addAttributes([.link: link, .foregroundColor: webLinkColor, .font: boldFont], range: match.range(at: 1))
+        }
+        return result
+    }
+
+    ///`text` without `link` when the link is the last thing in it, along with the space before it.
+    ///A link in the middle of a sentence stays, as the sentence needs it.
+    static func withoutTrailingLink(_ link: URL, in text: String) -> String {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue),
+              let last = detector.matches(in: text, range: NSRange(text.startIndex..., in: text)).last,
+              let found = last.url, samePage(found, link),
+              let range = Range(last.range, in: text),
+              text[range.upperBound...].allSatisfy(\.isWhitespace) else { return text }
+        var kept = text[..<range.lowerBound]
+        while kept.last?.isWhitespace == true { kept.removeLast() }
+        return String(kept)
+    }
+
+    ///The same address whatever the scheme or "www." ("cnbc.com/a" is found as http://cnbc.com/a).
+    private static func samePage(_ a: URL, _ b: URL) -> Bool {
+        func key(_ url: URL) -> String {
+            let host = (url.host ?? "").lowercased()
+            return (host.hasPrefix("www.") ? String(host.dropFirst(4)) : host) + url.path + (url.query.map { "?" + $0 } ?? "")
+        }
+        return key(a) == key(b)
+    }
 
     ///The text in the body font, with each $TICKER a link the delegate opens as a chart, and
     ///each web address ("https://…", "www.…", "cnbc.com/…") a link opened in the app.
