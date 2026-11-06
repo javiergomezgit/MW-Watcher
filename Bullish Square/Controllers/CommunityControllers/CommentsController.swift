@@ -19,6 +19,8 @@ final class CommentsController: UIViewController, UITableViewDataSource, UITable
     }
 
     private let post: Post
+    ///The original a reshare quotes; read here when the opener didn't have it. (BS-292)
+    private var original: Post?
     ///Called with the new count after adding or deleting, so the feed's button can follow.
     var onCountChanged: ((Int) -> Void)?
     ///Opens with the keyboard up, as when the comment button was tapped to write.
@@ -42,8 +44,9 @@ final class CommentsController: UIViewController, UITableViewDataSource, UITable
     private let store = CommunityStore.shared
     private let directory = AuthorDirectory.shared
 
-    init(post: Post) {
+    init(post: Post, original: Post? = nil) {
         self.post = post
+        self.original = original
         super.init(nibName: nil, bundle: nil)
         title = "Comments"
     }
@@ -149,6 +152,7 @@ final class CommentsController: UIViewController, UITableViewDataSource, UITable
     // MARK: - Loading
 
     private func load() {
+        loadOriginal()
         store.blockLists { [weak self] blocked, blockedBy in
             guard let self else { return }
             self.hidden = blocked.union(blockedBy)
@@ -163,6 +167,18 @@ final class CommentsController: UIViewController, UITableViewDataSource, UITable
                         self.show(visible, failed: false)
                     }
                 }
+            }
+        }
+    }
+
+    ///A reshare opened from Activity or Reports comes without its original.
+    private func loadOriginal() {
+        guard original == nil, let id = post.reshareOf else { return }
+        store.post(id: id) { [weak self] original in
+            guard let self, let original else { return }
+            self.original = original
+            self.directory.load([original.authorUid]) {
+                self.tableView.reloadRows(at: [IndexPath(row: 0, section: Section.post.rawValue)], with: .none)
             }
         }
     }
@@ -205,9 +221,12 @@ final class CommentsController: UIViewController, UITableViewDataSource, UITable
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if Section(rawValue: indexPath.section) == .post {
             let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.reuseIdentifier, for: indexPath) as! PostCell
-            cell.configure(shown: post, resharedBy: nil, liked: false, reshared: false, isOwn: post.authorUid == store.currentUid)
+            cell.configure(post, original: original, liked: false, reshared: false, isOwn: post.authorUid == store.currentUid)
             cell.setActionsHidden(true)
             cell.onAuthor = { [weak self] in self?.openProfile(self?.post.authorUid ?? "") }
+            if let author = original?.authorUid {
+                cell.onOriginalAuthor = { [weak self] in self?.openProfile(author) }
+            }
             cell.onTicker = { [weak self] symbol in self?.openChart(symbol) }
             cell.onLink = { [weak self] url in self?.openLink(url) }
             cell.onPhoto = { [weak self] urls, index in

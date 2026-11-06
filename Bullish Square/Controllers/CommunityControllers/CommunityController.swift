@@ -50,11 +50,11 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     private var hidden = Set<String>()
     ///Who you blocked, as opposed to who blocked you: a profile offers Unblock for these.
     private var blockedByMe = Set<String>()
-    ///Posts you liked or reshared, by the id of the post whose content shows: the original
-    ///for a reshare. (BS-268)
+    ///Posts you liked, by their own id: a reshare's likes are the reshare's. (BS-268, BS-292)
     private var liked = Set<String>()
+    ///Posts you reshared, by the original's id.
     private var reshared = Set<String>()
-    ///Comment counts by the id of the post whose content shows. (BS-273)
+    ///Comment counts by each post's own id: a reshare has its own comments. (BS-273, BS-292)
     private var commentCounts: [String: Int] = [:]
     ///The bell, which shows a dot when there is activity not seen yet. (BS-273)
     private lazy var activityButton = titleButton("bell", label: "Activity") { [weak self] in self?.openActivity() }
@@ -295,16 +295,17 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         group.notify(queue: .main) { [weak self] in
             guard let self else { return }
             let authors = visible.map(\.authorUid) + visible.compactMap { $0.reshareOf.flatMap { self.originals[$0]?.authorUid } }
-            let shownIDs = visible.map { $0.reshareOf ?? $0.id }
+            let ids = visible.map(\.id)
+            let originalIDs = visible.map { $0.reshareOf ?? $0.id }
             let group = DispatchGroup()
             group.enter()
             self.directory.load(authors) { group.leave() }
             group.enter()
-            self.store.likedPostIDs(shownIDs) { ids in self.liked.formUnion(ids); group.leave() }
+            self.store.likedPostIDs(ids) { ids in self.liked.formUnion(ids); group.leave() }
             group.enter()
-            self.store.resharedPostIDs(shownIDs) { ids in self.reshared.formUnion(ids); group.leave() }
+            self.store.resharedPostIDs(originalIDs) { ids in self.reshared.formUnion(ids); group.leave() }
             group.enter()
-            self.store.commentCounts(shownIDs) { counts in self.commentCounts.merge(counts) { $1 }; group.leave() }
+            self.store.commentCounts(ids) { counts in self.commentCounts.merge(counts) { $1 }; group.leave() }
             group.notify(queue: .main) { completion(visible) }
         }
     }
@@ -354,21 +355,24 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.reuseIdentifier, for: indexPath) as! PostCell
         let post = posts[indexPath.row]
-        let shown = post.reshareOf.map { originals[$0] } ?? post
-        cell.configure(shown: shown, resharedBy: post.isReshare ? post.authorUid : nil,
-                       liked: shown.map { liked.contains($0.id) } ?? false,
-                       reshared: shown.map { reshared.contains($0.id) } ?? false,
-                       isOwn: shown?.authorUid == store.currentUid,
-                       comments: shown.flatMap { commentCounts[$0.id] })
-        if let shown {
-            cell.onLike = { [weak self] in self?.likeTapped(shown.id) }
-            cell.onReshare = { [weak self] in self?.reshareTapped(shown.id, from: cell) }
-            cell.onComment = { [weak self] in self?.openComments(shown.id) }
+        let original = post.reshareOf.flatMap { originals[$0] }
+        //The reshare button reshares the original; likes and comments are the row's own.
+        let target = post.isReshare ? original : post
+        cell.configure(post, original: original,
+                       liked: liked.contains(post.id),
+                       reshared: target.map { reshared.contains($0.id) } ?? false,
+                       isOwn: target?.authorUid == store.currentUid,
+                       comments: commentCounts[post.id])
+        cell.onLike = { [weak self] in self?.likeTapped(post.id) }
+        cell.onComment = { [weak self] in self?.openComments(post.id) }
+        if let target {
+            cell.onReshare = { [weak self] in self?.reshareTapped(target.id, from: cell) }
         }
         cell.onTicker = { [weak self] symbol in self?.openChart(symbol) }
         cell.onLink = { [weak self] url in self?.openLink(url) }
-        if let author = shown?.authorUid {
-            cell.onAuthor = { [weak self] in self?.openProfile(author) }
+        cell.onAuthor = { [weak self] in self?.openProfile(post.authorUid) }
+        if let author = original?.authorUid {
+            cell.onOriginalAuthor = { [weak self] in self?.openProfile(author) }
         }
         cell.onPhoto = { [weak self] urls, index in
             self?.present(PhotoViewerController(urls: urls, startIndex: index), animated: true)
@@ -757,10 +761,11 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     // MARK: - Comments and activity (BS-273)
 
     ///The post with its comments; the count on its button follows what happens there. With
-    ///no comments yet the keyboard comes up, as there is nothing to read first.
+    ///no comments yet the keyboard comes up, as there is nothing to read first. A reshare's
+    ///comments are its own, with the original quoted above them. (BS-292)
     private func openComments(_ id: String) {
         guard let post = shownPost(id) else { return }
-        let comments = CommentsController(post: post)
+        let comments = CommentsController(post: post, original: post.reshareOf.flatMap { originals[$0] })
         comments.startsWriting = commentCounts[id] == 0
         comments.onCountChanged = { [weak self] count in
             guard let self, self.commentCounts[id] != count else { return }

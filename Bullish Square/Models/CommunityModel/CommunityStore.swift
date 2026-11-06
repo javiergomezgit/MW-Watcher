@@ -409,10 +409,17 @@ final class CommunityStore {
         batch.updateData(["reshareCount": FieldValue.increment(Int64(-1))], forDocument: source)
         withdrawActivity(.reshare, recipient: nil, postId: original)
         batch.commit { [weak self] error in
-            guard let error = error as NSError? else { return done(nil) }
+            guard let error = error as NSError? else {
+                //A reshare has its own comments. (BS-292)
+                self?.deleteComments(onPost: postId)
+                return done(nil)
+            }
             //The original may be gone; the reshare is still yours to delete.
             print("Undoing the reshare with its original failed, deleting it alone: \(error.localizedDescription)")
-            self?.posts.document(postId).delete { error in done(error) }
+            self?.posts.document(postId).delete { error in
+                if error == nil { self?.deleteComments(onPost: postId) }
+                done(error)
+            }
         }
     }
 

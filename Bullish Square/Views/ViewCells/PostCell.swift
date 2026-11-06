@@ -6,7 +6,8 @@
 import UIKit
 
 ///One post in a Community feed: who and when, the text with tappable $tickers, up to four
-///photos or a link's preview card, and like, reshare and comment counts. A reshare shows "@x reshared" above the original.
+///photos or a link's preview card, and like, reshare and comment counts. A reshare is the
+///resharer's own post, with the original quoted under it. (BS-292)
 ///Built in code; the controller owns what the buttons do. (BS-266)
 final class PostCell: UITableViewCell, UITextViewDelegate {
 
@@ -15,6 +16,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     // MARK: - Callbacks
 
     var onAuthor: (() -> Void)?
+    ///The quoted original's author, in a reshare. (BS-292)
+    var onOriginalAuthor: (() -> Void)?
     var onMore: (() -> Void)?
     var onLike: (() -> Void)?
     var onReshare: (() -> Void)?
@@ -29,7 +32,6 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     // MARK: - Views
 
     private let card = UIView()
-    private let reshareLabel = UILabel()
     private let avatar = UIImageView()
     private let nameLabel = UILabel()
     private let metaLabel = UILabel()
@@ -37,6 +39,7 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     private let textView = UITextView()
     private let gallery = UIStackView()
     private let linkPreview = LinkPreviewView()
+    private let quoted = QuotedPostView()
     private let likeButton = UIButton(type: .system)
     private let reshareButton = UIButton(type: .system)
     private let commentButton = UIButton(type: .system)
@@ -64,9 +67,6 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         card.backgroundColor = ProfileStyle.card
         card.layer.cornerRadius = 14
         card.clipsToBounds = true
-
-        reshareLabel.font = UIFont(name: "Avenir-Medium", size: 13) ?? .systemFont(ofSize: 13, weight: .medium)
-        reshareLabel.textColor = ProfileStyle.secondaryText
 
         avatar.contentMode = .scaleAspectFill
         avatar.clipsToBounds = true
@@ -108,6 +108,11 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
             self.onLink?(url)
         }, for: .touchUpInside)
 
+        quoted.onAuthor = { [weak self] in self?.onOriginalAuthor?() }
+        quoted.onTicker = { [weak self] symbol in self?.onTicker?(symbol) }
+        quoted.onLink = { [weak self] url in self?.onLink?(url) }
+        quoted.onPhoto = { [weak self] urls, index in self?.onPhoto?(urls, index) }
+
         gallery.axis = .vertical
         gallery.spacing = 2
         gallery.layer.cornerRadius = 10
@@ -136,7 +141,7 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         [likeButton, reshareButton, commentButton, spacer].forEach(footer.addArrangedSubview)
         footer.spacing = 24
 
-        let stack = UIStackView(arrangedSubviews: [reshareLabel, header, textView, gallery, linkPreview, footer])
+        let stack = UIStackView(arrangedSubviews: [header, textView, gallery, linkPreview, quoted, footer])
         stack.axis = .vertical
         stack.spacing = 10
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -162,59 +167,49 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
 
     // MARK: - Content
 
-    ///`shown` is the post whose content appears: the original for a reshare. `resharedBy` is
-    ///the uid of who reshared it, nil for an ordinary post. `original` nil on a reshare means
-    ///the original was deleted.
-    ///`comments` is the post's comment count, nil while it is unknown.
-    func configure(shown: Post?, resharedBy: String?, liked: Bool, reshared: Bool, isOwn: Bool, comments: Int? = nil) {
-        postId = shown?.id
-        if let resharedBy {
-            reshareLabel.text = "↻ \(AuthorDirectory.shared.handle(resharedBy)) reshared"
-            reshareLabel.isHidden = false
-        } else {
-            reshareLabel.isHidden = true
-        }
-
-        guard let post = shown else {
-            nameLabel.text = "Post unavailable"
-            metaLabel.text = "The original was deleted."
-            avatar.image = UIImage(systemName: "person.crop.circle.fill")
-            textView.attributedText = nil
-            textView.isHidden = true
-            gallery.isHidden = true
-            linkPreview.isHidden = true
-            likeButton.isHidden = true
-            reshareButton.isHidden = true
-            commentButton.isHidden = true
-            return
-        }
-        likeButton.isHidden = false
-        reshareButton.isHidden = false
-        commentButton.isHidden = false
-
+    ///`post` is the row's own post. A reshare is the resharer's: its likes and comments are
+    ///its own, and `original` is quoted under it, nil when it was deleted. (BS-292)
+    ///`reshared` and `isOwn` are about what the reshare button reshares, the original for a
+    ///reshare. `comments` is the post's comment count, nil while it is unknown.
+    func configure(_ post: Post, original: Post?, liked: Bool, reshared: Bool, isOwn: Bool, comments: Int? = nil) {
+        postId = post.id
         let directory = AuthorDirectory.shared
         //The @username is who posted; the name stays on their profile.
         nameLabel.text = directory.handle(post.authorUid)
+        let metaAttributes: [NSAttributedString.Key: Any] = [.font: metaLabel.font as Any, .foregroundColor: ProfileStyle.secondaryText]
+        let meta = NSMutableAttributedString()
         if directory.isAutomated(post.authorUid) {
-            let meta = ProfileStyle.automatedBadge(font: metaLabel.font)
-            meta.append(NSAttributedString(string: " · \(Self.age(of: post.createdAt))",
-                                           attributes: [.font: metaLabel.font as Any, .foregroundColor: ProfileStyle.secondaryText]))
-            metaLabel.attributedText = meta
-        } else {
-            metaLabel.text = Self.age(of: post.createdAt)
+            meta.append(ProfileStyle.automatedBadge(font: metaLabel.font))
+            meta.append(NSAttributedString(string: " · ", attributes: metaAttributes))
         }
+        let age = Self.age(of: post.createdAt)
+        meta.append(NSAttributedString(string: post.isReshare ? "↻ Reshared · \(age)" : age, attributes: metaAttributes))
+        metaLabel.attributedText = meta
         loadAvatar(directory.profile(post.authorUid)?.photoURL, for: post.id)
 
-        let link = Self.previewLink(for: post)
-        let text = Self.attributed(post, link: link)
-        textView.attributedText = text
-        textView.isHidden = text.length == 0
-        showGallery(post.imageURLs, for: post.id)
-        showLinkPreview(link, for: post)
+        if post.isReshare {
+            //A reshare has no text or photos of its own.
+            textView.attributedText = nil
+            textView.isHidden = true
+            showGallery([], for: post.id)
+            linkPreview.isHidden = true
+            quoted.isHidden = false
+            quoted.show(original)
+        } else {
+            quoted.isHidden = true
+            let link = Self.previewLink(for: post)
+            let text = Self.attributed(post, link: link)
+            textView.attributedText = text
+            textView.isHidden = text.length == 0
+            showGallery(post.imageURLs, for: post.id)
+            showLinkPreview(link, for: post)
+        }
 
         setCount(likeButton, post.likeCount, symbol: liked ? "heart.fill" : "heart",
                  tint: liked ? (UIColor(named: "downtrend") ?? .systemRed) : ProfileStyle.secondaryText)
-        setCount(reshareButton, post.reshareCount, symbol: "arrow.2.squarepath",
+        //Nothing left to reshare once the original is deleted.
+        reshareButton.isHidden = post.isReshare && original == nil
+        setCount(reshareButton, (original ?? post).reshareCount, symbol: "arrow.2.squarepath",
                  tint: reshared ? (UIColor(named: "uptrend") ?? .systemGreen) : ProfileStyle.secondaryText)
         setCount(commentButton, comments ?? 0, symbol: "bubble.right", tint: ProfileStyle.secondaryText)
         //Your own post can't be reshared by you.
@@ -402,6 +397,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         super.prepareForReuse()
         postId = nil
         onAuthor = nil
+        onOriginalAuthor = nil
+        quoted.prepareForReuse()
         onMore = nil
         onLike = nil
         onReshare = nil
