@@ -6,7 +6,7 @@
 import UIKit
 
 ///One post in a Community feed: who and when, the text with tappable $tickers, up to four
-///photos or a link's preview card, and like and reshare counts. A reshare shows "@x reshared" above the original.
+///photos or a link's preview card, and like, reshare and comment counts. A reshare shows "@x reshared" above the original.
 ///Built in code; the controller owns what the buttons do. (BS-266)
 final class PostCell: UITableViewCell, UITextViewDelegate {
 
@@ -18,6 +18,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     var onMore: (() -> Void)?
     var onLike: (() -> Void)?
     var onReshare: (() -> Void)?
+    ///The comment button: opens the post's comments. (BS-273)
+    var onComment: (() -> Void)?
     var onTicker: ((String) -> Void)?
     ///A web link in the text was tapped.
     var onLink: ((URL) -> Void)?
@@ -37,6 +39,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     private let linkPreview = LinkPreviewView()
     private let likeButton = UIButton(type: .system)
     private let reshareButton = UIButton(type: .system)
+    private let commentButton = UIButton(type: .system)
+    private let footer = UIStackView()
     private var imageURLs: [String] = []
     ///The post this cell shows now, so a late avatar or photo for a reused cell is dropped.
     private var postId: String?
@@ -109,19 +113,28 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         gallery.layer.cornerRadius = 10
         gallery.clipsToBounds = true
 
-        for (button, symbol, label) in [(likeButton, "heart", "Like"), (reshareButton, "arrow.2.squarepath", "Reshare")] {
+        for (button, symbol, label) in [(likeButton, "heart", "Like"), (reshareButton, "arrow.2.squarepath", "Reshare"),
+                                        (commentButton, "bubble.right", "Comments")] {
             var config = UIButton.Configuration.plain()
             config.image = UIImage(systemName: symbol)
             config.imagePadding = 6
             config.baseForegroundColor = ProfileStyle.secondaryText
-            config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 12)
+            config.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 2, bottom: 6, trailing: 2)
             button.configuration = config
             button.accessibilityLabel = label
+            //At their own width: the spacer after them takes the slack, so no icon or count is
+            //squeezed and cut off. (BS-273)
+            button.setContentHuggingPriority(.required, for: .horizontal)
+            button.setContentCompressionResistancePriority(.required, for: .horizontal)
         }
         likeButton.addAction(UIAction { [weak self] _ in self?.onLike?() }, for: .touchUpInside)
         reshareButton.addAction(UIAction { [weak self] _ in self?.onReshare?() }, for: .touchUpInside)
-        let footer = UIStackView(arrangedSubviews: [likeButton, reshareButton, UIView()])
-        footer.spacing = 16
+        commentButton.addAction(UIAction { [weak self] _ in self?.onComment?() }, for: .touchUpInside)
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        spacer.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        [likeButton, reshareButton, commentButton, spacer].forEach(footer.addArrangedSubview)
+        footer.spacing = 24
 
         let stack = UIStackView(arrangedSubviews: [reshareLabel, header, textView, gallery, linkPreview, footer])
         stack.axis = .vertical
@@ -152,7 +165,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
     ///`shown` is the post whose content appears: the original for a reshare. `resharedBy` is
     ///the uid of who reshared it, nil for an ordinary post. `original` nil on a reshare means
     ///the original was deleted.
-    func configure(shown: Post?, resharedBy: String?, liked: Bool, reshared: Bool, isOwn: Bool) {
+    ///`comments` is the post's comment count, nil while it is unknown.
+    func configure(shown: Post?, resharedBy: String?, liked: Bool, reshared: Bool, isOwn: Bool, comments: Int? = nil) {
         postId = shown?.id
         if let resharedBy {
             reshareLabel.text = "↻ \(AuthorDirectory.shared.handle(resharedBy)) reshared"
@@ -171,10 +185,12 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
             linkPreview.isHidden = true
             likeButton.isHidden = true
             reshareButton.isHidden = true
+            commentButton.isHidden = true
             return
         }
         likeButton.isHidden = false
         reshareButton.isHidden = false
+        commentButton.isHidden = false
 
         let directory = AuthorDirectory.shared
         //The @username is who posted; the name stays on their profile.
@@ -200,8 +216,15 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
                  tint: liked ? (UIColor(named: "downtrend") ?? .systemRed) : ProfileStyle.secondaryText)
         setCount(reshareButton, post.reshareCount, symbol: "arrow.2.squarepath",
                  tint: reshared ? (UIColor(named: "uptrend") ?? .systemGreen) : ProfileStyle.secondaryText)
+        setCount(commentButton, comments ?? 0, symbol: "bubble.right", tint: ProfileStyle.secondaryText)
         //Your own post can't be reshared by you.
         reshareButton.isEnabled = !isOwn || reshared
+    }
+
+    ///The post alone, without its like, reshare and comment row: the top of its comments,
+    ///where those would repeat the screen's own actions.
+    func setActionsHidden(_ hidden: Bool) {
+        footer.isHidden = hidden
     }
 
     private func setCount(_ button: UIButton, _ count: Int, symbol: String, tint: UIColor) {
@@ -382,6 +405,8 @@ final class PostCell: UITableViewCell, UITextViewDelegate {
         onMore = nil
         onLike = nil
         onReshare = nil
+        onComment = nil
+        footer.isHidden = false
         onTicker = nil
         onLink = nil
         onPhoto = nil

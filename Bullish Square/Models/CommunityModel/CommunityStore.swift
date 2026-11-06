@@ -8,14 +8,16 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 
-///Everything Community reads and writes: posts, follows, likes, reshares, blocks and reports.
-///(BS-265)
+///Everything Community reads and writes: posts, follows, likes, reshares, comments, activity,
+///blocks and reports. (BS-265, BS-273)
 ///
 ///Firestore layout - the rules (console) allow exactly these writes:
 ///- `posts/{postId}` and `posts/{postId}/likes/{uid}`, `posts/{postId}/reshares/{uid}`
 ///- `profiles/{uid}/following/{target}` with `profiles/{target}/followers/{uid}`, written together
+///- `comments/{id}`, deletable by its author, the post's author and an admin
+///- `activity/{id}`, written by who did it, read by who it is for
 ///- `blocks/{blocker}_{blocked}`, readable by both
-///- `reports/{id}`, create only
+///- `reports/{id}`, create only; an admin (token claim `admin`) reads and removes them
 ///Images live in Storage at `postImages/{uid}/{postId}/{n}.jpg`.
 ///
 ///Follower, following and post counts are counted when shown (Firestore `count()`), not kept
@@ -65,6 +67,8 @@ final class CommunityStore {
     private var profiles: CollectionReference { db.collection("profiles") }
     private var blocks: CollectionReference { db.collection("blocks") }
     private var reports: CollectionReference { db.collection("reports") }
+    private var comments: CollectionReference { db.collection("comments") }
+    private var activity: CollectionReference { db.collection("activity") }
 
     var currentUid: String? { Auth.auth().currentUser?.uid }
 
@@ -278,6 +282,7 @@ final class CommunityStore {
                 return done(error)
             }
             self?.deleteImages(paths: post.imagePaths)
+            self?.deleteComments(onPost: post.id)
             done(nil)
         }
     }
@@ -285,11 +290,17 @@ final class CommunityStore {
     // MARK: - Likes
 
     func like(_ post: Post, completion: @escaping (Error?) -> Void) {
-        setMark("likes", on: post.id, counter: "likeCount", marked: true, completion: completion)
+        setMark("likes", on: post.id, counter: "likeCount", marked: true) { [weak self] error in
+            if error == nil { self?.recordActivity(.like, for: post.authorUid, postId: post.id) }
+            completion(error)
+        }
     }
 
     func unlike(_ post: Post, completion: @escaping (Error?) -> Void) {
-        setMark("likes", on: post.id, counter: "likeCount", marked: false, completion: completion)
+        setMark("likes", on: post.id, counter: "likeCount", marked: false) { [weak self] error in
+            if error == nil { self?.withdrawActivity(.like, recipient: post.authorUid, postId: post.id) }
+            completion(error)
+        }
     }
 
     ///Which of these posts you have liked.
@@ -361,11 +372,12 @@ final class CommunityStore {
         batch.setData(["postId": document.documentID, "createdAt": FieldValue.serverTimestamp()],
                       forDocument: source.collection("reshares").document(uid))
         batch.updateData(["reshareCount": FieldValue.increment(Int64(1))], forDocument: source)
-        batch.commit { error in
+        batch.commit { [weak self] error in
             if let error = error as NSError? {
                 print("Resharing failed: \(error.localizedDescription)")
                 return done(.failure(error))
             }
+            self?.recordActivity(.reshare, for: original.authorUid, postId: original.id)
             done(.success(Post(id: document.documentID, authorUid: uid, text: "", imageURLs: [], imagePaths: [],
                                tickers: [], createdAt: Date(), reshareOf: original.id, reshareOfAuthor: original.authorUid)))
         }
@@ -395,6 +407,7 @@ final class CommunityStore {
         batch.deleteDocument(posts.document(postId))
         batch.deleteDocument(source.collection("reshares").document(uid))
         batch.updateData(["reshareCount": FieldValue.increment(Int64(-1))], forDocument: source)
+        withdrawActivity(.reshare, recipient: nil, postId: original)
         batch.commit { [weak self] error in
             guard let error = error as NSError? else { return done(nil) }
             //The original may be gone; the reshare is still yours to delete.
@@ -429,9 +442,13 @@ final class CommunityStore {
             batch.deleteDocument(mine)
             batch.deleteDocument(theirs)
         }
-        batch.commit { error in
+        batch.commit { [weak self] error in
             if let error = error as NSError? {
                 print("Updating the follow failed: \(error.localizedDescription)")
+            } else if following {
+                self?.recordActivity(.follow, for: target, postId: nil)
+            } else {
+                self?.withdrawActivity(.follow, recipient: target, postId: nil)
             }
             done(error)
         }
@@ -572,11 +589,264 @@ final class CommunityStore {
         group.notify(queue: .global()) { done(blocked, blockedBy) }
     }
 
+    // MARK: - Comments (BS-273)
+
+    static let commentsLimit = 200
+
+    ///A post's comments, oldest first, like a conversation: the first 200.
+    ///
+    ///Needs the composite index `comments`: postId ASC + createdAt ASC. Until it exists the
+    ///printed error carries a link that creates it.
+    func comments(onPost postId: String, completion: @escaping (Result<[Comment], Error>) -> Void) {
+        let done = main(completion)
+        comments.whereField("postId", isEqualTo: postId)
+            .order(by: "createdAt")
+            .limit(to: Self.commentsLimit)
+            .getDocuments { snapshot, error in
+                if let error = error as NSError? {
+                    print("Loading the comments failed: \(error.localizedDescription)")
+                    return done(.failure(error))
+                }
+                done(.success(snapshot?.documents.compactMap(Comment.init(document:)) ?? []))
+            }
+    }
+
+    ///A single comment, for a report. nil when it was deleted or can't be read.
+    func comment(id: String, completion: @escaping (Comment?) -> Void) {
+        let done = main(completion)
+        comments.document(id).getDocument { snapshot, _ in
+            done(snapshot.flatMap(Comment.init(document:)))
+        }
+    }
+
+    ///How many comments each post has, counted by Firestore like follower counts. A count
+    ///that fails is left out, so the button shows no number rather than a wrong one.
+    func commentCounts(_ postIds: [String], completion: @escaping ([String: Int]) -> Void) {
+        let done = main(completion)
+        let group = DispatchGroup()
+        let lock = NSLock()
+        var counts: [String: Int] = [:]
+        for id in Set(postIds) {
+            group.enter()
+            comments.whereField("postId", isEqualTo: id).count.getAggregation(source: .server) { snapshot, error in
+                if let error = error as NSError? {
+                    print("Counting comments failed: \(error.localizedDescription)")
+                }
+                if let count = snapshot?.count.intValue {
+                    lock.lock(); counts[id] = count; lock.unlock()
+                }
+                group.leave()
+            }
+        }
+        group.notify(queue: .global()) { done(counts) }
+    }
+
+    ///Writes the comment, then tells the post's author and, for a reply, who was answered.
+    ///The rules refuse it while either side has blocked the other.
+    func addComment(_ text: String, to post: Post, replyingTo replyToUid: String?,
+                    completion: @escaping (Result<Comment, Error>) -> Void) {
+        let done = main(completion)
+        guard let uid = currentUid else { return done(.failure(CommunityError.notSignedIn)) }
+        let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return done(.failure(CommunityError.empty)) }
+        guard text.count <= Comment.textMaximumLength else { return done(.failure(CommunityError.tooLong)) }
+        let document = comments.document()
+        let comment = Comment(id: document.documentID, postId: post.id, postAuthorUid: post.authorUid,
+                              authorUid: uid, text: text, replyToUid: replyToUid, createdAt: Date())
+        var data: [String: Any] = [
+            "postId": post.id,
+            "postAuthorUid": post.authorUid,
+            "authorUid": uid,
+            "text": text,
+            "tickers": comment.tickers,
+            "createdAt": FieldValue.serverTimestamp()
+        ]
+        if let replyToUid { data["replyToUid"] = replyToUid }
+        document.setData(data) { [weak self] error in
+            if let error = error as NSError? {
+                print("Saving the comment failed: \(error.localizedDescription)")
+                return done(.failure(error))
+            }
+            let snippet = String(text.prefix(CommunityActivity.snippetLength))
+            self?.recordActivity(.comment, for: post.authorUid, postId: post.id, snippet: snippet, id: "comment_\(comment.id)")
+            if let replyToUid, replyToUid != post.authorUid {
+                self?.recordActivity(.reply, for: replyToUid, postId: post.id, snippet: snippet, id: "reply_\(comment.id)")
+            }
+            done(.success(comment))
+        }
+    }
+
+    ///Your own comment, or any comment on your own post.
+    func deleteComment(_ comment: Comment, completion: @escaping (Error?) -> Void) {
+        let done = main(completion)
+        guard currentUid != nil else { return done(CommunityError.notSignedIn) }
+        comments.document(comment.id).delete { [weak self] error in
+            if let error = error as NSError? {
+                print("Deleting the comment failed: \(error.localizedDescription)")
+                return done(error)
+            }
+            self?.activity.document("comment_\(comment.id)").delete { _ in }
+            self?.activity.document("reply_\(comment.id)").delete { _ in }
+            done(nil)
+        }
+    }
+
+    ///After a post is deleted. Its author may delete every comment on it; best effort, as the
+    ///comments are unreachable once the post is gone.
+    private func deleteComments(onPost postId: String) {
+        deleteMatches([comments.whereField("postId", isEqualTo: postId)]) { error in
+            if let error = error as NSError? {
+                print("Deleting a deleted post's comments failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Activity (BS-273)
+
+    ///Tells `recipient` what you did. Best effort: the like or follow has already happened,
+    ///and a lost entry only means one fewer line in their Activity.
+    private func recordActivity(_ kind: CommunityActivity.Kind, for recipient: String, postId: String?,
+                                snippet: String? = nil, id: String? = nil) {
+        guard let uid = currentUid, uid != recipient else { return }
+        var data: [String: Any] = [
+            "type": kind.rawValue,
+            "actorUid": uid,
+            "recipientUid": recipient,
+            "createdAt": FieldValue.serverTimestamp()
+        ]
+        if let postId { data["postId"] = postId }
+        if let snippet { data["snippet"] = snippet }
+        let documentID = id ?? CommunityActivity.documentID(kind, actor: uid, recipient: recipient, postId: postId)
+        activity.document(documentID).setData(data) { error in
+            if let error = error as NSError? {
+                print("Recording \(kind.rawValue) activity failed: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    ///Removes the entry when the like, reshare or follow is undone. `recipient` is only needed
+    ///for a follow, whose id has no post.
+    private func withdrawActivity(_ kind: CommunityActivity.Kind, recipient: String?, postId: String?) {
+        guard let uid = currentUid, let recipient = recipient ?? postId else { return }
+        activity.document(CommunityActivity.documentID(kind, actor: uid, recipient: recipient, postId: postId)).delete { _ in }
+    }
+
+    ///What happened to you lately, newest first: the last 100.
+    ///
+    ///Needs the composite index `activity`: recipientUid ASC + createdAt DESC.
+    func recentActivity(completion: @escaping (Result<[CommunityActivity], Error>) -> Void) {
+        let done = main(completion)
+        guard let uid = currentUid else { return done(.failure(CommunityError.notSignedIn)) }
+        activity.whereField("recipientUid", isEqualTo: uid)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 100)
+            .getDocuments { snapshot, error in
+                if let error = error as NSError? {
+                    print("Loading activity failed: \(error.localizedDescription)")
+                    return done(.failure(error))
+                }
+                done(.success(snapshot?.documents.compactMap(CommunityActivity.init(document:)) ?? []))
+            }
+    }
+
+    ///When the newest entry arrived, for the dot on the bell; nil when there is none.
+    func newestActivityDate(completion: @escaping (Date?) -> Void) {
+        let done = main(completion)
+        guard let uid = currentUid else { return done(nil) }
+        activity.whereField("recipientUid", isEqualTo: uid)
+            .order(by: "createdAt", descending: true)
+            .limit(to: 1)
+            .getDocuments { snapshot, _ in
+                done(snapshot?.documents.first.flatMap(CommunityActivity.init(document:))?.createdAt)
+            }
+    }
+
+    // MARK: - Moderation (BS-273)
+
+    ///One report, for the admin's Reports screen.
+    struct Report {
+        let id: String
+        let reporterUid: String
+        let userUid: String
+        let postId: String?
+        let commentId: String?
+        let reason: ReportReason?
+        let createdAt: Date
+    }
+
+    ///Whether this account may moderate: the `admin` claim on its token, set on the server
+    ///with `npm run set-admin`. Refreshed, so a newly granted claim shows without signing out.
+    func isAdmin(completion: @escaping (Bool) -> Void) {
+        let done = main(completion)
+        guard let user = Auth.auth().currentUser else { return done(false) }
+        user.getIDTokenResult(forcingRefresh: true) { result, _ in
+            done(result?.claims["admin"] as? Bool == true)
+        }
+    }
+
+    ///Open reports, newest first. Only an admin may read them.
+    func openReports(completion: @escaping (Result<[Report], Error>) -> Void) {
+        let done = main(completion)
+        reports.order(by: "createdAt", descending: true).limit(to: 100).getDocuments { snapshot, error in
+            if let error = error as NSError? {
+                print("Loading reports failed: \(error.localizedDescription)")
+                return done(.failure(error))
+            }
+            done(.success(snapshot?.documents.compactMap { document in
+                let data = document.data()
+                guard let reporter = data["reporterUid"] as? String, let user = data["userUid"] as? String else { return nil }
+                return Report(id: document.documentID, reporterUid: reporter, userUid: user,
+                              postId: data["postId"] as? String, commentId: data["commentId"] as? String,
+                              reason: (data["reason"] as? String).flatMap(ReportReason.init(rawValue:)),
+                              createdAt: (data["createdAt"] as? Timestamp)?.dateValue() ?? Date())
+            } ?? []))
+        }
+    }
+
+    ///Closes a report without action.
+    func dismissReport(_ report: Report, completion: @escaping (Error?) -> Void) {
+        let done = main(completion)
+        reports.document(report.id).delete { error in
+            if let error = error as NSError? {
+                print("Dismissing the report failed: \(error.localizedDescription)")
+            }
+            done(error)
+        }
+    }
+
+    ///Removes what was reported - the comment, or the post with its photos and comments - and
+    ///closes the report. The rules let an admin delete anyone's post or comment.
+    func removeReportedContent(_ report: Report, completion: @escaping (Error?) -> Void) {
+        let done = main(completion)
+        let closeReport: (Error?) -> Void = { [weak self] error in
+            guard let self else { return done(error) }
+            if let error { return done(error) }
+            self.reports.document(report.id).delete { error in done(error) }
+        }
+        if let commentId = report.commentId {
+            return comments.document(commentId).delete { error in closeReport(error) }
+        }
+        guard let postId = report.postId else { return done(nil) }
+        posts.document(postId).getDocument { [weak self] snapshot, error in
+            guard let self else { return done(nil) }
+            //Already gone: only the report is left to close.
+            guard let post = snapshot.flatMap(Post.init(document:)) else { return closeReport(error) }
+            self.posts.document(postId).delete { error in
+                if error == nil {
+                    self.deleteImages(paths: post.imagePaths)
+                    self.deleteComments(onPost: postId)
+                }
+                closeReport(error)
+            }
+        }
+    }
+
     // MARK: - Account deletion
 
     ///Everything Community holds for `uid`, for account deletion (BS-272): their posts and
-    ///photos, reshares (with the originals' counts), follows both ways, and the blocks they
-    ///made. Calls back once with the first error, or nil.
+    ///photos, reshares (with the originals' counts), follows both ways, the blocks they
+    ///made, their comments, and activity they caused or received (BS-273). Calls back once
+    ///with the first error, or nil.
     ///
     ///Not removed: their likes on other people's posts, which hold only a uid and are counted
     ///in those posts, and blocks other people made of them, which belong to those people.
@@ -587,10 +857,13 @@ final class CommunityStore {
             if let error { return done(error) }
             self.deleteAllFollows(uid: uid) { error in
                 if let error { return done(error) }
-                self.blocks.whereField("blocker", isEqualTo: uid).getDocuments { snapshot, error in
-                    if let error { return done(error) }
-                    self.deleteDocuments(snapshot?.documents.map(\.reference) ?? [], completion: done)
-                }
+                let owned: [Query] = [
+                    self.blocks.whereField("blocker", isEqualTo: uid),
+                    self.comments.whereField("authorUid", isEqualTo: uid),
+                    self.activity.whereField("actorUid", isEqualTo: uid),
+                    self.activity.whereField("recipientUid", isEqualTo: uid)
+                ]
+                self.deleteMatches(owned, completion: done)
             }
         }
     }
@@ -650,6 +923,19 @@ final class CommunityStore {
         }
     }
 
+    ///Every document the queries find, one query after another; stops at the first error.
+    private func deleteMatches(_ queries: [Query], completion: @escaping (Error?) -> Void) {
+        guard let query = queries.first else { return completion(nil) }
+        query.getDocuments { [weak self] snapshot, error in
+            guard let self else { return completion(nil) }
+            if let error { return completion(error) }
+            self.deleteDocuments(snapshot?.documents.map(\.reference) ?? []) { error in
+                if let error { return completion(error) }
+                self.deleteMatches(Array(queries.dropFirst()), completion: completion)
+            }
+        }
+    }
+
     ///In batches of 400, under Firestore's 500 writes a batch.
     private func deleteDocuments(_ references: [DocumentReference], completion: @escaping (Error?) -> Void) {
         guard !references.isEmpty else { return completion(nil) }
@@ -680,8 +966,10 @@ final class CommunityStore {
         }
     }
 
-    ///A post (with its author) or a profile. Javier reviews `reports` in the Firebase console.
-    func report(postId: String?, userUid: String, reason: ReportReason, completion: @escaping (Error?) -> Void) {
+    ///A post (with its author), a comment, or a profile. Reviewed in the app's Reports screen
+    ///by an admin (BS-273), or in the Firebase console.
+    func report(postId: String?, commentId: String? = nil, userUid: String, reason: ReportReason,
+                completion: @escaping (Error?) -> Void) {
         let done = main(completion)
         guard let uid = currentUid else { return done(CommunityError.notSignedIn) }
         var data: [String: Any] = [
@@ -691,6 +979,7 @@ final class CommunityStore {
             "createdAt": FieldValue.serverTimestamp()
         ]
         if let postId { data["postId"] = postId }
+        if let commentId { data["commentId"] = commentId }
         reports.addDocument(data: data) { error in
             if let error = error as NSError? {
                 print("Sending the report failed: \(error.localizedDescription)")

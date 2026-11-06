@@ -54,6 +54,10 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     ///for a reshare. (BS-268)
     private var liked = Set<String>()
     private var reshared = Set<String>()
+    ///Comment counts by the id of the post whose content shows. (BS-273)
+    private var commentCounts: [String: Int] = [:]
+    ///The bell, which shows a dot when there is activity not seen yet. (BS-273)
+    private lazy var activityButton = titleButton("bell", label: "Activity") { [weak self] in self?.openActivity() }
 
     private let store = CommunityStore.shared
     private let directory = AuthorDirectory.shared
@@ -157,6 +161,7 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         TabTitleRow.setBarHidden(isTab, for: self, animated: animated)
+        if isTab { refreshTitleButtons() }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -173,8 +178,29 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
 
     ///The buttons in the tab's title row.
     private func titleButtons() -> [UIView] {
-        [titleButton("magnifyingglass", label: "Find people") { [weak self] in self?.findPeopleTapped() },
-         titleButton("square.and.pencil", label: "New post") { [weak self] in self?.composeTapped() }]
+        return [activityButton,
+                titleButton("magnifyingglass", label: "Find people") { [weak self] in self?.findPeopleTapped() },
+                titleButton("square.and.pencil", label: "New post") { [weak self] in self?.composeTapped() }]
+    }
+
+    ///The bell's dot, each time the tab appears.
+    private func refreshTitleButtons() {
+        guard Auth.auth().currentUser != nil else { return setActivityDot(false) }
+        store.newestActivityDate { [weak self] newest in
+            self?.setActivityDot(ActivityController.hasUnseen(newest: newest))
+        }
+    }
+
+    private func setActivityDot(_ unseen: Bool) {
+        let symbol = UIImage.SymbolConfiguration(pointSize: 20, weight: .semibold)
+        if unseen {
+            let palette = symbol.applying(UIImage.SymbolConfiguration(paletteColors: [UIColor(named: "downtrend") ?? .systemRed, .label]))
+            activityButton.setImage(UIImage(systemName: "bell.badge", withConfiguration: palette), for: .normal)
+            activityButton.accessibilityLabel = "Activity, new"
+        } else {
+            activityButton.setImage(UIImage(systemName: "bell", withConfiguration: symbol), for: .normal)
+            activityButton.accessibilityLabel = "Activity"
+        }
     }
 
     private func titleButton(_ symbol: String, label: String, action: @escaping () -> Void) -> UIButton {
@@ -277,6 +303,8 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
             self.store.likedPostIDs(shownIDs) { ids in self.liked.formUnion(ids); group.leave() }
             group.enter()
             self.store.resharedPostIDs(shownIDs) { ids in self.reshared.formUnion(ids); group.leave() }
+            group.enter()
+            self.store.commentCounts(shownIDs) { counts in self.commentCounts.merge(counts) { $1 }; group.leave() }
             group.notify(queue: .main) { completion(visible) }
         }
     }
@@ -330,10 +358,12 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         cell.configure(shown: shown, resharedBy: post.isReshare ? post.authorUid : nil,
                        liked: shown.map { liked.contains($0.id) } ?? false,
                        reshared: shown.map { reshared.contains($0.id) } ?? false,
-                       isOwn: shown?.authorUid == store.currentUid)
+                       isOwn: shown?.authorUid == store.currentUid,
+                       comments: shown.flatMap { commentCounts[$0.id] })
         if let shown {
             cell.onLike = { [weak self] in self?.likeTapped(shown.id) }
             cell.onReshare = { [weak self] in self?.reshareTapped(shown.id, from: cell) }
+            cell.onComment = { [weak self] in self?.openComments(shown.id) }
         }
         cell.onTicker = { [weak self] symbol in self?.openChart(symbol) }
         cell.onLink = { [weak self] url in self?.openLink(url) }
@@ -722,6 +752,30 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         if hidden.contains(uid) {
             profileHeader.setFollow(isOwn: true, isFollowing: nil)
         }
+    }
+
+    // MARK: - Comments and activity (BS-273)
+
+    ///The post with its comments; the count on its button follows what happens there. With
+    ///no comments yet the keyboard comes up, as there is nothing to read first.
+    private func openComments(_ id: String) {
+        guard let post = shownPost(id) else { return }
+        let comments = CommentsController(post: post)
+        comments.startsWriting = commentCounts[id] == 0
+        comments.onCountChanged = { [weak self] count in
+            guard let self, self.commentCounts[id] != count else { return }
+            self.commentCounts[id] = count
+            self.tableView.reloadData()
+        }
+        navigationController?.pushViewController(comments, animated: true)
+    }
+
+    private func openActivity() {
+        guard Auth.auth().currentUser != nil else {
+            return Utilities.showAlert(on: self, title: "Sign In", message: "Sign in to see your Community activity.")
+        }
+        setActivityDot(false)
+        navigationController?.pushViewController(ActivityController(), animated: true)
     }
 
     // MARK: - Navigation
