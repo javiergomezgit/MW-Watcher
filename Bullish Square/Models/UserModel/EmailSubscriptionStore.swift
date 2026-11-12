@@ -108,4 +108,17 @@ final class EmailSubscriptionStore {
             DispatchQueue.main.async { completion(error) }
         }
     }
+
+    // MARK: - Account deletion
+
+    ///Removes every subscription of a deleted account. Run while still signed in: the rules
+    ///only let the owner delete it. A missing document deletes fine.
+    func deleteSubscriptions(uid: String, completion: @escaping (Error?) -> Void) {
+        document(uid).delete { error in
+            if let error = error as NSError? {
+                print("Deleting the daily email subscriptions failed: \(error.localizedDescription)")
+            }
+            completion(error)
+        }
+    }
 }

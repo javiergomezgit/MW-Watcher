@@ -122,6 +122,13 @@ final class AccountDeletionManager: NSObject {
                                     return
                                 }
 
+                                //Otherwise the server would go on emailing the address. (BS-298)
+                                EmailSubscriptionStore.shared.deleteSubscriptions(uid: uid) { emailError in
+                                if let emailError {
+                                    finish(.failure(emailError))
+                                    return
+                                }
+
                                 Firestore.firestore().collection("users").document(uid).delete { firestoreError in
                                     if let firestoreError {
                                         //Not fatal on its own, but the account must not be deleted while its
@@ -143,6 +150,7 @@ final class AccountDeletionManager: NSObject {
                                             finish(.success(()))
                                         }
                                     }
+                                }
                                 }
                                 }
                             }
