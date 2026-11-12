@@ -26,7 +26,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         print("🔍 Firebase SDK version: \(FirebaseApp.app()?.options.googleAppID ?? "unknown")")
         WatchlistSyncService.shared.start()
+        PushNotifications.shared.start()
         return true
+    }
+
+    // MARK: - Push notifications (BS-290)
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        PushNotifications.shared.didRegister(deviceToken: deviceToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Registering for notifications failed: \((error as NSError).localizedDescription)")
     }
     
     ///A load failure used to crash here, so a failed migration or a corrupt file took the app

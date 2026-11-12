@@ -10,8 +10,8 @@ import FirebaseAuth
 ///followers, newest first. Tapping a line opens the post's comments, or the follower's
 ///profile. People hidden by a block either way are left out. (BS-273)
 ///
-///In-app only; push notifications need APNs set up and are a separate ticket. An admin also
-///gets Reports here, in the bar, rather than another button on the Community tab.
+///Opening it is when the app first asks to send notifications (BS-290). An admin also gets
+///Reports here, in the bar, rather than another button on the Community tab.
 final class ActivityController: UITableViewController {
 
     // MARK: - Properties
@@ -49,6 +49,7 @@ final class ActivityController: UITableViewController {
         refreshControl = UIRefreshControl()
         refreshControl?.addAction(UIAction { [weak self] _ in self?.load() }, for: .valueChanged)
         load()
+        PushNotifications.shared.askIfNeeded()
         store.isAdmin { [weak self] admin in
             guard admin, let self else { return }
             let reports = UIBarButtonItem(image: UIImage(systemName: "exclamationmark.shield"), primaryAction: UIAction { [weak self] _ in

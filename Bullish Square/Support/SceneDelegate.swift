@@ -173,6 +173,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         guard let windowScene = scene as? UIWindowScene else { return }
         AppUpdateGate.shared.check(in: windowScene)
+        //A notification tapped while the app was closed opens once the tabs are up.
+        PushNotifications.shared.openPendingRoute()
     }
     func sceneWillResignActive(_ scene: UIScene) {}
     func sceneDidEnterBackground(_ scene: UIScene) {}

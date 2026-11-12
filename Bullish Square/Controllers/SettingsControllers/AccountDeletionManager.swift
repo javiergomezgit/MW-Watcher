@@ -114,6 +114,14 @@ final class AccountDeletionManager: NSObject {
                                     return
                                 }
 
+                                //Notification tokens live under users/{uid}, which deleting the
+                                //document alone would leave behind. (BS-290)
+                                PushNotifications.shared.deleteAllDevices(uid: uid) { devicesError in
+                                if let devicesError {
+                                    finish(.failure(devicesError))
+                                    return
+                                }
+
                                 Firestore.firestore().collection("users").document(uid).delete { firestoreError in
                                     if let firestoreError {
                                         //Not fatal on its own, but the account must not be deleted while its
@@ -135,6 +143,7 @@ final class AccountDeletionManager: NSObject {
                                             finish(.success(()))
                                         }
                                     }
+                                }
                                 }
                             }
                         }

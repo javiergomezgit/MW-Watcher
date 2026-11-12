@@ -489,6 +489,8 @@ final class CommunityController: UIViewController, UITableViewDataSource, UITabl
         let composer = ComposePostController()
         composer.onPosted = { [weak self] post in
             guard let self else { return }
+            //Likes and comments will follow: a good moment to ask about notifications. (BS-290)
+            PushNotifications.shared.askIfNeeded()
             //Following leaves out your own posts, so go to Discover, where the new one is first.
             if self.isTab, self.feed == .following {
                 self.feedControl.selectedSegmentIndex = Feed.discover.rawValue

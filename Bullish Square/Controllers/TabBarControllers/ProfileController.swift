@@ -27,12 +27,12 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
     // MARK: - Properties
 
     private enum Row {
-        case header, communityProfile, blockedAccounts, personalInfo, privacy, terms, disclaimer, contact, logOut, deleteAccount
+        case header, communityProfile, blockedAccounts, notifications, personalInfo, privacy, terms, disclaimer, contact, logOut, deleteAccount
     }
 
     private let sections: [(title: String?, rows: [Row])] = [
         (nil, [.header]),
-        ("Community", [.communityProfile, .blockedAccounts]),
+        ("Community", [.communityProfile, .blockedAccounts, .notifications]),
         ("Account", [.personalInfo]),
         ("Legal", [.privacy, .terms, .disclaimer]),
         ("Support", [.contact]),
@@ -213,6 +213,9 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         case .blockedAccounts:
             content.text = "Blocked Accounts"
             content.image = UIImage(systemName: "hand.raised")
+        case .notifications:
+            content.text = "Notifications"
+            content.image = UIImage(systemName: "bell")
         case .personalInfo:
             content.text = "Personal Information"
             content.image = UIImage(systemName: "person.text.rectangle")
@@ -255,6 +258,7 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         case .header: editBio()
         case .communityProfile: openCommunityProfile()
         case .blockedAccounts: navigationController?.pushViewController(BlockedAccountsController(), animated: true)
+        case .notifications: navigationController?.pushViewController(NotificationSettingsController(), animated: true)
         case .personalInfo: openPersonalInfo()
         case .privacy: openBrowser("https://jdevit.com/privacy-policy-bullish-square/")
         case .terms: openBrowser("https://www.jdevit.com/terms-of-service-bullish-square/")
@@ -349,7 +353,13 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         present(alert, animated: true)
     }
 
+    ///This phone's notification token goes first, while still signed in, so the next person
+    ///on it doesn't get this account's notifications. (BS-290)
     private func logOut() {
+        PushNotifications.shared.forgetThisDevice { [weak self] in self?.signOut() }
+    }
+
+    private func signOut() {
         do {
             try Auth.auth().signOut()
             if !KeychainManager.deleteUID() {

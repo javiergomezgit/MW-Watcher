@@ -300,6 +300,8 @@ final class CommentsController: UIViewController, UITableViewDataSource, UITable
                 self.tableView.reloadData()
                 self.updateFooter()
                 self.onCountChanged?(self.comments.count)
+                //Someone may answer: a good moment to ask about notifications. (BS-290)
+                PushNotifications.shared.askIfNeeded()
                 let last = IndexPath(row: self.comments.count - 1, section: Section.comments.rawValue)
                 self.tableView.scrollToRow(at: last, at: .bottom, animated: true)
             }
