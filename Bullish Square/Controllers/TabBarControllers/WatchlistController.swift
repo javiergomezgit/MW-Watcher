@@ -58,9 +58,24 @@ class WatchlistController: UIViewController {
         return imageView
     }()
     
+    ///Subscribes to the daily email of the watchlists' closing prices (BS-298): filled when on,
+    ///outlined when off.
+    private let dailyEmailButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 22, weight: .regular), forImageIn: .normal)
+        button.setImage(UIImage(systemName: "envelope"), for: .normal)
+        button.tintColor = UIColor(named: "colorSecondary")
+        button.accessibilityLabel = "Daily email"
+        return button
+    }()
+    ///Bumped by every read and every tap, so a read that answers after a tap can't put the
+    ///old state back on the icon.
+    private var dailyEmailRequest = 0
+    private var isTogglingDailyEmail = false
+
     ///The tab's title row (BS-251); its title follows the active watchlist.
     private lazy var titleRow = TabTitleRow(title: navigationItem.title ?? title,
-                                            buttons: [imageViewManageWatchlistsButton, imageViewTopRightButton])
+                                            buttons: [dailyEmailButton, imageViewManageWatchlistsButton, imageViewTopRightButton])
 
     ///Floating action button, bottom right, for the simulated portfolio. The plain symbol
     ///rather than the .circle variant, which would draw a circle inside a circular button.
@@ -677,6 +692,8 @@ extension WatchlistController {
         imageViewManageWatchlistsButton.accessibilityLabel = "Watchlists"
         imageViewManageWatchlistsButton.accessibilityTraits = .button
 
+        dailyEmailButton.addTarget(self, action: #selector(dailyEmailTapped), for: .touchUpInside)
+
         titleRow.install(in: self)
     }
     
@@ -756,6 +773,71 @@ extension WatchlistController {
         TabTitleRow.setBarHidden(true, for: self, animated: animated)
         let loadSavedTickers = savedTickers.loadTickers()
         loadMultipleStocks(savedTickers: loadSavedTickers)
+        refreshDailyEmailButton()
+    }
+}
+
+// MARK: - Daily email (BS-298)
+
+extension WatchlistController {
+
+    ///Asked of Firestore each time the screen appears: the email's unsubscribe link turns it
+    ///off on the server, and the icon has to show that.
+    private func refreshDailyEmailButton() {
+        dailyEmailRequest += 1
+        let request = dailyEmailRequest
+        EmailSubscriptionStore.shared.isWatchlistOn { [weak self] isOn in
+            guard let self, request == self.dailyEmailRequest, let isOn else { return }
+            self.showDailyEmail(isOn: isOn)
+        }
+    }
+
+    private func showDailyEmail(isOn: Bool) {
+        dailyEmailButton.setImage(UIImage(systemName: isOn ? "envelope.fill" : "envelope"), for: .normal)
+        dailyEmailButton.accessibilityValue = isOn ? "On" : "Off"
+    }
+
+    @objc private func dailyEmailTapped() {
+        guard !isTogglingDailyEmail else { return }
+        isTogglingDailyEmail = true
+        dailyEmailRequest += 1
+        EmailSubscriptionStore.shared.toggleWatchlist { [weak self] result in
+            guard let self else { return }
+            self.isTogglingDailyEmail = false
+            switch result {
+            case .failure:
+                Utilities.showErrorAlert(on: self, message: "The daily email couldn't be changed. Check your connection and try again.")
+            case .success(.notSignedIn):
+                Utilities.showAlert(on: self, title: "Sign In", message: "Sign in to get your watchlist's closing prices by email.")
+            case .success(.notVerified):
+                self.offerVerificationEmail()
+            case .success(.changed(let isOn)):
+                self.showDailyEmail(isOn: isOn)
+                Utilities.showAlert(on: self, title: "Daily Email",
+                                    message: isOn ? "You'll get your watchlist's closing prices by email after each trading day."
+                                                  : "Daily email off")
+            }
+        }
+    }
+
+    ///The server only emails verified addresses, so nothing is subscribed until the link in
+    ///the verification email is opened.
+    private func offerVerificationEmail() {
+        let alert = UIAlertController(title: "Verify Your Email",
+                                      message: "The daily email goes only to a verified address. Open the link we sent when you signed up, then tap the envelope again.",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Resend Email", style: .default) { [weak self] _ in
+            EmailSubscriptionStore.shared.resendVerificationEmail { error in
+                guard let self else { return }
+                if error != nil {
+                    Utilities.showErrorAlert(on: self, message: "The verification email couldn't be sent. Try again in a few minutes.")
+                } else {
+                    Utilities.showAlert(on: self, title: "Email Sent", message: "Check your inbox for the link, then tap the envelope again.")
+                }
+            }
+        })
+        present(alert, animated: true)
     }
 }
 
