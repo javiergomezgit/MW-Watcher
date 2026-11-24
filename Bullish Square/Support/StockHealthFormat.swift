@@ -75,6 +75,39 @@ enum StockHealthFormat {
         }
     }
 
+    // MARK: - Watchlist badge (BS-309)
+
+    ///What a watchlist row's trend badge shows. A state, never an instruction: "Uptrend" while
+    ///the close holds above the 200-day average, "Trend break" once it has closed below it twice,
+    ///"New" for a listing with under 200 closes. Anything else (loading, failed, unknown symbol)
+    ///is a grey dash, so the row never waits on health and never jumps when it lands.
+    struct Badge: Equatable {
+        let text: String
+        let symbolName: String?
+        let color: UIColor
+        let accessibilityLabel: String
+    }
+
+    static func badge(for answer: StockHealthAnswer?) -> Badge {
+        switch answer {
+        case .health(let health) where health.trend.state == .uptrend:
+            return Badge(text: "Uptrend", symbolName: "arrow.up.right",
+                         color: UIColor(named: "uptrend") ?? .systemGreen,
+                         accessibilityLabel: trend(health.trend, historyDays: health.historyDays))
+        case .health(let health):
+            //`downtrend` itself is too dark to read as small text on the row, like the change pill.
+            return Badge(text: "Trend break", symbolName: "arrow.down.right",
+                         color: UIColor(red: 1.0, green: 0.42, blue: 0.40, alpha: 1),
+                         accessibilityLabel: trend(health.trend, historyDays: health.historyDays))
+        case .insufficientHistory:
+            return Badge(text: "New", symbolName: nil, color: .secondaryLabel,
+                         accessibilityLabel: "Not enough history yet")
+        case .noData, .unavailable, nil:
+            return Badge(text: "—", symbolName: nil, color: .tertiaryLabel,
+                         accessibilityLabel: "Trend not available")
+        }
+    }
+
     // MARK: - Components
 
     ///"Uptrend since 11 Aug 2025", "Trend break on 20 Nov 2026", or, when the trend has held

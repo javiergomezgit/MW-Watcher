@@ -37,6 +37,17 @@ class WatchlistController: UIViewController {
     ///server is down would ask again for every stock on the list.
     private var analystTargetRetryAfter: [String: Date] = [:]
     private let analystTargetRetryDelay: TimeInterval = 5 * 60
+
+    ///Each row's trend badge (BS-309), keyed by uppercased ticker as the server echoes it, never
+    ///by row: a filter or delete moves rows, not tickers. In memory only; the server caches
+    ///health until the next close, so asking again costs little.
+    private var healthAnswers: [String: StockHealthAnswer] = [:]
+    private var healthFetchedAt: [String: Date] = [:]
+    ///Tickers in a request right now, so a quick tab switch doesn't ask for them twice.
+    private var healthInFlight: Set<String> = []
+    ///Health moves once a day, at the close; half an hour keeps the badge current without
+    ///asking on every appearance. A failed ticker waits the same time before trying again.
+    private let healthFreshness: TimeInterval = 30 * 60
     ///Five-minute bars across today's session, about 79 points, which is what the sparkline
     ///draws. The previous close and the latest price come back identical to the old one-bar
     ///"interval=1d", so every number on screen is unchanged; only the line is new.
@@ -270,6 +281,7 @@ class WatchlistController: UIViewController {
         
         loadPendingLogos(for: savedTickers)
         loadPendingAnalystTargets(for: savedTickers)
+        loadPendingHealth(for: savedTickers)
 
         //This ran on every appearance: each tab switch and each return from a chart was a full
         //price request straight into the API quota, and that endpoint already answers with
@@ -400,6 +412,59 @@ class WatchlistController: UIViewController {
         }
     }
 
+    // MARK: - Trend badges (BS-309)
+
+    ///One batch request for every ticker on the list whose health is missing or stale.
+    ///Decoration only: a failure leaves the grey dash, raises no alert and gates nothing.
+    private func loadPendingHealth(for savedTickers: [TickersFeatures], now: Date = Date()) {
+        let tickers = savedTickers.map { $0.ticker.uppercased() }.filter { ticker in
+            !ticker.isEmpty && !healthInFlight.contains(ticker)
+                && healthFetchedAt[ticker].map({ now.timeIntervalSince($0) >= healthFreshness }) ?? true
+        }
+        guard !tickers.isEmpty else { return }
+        healthInFlight.formUnion(tickers)
+
+        //Completes once, on the main queue.
+        StockAPI.shared.getStockHealth(tickers: tickers) { [weak self] result in
+            guard let self else { return }
+            self.healthInFlight.subtract(tickers)
+            //Answered or not, each ticker waits out the freshness window; a failure is retried
+            //after it rather than on every tab switch.
+            let answeredAt = Date()
+            for ticker in tickers {
+                self.healthFetchedAt[ticker] = answeredAt
+            }
+            switch result {
+            case .success(let answers):
+                self.healthAnswers.merge(answers) { _, new in new }
+                //Rows found by ticker now, not by position when the request left.
+                for ticker in answers.keys {
+                    self.reloadRow(forTicker: ticker)
+                }
+            case .failure(let error):
+                print("Watchlist health failed; rows keep their placeholder: \(error)")
+            }
+        }
+    }
+
+    @objc func openTrendExplanation(sender: UIButton) {
+        //Resolved at tap time, like openChart, so a delete above this row cannot redirect it.
+        let buttonCentre = CGPoint(x: sender.bounds.midX, y: sender.bounds.midY)
+        guard let indexPath = tableView.indexPathForRow(at: sender.convert(buttonCentre, to: tableView)),
+              indexPath.row < tickersFeatures.count else { return }
+
+        let tickerFeatures = tickersFeatures[indexPath.row]
+        let detail = TrendExplanationController(ticker: tickerFeatures.ticker,
+                                                companyName: tickerFeatures.nameTicker,
+                                                answer: healthAnswers[tickerFeatures.ticker.uppercased()])
+        let navigationController = UINavigationController(rootViewController: detail)
+        if let sheet = navigationController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(navigationController, animated: true)
+    }
+
     // MARK: - Analyst targets
 
     ///Queues the tickers on this list whose consensus is missing or more than a day old, and
@@ -449,7 +514,8 @@ class WatchlistController: UIViewController {
     ///Found by ticker at the moment the answer arrives, not by a row captured before the
     ///request: the list may have been switched or edited while it was in flight.
     private func reloadRow(forTicker ticker: String) {
-        guard let row = tickersFeatures.firstIndex(where: { $0.ticker == ticker }) else { return }
+        //Case-insensitive: health answers come back uppercased.
+        guard let row = tickersFeatures.firstIndex(where: { $0.ticker.uppercased() == ticker.uppercased() }) else { return }
         let indexPath = IndexPath(row: row, section: 0)
         guard tableView.indexPathsForVisibleRows?.contains(indexPath) == true else { return }
         tableView.reloadRows(at: [indexPath], with: .none)
@@ -548,6 +614,10 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.openChartButton.addTarget(self, action: #selector(openChart(sender:)), for: .touchUpInside)
             cell.analystTargetButton.removeTarget(self, action: #selector(openAnalystTarget(sender:)), for: .touchUpInside)
             cell.analystTargetButton.addTarget(self, action: #selector(openAnalystTarget(sender:)), for: .touchUpInside)
+
+            cell.showTrend(healthAnswers[ticker.uppercased()])
+            cell.trendBadge.removeTarget(self, action: #selector(openTrendExplanation(sender:)), for: .touchUpInside)
+            cell.trendBadge.addTarget(self, action: #selector(openTrendExplanation(sender:)), for: .touchUpInside)
 
             //Before the price guard: a target already known still shows while prices load,
             //just without the percentage.

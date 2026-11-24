@@ -32,6 +32,22 @@ class WatchlistViewCell: UITableViewCell {
     ///Built in code, so the storyboard prototype needs no change.
     let sparklineView = SparklineView()
 
+    ///The trend under the company name, before the analyst pill (BS-309). A button of its own,
+    ///above the row's chart button: a tap opens the sheet explaining how the trend was decided.
+    let trendBadge: UIButton = {
+        var configuration = UIButton.Configuration.plain()
+        configuration.cornerStyle = .capsule
+        configuration.imagePlacement = .leading
+        configuration.imagePadding = 3
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 7, bottom: 0, trailing: 7)
+        configuration.background.strokeWidth = 1
+        let button = UIButton(configuration: configuration)
+        //The analyst pill truncates first on a narrow row; the trend is never cut.
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        return button
+    }()
+
     ///The analysts' consensus under the company name. A button of its own, layered over the
     ///row's full-size chart button, so a tap on this line opens the analyst sheet and a tap
     ///anywhere else still opens the chart.
@@ -73,6 +89,7 @@ class WatchlistViewCell: UITableViewCell {
         pinTopBlockToStoryboardHeight()
         installChangePill()
         installSparkline()
+        installTrendBadge()
         installAnalystTarget()
     }
 
@@ -157,15 +174,44 @@ class WatchlistViewCell: UITableViewCell {
         }
     }
 
-    ///Below the name and clear of everything else, so it gets the row's full width even on
-    ///the narrowest phone, where the sparkline is left out.
+    ///Under the name, at the start of the line the analyst pill shares.
+    private func installTrendBadge() {
+        trendBadge.translatesAutoresizingMaskIntoConstraints = false
+        //Added after the storyboard's full-row chart button, so it is above it and gets its own taps.
+        contentView.addSubview(trendBadge)
+        NSLayoutConstraint.activate([
+            trendBadge.leadingAnchor.constraint(equalTo: nameCompanyLabel.leadingAnchor),
+            trendBadge.topAnchor.constraint(equalTo: nameCompanyLabel.bottomAnchor, constant: 2),
+            trendBadge.heightAnchor.constraint(equalToConstant: 20)
+        ])
+        showTrend(nil)
+    }
+
+    ///Always shows something: a grey dash until health arrives, or if it never does.
+    func showTrend(_ answer: StockHealthAnswer?) {
+        let badge = StockHealthFormat.badge(for: answer)
+        var title = AttributedString(badge.text)
+        title.font = UIFont(name: "Avenir-Heavy", size: 12) ?? .boldSystemFont(ofSize: 12)
+        trendBadge.configuration?.attributedTitle = title
+        trendBadge.configuration?.image = badge.symbolName.flatMap {
+            UIImage(systemName: $0, withConfiguration: UIImage.SymbolConfiguration(pointSize: 9, weight: .heavy))
+        }
+        trendBadge.configuration?.baseForegroundColor = badge.color
+        trendBadge.configuration?.background.backgroundColor = badge.color.withAlphaComponent(0.12)
+        trendBadge.configuration?.background.strokeColor = badge.color.withAlphaComponent(0.45)
+        trendBadge.accessibilityLabel = badge.accessibilityLabel
+        trendBadge.accessibilityHint = "Explains how the trend was decided"
+    }
+
+    ///After the trend badge on the line under the name, clear of the sparkline and prices, so
+    ///it gets the rest of the row's width. On a narrow row its text truncates, never the badge.
     private func installAnalystTarget() {
         analystTargetButton.translatesAutoresizingMaskIntoConstraints = false
         //Added last, so it is above the full-row chart button and receives its own taps.
         contentView.addSubview(analystTargetButton)
 
         NSLayoutConstraint.activate([
-            analystTargetButton.leadingAnchor.constraint(equalTo: nameCompanyLabel.leadingAnchor),
+            analystTargetButton.leadingAnchor.constraint(equalTo: trendBadge.trailingAnchor, constant: 6),
             analystTargetButton.topAnchor.constraint(equalTo: nameCompanyLabel.bottomAnchor, constant: 2),
             analystTargetButton.trailingAnchor.constraint(lessThanOrEqualTo: contentView.trailingAnchor, constant: -5),
             analystTargetButton.heightAnchor.constraint(equalToConstant: 20)
@@ -248,6 +294,7 @@ class WatchlistViewCell: UITableViewCell {
         sparklineView.reset()
         showChange(percent: nil)
         showAnalystTarget(nil)
+        showTrend(nil)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
