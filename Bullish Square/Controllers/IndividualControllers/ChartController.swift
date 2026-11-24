@@ -71,7 +71,7 @@ class ChartController: UIViewController {
     ///The time spans (stocks) or candle sizes (crypto), a native control under the chart. It
     ///replaced the storyboard's HBSegmentedControl.
     private let spanPicker = UISegmentedControl()
-    ///Where the Key stats, Health and Analyst cards go (BS-327 step 4, BS-309, BS-310).
+    ///Where the Key stats, Analysts and Health cards go (BS-327 step 4, BS-309, BS-310).
     let cardsStack = UIStackView()
     fileprivate let scrollView = UIScrollView()
     fileprivate let column = UIStackView()
@@ -82,6 +82,9 @@ class ChartController: UIViewController {
     ///Stocks and indexes only; crypto has no card (BS-327 decision).
     private let keyStatsCard = KeyStatsCard()
     private var keyStats = KeyStats()
+    ///Stocks only: indexes and crypto have no analysts. Hidden until there's a consensus to show,
+    ///and for good when none covers the stock (SPY, small caps).
+    private let analystCard = AnalystCard()
         
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -114,7 +117,69 @@ class ChartController: UIViewController {
             loadCompanyNameIfNeeded()
             cardsStack.addArrangedSubview(keyStatsCard)
             loadKeyStats()
+            if !indexMarket {
+                analystCard.isHidden = true
+                analystCard.onTap = { [weak self] in self?.openAnalystSheet() }
+                cardsStack.addArrangedSubview(analystCard)
+                loadAnalystTarget()
+            }
         }
+    }
+
+    // MARK: - Analysts (BS-309)
+
+    ///Shows what the store already knows at once, then asks the server only when that is more
+    ///than a day old. Decoration: a failed request keeps whatever was shown and gates nothing.
+    private func loadAnalystTarget() {
+        let ticker = informationStockTicker.ticker
+        guard !ticker.isEmpty else { return }
+        showAnalystCard()
+        guard AnalystTargetStore.shared.needsFetch(ticker) else { return }
+        StockAPI.shared.getAnalystTarget(ticker: ticker) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let target):
+                    AnalystTargetStore.shared.record(target, for: ticker)
+                case .failure(let error):
+                    print("Analyst target for \(ticker) failed; the card keeps what it had: \(error)")
+                }
+                guard let self, self.informationStockTicker.ticker == ticker else { return }
+                self.showAnalystCard()
+            }
+        }
+    }
+
+    ///The header's price, or nil while it is still loading.
+    private var analystPrice: Double? {
+        let price = informationStockTicker.marketPrice
+        return !awaitingQuote && price > 0 ? price : nil
+    }
+
+    ///Also called when the header's price lands, so the upside appears with it.
+    private func showAnalystCard() {
+        guard !indexMarket,
+              let target = AnalystTargetStore.shared.entry(for: informationStockTicker.ticker)?.target else {
+            analystCard.isHidden = true
+            return
+        }
+        analystCard.update(target, price: analystPrice)
+        analystCard.isHidden = false
+    }
+
+    private func openAnalystSheet() {
+        let ticker = informationStockTicker.ticker
+        guard let entry = AnalystTargetStore.shared.entry(for: ticker), let target = entry.target else { return }
+        let detail = AnalystTargetController(ticker: ticker,
+                                             companyName: nameTicker,
+                                             currentPrice: analystPrice,
+                                             target: target,
+                                             fetchedAt: entry.fetchedAt)
+        let navigationController = UINavigationController(rootViewController: detail)
+        if let sheet = navigationController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(navigationController, animated: true)
     }
 
     // MARK: - Key stats (BS-327)
@@ -329,6 +394,7 @@ class ChartController: UIViewController {
         //header first showed raw doubles such as 271.4900016.
         currentPriceLabel.text = priceText(currentPrice)
         currentPercentageLabel.text = Self.changeText(percentageChange)
+        showAnalystCard()
     }
 
     ///Draws candles already seen straight away and only asks again when they are stale, so a

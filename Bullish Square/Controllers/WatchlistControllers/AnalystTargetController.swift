@@ -9,7 +9,8 @@ import UIKit
 
 // MARK: - Formatting
 
-///Shared by the watchlist row and the sheet, so both show a target the same way.
+///Shared by the watchlist row, the chart screen's Analysts card and the sheet, so all three
+///show a target the same way.
 enum AnalystTargetFormat {
 
     ///Whole dollars from $10 up, where cents are noise next to analysts' own rounding and the
@@ -27,7 +28,7 @@ enum AnalystTargetFormat {
         return formatter.string(from: NSNumber(value: value)) ?? String(format: "$%.2f", value)
     }
 
-    ///One colour per rating, shared by the watchlist pill and the sheet so a "Buy" looks the
+    ///One colour per rating, shared by the watchlist pill, the Analysts card and the sheet so a "Buy" looks the
     ///same in both. Blue for the buy side, slate for hold, yellow for the sell side: it reads
     ///in either direction for colour-blind users, and keeps clear of the uptrend/downtrend
     ///mint and red, so a rating never looks like today's price move. "Strong" is the more
@@ -62,7 +63,7 @@ enum AnalystTargetFormat {
 
 // MARK: - Controller
 
-///The sheet behind a watchlist row's analyst line: the average target and how far it is from
+///The sheet behind a watchlist row's analyst line and the chart screen's Analysts card (BS-309): the average target and how far it is from
 ///today's price, the analysts' range, and the buy/hold/sell ratings.
 ///
 ///Reports a third-party consensus and nothing more. Colours stay neutral throughout - no green
@@ -72,8 +73,8 @@ final class AnalystTargetController: UIViewController {
 
     private let ticker: String
     private let companyName: String
-    ///The price on the watchlist row, so the sheet and the row always agree. nil when the row
-    ///has no price yet.
+    ///The price on the screen that opened it (the watchlist row or the chart header), so the
+    ///sheet and that screen always agree. nil when there's no price yet.
     private let currentPrice: Double?
     private let target: AnalystTarget
     private let fetchedAt: Date
