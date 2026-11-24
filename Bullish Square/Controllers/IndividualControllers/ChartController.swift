@@ -91,6 +91,30 @@ class ChartController: UIViewController {
         fitChartToScreen()
     }
 
+    // MARK: - Tab bar hairline
+
+    ///The tab bar's own appearance while this screen covers it, put back when it leaves.
+    private var savedTabBarAppearance: UITabBarAppearance?
+
+    ///The page scrolls under the tab bar. Whenever the cards ran past its top edge, iOS switched
+    ///the bar from its clear edge look to its standard one, which draws a grey hairline across
+    ///the screen above the tabs. Black page, no line: the line is turned off here only.
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        guard savedTabBarAppearance == nil, let tabBar = tabBarController?.tabBar else { return }
+        savedTabBarAppearance = tabBar.standardAppearance
+        let appearance = tabBar.standardAppearance.copy()
+        appearance.shadowColor = .clear
+        tabBar.standardAppearance = appearance
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        guard let saved = savedTabBarAppearance else { return }
+        tabBarController?.tabBar.standardAppearance = saved
+        savedTabBarAppearance = nil
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
