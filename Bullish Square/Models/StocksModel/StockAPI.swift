@@ -320,6 +320,128 @@ final class StockAPI {
         }
     }
 
+    // MARK: - Stock health (BS-308)
+
+    ///One stock's health from the server's /v1/health/:symbol. A recent listing or an unknown
+    ///symbol is an answer (`.insufficientHistory`, `.noData`), not a failure; `.failure` is
+    ///anything worth trying again. Completes exactly once.
+    func getStockHealth(ticker: String, completion: @escaping (Result<StockHealthAnswer, Error>) -> Void) {
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._")
+        guard let symbol = ticker.addingPercentEncoding(withAllowedCharacters: allowed) else {
+            completion(.failure(APIError.invalidTicker))
+            return
+        }
+        healthRequest(path: "/v1/health/" + symbol, label: ticker) { result in
+            completion(result.flatMap { data in
+                do {
+                    return .success(try StockHealthAnswer.parseOne(data))
+                } catch let error as NSError {
+                    print("Health for \(ticker) came back in an unexpected shape: \(error)")
+                    return .failure(APIError.invalidJSON)
+                }
+            })
+        }
+    }
+
+    ///The server takes up to 50 symbols a request.
+    private static let healthBatchSize = 50
+
+    ///Health for a whole watchlist, keyed by uppercased ticker, from /v1/health?symbols= in
+    ///batches of 50. The server fetches 20 symbols per provider request and caches them until
+    ///the next close, so this costs nothing extra after the first ask of the day.
+    ///
+    ///A batch that fails leaves its tickers out rather than failing the rest; `.failure` only
+    ///when every batch failed. Completes exactly once, on the main queue.
+    func getStockHealth(tickers: [String], completion: @escaping (Result<[String: StockHealthAnswer], Error>) -> Void) {
+        //Keeps the order, drops repeats and empties.
+        var seen = Set<String>()
+        let symbols = tickers.map { $0.uppercased() }.filter { !$0.isEmpty && seen.insert($0).inserted }
+        guard !symbols.isEmpty else {
+            DispatchQueue.main.async { completion(.success([:])) }
+            return
+        }
+
+        let group = DispatchGroup()
+        //Touched only on the main queue.
+        var answers: [String: StockHealthAnswer] = [:]
+        var lastError: Error?
+        var failedBatches = 0
+        let batches = stride(from: 0, to: symbols.count, by: Self.healthBatchSize).map {
+            Array(symbols[$0..<min($0 + Self.healthBatchSize, symbols.count)])
+        }
+
+        for batch in batches {
+            //"^" in ^DJI and the commas themselves must be escaped in a query value.
+            var allowed = CharacterSet.alphanumerics
+            allowed.insert(charactersIn: "-._")
+            let query = batch.compactMap { $0.addingPercentEncoding(withAllowedCharacters: allowed) }
+                .joined(separator: ",")
+            group.enter()
+            healthRequest(path: "/v1/health?symbols=" + query, label: "\(batch.count) tickers") { result in
+                let parsed: Result<[String: StockHealthAnswer], Error> = result.flatMap { data in
+                    do {
+                        return .success(try StockHealthAnswer.parseBatch(data))
+                    } catch let error as NSError {
+                        print("Watchlist health came back in an unexpected shape: \(error)")
+                        return .failure(APIError.invalidJSON)
+                    }
+                }
+                DispatchQueue.main.async {
+                    switch parsed {
+                    case .success(let found):
+                        answers.merge(found) { _, new in new }
+                    case .failure(let error):
+                        lastError = error
+                        failedBatches += 1
+                    }
+                    group.leave()
+                }
+            }
+        }
+
+        group.notify(queue: .main) {
+            if failedBatches == batches.count, let lastError {
+                completion(.failure(lastError))
+            } else {
+                completion(.success(answers))
+            }
+        }
+    }
+
+    ///The body of a health request whose status the app understands: 200, or 404 (the
+    ///server's insufficient_history / no_data, which carry an answer). Completes exactly once.
+    private func healthRequest(path: String, label: String, completion: @escaping (Result<Data, Error>) -> Void) {
+        MarketDataServer.authorizedRequest(path: path) { result in
+            let request: URLRequest
+            switch result {
+            case .failure(let error):
+                completion(.failure(error))
+                return
+            case .success(let authorized):
+                request = authorized
+            }
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    completion(.failure(error))
+                    return
+                }
+                guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                    completion(.failure(APIError.noData))
+                    return
+                }
+                switch httpResponse.statusCode {
+                case 200, 404:
+                    completion(.success(data))
+                default:
+                    print("Health server answered \(httpResponse.statusCode) for \(label): \(String(data: data, encoding: .utf8) ?? "")")
+                    completion(.failure(APIError.noData))
+                }
+            }.resume()
+        }
+    }
+
     //MARK: API call for general markets
     ///The Markets tab's three index cards: price and day change, from the server's /v1/spark
     ///at one daily bar. This called Yahoo straight from the phone with a key built into the
