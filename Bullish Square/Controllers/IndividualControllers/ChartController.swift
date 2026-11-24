@@ -75,6 +75,10 @@ class ChartController: UIViewController {
     fileprivate let logoCircle = UIView()
     fileprivate lazy var chartHeight = chartView.heightAnchor.constraint(equalToConstant: Self.minimumChartHeight)
     fileprivate static let minimumChartHeight: CGFloat = 300
+
+    ///Stocks and indexes only; crypto has no card (BS-327 decision).
+    private let keyStatsCard = KeyStatsCard()
+    private var keyStats = KeyStats()
         
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -105,6 +109,57 @@ class ChartController: UIViewController {
             }
             selectedStockTicker()
             loadCompanyNameIfNeeded()
+            cardsStack.addArrangedSubview(keyStatsCard)
+            loadKeyStats()
+        }
+    }
+
+    // MARK: - Key stats (BS-327)
+
+    ///Fills the Key stats card from the 1D and 1Y bars, which the chart usually has cached
+    ///already: it opens on 1D. Decoration: a failed load leaves dashes and gates nothing.
+    private func loadKeyStats() {
+        let ticker = informationStockTicker.ticker
+        let isIndex = indexMarket
+        for span in ["1D", "1Y"] {
+            candles(symbol: ticker, span: span, isIndex: isIndex) { [weak self] bars in
+                guard let self, self.informationStockTicker.ticker == ticker, !bars.isEmpty else { return }
+                if span == "1D" {
+                    self.keyStats.setSession(bars)
+                } else {
+                    self.keyStats.setYear(bars)
+                }
+                self.keyStatsCard.update(self.keyStats, priceText: self.priceText)
+            }
+        }
+    }
+
+    ///A span's bars from ChartCache while fresh, else from the server, stored for the chart
+    ///too. Completes exactly once, on the main queue; an empty array when they couldn't load.
+    private func candles(symbol: String, span: String, isIndex: Bool, completion: @escaping ([ValueStock]) -> Void) {
+        if let cached = ChartCache.shared.entry(symbol: symbol, span: span, isIndex: isIndex),
+           !ChartCache.shared.isStale(cached, span: span) {
+            completion(cached.values)
+            return
+        }
+        let handle: (Result<[ValueStock], Error>) -> Void = { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let bars) where !bars.isEmpty:
+                    ChartCache.shared.store(bars, symbol: symbol, span: span, isIndex: isIndex)
+                    completion(bars)
+                case .success:
+                    completion([])
+                case .failure(let error):
+                    print("Key stats for \(symbol) \(span) could not be loaded: \(error)")
+                    completion([])
+                }
+            }
+        }
+        if isIndex {
+            ChartAPI.shared.getMarketValues(span: span, symbol: symbol, completion: handle)
+        } else {
+            ChartAPI.shared.getStockValues(span: span, symbol: symbol, completion: handle)
         }
     }
 
