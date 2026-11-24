@@ -23,24 +23,28 @@ final class ChartAPI {
     }
     
     //MARK: Chart candles, from the Bullish Square server
-    ///Candles for a stock's chart. `intervalTime` is the chart's timeframe string, such as
-    ///"15m&limit=35"; only the part before "&" is used (15m, 1h, 1d or 1wk).
+    ///The chart's time spans, like Apple's Stocks (BS-327). The server cuts each from bars it
+    ///already fetches: 1D is 15-minute bars of the latest session, 1W hourly bars of five, 1M to
+    ///1Y daily bars and 5Y weekly bars.
+    static let spans = ["1D", "1W", "1M", "3M", "1Y", "5Y"]
+
+    ///Candles for a stock's chart over `span`, oldest first.
     ///
     ///Stock and index charts used to call two providers from the phone with the RapidAPI key
     ///built into the app - yahoo-finance15 for stocks, mboum for indices, which ran out of
     ///quota and broke the index chart. Both now ask the server's /v1/history, which holds the
     ///key and shares each chart between every user. (BS-212)
-    public func getStockValues(intervalTime: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
-        getHistory(symbol: symbol, intervalTime: intervalTime, completion: completion)
+    public func getStockValues(span: String, symbol: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
+        getHistory(symbol: symbol, span: span, completion: completion)
     }
-    
+
     ///Candles for an index chart (^DJI, ^GSPC, ^IXIC) opened from Markets. The same server route
     ///as stocks; kept as its own entry point because ChartController and ChartCache keep the two
     ///apart.
-    func getMarketValues(intervalTime: String, symbol: String, completion: @escaping(Result<[ValueStock], Error>) -> Void) {
-        getHistory(symbol: symbol, intervalTime: intervalTime, completion: completion)
+    func getMarketValues(span: String, symbol: String, completion: @escaping(Result<[ValueStock], Error>) -> Void) {
+        getHistory(symbol: symbol, span: span, completion: completion)
     }
-    
+
     private struct HistoryResponse: Decodable {
         let candles: [Candle]
         
@@ -54,10 +58,9 @@ final class ChartAPI {
         }
     }
     
-    ///The server sends the last 35 candles, oldest first, with the candle still forming last
+    ///The server sends the span's candles, oldest first, with the candle still forming last
     ///and bars missing a price already removed.
-    private func getHistory(symbol: String, intervalTime: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
-        let interval = intervalTime.components(separatedBy: "&").first ?? intervalTime
+    private func getHistory(symbol: String, span: String, completion: @escaping (Result<[ValueStock], Error>) -> Void) {
         //"^" in index symbols must be escaped in a query.
         var allowed = CharacterSet.alphanumerics
         allowed.insert(charactersIn: "-._")
@@ -66,7 +69,7 @@ final class ChartAPI {
             return
         }
         
-        MarketDataServer.authorizedRequest(path: "/v1/history?symbol=\(encodedSymbol)&interval=\(interval)") { result in
+        MarketDataServer.authorizedRequest(path: "/v1/history?symbol=\(encodedSymbol)&span=\(span)") { result in
             let request: URLRequest
             switch result {
             case .failure(let error):

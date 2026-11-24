@@ -5,11 +5,11 @@
 //  Created by Javier Gomez on 4/2/22.
 //
 
-import UIKit
-import DGCharts
+import SwiftUI
 import TinyConstraints
+import UIKit
 
-class ChartController: UIViewController, ChartViewDelegate {
+class ChartController: UIViewController {
     
     private var cryptoData: [QuoteInvidual]?
     private var stockData: [ValueStock]?
@@ -33,15 +33,14 @@ class ChartController: UIViewController, ChartViewDelegate {
     @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var segmentControl: HBSegmentedControl!
     
-    var selectedCandleChart = false
+    ///Candles by default: they show the open, high and low a line hides.
+    var selectedCandleChart = true
     
-    var candleValues = [CandleChartDataEntry]()
-    var linearValues = [ChartDataEntry]()
+    ///A coin's candle size on the crypto chart: 900, 3600, 18000, week or month.
     var interval = "300"
-    var intervalStock = "15m&limit=35"
+    ///A stock or index chart's time span, one of `ChartAPI.spans` (BS-327).
+    var span = "1D"
     var symbol = "bit"
-    var timeIntervals = ["old" : "1:2", "mid" : "1:2", "now" : "1:2"]
-    var times: [Int: String] = [:]
     var indexMarket = false
     var indexName = ""
     var currentPrice = 0.0
@@ -59,6 +58,12 @@ class ChartController: UIViewController, ChartViewDelegate {
     public var loadsQuoteAndLogo = false
     ///True until that price has come back; the header shows dashes rather than $0.0.
     private var awaitingQuote = false
+
+    ///What the Swift Charts chart draws (BS-327). It replaced the DGCharts line and candle views.
+    private let chartModel = PriceChartModel()
+    ///The header as it was when a finger went down on the chart, put back when it lifts.
+    private var headerBeforeScrub: (price: String?, priceColor: UIColor, change: String?, changeColor: UIColor)?
+    private let scrubFeedback = UISelectionFeedbackGenerator()
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,13 +82,13 @@ class ChartController: UIViewController, ChartViewDelegate {
         segmentControl.addTarget(self, action: #selector(segmentValueChanged(_:)), for: .valueChanged)
         
         navigationItem.title = nameTicker
+        installChart()
         
         if informationStockTicker.ticker == "" {
             segmentControl.items = ["15 min", "1 hr", "Day", "Week", "Month"]
             selectedCryptoTicker()
         } else {
-            segmentControl.items = ["15 min", "1 hr", "Day", "Week"]
-            self.intervalStock = "15m&limit=35"
+            segmentControl.items = ChartAPI.spans
             if loadsQuoteAndLogo {
                 loadQuoteAndLogo()
             }
@@ -164,20 +169,8 @@ class ChartController: UIViewController, ChartViewDelegate {
             }
             loadCryptoPrices()
         } else {
-            switch index {
-            case 0: self.intervalStock = "15m&limit=35"
-                break
-            case 1: self.intervalStock = "1h&limit=35"
-                break
-            case 2: self.intervalStock = "1d&limit=35"
-                break
-            case 3: self.intervalStock = "1wk&limit=35"
-                break
-            case 4: self.intervalStock = "1wk&limit=35"
-                break
-            default:
-                self.intervalStock = "15m&limit=35"
-            }
+            guard ChartAPI.spans.indices.contains(index) else { return }
+            span = ChartAPI.spans[index]
             selectedStockTicker()
         }
     }
@@ -274,11 +267,13 @@ class ChartController: UIViewController, ChartViewDelegate {
             //The symbol alone. The header used to add " - <exchange>", but the chart
             //endpoint stopped sending an exchange name, so it only ever showed a dangling dash.
             setHeaderTitle(symbol: symbol)
-            volumeLabel.text = "$\(previousPrice)"
+            volumeLabel.text = priceText(previousPrice)
         }
         cryptoImage.image = imageCompany
-        currentPriceLabel.text = String(currentPrice)
-        currentPercentageLabel.text = "\(percentageChange)%"
+        //Formatted like the scrubbed price, which used to be the only formatted one: the
+        //header first showed raw doubles such as 271.4900016.
+        currentPriceLabel.text = priceText(currentPrice)
+        currentPercentageLabel.text = Self.changeText(percentageChange)
     }
 
     ///Draws candles already seen straight away and only asks again when they are stale, so a
@@ -290,15 +285,15 @@ class ChartController: UIViewController, ChartViewDelegate {
     ///answer is still cached, just not drawn.
     private func loadStockPrices(){
         let symbol = self.symbol
-        let interval = intervalStock
+        let span = self.span
         let isIndex = indexMarket
 
-        let cached = ChartCache.shared.entry(symbol: symbol, interval: interval, isIndex: isIndex)
+        let cached = ChartCache.shared.entry(symbol: symbol, span: span, isIndex: isIndex)
         if let cached {
             startStopSpinner(start: false)
             stockData = cached.values
             setUpStockModel()
-            guard ChartCache.shared.isStale(cached, interval: interval) else { return }
+            guard ChartCache.shared.isStale(cached, span: span) else { return }
         } else {
             startStopSpinner(start: true)
         }
@@ -308,9 +303,9 @@ class ChartController: UIViewController, ChartViewDelegate {
         let handle: (Result<[ValueStock], Error>) -> Void = { [weak self] result in
             DispatchQueue.main.async {
                 if case .success(let data) = result, !data.isEmpty {
-                    ChartCache.shared.store(data, symbol: symbol, interval: interval, isIndex: isIndex)
+                    ChartCache.shared.store(data, symbol: symbol, span: span, isIndex: isIndex)
                 }
-                guard let self, self.symbol == symbol, self.intervalStock == interval else { return }
+                guard let self, self.symbol == symbol, self.span == span else { return }
 
                 switch result {
                 case .success(let data) where !data.isEmpty:
@@ -322,13 +317,13 @@ class ChartController: UIViewController, ChartViewDelegate {
                     self.setUpStockModel()
                 case .success:
                     self.startStopSpinner(start: false)
-                    print("Chart for \(symbol) \(interval) came back empty")
+                    print("Chart for \(symbol) \(span) came back empty")
                     if !showsCachedChart {
                         ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
                     }
                 case .failure(let error):
                     self.startStopSpinner(start: false)
-                    print("Chart for \(symbol) \(interval) could not be loaded: \(error)")
+                    print("Chart for \(symbol) \(span) could not be loaded: \(error)")
                     if !showsCachedChart {
                         ShowAlerts.showSimpleAlert(title: "Try later!", message: "We couldn't download the information", titleButton: "OK", over: self)
                     }
@@ -337,9 +332,9 @@ class ChartController: UIViewController, ChartViewDelegate {
         }
 
         if isIndex {
-            ChartAPI.shared.getMarketValues(intervalTime: interval, symbol: symbol, completion: handle)
+            ChartAPI.shared.getMarketValues(span: span, symbol: symbol, completion: handle)
         } else {
-            ChartAPI.shared.getStockValues(intervalTime: interval, symbol: symbol, completion: handle)
+            ChartAPI.shared.getStockValues(span: span, symbol: symbol, completion: handle)
         }
     }
 
@@ -365,8 +360,8 @@ class ChartController: UIViewController, ChartViewDelegate {
         
         setHeaderTitle(symbol: symbol, name: informationCryptoTicker.name)
         self.currentPrice = informationCryptoTicker.price
-        currentPriceLabel.text = String(informationCryptoTicker.price)
-        currentPercentageLabel.text = "\(informationCryptoTicker.change)% Day"
+        currentPriceLabel.text = priceText(informationCryptoTicker.price)
+        currentPercentageLabel.text = Self.changeText(informationCryptoTicker.change) + " Day"
 //        nameLabel.text = informationCryptoTicker.name.uppercased()
         volumeLabel.text = "Vol.\(informationCryptoTicker.volume) MM"
         cryptoImage.image = UIImage(named: informationCryptoTicker.cryptoImageName)
@@ -444,113 +439,179 @@ class ChartController: UIViewController, ChartViewDelegate {
     
     private func setUpStockModel(){
         guard let modelCandles = stockData else { return }
-        resetChartState()
-        
-        for (index, candleValue) in modelCandles.enumerated() {
-            candleValues.append(CandleChartDataEntry(x: Double(index),
-                                                     shadowH: candleValue.high,
-                                                     shadowL: candleValue.low,
-                                                     open: candleValue.open,
-                                                     close: candleValue.close))
-            linearValues.append(ChartDataEntry(x: Double(index), y: candleValue.close))
-            times[index] = String(candleValue.start_timestamp)
+        let points = modelCandles.map {
+            PricePoint(time: $0.start_timestamp, open: $0.open, high: $0.high, low: $0.low, close: $0.close)
         }
-        
-        finishChartSetup()
+        //A day is up or down against yesterday's close, which the header's change is measured
+        //from too. Longer spans compare with their own first bar.
+        let previousClose = informationStockTicker.previousPrice
+        chartModel.baseline = span == "1D" && previousClose > 0 ? previousClose : nil
+        chartModel.timeZone = TimeZone(identifier: "America/New_York") ?? .current
+        chartModel.axisFormat = Self.axisFormat(span: span)
+        chartModel.points = points
+        showBar(chartModel.drawnPoints.last)
     }
     
     private func setUpCryptoModel() {
-        
         guard let modelCandles = cryptoData else { return }
-        resetChartState()
-        
-        for candleValue in modelCandles {
-            //Skip a malformed candle rather than abandoning the whole chart, which is what the
-            //old `else { return }` did. Indexing off what has actually been appended keeps the
-            //x positions contiguous despite the gaps.
-            guard let openPrice = Double(candleValue.open),
-                  let highPrice = Double(candleValue.max),
-                  let closePrice = Double(candleValue.close),
-                  let lowPrice = Double(candleValue.min) else { continue }
-            
-            let index = candleValues.count
-            candleValues.append(CandleChartDataEntry(x: Double(index),
-                                                     shadowH: highPrice,
-                                                     shadowL: lowPrice,
-                                                     open: openPrice,
-                                                     close: closePrice))
-            linearValues.append(ChartDataEntry(x: Double(index), y: closePrice))
-            times[index] = candleValue.start_timestamp
+        //A malformed candle is skipped rather than abandoning the whole chart.
+        let points = modelCandles.compactMap { candle -> PricePoint? in
+            guard let time = TimeInterval(candle.start_timestamp),
+                  let open = Double(candle.open),
+                  let high = Double(candle.max),
+                  let low = Double(candle.min),
+                  let close = Double(candle.close) else { return nil }
+            return PricePoint(time: time, open: open, high: high, low: low, close: close)
         }
-        
-        finishChartSetup()
+        chartModel.baseline = nil
+        chartModel.timeZone = .current
+        chartModel.axisFormat = Self.axisFormat(cryptoInterval: interval)
+        chartModel.points = points
+        showBar(chartModel.drawnPoints.last)
     }
-    
-    ///Clears everything rebuilt per load. `times` was previously left alone, so switching from
-    ///a longer interval to a shorter one left stale keys behind and let an out-of-range index
-    ///reach candleValues.
-    private func resetChartState() {
-        candleValues.removeAll()
-        linearValues.removeAll()
-        times.removeAll()
-    }
-    
-    ///Anchors the three axis time labels and the OHLC readout to the data actually loaded.
-    ///These were pinned to indices 0, 29 and 59, but the stock endpoint returns roughly 35
-    ///candles: "now" was never set, so the right-hand axis label fell back to the current clock
-    ///time, and printCLOH(entry: 59) silently did nothing, which is why the OHLC row kept
-    ///showing its storyboard placeholders.
-    private func finishChartSetup() {
-        guard !candleValues.isEmpty else {
-            choseTypeChart()
-            return
+
+    // MARK: - Chart (BS-327)
+
+    ///The labels under the chart: hours for a day, weekdays for a week, then months and years.
+    private static func axisFormat(span: String) -> String {
+        switch span {
+        case "1D": return "h a"
+        case "1W": return "EEE"
+        case "1M": return "d MMM"
+        case "3M", "1Y": return "MMM"
+        default: return "yyyy"
         }
-        
-        let lastIndex = candleValues.count - 1
-        if let oldest = times[0]            { timeIntervals["old"] = oldest }
-        if let middle = times[lastIndex / 2] { timeIntervals["mid"] = middle }
-        if let newest = times[lastIndex]    { timeIntervals["now"] = newest }
-        
-        printCLOH(entry: lastIndex)
-        setupDateLabel()
+    }
+
+    private static func axisFormat(cryptoInterval: String) -> String {
+        switch cryptoInterval {
+        case "900", "3600": return "h a"
+        case "18000": return "d MMM"
+        default: return "MMM yy"
+        }
+    }
+
+    ///The date in the header while scrubbing: the time of day where the bars are intraday.
+    private func scrubDateFormat() -> String {
+        if informationStockTicker.ticker.isEmpty {
+            return ["900", "3600", "18000"].contains(interval) ? "d MMM, h:mm a" : "d MMM yyyy"
+        }
+        switch span {
+        case "1D": return "h:mm a"
+        case "1W": return "EEE d MMM, h:mm a"
+        default: return "d MMM yyyy"
+        }
+    }
+
+    ///The chart in its storyboard box, as a child view controller so SwiftUI gets the screen's
+    ///trait changes (dark mode, text size). The storyboard's time labels are hidden: the chart
+    ///draws its own axis. Scrubbing shows the price and date in the header, like Apple's
+    ///Stocks, and the bar's open, high, low and close in the row above the chart.
+    private func installChart() {
+        let host = UIHostingController(rootView: PriceChartView(model: chartModel))
+        host.view.backgroundColor = .clear
+        host.view.translatesAutoresizingMaskIntoConstraints = false
+        addChild(host)
+        chartView.insertSubview(host.view, at: 0)
+        NSLayoutConstraint.activate([
+            host.view.topAnchor.constraint(equalTo: chartView.topAnchor),
+            host.view.bottomAnchor.constraint(equalTo: chartView.bottomAnchor),
+            host.view.leadingAnchor.constraint(equalTo: chartView.leadingAnchor),
+            host.view.trailingAnchor.constraint(equalTo: chartView.trailingAnchor)
+        ])
+        host.didMove(toParent: self)
+
+        for label in [oldestTimeLabel, middleTimeLabel, currentTimeLabel] {
+            label?.isHidden = true
+        }
+
+        chartModel.onScrub = { [weak self] point in
+            self?.showScrub(point)
+        }
         choseTypeChart()
     }
-    
-    func chartValueSelected(_ chartView: ChartViewBase, entry: ChartDataEntry, highlight: Highlight) {
-        printCLOH(entry: Int(entry.x))
-    }
-    
-    private func printCLOH(entry: Int) {
-        //Any index can arrive here: the chart delegate passes back whatever the user touched,
-        //and a stale times dictionary used to let an out-of-range index through to a crash.
-        guard candleValues.indices.contains(entry),
-              let stringTime = transformTime(entry: Double(entry)) else { return }
-        
-        let candle = candleValues[entry]
-        
-        pointingDateLabel.text = "Time: \(stringTime)"
-        pointingOpenLabel.text = "O: " + Self.ohlcText(candle.open)
-        pointingLowLabel.text = "L: " + Self.ohlcText(candle.low)
-        pointingHighLabel.text = "H: " + Self.ohlcText(candle.high)
-        pointingCloseLabel.text = "C: " + Self.ohlcText(candle.close)
-        
-        //Coloured by the move from the previous candle. The first candle has nothing to compare
-        //against and used to leave both labels with no colour at all.
-        var colorToShow = UIColor.label
-        if entry > 0 {
-            let previousClose = candleValues[entry - 1].close
-            if previousClose > 0 {
-                //Was ((previousClose * 100) / close) - 100, which measured the move backwards
-                let changePercentage = ((candle.close * 100) / previousClose) - 100
-                colorToShow = changePercentage < 0
-                    ? (UIColor(named: "downtrend") ?? .label)
-                    : (UIColor(named: "uptrend") ?? .label)
+
+    ///The bar under the finger in the header: its close where the price is, its date where the
+    ///change is, and all four prices in the O/H/L/C row. Lifting the finger puts the header
+    ///back exactly as it was and the row back on the latest bar.
+    private func showScrub(_ point: PricePoint?) {
+        showBar(point ?? chartModel.drawnPoints.last)
+        guard let point else {
+            if let before = headerBeforeScrub {
+                currentPriceLabel.text = before.price
+                currentPriceLabel.textColor = before.priceColor
+                currentPercentageLabel.text = before.change
+                currentPercentageLabel.textColor = before.changeColor
             }
+            headerBeforeScrub = nil
+            return
         }
-        pointingOpenLabel.textColor = colorToShow
-        pointingCloseLabel.textColor = colorToShow
+        if headerBeforeScrub == nil {
+            headerBeforeScrub = (currentPriceLabel.text, currentPriceLabel.textColor,
+                                 currentPercentageLabel.text, currentPercentageLabel.textColor)
+            scrubFeedback.prepare()
+        }
+        scrubFeedback.selectionChanged()
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.timeZone = chartModel.timeZone
+        formatter.dateFormat = scrubDateFormat()
+        currentPriceLabel.text = priceText(point.close)
+        currentPriceLabel.textColor = .label
+        currentPercentageLabel.text = formatter.string(from: point.date)
+        currentPercentageLabel.textColor = .secondaryLabel
     }
-    
+
+    ///One bar's open, high, low and close in the row between the action buttons and the chart,
+    ///coloured by whether it closed above its open, like its candle. Empty before a chart loads.
+    private func showBar(_ point: PricePoint?) {
+        let labels: [(UILabel?, String, Double?)] = [(pointingOpenLabel, "O", point?.open),
+                                                    (pointingHighLabel, "H", point?.high),
+                                                    (pointingLowLabel, "L", point?.low),
+                                                    (pointingCloseLabel, "C", point?.close)]
+        let color: UIColor = (point?.close ?? 0) >= (point?.open ?? 0)
+            ? (UIColor(named: "uptrend") ?? .systemGreen)
+            : (UIColor(named: "downtrend") ?? .systemRed)
+        for (label, letter, value) in labels {
+            label?.text = value.map { "\(letter) " + priceText($0) } ?? "\(letter) —"
+            label?.textColor = .label
+            label?.adjustsFontSizeToFitWidth = true
+            label?.minimumScaleFactor = 0.7
+        }
+        pointingOpenLabel.textColor = color
+        pointingCloseLabel.textColor = color
+
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.timeZone = chartModel.timeZone
+        formatter.dateFormat = scrubDateFormat()
+        pointingDateLabel.text = point.map { formatter.string(from: $0.date) } ?? ""
+        pointingDateLabel.textColor = .secondaryLabel
+    }
+
+    ///A price the way the whole screen shows it: "$1,234.56" for stocks and coins, coins under
+    ///$1 with up to four decimals, and an index in points without a dollar sign ("6,612.38").
+    private func priceText(_ value: Double) -> String {
+        guard indexMarket, !informationStockTicker.ticker.isEmpty else { return Self.ohlcText(value) }
+        return Self.pointsFormatter.string(from: NSNumber(value: value)) ?? String(format: "%.2f", value)
+    }
+
+    private static let pointsFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+
+    ///"+1.16%" / "-0.42%": always signed, two decimals, and never "-0.00%".
+    private static func changeText(_ percent: Double) -> String {
+        let rounded = (percent * 100).rounded() / 100
+        return String(format: "%@%.2f%%", rounded > 0 ? "+" : (rounded < 0 ? "-" : ""), abs(rounded))
+    }
+
     ///"$334.91" for the open/high/low/close readout. The values were printed raw, and the chart
     ///server passes Yahoo's full-precision floats through, so they read "$334.9100036621094"
     ///and pushed High and Close off the row. Coins under $1 keep up to four decimals so they
@@ -621,8 +682,7 @@ class ChartController: UIViewController, ChartViewDelegate {
         Shared via Bullish Square 📱 
         """
         
-        // Capture and resize chart image (replace `chartView` with your actual chart view)
-        let chartImage = chartWithTimes.asImage()?.resized(to: CGSize(width: 300, height: 300)) ?? defaultImage
+        let chartImage = chartModel.snapshot(size: CGSize(width: 300, height: 300), style: traitCollection.userInterfaceStyle) ?? defaultImage
                     
         let activityItems: [Any] = [formattedText, chartImage]
         
@@ -640,275 +700,21 @@ class ChartController: UIViewController, ChartViewDelegate {
         let stockTicker = informationStockTicker.ticker
         let text = PostToCommunity.chartDraft(symbol: fields.symbol, name: fields.name,
                                               ticker: stockTicker.isEmpty ? nil : stockTicker)
-        return (text, chartWithTimes.asImage().map { [$0] } ?? [])
-    }
-    
-    func transformTime(entry: Double) -> String? {
-        let timeString = self.times[Int(entry)]
-        var strDate: String?
-        if timeString != nil {
-            
-            var dateFormat = "HH:mm"
-            let index = segmentControl.selectedIndex //timeFrameSegmented.selectedSegmentIndex
-            switch index {
-            case 0:
-                dateFormat = "HH:mm"
-                break
-            case 1:
-                dateFormat = "HH:mm"
-                break
-            case 2:
-                dateFormat =  "MM/dd"
-                break
-            case 3:
-                dateFormat =  "yyyy/MM/dd"
-                break
-            case 4:
-                dateFormat =  "yyyy/MM/dd"
-                break
-            case 5:
-                dateFormat =  "yyyy/MM"
-                break
-            default:
-                dateFormat =  "yyyy-MM-dd HH:mm"
-            }
-            
-            strDate = Support.sharedSupport.convertTimeStampToDate(timeString: timeString!, dateFormat: dateFormat)
-
-        } else {
-            strDate = nil
-        }
-
-        return strDate
-    }
-    
-    
-    
-    func setupDateLabel(){
-        var dateFormat = "HH:mm"
-        let index = segmentControl.selectedIndex //timeFrameSegmented.selectedSegmentIndex
-        switch index {
-        case 0:
-            dateFormat = "HH:mm"
-            break
-        case 1:
-            dateFormat = "HH:mm"
-            break
-        case 2:
-            dateFormat =  "MM/dd"
-            break
-        case 3:
-            dateFormat =  "yyyy/MM/dd"
-            break
-        case 4:
-            dateFormat =  "yyyy/MM/dd"
-            break
-        case 5:
-            dateFormat =  "yyyy/MM"
-            break
-        default:
-            dateFormat =  "yyyy-MM-dd HH:mm"
-        }
-        
-        for timeInterval in timeIntervals {
-            let time = timeInterval.value
-            let strDate = Support.sharedSupport.convertTimeStampToDate(timeString: time, dateFormat: dateFormat)
-            
-            if timeInterval.key == "old" {
-                oldestTimeLabel.text = strDate
-            } else if timeInterval.key == "mid" {
-                middleTimeLabel.text = strDate
-            } else {
-                currentTimeLabel.text = strDate
-            }
-        }
+        let image = chartModel.snapshot(size: CGSize(width: 600, height: 400), style: traitCollection.userInterfaceStyle)
+        return (text, image.map { [$0] } ?? [])
     }
     
     @IBAction func selectTypeChart(_ sender: UIButton) {
-        if selectedCandleChart {
-            selectedCandleChart = false
-        } else {
-            selectedCandleChart = true
-        }
+        selectedCandleChart.toggle()
         choseTypeChart()
     }
     
-    ///Runs on every load and timeframe switch, not only on the line/candle button. It used to
-    ///re-add the visible chart and its four constraints each time; that view was already in
-    ///place, so another identical set piled up per load. Each chart is now added and
-    ///constrained once, and switching only shows one and hides the other.
+    ///The line/candle button shows the other style, the one a tap switches to.
     func choseTypeChart(){
-        installOnce(candleView)
-        installOnce(lineChartView)
-        candleView.isHidden = !selectedCandleChart
-        lineChartView.isHidden = selectedCandleChart
-
-        if selectedCandleChart {
-            selectChartButton.setImage(UIImage(named: "chart.line.uptrend.xyaxis"), for: .normal)
-            setDataCandleChart()
-        } else {
-            selectChartButton.setImage(UIImage(named: "chart.bar.fill"), for: .normal)
-            setDataLineChart()
-        }
-    }
-
-    ///Under the loading skeleton when it is up, so a chart drawn from cache mid-load cannot
-    ///cover it.
-    private func installOnce(_ chart: UIView) {
-        guard chart.superview == nil else { return }
-        if loadingView.superview === chartView {
-            chartView.insertSubview(chart, belowSubview: loadingView)
-        } else {
-            chartView.addSubview(chart)
-        }
-        chart.centerInSuperview()
-        chart.width(to: chartView)
-        chart.height(to: chartView)
-    }
-    
-    //MARK: Candle Chart
-    lazy var candleView: CandleStickChartView = {
-        let candleView = CandleStickChartView()
-        candleView.delegate = self
-        candleView.leftAxis.enabled = false
-        candleView.rightAxis.enabled = true
-        candleView.animate(xAxisDuration: 0.5)
-        
-        candleView.dragEnabled = true
-        candleView.setScaleEnabled(true)
-        candleView.maxVisibleCount = 60
-        candleView.pinchZoomEnabled = true
-        candleView.doubleTapToZoomEnabled = false
-        candleView.dragXEnabled = true
-        candleView.autoScaleMinMaxEnabled = true
-        candleView.legend.enabled = false
-        
-        candleView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        candleView.rightAxis.labelTextColor = .label
-        candleView.rightAxis.spaceTop = 0.3
-        candleView.rightAxis.spaceBottom = 0.3
-        candleView.rightAxis.setLabelCount(8, force: true)
-        candleView.rightAxis.axisLineColor = .label
-        candleView.rightAxis.labelPosition = .outsideChart
-        
-        candleView.xAxis.enabled = true
-        candleView.xAxis.labelPosition = .top
-        candleView.xAxis.yOffset = 10
-        candleView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        candleView.xAxis.labelTextColor = .label
-        candleView.xAxis.setLabelCount(5, force: true)
-        
-        return candleView
-    }()
-    
-    func setDataCandleChart() {
-        let set1 = CandleChartDataSet(entries: candleValues, label: "1 Hour Time Frame")
-        
-        set1.axisDependency = .left
-        set1.setColor(UIColor(white: 80/255, alpha: 1))
-//        set1.setDrawHighlightIndicators(true)
-        set1.drawHorizontalHighlightIndicatorEnabled = false
-        set1.drawVerticalHighlightIndicatorEnabled = true
-        set1.highlightLineWidth = 1
-        set1.highlightColor = .systemBlue
-        set1.drawValuesEnabled = false
-        set1.drawIconsEnabled = true
-        set1.shadowColor = .label
-        set1.shadowWidth = 1.0
-        set1.decreasingColor = UIColor(named: "downtrend")!
-        set1.decreasingFilled = true
-        set1.increasingColor = UIColor(named: "uptrend")
-        set1.increasingFilled = true
-        
-        let data = CandleChartData(dataSet: set1)
-        candleView.data = data
-    }
-    
-    
-    //MARK: Linear Chart
-    lazy var lineChartView: LineChartView = {
-        let lineChartView = LineChartView()
-        lineChartView.delegate = self
-        lineChartView.leftAxis.enabled = false
-        lineChartView.rightAxis.enabled = true
-        lineChartView.animate(xAxisDuration: 0.2)
-        
-        lineChartView.dragEnabled = true
-        lineChartView.setScaleEnabled(true)
-        lineChartView.maxVisibleCount = 60
-        lineChartView.pinchZoomEnabled = true
-        lineChartView.doubleTapToZoomEnabled = false
-        lineChartView.dragXEnabled = true
-        lineChartView.autoScaleMinMaxEnabled = true
-        lineChartView.legend.enabled = false
-        
-        lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.rightAxis.labelTextColor = .label
-        lineChartView.rightAxis.spaceTop = 0.3
-        lineChartView.rightAxis.spaceBottom = 0.3
-        lineChartView.rightAxis.setLabelCount(8, force: true)
-        lineChartView.rightAxis.axisLineColor = .label
-        lineChartView.rightAxis.labelPosition = .outsideChart
-        
-        lineChartView.xAxis.enabled = true
-        lineChartView.xAxis.labelPosition = .top
-        lineChartView.xAxis.yOffset = 10
-        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.xAxis.labelTextColor = .label
-        lineChartView.xAxis.setLabelCount(5, force: true)
-        
-        return lineChartView
-    }()
-    
-    func setDataLineChart() {
-        //The type toggle stays tappable after a failed load, and first!/last! below used to
-        //trap on an empty set.
-        guard let v1 = linearValues.first?.y, let v2 = linearValues.last?.y else {
-            lineChartView.data = nil
-            return
-        }
-        
-        let set1 = LineChartDataSet(entries: linearValues, label: "Price")
-        set1.mode = .cubicBezier
-        set1.drawCirclesEnabled = false
-        set1.lineWidth = 1
-
-        // Gradient helper
-        func makeGradient(colors: [UIColor], angle: CGFloat = 90.0) -> Fill {
-            let cgColors = colors.map { $0.cgColor } as CFArray
-            let locations: [CGFloat] = [0.0, 0.4]
-            let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
-                                      colors: cgColors,
-                                      locations: locations)!
-
-            // ✅ Use LinearGradientFill instead of Fill.fillWithLinearGradient
-            return LinearGradientFill(gradient: gradient, angle: angle)
-        }
-
-        if v1 < v2 {
-            let gradientFill = makeGradient(colors: [UIColor(named: "uptrend")!.withAlphaComponent(0.1), UIColor(named: "uptrend")!.withAlphaComponent(0.5)])
-            set1.fill = gradientFill
-            set1.setColor(UIColor(named: "uptrend")!)
-        } else {
-            let gradientFill = makeGradient(colors: [UIColor(named: "downtrend")!.withAlphaComponent(0.5), UIColor(named: "downtrend")!.withAlphaComponent(0.1)])
-            set1.fill = gradientFill
-            set1.setColor(UIColor(named: "downtrend")!)
-        }
-
-
-        set1.fillAlpha = 1.0
-        set1.drawFilledEnabled = true
-
-        // Highlight / indicator styles
-        set1.drawVerticalHighlightIndicatorEnabled = true
-        set1.drawHorizontalHighlightIndicatorEnabled = false
-        set1.highlightLineWidth = 1
-        set1.highlightColor = .systemBlue
-        set1.drawValuesEnabled = false
-        set1.drawIconsEnabled = false
-
-        let data = LineChartData(dataSet: set1)
-        lineChartView.data = data
+        chartModel.showsCandles = selectedCandleChart
+        //A merged candle has its own open, high and low; the row follows what's drawn.
+        showBar(chartModel.drawnPoints.last)
+        selectChartButton.setImage(UIImage(named: selectedCandleChart ? "chart.line.uptrend.xyaxis" : "chart.bar.fill"), for: .normal)
     }
     
     @IBAction func openNewsButton(_ sender: UIButton) {
@@ -1126,15 +932,6 @@ private final class ActionTile: UIButton {
 
     override var isEnabled: Bool {
         didSet { alpha = isEnabled ? 1 : 0.4 }
-    }
-}
-
-extension UIView {
-    func asImage() -> UIImage? {
-        let renderer = UIGraphicsImageRenderer(bounds: bounds)
-        return renderer.image { context in
-            layer.render(in: context.cgContext)
-        }
     }
 }
 
