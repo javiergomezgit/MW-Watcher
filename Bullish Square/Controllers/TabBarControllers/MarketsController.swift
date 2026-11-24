@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import DGCharts
 
 class MarketsController: UIViewController {
     
@@ -23,43 +22,8 @@ class MarketsController: UIViewController {
     private var marketsDataDJI: [MarketsCandles] = []
     private var marketsDataIXIC: [MarketsCandles] = []
     
-    private var linearValuesSP500 = [ChartDataEntry]()
-    private var linearValuesDJI = [ChartDataEntry]()
-    private var linearValuesIXIC = [ChartDataEntry]()
-    
-    lazy var lineChartView: LineChartView = {
-        let lineChartView = LineChartView()
-        lineChartView.delegate = self
-        
-        lineChartView.leftAxis.enabled = false
-        lineChartView.rightAxis.enabled = true
-        
-        lineChartView.dragEnabled = false
-        lineChartView.setScaleEnabled(true)
-        lineChartView.pinchZoomEnabled = false
-        lineChartView.doubleTapToZoomEnabled = false
-        lineChartView.dragXEnabled = false
-        lineChartView.autoScaleMinMaxEnabled = true
-        lineChartView.legend.enabled = true
-        lineChartView.legend.textColor = .label
-
-        lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.rightAxis.labelTextColor = .label
-        //        lineChartView.rightAxis.spaceTop = 0.5
-        //        lineChartView.rightAxis.spaceBottom = 0.3
-        lineChartView.rightAxis.setLabelCount(8, force: true)
-        lineChartView.rightAxis.axisLineColor = .label
-        lineChartView.rightAxis.labelPosition = .outsideChart
-        
-        lineChartView.xAxis.enabled = false
-        //        lineChartView.xAxis.labelPosition = .top
-        //        lineChartView.xAxis.yOffset = 5
-        //        lineChartView.xAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 9)!
-        //        lineChartView.xAxis.labelTextColor = .label
-        //        lineChartView.xAxis.setLabelCount(5, force: true)
-        
-        return lineChartView
-    }()
+    ///The three index lines, in Swift Charts (BS-328). Made on first use, inside `chartView`.
+    private lazy var chartModel = ComparisonChartModel.install(in: chartView, parent: self)
     
     private var majorMarketsPrices = [GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0)]
     private var cryptoCoins: [GeneralMarkets] = []
@@ -429,95 +393,18 @@ extension MarketsController: UITableViewDelegate, UITableViewDataSource {
 }
 
 
-//MARK: Extension for the chart
-extension MarketsController: ChartViewDelegate {
-    
-    private func setUpMarketModel(){
-        
-        self.linearValuesSP500.removeAll()
-        self.linearValuesDJI .removeAll()
-        self.linearValuesIXIC.removeAll()
+// MARK: - Chart
 
-        var centerLineData = [ChartDataEntry]()
-        for index in 0...78 {
-            centerLineData.append(ChartDataEntry(x: Double(index), y: 0.0))
-        }
-        let centerLine = LineChartDataSet(entries: centerLineData, label: "Center")
-            
-        for (index, candleValue) in self.marketsDataSP500.enumerated() {
-            let closePrice = candleValue.close
-            self.linearValuesSP500.append(ChartDataEntry(x: Double(index), y: closePrice))
-        }
-        let lineChartDataSetSP500 = LineChartDataSet(entries: linearValuesSP500, label: "SP500")
-        
-        for (index, candleValue) in self.marketsDataDJI.enumerated() {
-            let closePrice = candleValue.close
-            self.linearValuesDJI.append(ChartDataEntry(x: Double(index), y: closePrice))
-        }
-        let lineChartDataSetDJI = LineChartDataSet(entries: linearValuesDJI, label: "DJI")
-        
-        for (index, candleValue) in self.marketsDataIXIC.enumerated() {
-            let closePrice = candleValue.close
-            self.linearValuesIXIC.append(ChartDataEntry(x: Double(index), y: closePrice))
-        }
-        let lineChartDataSetIXIC = LineChartDataSet(entries: linearValuesIXIC, label: "NASDAQ")
-        
-        //Added and constrained once. This runs on every refresh, and re-adding the
-        //constraints each time stacked up four more identical ones per refresh.
-        if lineChartView.superview == nil {
-            chartView.addSubview(lineChartView)
-            lineChartView.centerInSuperview()
-            lineChartView.width(to: chartView)
-            lineChartView.height(to: chartView)
-        }
-        
-        self.setData(centerLine: centerLine, lineChartSP500: lineChartDataSetSP500, lineChartDJI: lineChartDataSetDJI, lineChartIXIC: lineChartDataSetIXIC)
-    }
-    
-    func setData(centerLine: LineChartDataSet, lineChartSP500: LineChartDataSet, lineChartDJI: LineChartDataSet, lineChartIXIC: LineChartDataSet) {
-        let set0 = centerLine
-        set0.mode = .linear
-        set0.drawCirclesEnabled = false
-        set0.lineWidth = 1
-        set0.setColor(.label)
-        set0.drawFilledEnabled = false
-        set0.drawHorizontalHighlightIndicatorEnabled = true
-        set0.drawVerticalHighlightIndicatorEnabled = false
-        set0.highlightColor = .label
-        
-        let set1 = lineChartSP500
-        set1.mode = .linear
-        set1.drawCirclesEnabled = false
-        set1.lineWidth = 2
-        set1.setColor(.systemOrange)
-        set1.drawFilledEnabled = false
-        set1.drawHorizontalHighlightIndicatorEnabled = true
-        set1.drawVerticalHighlightIndicatorEnabled = false
-        set1.highlightColor = .label
-        
-        let set2 = lineChartDJI
-        set2.mode = .linear
-        set2.drawCirclesEnabled = false
-        set2.lineWidth = 2
-        set2.setColor(.systemBrown)
-        set2.drawFilledEnabled = false
-        set2.drawHorizontalHighlightIndicatorEnabled = true
-        set2.drawVerticalHighlightIndicatorEnabled = false
-        set2.highlightColor = .label
+extension MarketsController {
 
-        let set3 = lineChartIXIC
-        set3.mode = .linear
-        set3.drawCirclesEnabled = false
-        set3.lineWidth = 2
-        set3.setColor(.systemBlue)
-        set3.drawFilledEnabled = false
-        set3.drawVerticalHighlightIndicatorEnabled = true
-        set3.drawHorizontalHighlightIndicatorEnabled = false
-        set3.highlightColor = .label
-        
-        let data = LineChartData(dataSets: [set0, set1, set2, set3])
-        data.setDrawValues(false)
-        lineChartView.data = data
+    ///Today's move of each index as a percent from yesterday's close, one point per bar the
+    ///server sends (ChartAPI.marketsLines already turned closes into percents).
+    private func setUpMarketModel() {
+        chartModel.series = [
+            ComparisonSeries(name: "S&P 500", color: .systemOrange, values: marketsDataSP500.map(\.close)),
+            ComparisonSeries(name: "Dow Jones", color: .systemBrown, values: marketsDataDJI.map(\.close)),
+            ComparisonSeries(name: "Nasdaq", color: .systemBlue, values: marketsDataIXIC.map(\.close))
+        ]
     }
 }
 

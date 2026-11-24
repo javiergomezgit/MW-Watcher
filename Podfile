@@ -14,7 +14,6 @@ target 'Bullish Square' do
     pod 'FirebaseAuth'
     pod 'FirebaseFirestore'
     pod 'Firebase/Storage'
-    pod 'DGCharts'
     pod 'TinyConstraints'
     pod 'SwiftyJSON', '~> 4.0'
 

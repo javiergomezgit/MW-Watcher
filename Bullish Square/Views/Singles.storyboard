@@ -198,7 +198,7 @@
                                 <rect key="frame" x="15" y="323.33333333333326" width="363" height="436.66666666666674"/>
                                 <color key="backgroundColor" name="colorPrimary"/>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U3Q-eC-5SJ" customClass="HBSegmentedControl" customModule="Bullish_Square" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U3Q-eC-5SJ">
                                 <rect key="frame" x="15" y="768" width="363" height="35"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
@@ -287,7 +287,7 @@
                         <outlet property="sp500ComparingLabel" destination="g2I-Ga-0Aq" id="iOO-FP-Cqn"/>
                         <outlet property="sp500OverLabel" destination="lno-e1-2Vh" id="a6o-QY-zSY"/>
                         <outlet property="sp500TodayLabel" destination="xwf-g0-xAe" id="8Dl-bE-Bni"/>
-                        <outlet property="timesSegmentedControl" destination="U3Q-eC-5SJ" id="dF5-un-biI"/>
+                        <outlet property="timesContainer" destination="U3Q-eC-5SJ" id="dF5-un-biI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lda-3l-X7u" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

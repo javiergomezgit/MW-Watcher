@@ -6,8 +6,6 @@
 //
 
 import UIKit
-import DGCharts
-//import TinyConstraints
 
 class SimulatedPortfolioController: UIViewController {
     
@@ -28,7 +26,10 @@ class SimulatedPortfolioController: UIViewController {
     
     @IBOutlet weak var chartView: UIView!
     
-    @IBOutlet weak var timesSegmentedControl: HBSegmentedControl!
+    ///The storyboard's slot for the time picker. It held an HBSegmentedControl; the native
+    ///control below is placed in it instead (BS-328).
+    @IBOutlet weak var timesContainer: UIView!
+    private let timesSegmentedControl = UISegmentedControl(items: ["1 day", "1 month", "1 year", "5 years"])
     
     var marketsPrices = [GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0)]
     let savedTickers = SaveTickers()
@@ -38,10 +39,14 @@ class SimulatedPortfolioController: UIViewController {
     var dowTodayPrice = 0.0
     var timeRange = "&interval=15m&range=1d"
     
-    private var linearValuesSP500 = [ChartDataEntry]()
-    private var linearValuesDJI = [ChartDataEntry]()
-    private var linearValuesIXIC = [ChartDataEntry]()
-    private var linearValuesPortfolio = [ChartDataEntry]()
+    ///Percent change per time slot for each line.
+    private var linearValuesSP500: [Double] = []
+    private var linearValuesDJI: [Double] = []
+    private var linearValuesIXIC: [Double] = []
+    private var linearValuesPortfolio: [Double] = []
+
+    ///The indexes and the portfolio, in Swift Charts (BS-328). Made on first use, inside `chartView`.
+    private lazy var chartModel = ComparisonChartModel.install(in: chartView, parent: self)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,17 +72,18 @@ class SimulatedPortfolioController: UIViewController {
         dateTodayLabe.text = "U.S. Markets - \(dateMerged)"
     }
     
+    ///A native segmented control filling the storyboard's slot, like the stock chart's picker.
     private func setSegementedControl() {
-        timesSegmentedControl.borderColor = .clear
-        timesSegmentedControl.selectedLabelColor = UIColor.white
-        timesSegmentedControl.unselectedLabelColor = UIColor(named: "colorAccent")!
-        timesSegmentedControl.layer.cornerRadius = 10
-        timesSegmentedControl.backgroundColor = .clear
-        timesSegmentedControl.thumbColor = UIColor(named: "colorAccent")!
-        let font = UIFont.systemFont(ofSize: 15) // pick the size you want
-        timesSegmentedControl.font  = UIFont.boldSystemFont(ofSize: font.pointSize)
-        timesSegmentedControl.selectedIndex = 0
-        timesSegmentedControl.items = ["1 day", "1 month", "1 year", "5 years"]
+        timesContainer.backgroundColor = .clear
+        timesSegmentedControl.selectedSegmentIndex = 0
+        timesSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        timesContainer.addSubview(timesSegmentedControl)
+        NSLayoutConstraint.activate([
+            timesSegmentedControl.topAnchor.constraint(equalTo: timesContainer.topAnchor),
+            timesSegmentedControl.bottomAnchor.constraint(equalTo: timesContainer.bottomAnchor),
+            timesSegmentedControl.leadingAnchor.constraint(equalTo: timesContainer.leadingAnchor),
+            timesSegmentedControl.trailingAnchor.constraint(equalTo: timesContainer.trailingAnchor)
+        ])
         timesSegmentedControl.addTarget(self, action: #selector(segmentValueChanged(_:)), for: .valueChanged)
     }
     
@@ -89,7 +95,7 @@ class SimulatedPortfolioController: UIViewController {
         
         startStopSpinner(start: true)
         
-        let index = timesSegmentedControl.selectedIndex
+        let index = timesSegmentedControl.selectedSegmentIndex
         
         switch index {
         case 0: timeRange = "&interval=15m&range=1d"
@@ -203,9 +209,9 @@ class SimulatedPortfolioController: UIViewController {
                 let percentage = marketValue.changePercentage
                 self.dowTodayPrice = percentage
                 dowTodayLabel.text = String("\(percentage)%")
-                for (index, lineValue) in marketValue.tickerPerformer.enumerated() {
+                for lineValue in marketValue.tickerPerformer {
                     let closePrice = lineValue.close
-                    self.linearValuesDJI.append(ChartDataEntry(x: Double(index), y: closePrice))
+                    self.linearValuesDJI.append(closePrice)
                 }
                 break
             case "^GSPC":
@@ -213,9 +219,9 @@ class SimulatedPortfolioController: UIViewController {
                 let percentage = marketValue.changePercentage
                 self.sp500TodayPrice = percentage
                 sp500TodayLabel.text = String("\(percentage)%")
-                for (index, lineValue) in marketValue.tickerPerformer.enumerated() {
+                for lineValue in marketValue.tickerPerformer {
                     let closePrice = lineValue.close
-                    self.linearValuesSP500.append(ChartDataEntry(x: Double(index), y: closePrice))
+                    self.linearValuesSP500.append(closePrice)
                 }
                 break
             case "^IXIC":
@@ -223,9 +229,9 @@ class SimulatedPortfolioController: UIViewController {
                 let percentage = marketValue.changePercentage
                 self.nasdaqTodayPrice = percentage
                 nasdaqTodayLabel.text = String("\(percentage)%")
-                for (index, lineValue) in marketValue.tickerPerformer.enumerated() {
+                for lineValue in marketValue.tickerPerformer {
                     let closePrice = lineValue.close
-                    self.linearValuesIXIC.append(ChartDataEntry(x: Double(index), y: closePrice))
+                    self.linearValuesIXIC.append(closePrice)
                 }
                 break
             case "^VIX":
@@ -347,160 +353,33 @@ class SimulatedPortfolioController: UIViewController {
             
             guard count > 0 else {
                 //Fill gap with previous value — keeps chart line continuous
-                let previousY = linearValuesPortfolio.last?.y ?? 0
+                let previousY = linearValuesPortfolio.last ?? 0
                 print("Slot \(i): GAP FILLED with \(previousY)")
 
-                linearValuesPortfolio.append(ChartDataEntry(x: Double(i), y: previousY))
+                linearValuesPortfolio.append(previousY)
                 continue
             }
             
             let avg = sum / Double(count)
             print("Slot \(i): avg=\(avg) count=\(count)")
-            linearValuesPortfolio.append(ChartDataEntry(x: Double(i), y: avg))
+            linearValuesPortfolio.append(avg)
         }
         print("populatePortfolioChartEntry running — maxSlot: \(portfolioStocks.map { $0.tickerPerformer.count }.max() ?? 0)")
     }
-    
-    lazy var lineChartView: LineChartView = {
-        let lineChartView = LineChartView()
-        lineChartView.delegate = self
-        
-        lineChartView.leftAxis.enabled = false
-        lineChartView.rightAxis.enabled = true
-        
-        lineChartView.dragEnabled = false
-        lineChartView.setScaleEnabled(true)
-        lineChartView.pinchZoomEnabled = false
-        lineChartView.doubleTapToZoomEnabled = false
-        lineChartView.dragXEnabled = false
-        lineChartView.autoScaleMinMaxEnabled = false  // ← CHANGED FROM true TO false
-        lineChartView.legend.enabled = true
-        lineChartView.legend.textColor = .label
-        
-        lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
-        lineChartView.rightAxis.labelTextColor = .label
-        lineChartView.rightAxis.setLabelCount(6, force: false)  // ← CHANGED FROM (8, force: true) TO (6, force: false)
-        lineChartView.rightAxis.axisLineColor = .label
-        lineChartView.rightAxis.labelPosition = .outsideChart
-        
-        lineChartView.xAxis.enabled = false
-        
-        return lineChartView
-    }()
-    
-    private func setAxisRange() {
-        let allData = [linearValuesSP500, linearValuesDJI, linearValuesIXIC, linearValuesPortfolio]
-        let allValues = allData.flatMap { $0 }.map { $0.y }.filter { $0.isFinite }
-        
-        //With nothing to plot, the old code left minValue at greatestFiniteMagnitude and
-        //maxValue at its negative, so the padding was -infinity and the axis bounds came out
-        //as +infinity and -infinity. The series is a percentage move, so centre on zero.
-        guard let minValue = allValues.min(), let maxValue = allValues.max() else {
-            lineChartView.rightAxis.axisMinimum = -1
-            lineChartView.rightAxis.axisMaximum = 1
-            return
-        }
-        
-        //A perfectly flat series gives zero padding, which collapses the axis onto one value
-        let span = maxValue - minValue
-        let padding = span > 0 ? span * 0.1 : max(abs(maxValue) * 0.1, 1.0)
-        
-        lineChartView.rightAxis.axisMinimum = minValue - padding
-        lineChartView.rightAxis.axisMaximum = maxValue + padding
-    }
 }
 
-extension SimulatedPortfolioController: ChartViewDelegate {
-    
+// MARK: - Chart
+
+extension SimulatedPortfolioController {
+
+    ///The three indexes thin and smooth, the portfolio thick with a dot per value, all as
+    ///percent change over the picked span. The axis fits the lines and always shows 0%.
     func loadPerformerChart() {
-        var centerLineData = [ChartDataEntry]()
-        for index in 0..<linearValuesDJI.count {
-            centerLineData.append(ChartDataEntry(x: Double(index), y: 0.0))
-        }
-        let centerLine = LineChartDataSet(entries: centerLineData, label: "- 0% -")
-            
-        let lineChartDataSetSP500 = LineChartDataSet(entries: linearValuesSP500, label: "SP500")
-        
-        let lineChartDataSetDJI = LineChartDataSet(entries: linearValuesDJI, label: "DJI")
-        
-        let lineChartDataSetIXIC = LineChartDataSet(entries: linearValuesIXIC, label: "NASDAQ")
-        
-        let lineChartDataSetPortfolio = LineChartDataSet(entries: linearValuesPortfolio, label: "Portfolio")
-        
-        //Added and constrained once. This runs on every refresh, and re-adding the
-        //constraints each time stacked up four more identical ones per refresh.
-        if lineChartView.superview == nil {
-            chartView.addSubview(lineChartView)
-            lineChartView.centerInSuperview()
-            lineChartView.width(to: chartView)
-            lineChartView.height(to: chartView)
-        }
-
-        // Set the axis range before setting data
-        setAxisRange()
-            
-        self.setData(centerLine: centerLine, lineChartSP500: lineChartDataSetSP500, lineChartDJI: lineChartDataSetDJI, lineChartIXIC: lineChartDataSetIXIC, lineChartPortfolio: lineChartDataSetPortfolio)
-    }
-    
-    func setData(centerLine: LineChartDataSet, lineChartSP500: LineChartDataSet, lineChartDJI: LineChartDataSet, lineChartIXIC: LineChartDataSet, lineChartPortfolio: LineChartDataSet) {
-        let set0 = centerLine
-        set0.mode = .linear
-        set0.drawCirclesEnabled = false
-        set0.lineWidth = 1
-        set0.lineDashLengths = [3, 3]
-        set0.setColor(.label)
-        set0.drawFilledEnabled = false
-        set0.drawHorizontalHighlightIndicatorEnabled = true
-        set0.drawVerticalHighlightIndicatorEnabled = false
-        set0.highlightColor = .label
-        
-        let set1 = lineChartSP500
-        set1.mode = .cubicBezier
-        set1.drawCirclesEnabled = false
-        set1.lineWidth = 1
-        set1.setColor(.systemOrange)
-        set1.drawFilledEnabled = false
-        set1.drawHorizontalHighlightIndicatorEnabled = true
-        set1.drawVerticalHighlightIndicatorEnabled = false
-        set1.highlightColor = .label
-        
-        let set2 = lineChartDJI
-        set2.mode = .cubicBezier
-        set2.drawCirclesEnabled = false
-        set2.lineWidth = 1
-        set2.setColor(.systemBrown)
-        set2.drawFilledEnabled = false
-        set2.drawHorizontalHighlightIndicatorEnabled = true
-        set2.drawVerticalHighlightIndicatorEnabled = false
-        set2.highlightColor = .label
-
-        let set3 = lineChartIXIC
-        set3.mode = .cubicBezier
-        set3.drawCirclesEnabled = false //draw circles in each spot
-        set3.lineWidth = 1
-        set3.setColor(.systemBlue)
-        set3.drawFilledEnabled = false
-        set3.drawVerticalHighlightIndicatorEnabled = true
-        set3.drawHorizontalHighlightIndicatorEnabled = false
-        set3.highlightColor = .label
-        
-        
-        let set4 = lineChartPortfolio
-        set4.mode = .linear// .horizontalBezier//.cubicBezier
-        set4.drawCirclesEnabled = true
-        set4.circleRadius = 3
-//        set4.setCircleColor(NSUIColor.blue) //contorn color
-        set4.circleHoleColor = .systemBackground//.yellow //center circle color
-        set4.circleColors = [NSUIColor.red] //contorn color
-        set4.lineWidth = 2
-        set4.setColor(.label)
-        set4.drawFilledEnabled = false
-        set4.drawVerticalHighlightIndicatorEnabled = true
-        set4.drawHorizontalHighlightIndicatorEnabled = false
-        set4.highlightColor = .label
-        
-        let data = LineChartData(dataSets: [set0, set1, set2, set3, set4])
-        data.setDrawValues(false)
-        lineChartView.data = data
+        chartModel.series = [
+            ComparisonSeries(name: "S&P 500", color: .systemOrange, values: linearValuesSP500, lineWidth: 1),
+            ComparisonSeries(name: "Dow Jones", color: .systemBrown, values: linearValuesDJI, lineWidth: 1),
+            ComparisonSeries(name: "Nasdaq", color: .systemBlue, values: linearValuesIXIC, lineWidth: 1),
+            ComparisonSeries(name: "Portfolio", color: .label, values: linearValuesPortfolio, lineWidth: 2, showsPoints: true)
+        ]
     }
 }
