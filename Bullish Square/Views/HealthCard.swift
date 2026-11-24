@@ -93,7 +93,10 @@ final class HealthCard: UIView {
 
     ///A health answer, or a sentence in its place ("Not enough history yet"). `priceText`
     ///formats prices like the rest of the screen ($ for a stock, points for an index).
-    func update(_ answer: StockHealthAnswer, priceText: (Double) -> String) {
+    ///
+    ///`change` comes from the watchlist's last review (BS-311): what changed since the last
+    ///visit, "" for no change, nil for a stock the active watchlist doesn't hold.
+    func update(_ answer: StockHealthAnswer, priceText: (Double) -> String, change: String? = nil) {
         rowsStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         guard let health = answer.health else {
             let text = StockHealthFormat.placeholder(for: answer) ?? "Health unavailable right now"
@@ -138,7 +141,12 @@ final class HealthCard: UIView {
                       detail: StockHealthFormat.oneYearReturn(health.return1y)?.capitalizedFirst),
             topic: .momentum, separator: false)
 
-        freshnessLabel.text = StockHealthFormat.asOf(health) + ". Describes past prices only; not advice to buy or sell."
+        var freshness = StockHealthFormat.asOf(health) + ". Describes past prices only; not advice to buy or sell."
+        if let change {
+            freshness = (change.isEmpty ? "✓ No change detected since your last visit. "
+                                        : "● Changed since your last visit: \(change). ") + freshness
+        }
+        freshnessLabel.text = freshness
         freshnessLabel.isHidden = false
     }
 

@@ -179,7 +179,8 @@ class ChartController: UIViewController {
                 //A symbol the provider doesn't know has nothing to explain.
                 guard answer != .noData else { return }
                 self.healthAnswer = answer
-                self.healthCard.update(answer, priceText: self.priceText)
+                self.healthCard.update(answer, priceText: self.priceText,
+                                       change: HealthSeenStore.shared.latestChange(for: ticker))
                 self.healthCard.isHidden = false
             }
         }

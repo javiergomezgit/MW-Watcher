@@ -188,9 +188,10 @@ class WatchlistViewCell: UITableViewCell {
     }
 
     ///Always shows something: a grey dash until health arrives, or if it never does.
-    func showTrend(_ answer: StockHealthAnswer?) {
+    ///`changed` puts a dot before the word for the visit that first shows a change (BS-311).
+    func showTrend(_ answer: StockHealthAnswer?, changed: Bool = false) {
         let badge = StockHealthFormat.badge(for: answer)
-        var title = AttributedString(badge.text)
+        var title = AttributedString(changed ? "● " + badge.text : badge.text)
         title.font = UIFont(name: "Avenir-Heavy", size: 12) ?? .boldSystemFont(ofSize: 12)
         trendBadge.configuration?.attributedTitle = title
         trendBadge.configuration?.image = badge.symbolName.flatMap {
@@ -199,7 +200,7 @@ class WatchlistViewCell: UITableViewCell {
         trendBadge.configuration?.baseForegroundColor = badge.color
         trendBadge.configuration?.background.backgroundColor = badge.color.withAlphaComponent(0.12)
         trendBadge.configuration?.background.strokeColor = badge.color.withAlphaComponent(0.45)
-        trendBadge.accessibilityLabel = badge.accessibilityLabel
+        trendBadge.accessibilityLabel = changed ? "Changed since your last visit. " + badge.accessibilityLabel : badge.accessibilityLabel
         trendBadge.accessibilityHint = "Explains how the trend was decided"
     }
 

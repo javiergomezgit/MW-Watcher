@@ -302,6 +302,8 @@ final class AccountDeletionManager: NSObject {
             for key in UserDefaults.standard.dictionaryRepresentation().keys where key.hasPrefix("activeWatchlistID_") {
                 UserDefaults.standard.removeObject(forKey: key)
             }
+            //What each stock's health was last time this account looked (BS-311).
+            HealthSeenStore.shared.clearAll()
 
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
             let managedContext = appDelegate.persistentContainer.viewContext

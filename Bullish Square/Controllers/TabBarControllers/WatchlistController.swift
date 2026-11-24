@@ -48,6 +48,9 @@ class WatchlistController: UIViewController {
     ///Health moves once a day, at the close; half an hour keeps the badge current without
     ///asking on every appearance. A failed ticker waits the same time before trying again.
     private let healthFreshness: TimeInterval = 30 * 60
+    ///What changed since the last visit, by uppercased ticker (BS-311). Set by `reviewHealth`.
+    private var healthChanges: [String: String] = [:]
+    private let changesHeader = HealthChangesHeader()
     ///Five-minute bars across today's session, about 79 points, which is what the sparkline
     ///draws. The previous close and the latest price come back identical to the old one-bar
     ///"interval=1d", so every number on screen is unchanged; only the line is new.
@@ -260,6 +263,7 @@ class WatchlistController: UIViewController {
             priceFetchedAt = [:]
             tableView.reloadData()
             updateEmptyState()
+            reviewHealth()
             finishLoading()
             return
         }
@@ -282,6 +286,8 @@ class WatchlistController: UIViewController {
         loadPendingLogos(for: savedTickers)
         loadPendingAnalystTargets(for: savedTickers)
         loadPendingHealth(for: savedTickers)
+        //With the health already on hand; new health reviews again when it lands.
+        reviewHealth()
 
         //This ran on every appearance: each tab switch and each return from a chart was a full
         //price request straight into the API quota, and that endpoint already answers with
@@ -437,13 +443,84 @@ class WatchlistController: UIViewController {
             switch result {
             case .success(let answers):
                 self.healthAnswers.merge(answers) { _, new in new }
+                self.reviewHealth()
                 //Rows found by ticker now, not by position when the request left.
                 for ticker in answers.keys {
                     self.reloadRow(forTicker: ticker)
                 }
             case .failure(let error):
                 print("Watchlist health failed; rows keep their placeholder: \(error)")
+                self.reviewHealth()
             }
+        }
+    }
+
+    // MARK: - Changes since the last visit (BS-311)
+
+    ///Compares the list's health with what was seen last visit and fills the line above the
+    ///list. Runs on each appearance and when new health lands; the store decides what counts
+    ///as a new visit.
+    private func reviewHealth() {
+        guard !tickersFeatures.isEmpty else {
+            tableView.tableHeaderView = nil
+            return
+        }
+        var states: [String: String] = [:]
+        var latestClose: String?
+        for ticker in tickersFeatures.map({ $0.ticker.uppercased() }) {
+            let answer = healthAnswers[ticker]
+            if let state = HealthSeenStore.state(for: answer) {
+                states[ticker] = state
+            }
+            if let asOf = answer?.health?.asOf, asOf > (latestClose ?? "") {
+                latestClose = asOf
+            }
+        }
+
+        if states.isEmpty {
+            //Asked and answered with nothing usable (every stock "unavailable", or the request
+            //failed) reads differently from still loading.
+            let stillLoading = tickersFeatures.contains { healthInFlight.contains($0.ticker.uppercased()) }
+            if stillLoading {
+                changesHeader.showChecking()
+            } else {
+                changesHeader.showUnavailable()
+            }
+        } else {
+            let review = HealthSeenStore.shared.review(states)
+            let previous = healthChanges
+            healthChanges = review.changes
+            //In the list's order, so the line reads like the rows below it.
+            let ordered = tickersFeatures.compactMap { features -> (ticker: String, text: String)? in
+                let ticker = features.ticker.uppercased()
+                return review.changes[ticker].map { (ticker, $0) }
+            }
+            changesHeader.show(changes: ordered, isFirst: review.isFirst, asOf: latestClose.map(StockHealthFormat.day))
+            if previous != healthChanges {
+                for ticker in Set(previous.keys).union(healthChanges.keys) {
+                    reloadRow(forTicker: ticker)
+                }
+            }
+        }
+        layOutChangesHeader()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        //The first layout, a rotation or a text-size change gives the header a new width.
+        if tableView.tableHeaderView === changesHeader, changesHeader.frame.width != tableView.bounds.width {
+            layOutChangesHeader()
+        }
+    }
+
+    ///A table header keeps the frame it's given, so its height is worked out from its text.
+    private func layOutChangesHeader() {
+        let width = tableView.bounds.width
+        guard width > 0 else { return }
+        let height = changesHeader.fittingHeight(for: width)
+        if tableView.tableHeaderView !== changesHeader || changesHeader.frame.height != height {
+            changesHeader.frame = CGRect(x: 0, y: 0, width: width, height: height)
+            tableView.tableHeaderView = changesHeader
         }
     }
 
@@ -606,7 +683,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.analystTargetButton.removeTarget(self, action: #selector(openAnalystTarget(sender:)), for: .touchUpInside)
             cell.analystTargetButton.addTarget(self, action: #selector(openAnalystTarget(sender:)), for: .touchUpInside)
 
-            cell.showTrend(healthAnswers[ticker.uppercased()])
+            cell.showTrend(healthAnswers[ticker.uppercased()], changed: healthChanges[ticker.uppercased()] != nil)
             cell.trendBadge.removeTarget(self, action: #selector(openTrendExplanation(sender:)), for: .touchUpInside)
             cell.trendBadge.addTarget(self, action: #selector(openTrendExplanation(sender:)), for: .touchUpInside)
 
