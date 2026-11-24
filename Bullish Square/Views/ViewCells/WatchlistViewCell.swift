@@ -238,7 +238,7 @@ class WatchlistViewCell: UITableViewCell {
         var title = AttributedString(text + "  ›")
         title.font = UIFont(name: "Avenir-Heavy", size: 12) ?? .boldSystemFont(ofSize: 12)
         analystTargetButton.configuration?.attributedTitle = title
-        analystTargetButton.accessibilityLabel = "Analyst price target: " + text
+        analystTargetButton.accessibilityLabel = "Analysts' consensus: " + text.capitalized
         analystTargetButton.accessibilityHint = "Shows the analysts' full consensus"
         analystTargetButton.isHidden = false
     }

@@ -521,21 +521,12 @@ class WatchlistController: UIViewController {
         tableView.reloadRows(at: [indexPath], with: .none)
     }
 
-    ///"$328 · -0.4% · Buy" beside a target glyph, which says "target" without the word. The upside uses the price shown on the same row, never the
-    ///one inside the analyst data, so a row cannot show two different prices. Without a price
-    ///yet the percentage is left out rather than guessed.
+    ///"BUY", "HOLD" or "SELL" beside a target glyph (Javier, 24 Nov 2026). The target price and
+    ///upside are one tap away in the sheet; on the row they crowded the trend badge. No pill when
+    ///the consensus says nothing.
     private func analystTargetLine(for ticker: String) -> String? {
         guard let target = AnalystTargetStore.shared.entry(for: ticker)?.target else { return nil }
-
-        var parts = [AnalystTargetFormat.price(target.meanTarget)]
-        if let price = tickersValues[ticker]?.marketPrice,
-           let upside = target.upsidePercent(from: price) {
-            parts.append(AnalystTargetFormat.percent(upside))
-        }
-        if let consensus = target.consensusLabel {
-            parts.append(consensus)
-        }
-        return parts.joined(separator: " · ")
+        return AnalystTargetFormat.ratingWord(for: target.consensusKey)
     }
 
     @objc func openAnalystTarget(sender: UIButton) {
@@ -619,8 +610,7 @@ extension WatchlistController: UITableViewDelegate, UITableViewDataSource {
             cell.trendBadge.removeTarget(self, action: #selector(openTrendExplanation(sender:)), for: .touchUpInside)
             cell.trendBadge.addTarget(self, action: #selector(openTrendExplanation(sender:)), for: .touchUpInside)
 
-            //Before the price guard: a target already known still shows while prices load,
-            //just without the percentage.
+            //Before the price guard: a consensus already known shows while prices load.
             cell.showAnalystTarget(analystTargetLine(for: ticker),
                                    recommendationKey: AnalystTargetStore.shared.entry(for: ticker)?.target?.consensusKey)
 

@@ -53,6 +53,18 @@ enum AnalystTargetFormat {
         return (color, color.withAlphaComponent(fill), color.withAlphaComponent(strong ? 0.9 : 0.55))
     }
 
+    ///The watchlist pill's one word. Five ratings fold into three, so the row reads at a glance;
+    ///the colour still tells a strong rating from a plain one, and the sheet has the detail.
+    ///nil when the consensus says nothing ("none").
+    static func ratingWord(for key: String?) -> String? {
+        switch key {
+        case "strong_buy", "buy": return "BUY"
+        case "hold": return "HOLD"
+        case "underperform", "sell", "strong_sell": return "SELL"
+        default: return nil
+        }
+    }
+
     ///Always signed, so a target below today's price reads as clearly as one above it.
     static func percent(_ value: Double) -> String {
         //-0.04 would otherwise print as "-0.0%".
