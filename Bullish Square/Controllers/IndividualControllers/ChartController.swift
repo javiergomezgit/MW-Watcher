@@ -85,6 +85,10 @@ class ChartController: UIViewController {
     ///Stocks only: indexes and crypto have no analysts. Hidden until there's a consensus to show,
     ///and for good when none covers the stock (SPY, small caps).
     private let analystCard = AnalystCard()
+    ///Stocks and indexes; crypto has no 200-day history on the server. Hidden until its first
+    ///answer, so the cards below don't jump while it loads.
+    private let healthCard = HealthCard()
+    private var healthAnswer: StockHealthAnswer?
         
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -141,6 +145,10 @@ class ChartController: UIViewController {
             loadCompanyNameIfNeeded()
             cardsStack.addArrangedSubview(keyStatsCard)
             loadKeyStats()
+            healthCard.isHidden = true
+            healthCard.onSelect = { [weak self] topic in self?.openHealthExplanation(topic) }
+            cardsStack.addArrangedSubview(healthCard)
+            loadHealth()
             if !indexMarket {
                 analystCard.isHidden = true
                 analystCard.onTap = { [weak self] in self?.openAnalystSheet() }
@@ -148,6 +156,46 @@ class ChartController: UIViewController {
                 loadAnalystTarget()
             }
         }
+    }
+
+    // MARK: - Health (BS-310)
+
+    ///One request per opening; the server keeps health until the next close. Decoration: a
+    ///failure shows a sentence in the card and gates nothing.
+    private func loadHealth() {
+        let ticker = informationStockTicker.ticker
+        guard !ticker.isEmpty else { return }
+        StockAPI.shared.getStockHealth(ticker: ticker) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self, self.informationStockTicker.ticker == ticker else { return }
+                let answer: StockHealthAnswer
+                switch result {
+                case .success(let found):
+                    answer = found
+                case .failure(let error):
+                    print("Health for \(ticker) failed; the card says so: \(error)")
+                    answer = .unavailable
+                }
+                //A symbol the provider doesn't know has nothing to explain.
+                guard answer != .noData else { return }
+                self.healthAnswer = answer
+                self.healthCard.update(answer, priceText: self.priceText)
+                self.healthCard.isHidden = false
+            }
+        }
+    }
+
+    private func openHealthExplanation(_ topic: HealthTopic) {
+        guard let health = healthAnswer?.health else { return }
+        let detail = HealthExplanationController(ticker: Self.displaySymbol(informationStockTicker.ticker),
+                                                 health: health, topic: topic,
+                                                 priceText: { [weak self] in self?.priceText($0) ?? Self.ohlcText($0) })
+        let navigationController = UINavigationController(rootViewController: detail)
+        if let sheet = navigationController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(navigationController, animated: true)
     }
 
     // MARK: - Analysts (BS-309)
