@@ -42,14 +42,7 @@ class MarketsController: UIViewController {
         lineChartView.autoScaleMinMaxEnabled = true
         lineChartView.legend.enabled = true
         lineChartView.legend.textColor = .label
-        
-        //TODO: Display value of the selected point in the chart
-        //MARK: Display values on the tapped area of the line/candle
-        //        let marker:BalloonMarker = BalloonMarker(color: UIColor.label, font: UIFont(name: "Helvetica", size: 12)!, textColor: UIColor.systemBackground, insets: UIEdgeInsets(top: 7.0, left: 7.0, bottom: 7.0, right: 7.0))
-        //        marker.minimumSize = CGSize(width: 75.0, height: 35.0)
-        //        lineChartView.marker = marker
-        //        lineChartView.drawMarkers = true
-        
+
         lineChartView.rightAxis.labelFont = UIFont(name: "HelveticaNeue-Light", size: 11)!
         lineChartView.rightAxis.labelTextColor = .label
         //        lineChartView.rightAxis.spaceTop = 0.5

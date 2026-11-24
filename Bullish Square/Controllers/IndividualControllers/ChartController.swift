@@ -13,25 +13,28 @@ class ChartController: UIViewController {
     
     private var cryptoData: [QuoteInvidual]?
     private var stockData: [ValueStock]?
-    @IBOutlet weak var chartView: UIView!
-    @IBOutlet weak var chartWithTimes: UIView!
-    @IBOutlet weak var tickerLabel: UILabel!
-    @IBOutlet weak var selectChartButton: UIButton!
-    @IBOutlet weak var oldestTimeLabel: UILabel!
-    @IBOutlet weak var middleTimeLabel: UILabel!
-    @IBOutlet weak var currentTimeLabel: UILabel!
-    @IBOutlet weak var currentPriceLabel: UILabel!
-    @IBOutlet weak var currentPercentageLabel: UILabel!
-    @IBOutlet weak var volumeLabel: UILabel!
-    @IBOutlet weak var cryptoImage: UIImageView!
-    @IBOutlet weak var pointingOpenLabel: UILabel!
-    @IBOutlet weak var pointingLowLabel: UILabel!
-    @IBOutlet weak var pointingDateLabel: UILabel!
-    @IBOutlet weak var pointingCloseLabel: UILabel!
-    @IBOutlet weak var pointingHighLabel: UILabel!
-    @IBOutlet weak var pointingViewLabels: UIView!
-    @IBOutlet weak var shareButton: UIButton!
-    @IBOutlet weak var segmentControl: HBSegmentedControl!
+    // MARK: - Views
+    //Built in code and placed by layOutScreen (BS-327). The storyboard scene is an empty view:
+    //its DGCharts-era parts (HBSegmentedControl, the three time labels, the floating O/H/L/C
+    //box, the share and news icons) are gone, with their outlets.
+
+    ///The box the Swift Charts chart and its loading skeleton sit in.
+    let chartView = UIView()
+    ///The company's name, or the symbol when the name isn't known.
+    let tickerLabel = UILabel()
+    ///Switches between candles and the line.
+    let selectChartButton = UIButton(type: .system)
+    let currentPriceLabel = UILabel()
+    let currentPercentageLabel = UILabel()
+    ///The previous close for a stock, a coin's volume.
+    let volumeLabel = UILabel()
+    ///The logo, for stocks and coins alike.
+    let cryptoImage = UIImageView()
+    let pointingOpenLabel = UILabel()
+    let pointingLowLabel = UILabel()
+    let pointingDateLabel = UILabel()
+    let pointingCloseLabel = UILabel()
+    let pointingHighLabel = UILabel()
     
     ///Candles by default: they show the open, high and low a line hides.
     var selectedCandleChart = true
@@ -66,7 +69,7 @@ class ChartController: UIViewController {
     private let scrubFeedback = UISelectionFeedbackGenerator()
 
     ///The time spans (stocks) or candle sizes (crypto), a native control under the chart. It
-    ///replaced the storyboard's HBSegmentedControl, which is now hidden.
+    ///replaced the storyboard's HBSegmentedControl.
     private let spanPicker = UISegmentedControl()
     ///Where the Key stats, Health and Analyst cards go (BS-327 step 4, BS-309, BS-310).
     let cardsStack = UIStackView()
@@ -308,8 +311,8 @@ class ChartController: UIViewController {
             setHeaderTitle(symbol: symbol)
             showLogo(imageCompany)
             for label in [currentPriceLabel, currentPercentageLabel, volumeLabel] {
-                label?.text = "—"
-                label?.textColor = .secondaryLabel
+                label.text = "—"
+                label.textColor = .secondaryLabel
             }
             return
         }
@@ -591,10 +594,6 @@ class ChartController: UIViewController {
         ])
         host.didMove(toParent: self)
 
-        for label in [oldestTimeLabel, middleTimeLabel, currentTimeLabel] {
-            label?.isHidden = true
-        }
-
         chartModel.onScrub = { [weak self] point in
             self?.showScrub(point)
         }
@@ -728,7 +727,7 @@ class ChartController: UIViewController {
         return (name, symbol, String(format: "%.2f", price), trend + String(format: "%.2f", change))
     }
     
-    @IBAction func shareButtonTapped(_ sender: UIButton) {
+    func shareButtonTapped(_ sender: UIButton) {
         
         let fields = Self.shareFields(stock: informationStockTicker,
                                       crypto: informationCryptoTicker,
@@ -774,7 +773,7 @@ class ChartController: UIViewController {
         return (text, image.map { [$0] } ?? [])
     }
     
-    @IBAction func selectTypeChart(_ sender: UIButton) {
+    @objc func selectTypeChart(_ sender: UIButton) {
         selectedCandleChart.toggle()
         choseTypeChart()
     }
@@ -789,7 +788,7 @@ class ChartController: UIViewController {
         selectChartButton.accessibilityLabel = selectedCandleChart ? "Show line chart" : "Show candles"
     }
     
-    @IBAction func openNewsButton(_ sender: UIButton) {
+    func openNewsButton(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "Singles", bundle: Bundle.main)
         guard let destination = storyboard.instantiateViewController(identifier: "TickerNewsController") as? TickerNewsController else { return }
 
@@ -834,20 +833,13 @@ extension ChartController {
         //The symbol sits small in the bar. As a large title it took a row of its own above the
         //company name, with nothing beside it.
         navigationItem.largeTitleDisplayMode = .never
-        let kept: [UIView] = [cryptoImage, tickerLabel, currentPriceLabel, currentPercentageLabel, volumeLabel,
-                              chartView, selectChartButton, pointingDateLabel, pointingOpenLabel,
-                              pointingHighLabel, pointingLowLabel, pointingCloseLabel]
-        for item in kept {
-            //Their storyboard sizes (a 30-point chart box, a 25-point name) would fight the
-            //new layout; constraints between a view and its own subviews, such as the chart's
-            //loading skeleton, are kept.
-            item.removeConstraints(item.constraints.filter { $0.firstItem === item && ($0.secondItem == nil || $0.secondItem === item) })
-            item.removeFromSuperview()
+        let views: [UIView] = [cryptoImage, tickerLabel, currentPriceLabel, currentPercentageLabel, volumeLabel,
+                               chartView, selectChartButton, pointingDateLabel, pointingOpenLabel,
+                               pointingHighLabel, pointingLowLabel, pointingCloseLabel]
+        for item in views {
             item.translatesAutoresizingMaskIntoConstraints = false
         }
-        for leftover in view.subviews {
-            leftover.isHidden = true
-        }
+        selectChartButton.addTarget(self, action: #selector(selectTypeChart(_:)), for: .touchUpInside)
 
         //Name and logo. The logo sits inside a circle with room around it: drawn edge to edge,
         //round logos such as Apple's touched the circle. The circle takes the logo's own
@@ -882,7 +874,7 @@ extension ChartController {
         //Open, high, low and close of the latest bar, or of the one under the finger.
         for label in [pointingOpenLabel, pointingHighLabel, pointingLowLabel, pointingCloseLabel] {
             Self.style(label, .callout, weight: .semibold, color: .label)
-            label?.textAlignment = .center
+            label.textAlignment = .center
         }
         Self.style(pointingDateLabel, .subheadline, weight: .regular, color: .secondaryLabel)
         pointingDateLabel.textAlignment = .center
