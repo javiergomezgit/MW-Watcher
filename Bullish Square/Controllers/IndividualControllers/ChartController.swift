@@ -39,8 +39,8 @@ class ChartController: UIViewController {
     ///Candles by default: they show the open, high and low a line hides.
     var selectedCandleChart = true
     
-    ///A coin's candle size on the crypto chart: 900, 3600, 18000, week or month.
-    var interval = "300"
+    ///A coin's time span, one of `cryptoSpans` (BS-327). The first chart is a day, like a stock's.
+    var cryptoSpan = "1D"
     ///A stock or index chart's time span, one of `ChartAPI.spans` (BS-327).
     var span = "1D"
     var symbol = "bit"
@@ -92,7 +92,7 @@ class ChartController: UIViewController {
         super.viewDidLoad()
         
         let isCrypto = informationStockTicker.ticker.isEmpty
-        let segments = isCrypto ? ["15m", "1h", "Day", "Week", "Month"] : ChartAPI.spans
+        let segments = isCrypto ? Self.cryptoSpans.map(\.title) : ChartAPI.spans
         for (index, title) in segments.enumerated() {
             spanPicker.insertSegment(withTitle: title, at: index, animated: false)
         }
@@ -220,21 +220,9 @@ class ChartController: UIViewController {
         if informationStockTicker.ticker == "" {
             //Stocks decide for themselves in loadStockPrices: a cached timeframe shows no
             //loading state at all.
+            guard Self.cryptoSpans.indices.contains(index) else { return }
             startStopSpinner(start: true)
-            switch index {
-            case 0: self.interval = "900"
-                break
-            case 1: self.interval = "3600"
-                break
-            case 2: self.interval = "18000"
-                break
-            case 3: self.interval = "week"
-                break
-            case 4: self.interval = "month"
-                break
-            default:
-                self.interval = "300"
-            }
+            cryptoSpan = Self.cryptoSpans[index].title
             loadCryptoPrices()
         } else {
             guard ChartAPI.spans.indices.contains(index) else { return }
@@ -470,15 +458,20 @@ class ChartController: UIViewController {
     }
     
     private func loadCryptoPrices() {
-        CryptoAPI.shared.getSelectedCrypto(interval: interval, symbol: symbol) { [weak self] result in
+        //Captured before the request: a quick second tap asks for another span, and the
+        //answer for the first one must not draw over it.
+        let requestedSpan = cryptoSpan
+        let size = Self.cryptoSpan(requestedSpan)
+        CryptoAPI.shared.getSelectedCrypto(interval: size.interval, symbol: symbol) { [weak self] result in
             guard let self else { return }
             switch result {
             case .success(let data):
                 
                 DispatchQueue.main.async {
+                    guard requestedSpan == self.cryptoSpan else { return }
                     self.startStopSpinner(start: false)
                     if data.count != 0 {
-                        self.cryptoData = data
+                        self.cryptoData = Array(data.suffix(size.candles))
                         self.setUpCryptoModel()
                     } else {
                         ShowAlerts.showSimpleAlert(title: "Limit - Free version!", message: "You exceded the amount of requests, wait 1 minute.", titleButton: "OK", over: self)
@@ -534,7 +527,7 @@ class ChartController: UIViewController {
         }
         chartModel.baseline = nil
         chartModel.timeZone = .current
-        chartModel.axisFormat = Self.axisFormat(cryptoInterval: interval)
+        chartModel.axisFormat = Self.axisFormat(span: cryptoSpan)
         chartModel.points = points
         showBar(chartModel.drawnPoints.last)
     }
@@ -552,23 +545,26 @@ class ChartController: UIViewController {
         }
     }
 
-    ///A coin's candle size in seconds (300, 900, 3600, 18000) is intraday; "week" and "month"
-    ///are not. Matched by form rather than by list: the first chart loads 300, five-minute
-    ///candles, which a list of the picker's sizes left out, so it showed dates without times.
-    private static func isIntraday(cryptoInterval: String) -> Bool {
-        Int(cryptoInterval) != nil
-    }
+    ///A coin's time spans, named like a stock's. The server sends only the newest 60 candles
+    ///of a size (300, 900, 3600 or 18000 seconds, week, month), so each span takes the size
+    ///whose 60 candles cover it and keeps the ones inside it. There's no 1M: 5-hour candles
+    ///reach 12 days and weekly ones would leave four candles.
+    static let cryptoSpans: [(title: String, interval: String, candles: Int)] = [
+        ("1D", "3600", 24),   //hourly
+        ("1W", "18000", 34),  //5-hour, 34 x 5h is about 7 days
+        ("3M", "week", 13),
+        ("1Y", "week", 52),
+        ("5Y", "month", 60)
+    ]
 
-    private static func axisFormat(cryptoInterval: String) -> String {
-        guard isIntraday(cryptoInterval: cryptoInterval) else { return "MMM yy" }
-        return (Int(cryptoInterval) ?? 0) >= 18000 ? "d MMM" : "h a"
+    private static func cryptoSpan(_ title: String) -> (title: String, interval: String, candles: Int) {
+        cryptoSpans.first { $0.title == title } ?? cryptoSpans[0]
     }
 
     ///The date in the header while scrubbing: the time of day where the bars are intraday.
+    ///A coin's spans have the same names as a stock's and the same formats.
     private func scrubDateFormat() -> String {
-        if informationStockTicker.ticker.isEmpty {
-            return Self.isIntraday(cryptoInterval: interval) ? "d MMM, h:mm a" : "d MMM yyyy"
-        }
+        let span = informationStockTicker.ticker.isEmpty ? cryptoSpan : self.span
         switch span {
         case "1D": return "h:mm a"
         case "1W": return "EEE d MMM, h:mm a"
