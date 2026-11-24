@@ -64,38 +64,48 @@ class ChartController: UIViewController {
     ///The header as it was when a finger went down on the chart, put back when it lifts.
     private var headerBeforeScrub: (price: String?, priceColor: UIColor, change: String?, changeColor: UIColor)?
     private let scrubFeedback = UISelectionFeedbackGenerator()
+
+    ///The time spans (stocks) or candle sizes (crypto), a native control under the chart. It
+    ///replaced the storyboard's HBSegmentedControl, which is now hidden.
+    private let spanPicker = UISegmentedControl()
+    ///Where the Key stats, Health and Analyst cards go (BS-327 step 4, BS-309, BS-310).
+    let cardsStack = UIStackView()
+    fileprivate let scrollView = UIScrollView()
+    fileprivate let column = UIStackView()
+    fileprivate let logoCircle = UIView()
+    fileprivate lazy var chartHeight = chartView.heightAnchor.constraint(equalToConstant: Self.minimumChartHeight)
+    fileprivate static let minimumChartHeight: CGFloat = 300
         
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        fitChartToScreen()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let isCrypto = informationStockTicker.ticker.isEmpty
+        let segments = isCrypto ? ["15m", "1h", "Day", "Week", "Month"] : ChartAPI.spans
+        for (index, title) in segments.enumerated() {
+            spanPicker.insertSegment(withTitle: title, at: index, animated: false)
+        }
+        spanPicker.selectedSegmentIndex = 0
+        spanPicker.addTarget(self, action: #selector(segmentValueChanged(_:)), for: .valueChanged)
+
+        layOutScreen()
         startStopSpinner(start: true)
-        
-        segmentControl.borderColor = .clear
-        segmentControl.selectedLabelColor = UIColor.white
-        segmentControl.unselectedLabelColor = UIColor(named: "colorAccent")!
-        segmentControl.layer.cornerRadius = 10
-        segmentControl.backgroundColor = .clear
-        segmentControl.thumbColor = UIColor(named: "colorAccent")!
-        let font = UIFont.systemFont(ofSize: 15) // pick the size you want
-        segmentControl.font  = UIFont.boldSystemFont(ofSize: font.pointSize)
-        segmentControl.selectedIndex = 0
-        segmentControl.addTarget(self, action: #selector(segmentValueChanged(_:)), for: .valueChanged)
-        
         navigationItem.title = nameTicker
         installChart()
         
-        if informationStockTicker.ticker == "" {
-            segmentControl.items = ["15 min", "1 hr", "Day", "Week", "Month"]
+        if isCrypto {
             selectedCryptoTicker()
         } else {
-            segmentControl.items = ChartAPI.spans
             if loadsQuoteAndLogo {
                 loadQuoteAndLogo()
             }
             selectedStockTicker()
             loadCompanyNameIfNeeded()
         }
-        addActionRow()
     }
 
     ///A chart opened from a $TICKER in a post knows only the symbol. The name comes from the
@@ -147,7 +157,7 @@ class ChartController: UIViewController {
     
     @objc func segmentValueChanged(_ sender: AnyObject?){
         
-        let index = segmentControl.selectedIndex
+        let index = spanPicker.selectedSegmentIndex
 
         if informationStockTicker.ticker == "" {
             //Stocks decide for themselves in loadStockPrices: a cached timeframe shows no
@@ -212,7 +222,7 @@ class ChartController: UIViewController {
             DispatchQueue.main.async {
                 guard let self, self.informationStockTicker.ticker == ticker else { return }
                 self.imageCompany = image
-                self.cryptoImage.image = image
+                self.showLogo(image)
             }
         }
     }
@@ -241,7 +251,7 @@ class ChartController: UIViewController {
             //Search opened this before the price was known, or it never came back.
             self.symbol = symbol
             setHeaderTitle(symbol: symbol)
-            cryptoImage.image = imageCompany
+            showLogo(imageCompany)
             for label in [currentPriceLabel, currentPercentageLabel, volumeLabel] {
                 label?.text = "—"
                 label?.textColor = .secondaryLabel
@@ -250,14 +260,13 @@ class ChartController: UIViewController {
         }
 
         if percentageChange < 0.0 {
-            currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            volumeLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            currentPercentageLabel.textColor = UIColor(named: "downtrend") ?? .systemRed
         } else {
-            currentPercentageLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            volumeLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            currentPercentageLabel.textColor = UIColor(named: "uptrend") ?? .systemGreen
         }
+        //Like Apple's Stocks: the price in the text colour, the change in green or red.
+        currentPriceLabel.textColor = .label
+        volumeLabel.textColor = .secondaryLabel
         
         self.symbol = symbol
         if indexMarket {
@@ -267,9 +276,9 @@ class ChartController: UIViewController {
             //The symbol alone. The header used to add " - <exchange>", but the chart
             //endpoint stopped sending an exchange name, so it only ever showed a dangling dash.
             setHeaderTitle(symbol: symbol)
-            volumeLabel.text = priceText(previousPrice)
+            volumeLabel.text = previousPrice > 0 ? "Prev. close " + priceText(previousPrice) : ""
         }
-        cryptoImage.image = imageCompany
+        showLogo(imageCompany)
         //Formatted like the scrubbed price, which used to be the only formatted one: the
         //header first showed raw doubles such as 271.4900016.
         currentPriceLabel.text = priceText(currentPrice)
@@ -351,12 +360,12 @@ class ChartController: UIViewController {
         let symbol = informationCryptoTicker.symbol
         
         if informationCryptoTicker.change < 0 {
-            currentPercentageLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
-            currentPriceLabel.textColor = UIColor(red: 231/255, green: 81/255, blue: 62/255, alpha: 1.0)
+            currentPercentageLabel.textColor = UIColor(named: "downtrend") ?? .systemRed
         } else {
-            currentPercentageLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
-            currentPriceLabel.textColor = UIColor(red: 32/255, green: 197/255, blue: 176/255, alpha: 1.0)
+            currentPercentageLabel.textColor = UIColor(named: "uptrend") ?? .systemGreen
         }
+        currentPriceLabel.textColor = .label
+        volumeLabel.textColor = .secondaryLabel
         
         setHeaderTitle(symbol: symbol, name: informationCryptoTicker.name)
         self.currentPrice = informationCryptoTicker.price
@@ -364,7 +373,7 @@ class ChartController: UIViewController {
         currentPercentageLabel.text = Self.changeText(informationCryptoTicker.change) + " Day"
 //        nameLabel.text = informationCryptoTicker.name.uppercased()
         volumeLabel.text = "Vol.\(informationCryptoTicker.volume) MM"
-        cryptoImage.image = UIImage(named: informationCryptoTicker.cryptoImageName)
+        showLogo(UIImage(named: informationCryptoTicker.cryptoImageName))
         
         //Will use pair ID instead of symbol/ticker
         switch symbol {
@@ -446,7 +455,9 @@ class ChartController: UIViewController {
         //from too. Longer spans compare with their own first bar.
         let previousClose = informationStockTicker.previousPrice
         chartModel.baseline = span == "1D" && previousClose > 0 ? previousClose : nil
-        chartModel.timeZone = TimeZone(identifier: "America/New_York") ?? .current
+        //The phone's own clock, so 10:38 reads 10:38 wherever the person is. New York time
+        //(the exchange's) read three hours ahead in California.
+        chartModel.timeZone = .current
         chartModel.axisFormat = Self.axisFormat(span: span)
         chartModel.points = points
         showBar(chartModel.drawnPoints.last)
@@ -483,18 +494,22 @@ class ChartController: UIViewController {
         }
     }
 
+    ///A coin's candle size in seconds (300, 900, 3600, 18000) is intraday; "week" and "month"
+    ///are not. Matched by form rather than by list: the first chart loads 300, five-minute
+    ///candles, which a list of the picker's sizes left out, so it showed dates without times.
+    private static func isIntraday(cryptoInterval: String) -> Bool {
+        Int(cryptoInterval) != nil
+    }
+
     private static func axisFormat(cryptoInterval: String) -> String {
-        switch cryptoInterval {
-        case "900", "3600": return "h a"
-        case "18000": return "d MMM"
-        default: return "MMM yy"
-        }
+        guard isIntraday(cryptoInterval: cryptoInterval) else { return "MMM yy" }
+        return (Int(cryptoInterval) ?? 0) >= 18000 ? "d MMM" : "h a"
     }
 
     ///The date in the header while scrubbing: the time of day where the bars are intraday.
     private func scrubDateFormat() -> String {
         if informationStockTicker.ticker.isEmpty {
-            return ["900", "3600", "18000"].contains(interval) ? "d MMM, h:mm a" : "d MMM yyyy"
+            return Self.isIntraday(cryptoInterval: interval) ? "d MMM, h:mm a" : "d MMM yyyy"
         }
         switch span {
         case "1D": return "h:mm a"
@@ -714,7 +729,9 @@ class ChartController: UIViewController {
         chartModel.showsCandles = selectedCandleChart
         //A merged candle has its own open, high and low; the row follows what's drawn.
         showBar(chartModel.drawnPoints.last)
-        selectChartButton.setImage(UIImage(named: selectedCandleChart ? "chart.line.uptrend.xyaxis" : "chart.bar.fill"), for: .normal)
+        let symbol = selectedCandleChart ? "chart.xyaxis.line" : "chart.bar.xaxis"
+        selectChartButton.setImage(UIImage(systemName: symbol), for: .normal)
+        selectChartButton.accessibilityLabel = selectedCandleChart ? "Show line chart" : "Show candles"
     }
     
     @IBAction func openNewsButton(_ sender: UIButton) {
@@ -748,6 +765,163 @@ class ChartController: UIViewController {
 }
 
 
+// MARK: - Layout (BS-327)
+
+///The screen as one scrolling column, like a stock in Apple's Stocks: name and logo, the price
+///and its change, the action row, the open/high/low/close row, the chart, the span picker under
+///it, then cards. Built in code from the storyboard's own views, which keeps every outlet and
+///every entry point working; the storyboard's other views (the old picker, time labels and
+///icons) are hidden.
+extension ChartController {
+
+    fileprivate func layOutScreen() {
+        view.backgroundColor = .systemBackground
+        //The symbol sits small in the bar. As a large title it took a row of its own above the
+        //company name, with nothing beside it.
+        navigationItem.largeTitleDisplayMode = .never
+        let kept: [UIView] = [cryptoImage, tickerLabel, currentPriceLabel, currentPercentageLabel, volumeLabel,
+                              chartView, selectChartButton, pointingDateLabel, pointingOpenLabel,
+                              pointingHighLabel, pointingLowLabel, pointingCloseLabel]
+        for item in kept {
+            //Their storyboard sizes (a 30-point chart box, a 25-point name) would fight the
+            //new layout; constraints between a view and its own subviews, such as the chart's
+            //loading skeleton, are kept.
+            item.removeConstraints(item.constraints.filter { $0.firstItem === item && ($0.secondItem == nil || $0.secondItem === item) })
+            item.removeFromSuperview()
+            item.translatesAutoresizingMaskIntoConstraints = false
+        }
+        for leftover in view.subviews {
+            leftover.isHidden = true
+        }
+
+        //Name and logo. The logo sits inside a circle with room around it: drawn edge to edge,
+        //round logos such as Apple's touched the circle. The circle takes the logo's own
+        //background colour (`showLogo`), so a square logo doesn't show as a square.
+        cryptoImage.contentMode = .scaleAspectFit
+        logoCircle.backgroundColor = .secondarySystemBackground
+        logoCircle.layer.cornerRadius = 22
+        logoCircle.clipsToBounds = true
+        logoCircle.addSubview(cryptoImage)
+        NSLayoutConstraint.activate([
+            logoCircle.widthAnchor.constraint(equalToConstant: 44),
+            logoCircle.heightAnchor.constraint(equalToConstant: 44),
+            cryptoImage.widthAnchor.constraint(equalToConstant: 32),
+            cryptoImage.heightAnchor.constraint(equalToConstant: 32),
+            cryptoImage.centerXAnchor.constraint(equalTo: logoCircle.centerXAnchor),
+            cryptoImage.centerYAnchor.constraint(equalTo: logoCircle.centerYAnchor)
+        ])
+        Self.style(tickerLabel, .title1, weight: .bold, color: .label)
+        tickerLabel.alpha = 1
+        let nameRow = UIStackView(arrangedSubviews: [logoCircle, tickerLabel])
+        nameRow.spacing = 10
+        nameRow.alignment = .center
+
+        //Price, change and the previous close (or a coin's volume).
+        Self.style(currentPriceLabel, .largeTitle, weight: .bold, color: .label)
+        Self.style(currentPercentageLabel, .headline, weight: .semibold, color: .secondaryLabel)
+        Self.style(volumeLabel, .subheadline, weight: .regular, color: .secondaryLabel)
+        let changeRow = UIStackView(arrangedSubviews: [currentPercentageLabel, volumeLabel, UIView()])
+        changeRow.spacing = 10
+        changeRow.alignment = .firstBaseline
+
+        //Open, high, low and close of the latest bar, or of the one under the finger.
+        for label in [pointingOpenLabel, pointingHighLabel, pointingLowLabel, pointingCloseLabel] {
+            Self.style(label, .callout, weight: .semibold, color: .label)
+            label?.textAlignment = .center
+        }
+        Self.style(pointingDateLabel, .subheadline, weight: .regular, color: .secondaryLabel)
+        pointingDateLabel.textAlignment = .center
+        let prices = UIStackView(arrangedSubviews: [pointingOpenLabel, pointingHighLabel, pointingLowLabel, pointingCloseLabel])
+        prices.distribution = .fillEqually
+        prices.spacing = 4
+        let barRow = UIStackView(arrangedSubviews: [pointingDateLabel, prices])
+        barRow.axis = .vertical
+        barRow.spacing = 2
+        barRow.alignment = .fill
+
+        //The chart, then the spans with the candle/line switch beside them.
+        chartView.backgroundColor = .clear
+        //Sized in viewDidLayoutSubviews: at least 300 points, taller to fill the screen.
+        chartHeight.isActive = true
+        selectChartButton.tintColor = UIColor(named: "colorAccent") ?? .tintColor
+        NSLayoutConstraint.activate([
+            selectChartButton.widthAnchor.constraint(equalToConstant: 44),
+            selectChartButton.heightAnchor.constraint(equalToConstant: 32)
+        ])
+        let pickerRow = UIStackView(arrangedSubviews: [spanPicker, selectChartButton])
+        pickerRow.spacing = 8
+        pickerRow.alignment = .center
+
+        cardsStack.axis = .vertical
+        cardsStack.spacing = 12
+
+        let items: [UIView] = [nameRow, currentPriceLabel, changeRow, makeActionRow(), barRow, chartView, pickerRow, cardsStack]
+        for item in items {
+            column.addArrangedSubview(item)
+        }
+        column.axis = .vertical
+        column.spacing = 12
+        column.setCustomSpacing(8, after: nameRow)
+        column.setCustomSpacing(2, after: currentPriceLabel)
+        column.setCustomSpacing(16, after: changeRow)
+        column.setCustomSpacing(16, after: barRow)
+        column.setCustomSpacing(20, after: pickerRow)
+        column.translatesAutoresizingMaskIntoConstraints = false
+
+        let scroll = scrollView
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.alwaysBounceVertical = true
+        //A touch on the chart goes straight to its selection; scrolling still works off it.
+        scroll.delaysContentTouches = false
+        view.addSubview(scroll)
+        scroll.addSubview(column)
+        NSLayoutConstraint.activate([
+            scroll.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scroll.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scroll.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            column.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 8),
+            column.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor, constant: -24),
+            column.leadingAnchor.constraint(equalTo: scroll.frameLayoutGuide.leadingAnchor, constant: 16),
+            column.trailingAnchor.constraint(equalTo: scroll.frameLayoutGuide.trailingAnchor, constant: -16)
+        ])
+    }
+
+    ///Grows the chart to fill whatever height the screen has left, so there is no empty band
+    ///under the picker, and never shrinks it below 300 points: once cards fill the page, the
+    ///chart stays 300 and the page scrolls. Set directly: asking the stack view to stretch the
+    ///chart (by hugging priority) left the band in place on device.
+    fileprivate func fitChartToScreen() {
+        guard column.superview != nil else { return }
+        let visible = scrollView.bounds.height - scrollView.adjustedContentInset.top
+            - scrollView.adjustedContentInset.bottom - 32
+        let others = column.bounds.height - chartHeight.constant
+        let height = max(Self.minimumChartHeight, (visible - others).rounded(.down))
+        if abs(height - chartHeight.constant) > 0.5 {
+            chartHeight.constant = height
+        }
+    }
+
+    ///The logo, on a circle of the logo's own background colour, read from its top-left
+    ///pixel. Most logos are squares on white or a brand colour; on a grey circle that square
+    ///showed. A transparent corner keeps the grey.
+    fileprivate func showLogo(_ image: UIImage?) {
+        cryptoImage.image = image
+        logoCircle.backgroundColor = image?.cornerColor() ?? .secondarySystemBackground
+    }
+
+    ///System text styles, so the screen follows the person's text size (Dynamic Type).
+    private static func style(_ label: UILabel?, _ textStyle: UIFont.TextStyle, weight: UIFont.Weight, color: UIColor) {
+        guard let label else { return }
+        let base = UIFont.preferredFont(forTextStyle: textStyle)
+        let font = UIFont.monospacedDigitSystemFont(ofSize: base.pointSize, weight: weight)
+        label.font = UIFontMetrics(forTextStyle: textStyle).scaledFont(for: font)
+        label.adjustsFontForContentSizeCategory = true
+        label.textColor = color
+        label.numberOfLines = 1
+    }
+}
+
 // MARK: - Action row (BS-286)
 
 ///News, Share, Community and Watchlist as one row of equal buttons under the price, like the
@@ -757,14 +931,7 @@ class ChartController: UIViewController {
 ///points keep the same scene.
 extension ChartController {
 
-    fileprivate func addActionRow() {
-        //The storyboard's own icons; their actions now live in the row.
-        shareButton.isHidden = true
-        shareButton.superview?.subviews
-            .compactMap { $0 as? UIButton }
-            .filter { $0.actions(forTarget: self, forControlEvent: .touchUpInside)?.contains("openNewsButton:") == true }
-            .forEach { $0.isHidden = true }
-
+    fileprivate func makeActionRow() -> UIStackView {
         let news = actionButton(title: "News", symbol: "newspaper") { [weak self] button in
             self?.openNewsButton(button)
         }
@@ -784,22 +951,8 @@ extension ChartController {
         let row = UIStackView(arrangedSubviews: [news, share, community, watchlist])
         row.distribution = .fillEqually
         row.spacing = 8
-        row.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(row)
-
-        //The O/H/L/C labels sat under the price; they now sit under the row.
-        let constraints = view.constraints + (pointingViewLabels.superview?.constraints ?? [])
-        for constraint in constraints where constraint.firstItem === pointingViewLabels
-            && constraint.firstAttribute == .top && constraint.secondItem === currentPriceLabel {
-            constraint.isActive = false
-        }
-        NSLayoutConstraint.activate([
-            row.topAnchor.constraint(equalTo: currentPriceLabel.bottomAnchor, constant: 14),
-            row.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            row.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            row.heightAnchor.constraint(equalToConstant: 58),
-            pointingViewLabels.topAnchor.constraint(equalTo: row.bottomAnchor, constant: 12)
-        ])
+        row.heightAnchor.constraint(equalToConstant: 58).isActive = true
+        return row
     }
 
     private func actionButton(title: String, symbol: String, action: @escaping (UIButton) -> Void) -> ActionTile {
@@ -936,6 +1089,25 @@ private final class ActionTile: UIButton {
 }
 
 extension UIImage {
+    ///The colour of the top-left pixel, or nil where it is see-through: a logo's background.
+    func cornerColor() -> UIColor? {
+        guard let cgImage else { return nil }
+        var pixel = [UInt8](repeating: 0, count: 4)
+        let drawn: Bool = pixel.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(data: buffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8,
+                                          bytesPerRow: 4, space: CGColorSpaceCreateDeviceRGB(),
+                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            //Draws the whole image shifted so only its top-left pixel lands in the 1x1 context.
+            context.draw(cgImage, in: CGRect(x: 0, y: -CGFloat(cgImage.height - 1),
+                                             width: CGFloat(cgImage.width), height: CGFloat(cgImage.height)))
+            return true
+        }
+        guard drawn, pixel[3] > 200 else { return nil }
+        let alpha = CGFloat(pixel[3]) / 255
+        return UIColor(red: CGFloat(pixel[0]) / 255 / alpha, green: CGFloat(pixel[1]) / 255 / alpha,
+                       blue: CGFloat(pixel[2]) / 255 / alpha, alpha: 1)
+    }
+
     func resized(to size: CGSize) -> UIImage? {
         let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { _ in

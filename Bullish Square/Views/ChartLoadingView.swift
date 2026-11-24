@@ -32,7 +32,9 @@ final class ChartLoadingView: UIView {
     }
 
     private func setUp() {
-        backgroundColor = UIColor(named: "colorPrimary") ?? .systemBackground
+        //The chart screen's own background (BS-327). The navy colorPrimary flashed under the
+        //black screen until the candles arrived.
+        backgroundColor = .systemBackground
         isAccessibilityElement = true
         accessibilityLabel = "Loading chart"
         accessibilityTraits = .updatesFrequently

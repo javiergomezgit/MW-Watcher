@@ -44,7 +44,7 @@ final class PriceChartModel: ObservableObject {
     @Published var baseline: Double?
     ///DateFormatter pattern for the few labels under the chart, such as "h a" or "MMM".
     @Published var axisFormat = "h a"
-    ///Stocks are read in New York time, the market's own; coins in the phone's.
+    ///The phone's time zone, for stocks and coins alike.
     @Published var timeZone = TimeZone.current
 
     ///Set by the chart while a finger is on it (iOS 17's chart selection), nil when it lifts.
