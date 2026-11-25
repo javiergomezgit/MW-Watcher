@@ -124,7 +124,7 @@ final class HealthExplanationController: UIViewController {
             Self.caption("WHAT IT MEANS"),
             Self.bullet("The 200-day average is the average of the last 200 closing prices, about ten months of trading. It smooths out day-to-day moves."),
             Self.bullet("Uptrend: the stock closes above that average. Trend break: it closes below it."),
-            Self.bullet("A change only counts after two closes in a row on the new side, so one noisy day doesn't flip it."),
+            Self.bullet("A change only counts after two closes in a row more than 2% past the average on the new side, so a few noisy days near the line don't flip it."),
             Self.bullet("The 50-day average is the same idea over about ten weeks, and turns sooner.")
         ]))
     }

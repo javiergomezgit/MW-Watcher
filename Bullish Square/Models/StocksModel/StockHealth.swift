@@ -7,7 +7,7 @@
 
 import Foundation
 
-///Whether a stock is above or below its 200-day average, confirmed after two closes on the
+///Whether a stock is above or below its 200-day average, confirmed after two closes more than 2% past it on the
 ///new side so one day's noise doesn't flip it. A state, never an instruction.
 enum TrendState: String, Codable {
     case uptrend

@@ -143,7 +143,7 @@ final class TrendExplanationController: UIViewController {
             "The 200-day average is the average of the last 200 closing prices, about ten months of trading. It smooths out day-to-day moves.",
             "Uptrend: the stock closes above that average.",
             "Trend break: it closes below it.",
-            "A change only counts after two closes in a row on the new side, so a single noisy day doesn't flip the badge."
+            "A change only counts after two closes in a row more than 2% past the average on the new side, so a few noisy days near the line don't flip the badge."
         ]
         var rows: [UIView] = [Self.caption("HOW IT'S DECIDED")]
         for step in steps {

@@ -78,7 +78,7 @@ enum StockHealthFormat {
     // MARK: - Watchlist badge (BS-309)
 
     ///What a watchlist row's trend badge shows. A state, never an instruction: "Uptrend" while
-    ///the close holds above the 200-day average, "Trend break" once it has closed below it twice,
+    ///the close holds above the 200-day average, "Trend break" once it has closed more than 2% below it twice,
     ///"New" for a listing with under 200 closes. Anything else (loading, failed, unknown symbol)
     ///is a grey dash, so the row never waits on health and never jumps when it lands.
     struct Badge: Equatable {
