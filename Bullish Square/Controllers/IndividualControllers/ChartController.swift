@@ -89,6 +89,8 @@ class ChartController: UIViewController {
     ///answer, so the cards below don't jump while it loads.
     private let healthCard = HealthCard()
     private var healthAnswer: StockHealthAnswer?
+    ///Stocks and indexes on the active watchlist, signed in (BS-318). Hidden otherwise.
+    private let thesisCard = ThesisCard()
     ///Opened from a trend alert (BS-314): scrolls to the Health card once it has loaded.
     var scrollsToHealth = false
 
@@ -181,6 +183,10 @@ class ChartController: UIViewController {
             healthCard.onBell = { [weak self] in self?.bellTapped() }
             cardsStack.addArrangedSubview(healthCard)
             loadHealth()
+            thesisCard.isHidden = true
+            thesisCard.onEdit = { [weak self] in self?.openThesisEditor() }
+            cardsStack.addArrangedSubview(thesisCard)
+            loadThesis()
             if !indexMarket {
                 analystCard.isHidden = true
                 analystCard.onTap = { [weak self] in self?.openAnalystSheet() }
@@ -223,6 +229,54 @@ class ChartController: UIViewController {
                 }
             }
         }
+    }
+
+    // MARK: - Thesis (BS-318)
+
+    ///The thesis for this stock on the active list, with the stock since its start day. Hidden
+    ///signed out or when the stock isn't on the list: a thesis belongs to a stock on a list.
+    private func loadThesis() {
+        let ticker = informationStockTicker.ticker
+        //Coins open with no ticker and have no watchlist row.
+        guard !ticker.isEmpty, ThesisStore.shared.isSignedIn, isInWatchlist else {
+            thesisCard.isHidden = true
+            return
+        }
+        ThesisStore.shared.thesis(ticker: ticker, watchlistID: WatchlistStore.shared.activeWatchlistID) { [weak self] thesis in
+            guard let self, self.informationStockTicker.ticker == ticker else { return }
+            guard let thesis else {
+                self.thesisCard.showEmpty(ticker: Self.displaySymbol(ticker))
+                self.thesisCard.isHidden = false
+                return
+            }
+            //Shown at once without prices, then again with them.
+            self.thesisCard.show(thesis, health: nil, priceText: self.priceText)
+            self.thesisCard.isHidden = false
+            StockAPI.shared.getStockHealth(ticker: ticker, since: thesis.startDate) { [weak self] result in
+                DispatchQueue.main.async {
+                    guard let self, self.informationStockTicker.ticker == ticker else { return }
+                    let health = (try? result.get())?.health
+                    self.thesisCard.show(thesis, health: health, priceText: self.priceText)
+                }
+            }
+        }
+    }
+
+    ///Writes a new thesis or edits the one shown. `isNew` when asked right after adding the
+    ///stock, where the sheet offers Skip.
+    private func openThesisEditor() {
+        let ticker = informationStockTicker.ticker
+        let watchlistID = WatchlistStore.shared.activeWatchlistID
+        ThesisStore.shared.thesis(ticker: ticker, watchlistID: watchlistID) { [weak self] thesis in
+            self?.presentThesisEditor(ticker: ticker, watchlistID: watchlistID, thesis: thesis)
+        }
+    }
+
+    private func presentThesisEditor(ticker: String, watchlistID: String, thesis: Thesis?) {
+        guard presentedViewController == nil, view.window != nil else { return }
+        let editor = ThesisEditorController(ticker: ticker, watchlistID: watchlistID, thesis: thesis)
+        editor.onFinish = { [weak self] _ in self?.loadThesis() }
+        present(editor.embedded(), animated: true)
     }
 
     // MARK: - Trend alerts (BS-314)
@@ -1277,16 +1331,30 @@ extension ChartController {
             let name = indexMarket ? indexName : nameTicker
             let features = TickersFeatures(ticker: ticker, nameTicker: name,
                                            imageTicker: UIImage(named: "mw-logo") ?? UIImage(), imageTickerName: "")
-            SaveTickers().saveTicker(tickerFeatures: features)
+            let watchlistID = WatchlistStore.shared.activeWatchlistID
+            SaveTickers().saveTicker(tickerFeatures: features) { [weak self] outcome in
+                guard let self else { return }
+                //Asked once, right after adding, unless an archived thesis came back (BS-318).
+                if case .none = outcome {
+                    self.presentThesisEditor(ticker: ticker, watchlistID: watchlistID, thesis: nil)
+                }
+                self.loadThesis()
+            }
             //saveTicker writes on the next main-queue turn; read the store after it.
-            DispatchQueue.main.async { [weak self] in self?.updateWatchlistButton(button) }
+            DispatchQueue.main.async { [weak self] in
+                self?.updateWatchlistButton(button)
+                self?.loadThesis()
+            }
             return
         }
         let sheet = UIAlertController(title: "Remove \(Self.displaySymbol(ticker)) from your watchlist?",
                                       message: nil, preferredStyle: .actionSheet)
         sheet.addAction(UIAlertAction(title: "Remove", style: .destructive) { [weak self] _ in
             SaveTickers().deleteTicker(ticker: ticker)
-            DispatchQueue.main.async { self?.updateWatchlistButton(button) }
+            DispatchQueue.main.async {
+                self?.updateWatchlistButton(button)
+                self?.loadThesis()
+            }
         })
         sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         sheet.popoverPresentationController?.sourceView = button

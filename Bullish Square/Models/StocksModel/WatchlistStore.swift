@@ -181,6 +181,7 @@ final class WatchlistStore {
             return false
         }
         WatchlistSyncService.shared.watchlistDeleted(id: id, ownerUID: ownerUID)
+        ThesisStore.shared.watchlistDeleted(id: id)
 
         if activeWatchlistID == id {
             activeWatchlistID = allWatchlists().first?.id ?? Self.defaultWatchlistID

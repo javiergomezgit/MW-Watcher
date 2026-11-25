@@ -237,7 +237,14 @@ extension SearchStocksController: UITableViewDataSource, UITableViewDelegate {
         //sentinel value, because delete predicates used to match on this field.
         let tickerFeatures = TickersFeatures(ticker: individualTicker, nameTicker: nameTicker, imageTicker: UIImage(named: "mw-logo")!, imageTickerName: "")
         self.watchlist.insert(individualTicker)
-        SaveTickers().saveTicker(tickerFeatures: tickerFeatures)
+        let watchlistID = WatchlistStore.shared.activeWatchlistID
+        SaveTickers().saveTicker(tickerFeatures: tickerFeatures) { [weak self] outcome in
+            //"Why are you watching it?" right after adding (BS-318). Skip leaves it added; an
+            //archived thesis that came back isn't asked for again.
+            guard let self, case .none = outcome, self.presentedViewController == nil, self.view.window != nil else { return }
+            let editor = ThesisEditorController(ticker: individualTicker, watchlistID: watchlistID, thesis: nil)
+            self.present(editor.embedded(), animated: true)
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -20,9 +20,14 @@ class SaveTickers {
         NSPredicate(format: "ownerUID == %@ AND watchlistID == %@", ownerUID, activeWatchlistID)
     }
     
-    func saveTicker(tickerFeatures: TickersFeatures) {
+    ///`onThesis` hears whether the stock already has a thesis on this list (BS-318): an archived
+    ///one comes back, and only `.none` should ask "Why are you watching it?".
+    func saveTicker(tickerFeatures: TickersFeatures, onThesis: ((ThesisStore.AddOutcome) -> Void)? = nil) {
         DispatchQueue.main.async { [self] in
-            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return  }
+            guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+                onThesis?(.unavailable)
+                return
+            }
             let managedContext = appDelegate.persistentContainer.viewContext
             let entity = NSEntityDescription.entity(forEntityName: entityName, in: managedContext)!
             let tickerObject = NSManagedObject(entity: entity, insertInto: managedContext)
@@ -35,6 +40,7 @@ class SaveTickers {
             
             guard let imageToData = tickerFeatures.imageTicker.pngData() else {
                 print("jpg error")
+                onThesis?(.unavailable)
                 return
             }
             tickerObject.setValue(imageToData, forKey: "imageCompany")
@@ -45,8 +51,12 @@ class SaveTickers {
                 WatchlistSyncService.shared.tickerAdded(
                     CloudTicker(ticker: tickerFeatures.ticker, nameCompany: tickerFeatures.nameTicker),
                     watchlistID: self.activeWatchlistID, ownerUID: self.ownerUID)
+                ThesisStore.shared.stockAdded(ticker: tickerFeatures.ticker, watchlistID: self.activeWatchlistID) { outcome in
+                    onThesis?(outcome)
+                }
             } catch let error as NSError {
                 print("Could not save. \(error), \(error.userInfo)")
+                onThesis?(.unavailable)
             }
         }
     }
@@ -97,6 +107,7 @@ class SaveTickers {
                     try managedContext.save()
                 }
                 WatchlistSyncService.shared.tickerRemoved(ticker, watchlistID: self.activeWatchlistID, ownerUID: self.ownerUID)
+                ThesisStore.shared.stockRemoved(ticker: ticker, watchlistID: self.activeWatchlistID)
             } catch {
                 print("Failed to delete ticker \(ticker): \(error)")
             }

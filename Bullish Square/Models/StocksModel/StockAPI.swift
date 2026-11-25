@@ -325,14 +325,16 @@ final class StockAPI {
     ///One stock's health from the server's /v1/health/:symbol. A recent listing or an unknown
     ///symbol is an answer (`.insufficientHistory`, `.noData`), not a failure; `.failure` is
     ///anything worth trying again. Completes exactly once.
-    func getStockHealth(ticker: String, completion: @escaping (Result<StockHealthAnswer, Error>) -> Void) {
+    ///`since` ("yyyy-MM-dd", a thesis's start day) adds `sinceStart` to the answer (BS-318).
+    func getStockHealth(ticker: String, since: String? = nil, completion: @escaping (Result<StockHealthAnswer, Error>) -> Void) {
         var allowed = CharacterSet.alphanumerics
         allowed.insert(charactersIn: "-._")
         guard let symbol = ticker.addingPercentEncoding(withAllowedCharacters: allowed) else {
             completion(.failure(APIError.invalidTicker))
             return
         }
-        healthRequest(path: "/v1/health/" + symbol, label: ticker) { result in
+        let query = since.map { "?since=" + $0 } ?? ""
+        healthRequest(path: "/v1/health/" + symbol + query, label: ticker) { result in
             completion(result.flatMap { data in
                 do {
                     return .success(try StockHealthAnswer.parseOne(data))

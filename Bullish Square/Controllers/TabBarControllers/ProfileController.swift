@@ -27,13 +27,13 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
     // MARK: - Properties
 
     private enum Row {
-        case header, communityProfile, blockedAccounts, notifications, personalInfo, privacy, terms, disclaimer, contact, logOut, deleteAccount
+        case header, communityProfile, blockedAccounts, notifications, personalInfo, archivedTheses, privacy, terms, disclaimer, contact, logOut, deleteAccount
     }
 
     private let sections: [(title: String?, rows: [Row])] = [
         (nil, [.header]),
         ("Community", [.communityProfile, .blockedAccounts, .notifications]),
-        ("Account", [.personalInfo]),
+        ("Account", [.personalInfo, .archivedTheses]),
         ("Legal", [.privacy, .terms, .disclaimer]),
         ("Support", [.contact]),
         (nil, [.logOut]),
@@ -219,6 +219,11 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         case .personalInfo:
             content.text = "Personal Information"
             content.image = UIImage(systemName: "person.text.rectangle")
+        case .archivedTheses:
+            content.text = "Delete Archived Theses"
+            content.secondaryText = "Reasons for stocks you removed from a list"
+            content.image = UIImage(systemName: "archivebox")
+            cell.accessoryType = .none
         case .privacy:
             content.text = "Privacy Policy"
             content.image = UIImage(systemName: "hand.raised")
@@ -260,6 +265,7 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         case .blockedAccounts: navigationController?.pushViewController(BlockedAccountsController(), animated: true)
         case .notifications: navigationController?.pushViewController(NotificationSettingsController(), animated: true)
         case .personalInfo: openPersonalInfo()
+        case .archivedTheses: confirmDeleteArchivedTheses()
         case .privacy: openBrowser("https://jdevit.com/privacy-policy-bullish-square/")
         case .terms: openBrowser("https://www.jdevit.com/terms-of-service-bullish-square/")
         case .disclaimer: openBrowser("https://www.jdevit.com/disclaimer-bullish-square/")
@@ -377,6 +383,41 @@ final class ProfileController: UIViewController, UITableViewDataSource, UITableV
         let loginVC = UIStoryboard(name: "Login", bundle: nil).instantiateInitialViewController()!
         if let sceneDelegate = UIApplication.shared.connectedScenes.first?.delegate as? SceneDelegate {
             sceneDelegate.window?.rootViewController = loginVC
+        }
+    }
+
+    ///Spec decision 6: a stock removed from a list keeps its thesis, archived, so adding it back
+    ///restores it. This removes those for good; active theses are untouched. (BS-318)
+    private func confirmDeleteArchivedTheses() {
+        ThesisStore.shared.archivedCount { [weak self] count in
+            guard let self else { return }
+            guard let count else {
+                Utilities.showAlert(on: self, title: "Can't Check Right Now", message: "Check your connection and try again.")
+                return
+            }
+            guard count > 0 else {
+                Utilities.showAlert(on: self, title: "No Archived Theses",
+                                    message: "When you remove a stock from a list, its thesis is kept here until you add the stock back or delete it.")
+                return
+            }
+            let alert = UIAlertController(
+                title: "Delete \(count) Archived \(count == 1 ? "Thesis" : "Theses")?",
+                message: "These are your reasons for stocks you removed from a list. Adding a stock back would have restored its thesis. This can't be undone.",
+                preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+                ThesisStore.shared.deleteArchived { result in
+                    guard let self else { return }
+                    switch result {
+                    case .success(let deleted):
+                        Utilities.showAlert(on: self, title: "Deleted",
+                                            message: "\(deleted) archived \(deleted == 1 ? "thesis was" : "theses were") deleted.")
+                    case .failure:
+                        Utilities.showAlert(on: self, title: "Can't Delete", message: "Check your connection and try again.")
+                    }
+                }
+            })
+            self.present(alert, animated: true)
         }
     }
 

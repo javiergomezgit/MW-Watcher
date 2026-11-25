@@ -65,6 +65,19 @@ struct StockHealth: Codable, Equatable {
     ///Price-only, without dividends; nil with less than a year of closes.
     let return1y: Double?
     let label: HealthLabel
+    ///Only when asked with a thesis's start day (BS-318); nil otherwise, and when no close
+    ///falls on or after that day yet.
+    let sinceStart: SinceStart?
+
+    ///The stock since someone started watching it.
+    struct SinceStart: Codable, Equatable {
+        ///The first close on or after the start day.
+        let start: PricePoint
+        ///The highest close since.
+        let high: PricePoint
+        ///The close that confirmed the first trend break since the start; nil when none.
+        let trendBreak: String?
+    }
 
     struct Trend: Codable, Equatable {
         let state: TrendState
