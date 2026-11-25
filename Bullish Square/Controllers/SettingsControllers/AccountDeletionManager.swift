@@ -129,6 +129,13 @@ final class AccountDeletionManager: NSObject {
                                     return
                                 }
 
+                                //Every thesis, active or archived, under theses/{uid}. (BS-318)
+                                ThesisStore.shared.deleteAll(uid: uid) { thesisError in
+                                if let thesisError {
+                                    finish(.failure(thesisError))
+                                    return
+                                }
+
                                 Firestore.firestore().collection("users").document(uid).delete { firestoreError in
                                     if let firestoreError {
                                         //Not fatal on its own, but the account must not be deleted while its
@@ -150,6 +157,7 @@ final class AccountDeletionManager: NSObject {
                                             finish(.success(()))
                                         }
                                     }
+                                }
                                 }
                                 }
                                 }

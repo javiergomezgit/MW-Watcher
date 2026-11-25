@@ -201,6 +201,37 @@ final class ThesisStore {
         }
     }
 
+    // MARK: - Account deletion
+
+    ///Every thesis the account has, active or archived, read from the server so none is
+    ///missed. For `AccountDeletionManager`, which deletes the account only after this succeeds.
+    ///Calls back once.
+    func deleteAll(uid: String, completion: @escaping (Error?) -> Void) {
+        items(uid).getDocuments(source: .server) { snapshot, error in
+            if let error = error as NSError? {
+                print("Reading theses to delete failed: \(error.localizedDescription)")
+                completion(error)
+                return
+            }
+            let documents = snapshot?.documents ?? []
+            let group = DispatchGroup()
+            var firstError: Error?
+            for start in stride(from: 0, to: documents.count, by: 500) {
+                let batch = Firestore.firestore().batch()
+                documents[start..<min(start + 500, documents.count)].forEach { batch.deleteDocument($0.reference) }
+                group.enter()
+                batch.commit { error in
+                    if let error = error as NSError? {
+                        print("Deleting theses failed: \(error.localizedDescription)")
+                        firstError = firstError ?? error
+                    }
+                    group.leave()
+                }
+            }
+            group.notify(queue: .main) { completion(firstError) }
+        }
+    }
+
     // MARK: - Mapping
 
     private static func fields(of thesis: Thesis) -> [String: Any] {
