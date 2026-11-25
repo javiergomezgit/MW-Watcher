@@ -22,7 +22,7 @@ final class NotificationSettingsController: UITableViewController {
             switch self {
             case .system: return []
             case .kinds: return PushNotifications.Kind.community
-            case .trends: return PushNotifications.Kind.trends
+            case .trends: return PushNotifications.Kind.watchlist
             }
         }
     }
@@ -97,7 +97,8 @@ final class NotificationSettingsController: UITableViewController {
         case .trends:
             return "When a stock on your watchlists closes more than 2% past its 200-day average, twice in a row. "
                 + "At most one per stock every two weeks and three a day, never between 10 pm and 7 am. "
-                + "Mute a stock from its Health card."
+                + "Mute a stock from its Health card. "
+                + "Thesis check-ins come when a stock meets one of your own \u{201C}look again if\u{201D} conditions."
         default:
             return nil
         }

@@ -29,9 +29,12 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
     enum Kind: String, CaseIterable {
         case likes, comments, follows
         case trendBreak, backInUptrend
+        case thesisCheckIns
 
         static let community: [Kind] = [.likes, .comments, .follows]
         static let trends: [Kind] = [.trendBreak, .backInUptrend]
+        ///Settings' Watchlist section: the trend alerts, then thesis check-ins (BS-319).
+        static let watchlist: [Kind] = trends + [.thesisCheckIns]
 
         var title: String {
             switch self {
@@ -40,13 +43,15 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
             case .follows: return "New Followers"
             case .trendBreak: return "Trend Breaks"
             case .backInUptrend: return "Back in Uptrend"
+            case .thesisCheckIns: return "Thesis Check-Ins"
             }
         }
 
         ///Community activity is on until turned off. Trend alerts are off until turned on:
-        ///a push about a price should never arrive unasked (BS-304).
+        ///a push about a price should never arrive unasked (BS-304). Thesis check-ins are on,
+        ///because the person chose those conditions themselves; the server reads it the same way.
         var defaultOn: Bool {
-            Kind.community.contains(self)
+            Kind.community.contains(self) || self == .thesisCheckIns
         }
     }
 
@@ -197,7 +202,7 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
     func setPreference(_ kind: Kind, on: Bool, completion: @escaping (Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return completion(nil) }
         var fields: [String: Any] = [kind.rawValue: on]
-        if Kind.trends.contains(kind) {
+        if Kind.watchlist.contains(kind) {
             fields["timeZone"] = TimeZone.current.identifier
         }
         Firestore.firestore().collection("users").document(uid)
@@ -279,6 +284,9 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
         if info["type"] as? String == "trend" {
             return routeTrend(info, tabs: tabs)
         }
+        if info["type"] as? String == "thesis" {
+            return routeThesis(info, tabs: tabs)
+        }
         guard let index = tabs.viewControllers?.firstIndex(where: { $0 is CommunityNavigationController }),
               let navigation = tabs.viewControllers?[index] as? UINavigationController else { return false }
         tabs.selectedIndex = index
@@ -295,6 +303,30 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
         } else {
             navigation.pushViewController(ActivityController(), animated: true)
         }
+        return true
+    }
+
+    ///The stock on the list its thesis belongs to, with the check-in open (BS-319). The list is
+    ///made the active one first, because the Thesis card shows the active list's thesis.
+    private func routeThesis(_ info: [AnyHashable: Any], tabs: UITabBarController) -> Bool {
+        guard let symbol = info["symbol"] as? String,
+              let index = tabs.viewControllers?.firstIndex(where: { ($0 as? UINavigationController)?.viewControllers.first is WatchlistController }),
+              let navigation = tabs.viewControllers?[index] as? UINavigationController,
+              let chart = ChartController.healthChart(symbol: symbol) else {
+            return false
+        }
+        if let watchlistID = info["watchlistID"] as? String, WatchlistStore.shared.watchlist(id: watchlistID) != nil,
+           WatchlistStore.shared.activeWatchlistID != watchlistID {
+            WatchlistStore.shared.activeWatchlistID = watchlistID
+            //The Watchlist screen redraws its title and rows for the list now active.
+            NotificationCenter.default.post(name: WatchlistSyncService.didChange, object: nil)
+        }
+        chart.scrollsToHealth = false
+        chart.opensCheckIn = true
+        tabs.selectedIndex = index
+        navigation.dismiss(animated: false)
+        navigation.popToRootViewController(animated: false)
+        navigation.pushViewController(chart, animated: true)
         return true
     }
 

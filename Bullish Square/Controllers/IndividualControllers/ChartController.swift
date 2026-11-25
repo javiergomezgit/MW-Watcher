@@ -91,6 +91,8 @@ class ChartController: UIViewController {
     private var healthAnswer: StockHealthAnswer?
     ///Stocks and indexes on the active watchlist, signed in (BS-318). Hidden otherwise.
     private let thesisCard = ThesisCard()
+    ///Opened from a thesis check-in push (BS-319): the check-in sheet opens once the thesis loads.
+    var opensCheckIn = false
     ///Opened from a trend alert (BS-314): scrolls to the Health card once it has loaded.
     var scrollsToHealth = false
 
@@ -185,6 +187,7 @@ class ChartController: UIViewController {
             loadHealth()
             thesisCard.isHidden = true
             thesisCard.onEdit = { [weak self] in self?.openThesisEditor() }
+            thesisCard.onCheckIn = { [weak self] in self?.openCheckIn() }
             cardsStack.addArrangedSubview(thesisCard)
             loadThesis()
             if !indexMarket {
@@ -252,6 +255,13 @@ class ChartController: UIViewController {
             //Shown at once without prices, then again with them.
             self.thesisCard.show(thesis, health: nil, priceText: self.priceText)
             self.thesisCard.isHidden = false
+            if self.opensCheckIn {
+                self.opensCheckIn = false
+                self.presentCheckIn(thesis)
+                self.view.layoutIfNeeded()
+                let frame = self.thesisCard.convert(self.thesisCard.bounds, to: self.scrollView)
+                self.scrollView.scrollRectToVisible(frame.insetBy(dx: 0, dy: -12), animated: true)
+            }
             StockAPI.shared.getStockHealth(ticker: ticker, since: thesis.startDate) { [weak self] result in
                 DispatchQueue.main.async {
                     guard let self, self.informationStockTicker.ticker == ticker else { return }
@@ -260,6 +270,25 @@ class ChartController: UIViewController {
                 }
             }
         }
+    }
+
+    ///The waiting check-in, read fresh: it may have been answered on another phone.
+    private func openCheckIn() {
+        let ticker = informationStockTicker.ticker
+        ThesisStore.shared.thesis(ticker: ticker, watchlistID: WatchlistStore.shared.activeWatchlistID) { [weak self] thesis in
+            guard let self else { return }
+            guard let thesis, thesis.waitingCheckIn != nil else { return self.loadThesis() }
+            self.presentCheckIn(thesis)
+        }
+    }
+
+    private func presentCheckIn(_ thesis: Thesis) {
+        guard let checkIn = thesis.waitingCheckIn, presentedViewController == nil, view.window != nil else { return }
+        let sheet = CheckInController(thesis: thesis, checkIn: checkIn, priceText: priceText)
+        sheet.onFinish = { [weak self] answer in
+            if answer != nil { self?.loadThesis() }
+        }
+        present(sheet.embedded(), animated: true)
     }
 
     ///Writes a new thesis or edits the one shown. `isNew` when asked right after adding the

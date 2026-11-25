@@ -66,6 +66,17 @@ struct Thesis: Equatable {
     ///The stock left the list (spec decision 6). Kept so adding it back restores it; Settings
     ///can delete every archived one.
     var archived: Bool
+    ///Written by the server when a condition is met (BS-319); cleared by an answer, or
+    ///snoozed by "remind me in a week".
+    var pending: CheckIn? = nil
+    ///Every answer, oldest first.
+    var history: [CheckInRecord] = []
+
+    ///The check-in to ask about now: one that is snoozed waits for its reminder.
+    var waitingCheckIn: CheckIn? {
+        guard let pending, !pending.snoozed else { return nil }
+        return pending
+    }
 
     static let noteLimit = 280
     ///The starting point for both price conditions when someone turns one on.
@@ -78,4 +89,65 @@ struct Thesis: Equatable {
                startDate: startDate, startPrice: startPrice, reconsiderOnTrendBreak: true,
                reconsiderBelowStart: nil, reconsiderBelowHigh: nil, archived: false)
     }
+}
+
+// MARK: - Check-ins (BS-319)
+
+///What the server found against the person's own conditions, after a close.
+struct CheckIn: Equatable {
+
+    enum Kind: String {
+        case trendBreak, belowStart, belowHigh
+    }
+
+    struct Condition: Equatable {
+        let kind: Kind
+        ///A fraction for the price conditions; nil for a trend break.
+        let threshold: Double?
+        ///The trend break's confirming close, or the close that met a price condition.
+        let date: String
+        let close: Double
+        ///The start close or the high since, for the price conditions.
+        let reference: StockHealth.PricePoint?
+    }
+
+    ///The New York day the server wrote it.
+    let createdOn: String
+    ///It came back after "remind me in a week".
+    let reminder: Bool
+    let conditions: [Condition]
+    let close: Double
+    let asOf: String
+    let snoozed: Bool
+}
+
+///The three answers the check-in offers.
+enum CheckInAnswer: String, CaseIterable {
+    case intact, changed, unsure
+
+    var title: String {
+        switch self {
+        case .intact: return "Story intact"
+        case .changed: return "Story changed"
+        case .unsure: return "Not sure, remind me in a week"
+        }
+    }
+
+    ///In the history, where "remind me" has already happened or will.
+    var shortTitle: String {
+        switch self {
+        case .intact: return "Story intact"
+        case .changed: return "Story changed"
+        case .unsure: return "Not sure"
+        }
+    }
+}
+
+///One answer, with what it answered, as the thesis keeps it.
+struct CheckInRecord: Equatable {
+    ///"yyyy-MM-dd", New York.
+    let date: String
+    let answer: CheckInAnswer
+    ///"11% below your start", worded when it was answered.
+    let summary: String
 }

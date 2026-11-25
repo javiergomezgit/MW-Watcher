@@ -17,6 +17,10 @@ final class ThesisCard: UIView {
 
     ///"Add a Reason" or the pencil: the chart screen opens the editor.
     var onEdit: (() -> Void)?
+    ///"Check In" on a waiting check-in (BS-319).
+    var onCheckIn: (() -> Void)?
+    ///Answers shown under the conditions, newest first.
+    private static let historyShown = 5
 
     private let rowsStack = UIStackView()
     private let editButton = UIButton(type: .system)
@@ -102,6 +106,11 @@ final class ThesisCard: UIView {
         clear()
         editButton.isHidden = false
 
+        //A met condition waiting for an answer comes first (BS-319).
+        if let waiting = thesis.waitingCheckIn {
+            rowsStack.addArrangedSubview(checkInBanner(waiting))
+        }
+
         //Why.
         let why = NSMutableAttributedString(string: thesis.reason.title,
                                             attributes: [.font: UIFont.preferredFont(forTextStyle: .headline), .foregroundColor: UIColor.label])
@@ -136,6 +145,46 @@ final class ThesisCard: UIView {
         conditions.forEach { rowsStack.addArrangedSubview($0) }
         rowsStack.addArrangedSubview(row(symbol: "questionmark.circle", tint: .tertiaryLabel,
                                          text: attributed("Business conditions", detail: "Needs data", detailColor: .tertiaryLabel)))
+
+        //Check-ins, newest first.
+        if !thesis.history.isEmpty {
+            rowsStack.addArrangedSubview(label("Check-ins", style: .footnote, color: .secondaryLabel))
+            for record in thesis.history.suffix(Self.historyShown).reversed() {
+                let detail = record.summary.isEmpty ? StockHealthFormat.day(record.date)
+                                                    : "\(StockHealthFormat.day(record.date)) · \(record.summary)"
+                rowsStack.addArrangedSubview(row(symbol: Self.symbol(for: record.answer), tint: .secondaryLabel,
+                                                 text: attributed(record.answer.shortTitle, detail: detail, detailColor: .secondaryLabel)))
+            }
+        }
+    }
+
+    private static func symbol(for answer: CheckInAnswer) -> String {
+        switch answer {
+        case .intact: return "checkmark.seal"
+        case .changed: return "arrow.triangle.2.circlepath"
+        case .unsure: return "clock"
+        }
+    }
+
+    ///"Check-in waiting: 11% below your start", with the button that opens the sheet.
+    private func checkInBanner(_ checkIn: CheckIn) -> UIView {
+        let color = StockHealthFormat.color(for: .attention)
+        let summary = checkIn.conditions.map(\.summary).joined(separator: ", ")
+        let text = attributed(checkIn.reminder ? "Reminder: check in" : "Check-in waiting", detail: summary, detailColor: color)
+        let banner = row(symbol: "exclamationmark.triangle.fill", tint: color, text: text)
+        var configuration = UIButton.Configuration.tinted()
+        configuration.title = "Check In"
+        configuration.cornerStyle = .capsule
+        configuration.baseForegroundColor = color
+        configuration.baseBackgroundColor = color
+        let button = UIButton(configuration: configuration)
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.setContentCompressionResistancePriority(.required, for: .horizontal)
+        button.addAction(UIAction { [weak self] _ in self?.onCheckIn?() }, for: .touchUpInside)
+        let line = UIStackView(arrangedSubviews: [banner, button])
+        line.spacing = 8
+        line.alignment = .center
+        return line
     }
 
     // MARK: - Conditions

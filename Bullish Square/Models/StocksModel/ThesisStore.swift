@@ -201,6 +201,43 @@ final class ThesisStore {
         }
     }
 
+    // MARK: - Check-ins (BS-319)
+
+    ///Saves the answer to the waiting check-in with today's date. "Story intact" and "Story
+    ///changed" close it; "Not sure" snoozes it, and the server brings it back in a week. Only
+    ///the check-in fields change, so an edit on another phone isn't overwritten. Calls back
+    ///once, on the main queue.
+    func answer(_ thesis: Thesis, with answer: CheckInAnswer, summary: String, completion: @escaping (Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return completion(nil) }
+        let today = Self.newYorkDay(Date())
+        var fields: [String: Any] = [
+            "checkIns": FieldValue.arrayUnion([["date": today, "answer": answer.rawValue, "summary": summary]]),
+            "updatedAt": FieldValue.serverTimestamp()
+        ]
+        if answer == .unsure {
+            fields["pending.snoozed"] = true
+            fields["remindOn"] = Self.newYorkDay(Date().addingTimeInterval(7 * 86_400))
+        } else {
+            fields["pending"] = FieldValue.delete()
+            fields["remindOn"] = FieldValue.delete()
+        }
+        document(uid, ticker: thesis.ticker, watchlistID: thesis.watchlistID).updateData(fields) { error in
+            if let error = error as NSError? {
+                print("Saving the check-in for \(thesis.ticker) failed: \(error.localizedDescription)")
+            }
+            DispatchQueue.main.async { completion(error) }
+        }
+    }
+
+    private static func newYorkDay(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(identifier: "America/New_York")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+
     // MARK: - Account deletion
 
     ///Every thesis the account has, active or archived, read from the server so none is
@@ -263,7 +300,7 @@ final class ThesisStore {
             return nil
         }
         let reconsider = data["reconsider"] as? [String: Any] ?? [:]
-        return Thesis(ticker: ticker, watchlistID: watchlistID, reason: reason,
+        var thesis = Thesis(ticker: ticker, watchlistID: watchlistID, reason: reason,
                       note: data["note"] as? String ?? "",
                       startDate: startDate,
                       startPrice: (data["startPrice"] as? NSNumber)?.doubleValue,
@@ -271,5 +308,33 @@ final class ThesisStore {
                       reconsiderBelowStart: (reconsider["belowStart"] as? NSNumber)?.doubleValue,
                       reconsiderBelowHigh: (reconsider["belowHigh"] as? NSNumber)?.doubleValue,
                       archived: data["archived"] as? Bool ?? false)
+        thesis.pending = (data["pending"] as? [String: Any]).flatMap(checkIn(from:))
+        thesis.history = (data["checkIns"] as? [[String: Any]] ?? []).compactMap { entry in
+            guard let date = entry["date"] as? String,
+                  let answer = (entry["answer"] as? String).flatMap(CheckInAnswer.init(rawValue:)) else { return nil }
+            return CheckInRecord(date: date, answer: answer, summary: entry["summary"] as? String ?? "")
+        }
+        return thesis
+    }
+
+    ///The server's check-in; nil when it's missing what the sheet needs.
+    private static func checkIn(from data: [String: Any]) -> CheckIn? {
+        guard let createdOn = data["createdOn"] as? String,
+              let close = (data["close"] as? NSNumber)?.doubleValue,
+              let asOf = data["asOf"] as? String else { return nil }
+        let conditions: [CheckIn.Condition] = (data["conditions"] as? [[String: Any]] ?? []).compactMap { item in
+            guard let kind = (item["kind"] as? String).flatMap(CheckIn.Kind.init(rawValue:)),
+                  let date = item["date"] as? String,
+                  let close = (item["close"] as? NSNumber)?.doubleValue else { return nil }
+            let reference = (item["reference"] as? [String: Any]).flatMap { point -> StockHealth.PricePoint? in
+                guard let value = (point["value"] as? NSNumber)?.doubleValue, let date = point["date"] as? String else { return nil }
+                return StockHealth.PricePoint(value: value, date: date)
+            }
+            return CheckIn.Condition(kind: kind, threshold: (item["threshold"] as? NSNumber)?.doubleValue,
+                                     date: date, close: close, reference: reference)
+        }
+        guard !conditions.isEmpty else { return nil }
+        return CheckIn(createdOn: createdOn, reminder: data["reminder"] as? Bool ?? false, conditions: conditions,
+                       close: close, asOf: asOf, snoozed: data["snoozed"] as? Bool ?? false)
     }
 }
