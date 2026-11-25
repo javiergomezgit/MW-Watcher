@@ -157,6 +157,7 @@ class WatchlistController: UIViewController {
         //on endRefreshing - when it owns it. Added as a bare subview the control stayed
         //stuck at its expanded offset.
         tableView.refreshControl = refreshControl
+        changesHeader.onTap = { [weak self] in self?.openThisWeek() }
         
         startStopSpinner(start: true)
         
@@ -522,6 +523,14 @@ class WatchlistController: UIViewController {
             changesHeader.frame = CGRect(x: 0, y: 0, width: width, height: height)
             tableView.tableHeaderView = changesHeader
         }
+    }
+
+    ///This Week (BS-317): every stock on every list, as the Friday email has them, so the
+    ///screen matches the email rather than only the list on show.
+    private func openThisWeek() {
+        let lists = WatchlistStore.shared.snapshot(ownerUID: WatchlistSyncService.currentOwnerUID)
+        let tickers = lists.flatMap { $0.tickers.map(\.ticker) }
+        navigationController?.pushViewController(ThisWeekController(tickers: tickers, listCount: lists.count), animated: true)
     }
 
     @objc func openTrendExplanation(sender: UIButton) {

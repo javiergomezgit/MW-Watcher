@@ -16,6 +16,16 @@ final class HealthChangesHeader: UIView {
 
     private let titleLabel = UILabel()
     private let detailLabel = UILabel()
+    private let chevron = UIImageView(image: UIImage(systemName: "chevron.right"))
+
+    ///Opens the This Week screen (BS-317). The line is the way in, so it carries a chevron.
+    var onTap: (() -> Void)? {
+        didSet {
+            chevron.isHidden = onTap == nil
+            accessibilityTraits = onTap == nil ? .staticText : .button
+            accessibilityHint = onTap == nil ? nil : "Opens this week's changes on all your watchlists"
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -27,11 +37,21 @@ final class HealthChangesHeader: UIView {
         detailLabel.textColor = .secondaryLabel
         detailLabel.numberOfLines = 0
 
-        let stack = UIStackView(arrangedSubviews: [titleLabel, detailLabel])
-        stack.axis = .vertical
-        stack.spacing = 2
+        let text = UIStackView(arrangedSubviews: [titleLabel, detailLabel])
+        text.axis = .vertical
+        text.spacing = 2
+        chevron.tintColor = .tertiaryLabel
+        chevron.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .footnote, scale: .medium)
+        chevron.setContentHuggingPriority(.required, for: .horizontal)
+        chevron.setContentCompressionResistancePriority(.required, for: .horizontal)
+        chevron.isHidden = true
+        let stack = UIStackView(arrangedSubviews: [text, chevron])
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
+        addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
         NSLayoutConstraint.activate([
             stack.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
@@ -43,6 +63,16 @@ final class HealthChangesHeader: UIView {
 
     required init?(coder: NSCoder) {
         fatalError("HealthChangesHeader is built in code")
+    }
+
+    @objc private func tapped() {
+        onTap?()
+    }
+
+    override func accessibilityActivate() -> Bool {
+        guard let onTap else { return false }
+        onTap()
+        return true
     }
 
     ///Before any health has arrived for the list.

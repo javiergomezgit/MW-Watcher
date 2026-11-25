@@ -302,30 +302,15 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
     ///The thesis screen will take over when a thesis exists (BS-318). Opened like a search
     ///result: the chart loads its own price and logo.
     private func routeTrend(_ info: [AnyHashable: Any], tabs: UITabBarController) -> Bool {
-        guard let symbol = (info["symbol"] as? String)?.uppercased(), !symbol.isEmpty,
+        guard let symbol = info["symbol"] as? String,
               let index = tabs.viewControllers?.firstIndex(where: { ($0 as? UINavigationController)?.viewControllers.first is WatchlistController }),
               let navigation = tabs.viewControllers?[index] as? UINavigationController,
-              let chart = UIStoryboard(name: "Singles", bundle: .main).instantiateViewController(withIdentifier: "ChartController") as? ChartController else {
+              let chart = ChartController.healthChart(symbol: symbol) else {
             return false
         }
         tabs.selectedIndex = index
         navigation.dismiss(animated: false)
-        chart.informationStockTicker = TickersCurrentValues(ticker: symbol, marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
-        chart.imageCompany = UIImage(named: "mw-logo")
-        chart.loadsQuoteAndLogo = true
-        chart.scrollsToHealth = true
-        if symbol.hasPrefix("^") {
-            let name = Self.indexNames[symbol] ?? symbol
-            chart.indexMarket = true
-            chart.indexName = name
-            chart.nameTicker = name
-        } else {
-            chart.nameTicker = symbol
-        }
         navigation.pushViewController(chart, animated: true)
         return true
     }
-
-    ///The Markets tab's names for the indexes a watchlist can hold.
-    private static let indexNames = ["^GSPC": "S&P 500", "^DJI": "DOW JONES", "^IXIC": "NASDAQ"]
 }

@@ -409,6 +409,38 @@ final class StockAPI {
         }
     }
 
+    // MARK: - This week (BS-317)
+
+    ///The server's limit for one request; a longer list is cut to its first 50.
+    static let thisWeekMaxSymbols = 50
+
+    ///The week so far for these stocks, worded as the Friday email words it. Completes exactly
+    ///once, on the main queue.
+    func getThisWeek(tickers: [String], completion: @escaping (Result<WeeklyReport, Error>) -> Void) {
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._")
+        var seen = Set<String>()
+        let symbols = tickers.map { $0.uppercased() }.filter { !$0.isEmpty && seen.insert($0).inserted }
+        let query = symbols.prefix(Self.thisWeekMaxSymbols)
+            .compactMap { $0.addingPercentEncoding(withAllowedCharacters: allowed) }
+            .joined(separator: ",")
+        guard !query.isEmpty else {
+            DispatchQueue.main.async { completion(.failure(APIError.invalidTicker)) }
+            return
+        }
+        healthRequest(path: "/v1/this-week?symbols=" + query, label: "this week") { result in
+            let parsed: Result<WeeklyReport, Error> = result.flatMap { data in
+                do {
+                    return .success(try JSONDecoder().decode(WeeklyReport.self, from: data))
+                } catch let error as NSError {
+                    print("This week came back in an unexpected shape: \(error)")
+                    return .failure(APIError.invalidJSON)
+                }
+            }
+            DispatchQueue.main.async { completion(parsed) }
+        }
+    }
+
     ///The body of a health request whose status the app understands: 200, or 404 (the
     ///server's insufficient_history / no_data, which carry an answer). Completes exactly once.
     private func healthRequest(path: String, label: String, completion: @escaping (Result<Data, Error>) -> Void) {

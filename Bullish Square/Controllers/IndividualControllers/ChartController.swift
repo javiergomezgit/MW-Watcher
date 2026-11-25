@@ -91,6 +91,33 @@ class ChartController: UIViewController {
     private var healthAnswer: StockHealthAnswer?
     ///Opened from a trend alert (BS-314): scrolls to the Health card once it has loaded.
     var scrollsToHealth = false
+
+    ///The chart screen opened on a stock's Health card, from a trend alert (BS-314) or the
+    ///This Week screen (BS-317). Only the symbol is known, so the quote and logo load here.
+    static func healthChart(symbol: String) -> ChartController? {
+        let symbol = symbol.uppercased()
+        guard !symbol.isEmpty,
+              let chart = UIStoryboard(name: "Singles", bundle: .main)
+                .instantiateViewController(withIdentifier: "ChartController") as? ChartController else {
+            return nil
+        }
+        chart.informationStockTicker = TickersCurrentValues(ticker: symbol, marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
+        chart.imageCompany = UIImage(named: "mw-logo")
+        chart.loadsQuoteAndLogo = true
+        chart.scrollsToHealth = true
+        if symbol.hasPrefix("^") {
+            let name = indexNames[symbol] ?? symbol
+            chart.indexMarket = true
+            chart.indexName = name
+            chart.nameTicker = name
+        } else {
+            chart.nameTicker = symbol
+        }
+        return chart
+    }
+
+    ///The Markets tab's names for the indexes a watchlist can hold.
+    private static let indexNames = ["^GSPC": "S&P 500", "^DJI": "DOW JONES", "^IXIC": "NASDAQ"]
         
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
