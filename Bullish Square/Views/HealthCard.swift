@@ -37,6 +37,15 @@ final class HealthCard: UIView {
 
     ///Set by the chart screen; the card only says which row was tapped.
     var onSelect: ((HealthTopic) -> Void)?
+    ///The bell beside the heading was tapped (BS-314).
+    var onBell: (() -> Void)?
+
+    ///What the bell says about this stock's trend alerts.
+    enum AlertState {
+        case on, muted, off
+    }
+
+    private let bell = UIButton(type: .system)
 
     private let rowsStack = UIStackView()
     private let freshnessLabel = UILabel()
@@ -78,7 +87,14 @@ final class HealthCard: UIView {
         freshnessLabel.textColor = .secondaryLabel
         freshnessLabel.numberOfLines = 0
 
-        let stack = UIStackView(arrangedSubviews: [heading, card, freshnessLabel])
+        //Hidden until the chart screen knows the person's settings; signed out it stays hidden.
+        bell.isHidden = true
+        bell.setContentHuggingPriority(.required, for: .horizontal)
+        bell.addAction(UIAction { [weak self] _ in self?.onBell?() }, for: .touchUpInside)
+        let headingRow = UIStackView(arrangedSubviews: [heading, bell])
+        headingRow.alignment = .center
+
+        let stack = UIStackView(arrangedSubviews: [headingRow, card, freshnessLabel])
         stack.axis = .vertical
         stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
@@ -89,6 +105,34 @@ final class HealthCard: UIView {
             stack.leadingAnchor.constraint(equalTo: leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: trailingAnchor)
         ])
+    }
+
+    ///nil hides the bell (signed out). `.off` means trend alerts are off in Settings altogether.
+    func showAlerts(_ state: AlertState?) {
+        guard let state else {
+            bell.isHidden = true
+            return
+        }
+        let symbol: String
+        let label: String
+        switch state {
+        case .on:
+            symbol = "bell.fill"
+            label = "Trend alerts on for this stock"
+            bell.tintColor = .label
+        case .muted:
+            symbol = "bell.slash"
+            label = "Trend alerts muted for this stock"
+            bell.tintColor = .secondaryLabel
+        case .off:
+            symbol = "bell"
+            label = "Trend alerts are off"
+            bell.tintColor = .secondaryLabel
+        }
+        bell.setImage(UIImage(systemName: symbol, withConfiguration: UIImage.SymbolConfiguration(textStyle: .body)), for: .normal)
+        bell.accessibilityLabel = label
+        bell.accessibilityHint = state == .off ? "Opens notification settings" : "Mutes or unmutes this stock's trend alerts"
+        bell.isHidden = false
     }
 
     ///A health answer, or a sentence in its place ("Not enough history yet"). `priceText`

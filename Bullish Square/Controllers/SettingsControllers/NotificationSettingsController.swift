@@ -5,7 +5,8 @@
 
 import UIKit
 
-///Settings → Notifications: which Community activity sends a push notification. (BS-290)
+///Settings → Notifications: which Community activity sends a push notification (BS-290), and
+///the trend alerts for watchlist stocks (BS-314).
 ///
 ///The switches are saved to the account, so they follow the person to another phone and the
 ///server reads them before sending. When iOS has notifications off for the app, a row says so
@@ -15,7 +16,15 @@ final class NotificationSettingsController: UITableViewController {
     // MARK: - Properties
 
     private enum Section: Int, CaseIterable {
-        case system, kinds
+        case system, kinds, trends
+
+        var kinds: [PushNotifications.Kind] {
+            switch self {
+            case .system: return []
+            case .kinds: return PushNotifications.Kind.community
+            case .trends: return PushNotifications.Kind.trends
+            }
+        }
     }
 
     private var preferences: [PushNotifications.Kind: Bool] = [:]
@@ -68,13 +77,30 @@ final class NotificationSettingsController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch Section(rawValue: section) {
         case .system: return allowed == false ? 1 : 0
-        case .kinds: return PushNotifications.Kind.allCases.count
+        case .kinds, .trends: return Section(rawValue: section)?.kinds.count ?? 0
         case nil: return 0
         }
     }
 
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch Section(rawValue: section) {
+        case .kinds: return "Community"
+        case .trends: return "Watchlist"
+        default: return nil
+        }
+    }
+
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        Section(rawValue: section) == .kinds ? "Notifications for activity on your posts and profile in Community." : nil
+        switch Section(rawValue: section) {
+        case .kinds:
+            return "Notifications for activity on your posts and profile in Community."
+        case .trends:
+            return "When a stock on your watchlists closes more than 2% past its 200-day average, twice in a row. "
+                + "At most one per stock every two weeks and three a day, never between 10 pm and 7 am. "
+                + "Mute a stock from its Health card."
+        default:
+            return nil
+        }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -92,12 +118,13 @@ final class NotificationSettingsController: UITableViewController {
             return cell
         }
 
-        let kind = PushNotifications.Kind.allCases[indexPath.row]
+        guard let kinds = Section(rawValue: indexPath.section)?.kinds, indexPath.row < kinds.count else { return cell }
+        let kind = kinds[indexPath.row]
         content.text = kind.title
         cell.contentConfiguration = content
         cell.selectionStyle = .none
         let toggle = UISwitch()
-        toggle.isOn = preferences[kind] ?? true
+        toggle.isOn = preferences[kind] ?? kind.defaultOn
         toggle.isEnabled = allowed != false
         toggle.addAction(UIAction { [weak self, weak toggle] _ in
             guard let self, let toggle else { return }

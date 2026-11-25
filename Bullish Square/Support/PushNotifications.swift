@@ -9,7 +9,7 @@ import FirebaseAuth
 import FirebaseFirestore
 
 ///Push notifications for Community activity: likes, reshares, comments, replies and new
-///followers. (BS-290)
+///followers (BS-290), and trend alerts for watchlist stocks (BS-313, BS-314).
 ///
 ///The phone only registers and routes. It saves its APNs token under
 ///`users/{uid}/devices/{token}`, and the server, which watches `activity`, sends the
@@ -24,16 +24,29 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
 
     // MARK: - Properties
 
-    ///The kinds a person can turn off, as the server reads them.
+    ///The kinds a person can turn on or off, as the server reads them from
+    ///`users/{uid}.notifications`.
     enum Kind: String, CaseIterable {
         case likes, comments, follows
+        case trendBreak, backInUptrend
+
+        static let community: [Kind] = [.likes, .comments, .follows]
+        static let trends: [Kind] = [.trendBreak, .backInUptrend]
 
         var title: String {
             switch self {
             case .likes: return "Likes and Reshares"
             case .comments: return "Comments and Replies"
             case .follows: return "New Followers"
+            case .trendBreak: return "Trend Breaks"
+            case .backInUptrend: return "Back in Uptrend"
             }
+        }
+
+        ///Community activity is on until turned off. Trend alerts are off until turned on:
+        ///a push about a price should never arrive unasked (BS-304).
+        var defaultOn: Bool {
+            Kind.community.contains(self)
         }
     }
 
@@ -160,29 +173,72 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
 
     // MARK: - Preferences
 
-    ///Every kind is on until turned off. Calls back once, on the main queue.
+    ///Each kind's switch, with its default where nothing is stored. Calls back once, on the main
+    ///queue. Read field by field: the map also holds the time zone, quiet hours and muted
+    ///stocks, and reading it as `[String: Bool]` would turn every switch back to its default.
     func preferences(completion: @escaping ([Kind: Bool]) -> Void) {
-        let defaults = Dictionary(uniqueKeysWithValues: Kind.allCases.map { ($0, true) })
+        let defaults = Dictionary(uniqueKeysWithValues: Kind.allCases.map { ($0, $0.defaultOn) })
         guard let uid = Auth.auth().currentUser?.uid else { return completion(defaults) }
         Firestore.firestore().collection("users").document(uid).getDocument { snapshot, error in
             if let error = error as NSError? {
                 print("Reading notification settings failed: \(error.localizedDescription)")
             }
-            let stored = snapshot?.data()?["notifications"] as? [String: Bool] ?? [:]
+            let stored = snapshot?.data()?["notifications"] as? [String: Any] ?? [:]
             var result = defaults
             for kind in Kind.allCases {
-                if let value = stored[kind.rawValue] { result[kind] = value }
+                if let value = stored[kind.rawValue] as? Bool { result[kind] = value }
             }
             DispatchQueue.main.async { completion(result) }
         }
     }
 
+    ///A trend switch also saves the phone's time zone, so the server keeps quiet hours
+    ///(10 pm to 7 am) in local time.
     func setPreference(_ kind: Kind, on: Bool, completion: @escaping (Error?) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return completion(nil) }
+        var fields: [String: Any] = [kind.rawValue: on]
+        if Kind.trends.contains(kind) {
+            fields["timeZone"] = TimeZone.current.identifier
+        }
         Firestore.firestore().collection("users").document(uid)
-            .setData(["notifications": [kind.rawValue: on]], merge: true) { error in
+            .setData(["notifications": fields], merge: true) { error in
                 if let error = error as NSError? {
                     print("Saving notification settings failed: \(error.localizedDescription)")
+                }
+                DispatchQueue.main.async { completion(error) }
+            }
+    }
+
+    // MARK: - Muted stocks
+
+    ///Alerts and mutes belong to an account; signed out there's nothing to show.
+    var isSignedIn: Bool {
+        Auth.auth().currentUser != nil
+    }
+
+    ///Whether this stock's trend alerts are muted. False when signed out or unreadable.
+    ///Calls back once, on the main queue.
+    func isMuted(_ symbol: String, completion: @escaping (Bool) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return completion(false) }
+        Firestore.firestore().collection("users").document(uid).getDocument { snapshot, error in
+            if let error = error as NSError? {
+                print("Reading muted stocks failed: \(error.localizedDescription)")
+            }
+            let stored = snapshot?.data()?["notifications"] as? [String: Any]
+            let muted = (stored?["mutedSymbols"] as? [String] ?? []).map { $0.uppercased() }
+            DispatchQueue.main.async { completion(muted.contains(symbol.uppercased())) }
+        }
+    }
+
+    ///Adds or removes the stock in `notifications.mutedSymbols`, leaving the other stocks and
+    ///switches as they are. Calls back once, on the main queue.
+    func setMuted(_ symbol: String, muted: Bool, completion: @escaping (Error?) -> Void) {
+        guard let uid = Auth.auth().currentUser?.uid else { return completion(nil) }
+        let change = muted ? FieldValue.arrayUnion([symbol.uppercased()]) : FieldValue.arrayRemove([symbol.uppercased()])
+        Firestore.firestore().collection("users").document(uid)
+            .setData(["notifications": ["mutedSymbols": change]], merge: true) { error in
+                if let error = error as NSError? {
+                    print("Saving a muted stock failed: \(error.localizedDescription)")
                 }
                 DispatchQueue.main.async { completion(error) }
             }
@@ -213,13 +269,17 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
         if route(info) { pendingRoute = nil }
     }
 
-    ///A follow opens the follower's profile; anything else the post with its comments, in the
-    ///Community tab. False when there is no tab bar yet.
+    ///A trend alert opens the stock in the Watchlist tab; a follow the follower's profile;
+    ///anything else the post with its comments, in the Community tab. False when there is no
+    ///tab bar yet.
     @discardableResult
     private func route(_ info: [AnyHashable: Any]) -> Bool {
         guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let tabs = scene.windows.first(where: \.isKeyWindow)?.rootViewController as? UITabBarController,
-              let index = tabs.viewControllers?.firstIndex(where: { $0 is CommunityNavigationController }),
+              let tabs = scene.windows.first(where: \.isKeyWindow)?.rootViewController as? UITabBarController else { return false }
+        if info["type"] as? String == "trend" {
+            return routeTrend(info, tabs: tabs)
+        }
+        guard let index = tabs.viewControllers?.firstIndex(where: { $0 is CommunityNavigationController }),
               let navigation = tabs.viewControllers?[index] as? UINavigationController else { return false }
         tabs.selectedIndex = index
         navigation.dismiss(animated: false)
@@ -237,4 +297,35 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
         }
         return true
     }
+
+    ///The stock's chart, scrolled to its Health card, where the trend and its explanation are.
+    ///The thesis screen will take over when a thesis exists (BS-318). Opened like a search
+    ///result: the chart loads its own price and logo.
+    private func routeTrend(_ info: [AnyHashable: Any], tabs: UITabBarController) -> Bool {
+        guard let symbol = (info["symbol"] as? String)?.uppercased(), !symbol.isEmpty,
+              let index = tabs.viewControllers?.firstIndex(where: { ($0 as? UINavigationController)?.viewControllers.first is WatchlistController }),
+              let navigation = tabs.viewControllers?[index] as? UINavigationController,
+              let chart = UIStoryboard(name: "Singles", bundle: .main).instantiateViewController(withIdentifier: "ChartController") as? ChartController else {
+            return false
+        }
+        tabs.selectedIndex = index
+        navigation.dismiss(animated: false)
+        chart.informationStockTicker = TickersCurrentValues(ticker: symbol, marketPrice: 0.0, previousPrice: 0.0, changePercent: 0.0)
+        chart.imageCompany = UIImage(named: "mw-logo")
+        chart.loadsQuoteAndLogo = true
+        chart.scrollsToHealth = true
+        if symbol.hasPrefix("^") {
+            let name = Self.indexNames[symbol] ?? symbol
+            chart.indexMarket = true
+            chart.indexName = name
+            chart.nameTicker = name
+        } else {
+            chart.nameTicker = symbol
+        }
+        navigation.pushViewController(chart, animated: true)
+        return true
+    }
+
+    ///The Markets tab's names for the indexes a watchlist can hold.
+    private static let indexNames = ["^GSPC": "S&P 500", "^DJI": "DOW JONES", "^IXIC": "NASDAQ"]
 }

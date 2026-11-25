@@ -89,6 +89,8 @@ class ChartController: UIViewController {
     ///answer, so the cards below don't jump while it loads.
     private let healthCard = HealthCard()
     private var healthAnswer: StockHealthAnswer?
+    ///Opened from a trend alert (BS-314): scrolls to the Health card once it has loaded.
+    var scrollsToHealth = false
         
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -105,6 +107,8 @@ class ChartController: UIViewController {
     ///the screen above the tabs. Black page, no line: the line is turned off here only.
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        //Back from Settings → Notifications, where trend alerts may have been turned on.
+        if healthAnswer?.health != nil { refreshAlertBell() }
         guard savedTabBarAppearance == nil, let tabBar = tabBarController?.tabBar else { return }
         savedTabBarAppearance = tabBar.standardAppearance
         let appearance = tabBar.standardAppearance.copy()
@@ -147,6 +151,7 @@ class ChartController: UIViewController {
             loadKeyStats()
             healthCard.isHidden = true
             healthCard.onSelect = { [weak self] topic in self?.openHealthExplanation(topic) }
+            healthCard.onBell = { [weak self] in self?.bellTapped() }
             cardsStack.addArrangedSubview(healthCard)
             loadHealth()
             if !indexMarket {
@@ -182,6 +187,62 @@ class ChartController: UIViewController {
                 self.healthCard.update(answer, priceText: self.priceText,
                                        change: HealthSeenStore.shared.latestChange(for: ticker))
                 self.healthCard.isHidden = false
+                self.refreshAlertBell()
+                if self.scrollsToHealth {
+                    self.scrollsToHealth = false
+                    self.view.layoutIfNeeded()
+                    let frame = self.healthCard.convert(self.healthCard.bounds, to: self.scrollView)
+                    self.scrollView.scrollRectToVisible(frame.insetBy(dx: 0, dy: -12), animated: true)
+                }
+            }
+        }
+    }
+
+    // MARK: - Trend alerts (BS-314)
+
+    ///Off in Settings, muted for this stock, or on. Hidden when signed out.
+    private func refreshAlertBell() {
+        let push = PushNotifications.shared
+        guard push.isSignedIn else { return healthCard.showAlerts(nil) }
+        let ticker = informationStockTicker.ticker
+        push.preferences { [weak self] preferences in
+            guard let self, self.informationStockTicker.ticker == ticker else { return }
+            let anyOn = PushNotifications.Kind.trends.contains { preferences[$0] == true }
+            guard anyOn else { return self.healthCard.showAlerts(.off) }
+            push.isMuted(ticker) { [weak self] muted in
+                guard let self, self.informationStockTicker.ticker == ticker else { return }
+                self.healthCard.showAlerts(muted ? .muted : .on)
+            }
+        }
+    }
+
+    ///With alerts off it offers Settings; otherwise it mutes or unmutes this stock, shown at once
+    ///and put back if the save fails.
+    private func bellTapped() {
+        let push = PushNotifications.shared
+        let ticker = informationStockTicker.ticker
+        push.preferences { [weak self] preferences in
+            guard let self else { return }
+            guard PushNotifications.Kind.trends.contains(where: { preferences[$0] == true }) else {
+                let alert = UIAlertController(title: "Trend Alerts Are Off",
+                                              message: "Turn them on to hear when a stock on your watchlists breaks its trend or gets back in an uptrend.",
+                                              preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Not Now", style: .cancel))
+                alert.addAction(UIAlertAction(title: "Settings", style: .default) { [weak self] _ in
+                    self?.navigationController?.pushViewController(NotificationSettingsController(), animated: true)
+                })
+                return self.present(alert, animated: true)
+            }
+            push.isMuted(ticker) { [weak self] muted in
+                guard let self else { return }
+                self.healthCard.showAlerts(muted ? .on : .muted)
+                UIAccessibility.post(notification: .announcement,
+                                     argument: muted ? "Trend alerts on for \(ticker)" : "Trend alerts muted for \(ticker)")
+                push.setMuted(ticker, muted: !muted) { [weak self] error in
+                    guard let self, error != nil else { return }
+                    self.healthCard.showAlerts(muted ? .muted : .on)
+                    Utilities.showAlert(on: self, title: "Can't Save", message: "Check your connection and try again.")
+                }
             }
         }
     }
