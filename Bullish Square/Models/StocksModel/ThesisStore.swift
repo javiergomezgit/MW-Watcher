@@ -284,7 +284,14 @@ final class ThesisStore {
                 "belowStart": thesis.reconsiderBelowStart.map { $0 as Any } ?? NSNull(),
                 "belowHigh": thesis.reconsiderBelowHigh.map { $0 as Any } ?? NSNull()
             ],
-            "archived": thesis.archived
+            "archived": thesis.archived,
+            "exitPlan": thesis.exitPlan.map { plan -> Any in
+                [
+                    "goal": plan.goal.rawValue,
+                    "targetMonth": plan.targetMonth.map { $0 as Any } ?? NSNull(),
+                    "monthsBefore": plan.monthsBefore
+                ]
+            } ?? NSNull()
         ]
     }
 
@@ -309,6 +316,12 @@ final class ThesisStore {
                       reconsiderBelowHigh: (reconsider["belowHigh"] as? NSNumber)?.doubleValue,
                       archived: data["archived"] as? Bool ?? false)
         thesis.pending = (data["pending"] as? [String: Any]).flatMap(checkIn(from:))
+        if let plan = data["exitPlan"] as? [String: Any],
+           let goal = (plan["goal"] as? String).flatMap(ExitGoal.init(rawValue:)) {
+            let targetMonth = (plan["targetMonth"] as? String).flatMap { ExitPlan.monthNumber($0) != nil ? $0 : nil }
+            thesis.exitPlan = ExitPlan(goal: goal, targetMonth: targetMonth,
+                                       monthsBefore: plan["monthsBefore"] as? Int ?? ExitPlan.defaultMonthsBefore)
+        }
         thesis.history = (data["checkIns"] as? [[String: Any]] ?? []).compactMap { entry in
             guard let date = entry["date"] as? String,
                   let answer = (entry["answer"] as? String).flatMap(CheckInAnswer.init(rawValue:)) else { return nil }

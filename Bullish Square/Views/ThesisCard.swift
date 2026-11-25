@@ -146,6 +146,16 @@ final class ThesisCard: UIView {
         rowsStack.addArrangedSubview(row(symbol: "questionmark.circle", tint: .tertiaryLabel,
                                          text: attributed("Business conditions", detail: "Needs data", detailColor: .tertiaryLabel)))
 
+        //Exit plan (BS-320): the goal, its month and where the countdown is.
+        if let plan = thesis.exitPlan {
+            let title = plan.targetText.map { "\(plan.goal.title) · \($0)" } ?? plan.goal.title
+            let selling: Bool
+            if case .selling = plan.phase() { selling = true } else { selling = false }
+            rowsStack.addArrangedSubview(row(symbol: plan.goal.symbolName, tint: .secondaryLabel,
+                                             text: attributed("Exit plan: " + title, detail: plan.countdown,
+                                                              detailColor: selling ? .label : .secondaryLabel)))
+        }
+
         //Check-ins, newest first.
         if !thesis.history.isEmpty {
             rowsStack.addArrangedSubview(label("Check-ins", style: .footnote, color: .secondaryLabel))

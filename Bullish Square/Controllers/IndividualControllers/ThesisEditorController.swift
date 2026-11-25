@@ -16,7 +16,12 @@ import UIKit
 final class ThesisEditorController: UIViewController {
 
     private enum Section: Int, CaseIterable {
-        case reason, note, reconsider
+        case reason, note, reconsider, exitPlan
+    }
+
+    ///The exit plan's rows (BS-320): only the goal until one is chosen.
+    private enum ExitRow {
+        case goal, targetMonth, monthsBefore, why
     }
 
     private enum ReconsiderRow: Int, CaseIterable {
@@ -35,6 +40,11 @@ final class ThesisEditorController: UIViewController {
     private var trendBreak: Bool
     private var belowStart: Double?
     private var belowHigh: Double?
+    ///nil: no exit plan. `exitNoDate` is "Other, no date".
+    private var exitGoal: ExitGoal?
+    private var exitNoDate: Bool
+    private var exitTargetMonth: String
+    private var exitMonthsBefore: Int
     ///The starting close for a new thesis, from health; nil until it answers, or if it can't.
     private var start: (date: String, price: Double?)?
     private var isNew: Bool { thesis == nil }
@@ -53,6 +63,11 @@ final class ThesisEditorController: UIViewController {
         trendBreak = thesis?.reconsiderOnTrendBreak ?? true
         belowStart = thesis?.reconsiderBelowStart
         belowHigh = thesis?.reconsiderBelowHigh
+        exitGoal = thesis?.exitPlan?.goal
+        exitNoDate = thesis?.exitPlan != nil && thesis?.exitPlan?.targetMonth == nil
+        //Two years out until the person picks a month.
+        exitTargetMonth = thesis?.exitPlan?.targetMonth ?? ExitPlan.month(of: Date().addingTimeInterval(2 * 365 * 86_400))
+        exitMonthsBefore = thesis?.exitPlan?.monthsBefore ?? ExitPlan.defaultMonthsBefore
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -171,6 +186,7 @@ final class ThesisEditorController: UIViewController {
         updated.reconsiderOnTrendBreak = trendBreak
         updated.reconsiderBelowStart = belowStart
         updated.reconsiderBelowHigh = belowHigh
+        updated.exitPlan = exitPlan
 
         saveButton.isEnabled = false
         ThesisStore.shared.save(updated) { [weak self] error in
@@ -184,6 +200,77 @@ final class ThesisEditorController: UIViewController {
             self.finish(updated)
             self.dismiss(animated: true)
         }
+    }
+
+    // MARK: - Exit plan
+
+    ///What the sheet would save, from its controls.
+    private var exitPlan: ExitPlan? {
+        exitGoal.map { ExitPlan(goal: $0, targetMonth: exitNoDate ? nil : exitTargetMonth, monthsBefore: exitMonthsBefore) }
+    }
+
+    private var exitRows: [ExitRow] {
+        guard exitGoal != nil else { return [.goal, .why] }
+        return exitNoDate ? [.goal, .why] : [.goal, .targetMonth, .monthsBefore, .why]
+    }
+
+    private func reloadExitPlan() {
+        tableView.reloadSections(IndexSet(integer: Section.exitPlan.rawValue), with: .automatic)
+    }
+
+    ///None, the four goals, and "Other, no date".
+    private func goalButton() -> UIButton {
+        let button = UIButton(type: .system)
+        var configuration = UIButton.Configuration.gray()
+        configuration.cornerStyle = .capsule
+        configuration.title = exitGoal.map { exitNoDate ? "\($0.title), no date" : $0.title } ?? "None"
+        button.configuration = configuration
+        let choose: (ExitGoal?, Bool, String) -> UIAction = { goal, noDate, title in
+            UIAction(title: title, image: goal.map { UIImage(systemName: $0.symbolName) } ?? nil,
+                     state: goal == self.exitGoal && noDate == self.exitNoDate ? .on : .off) { [weak self] _ in
+                self?.exitGoal = goal
+                self?.exitNoDate = noDate
+                self?.reloadExitPlan()
+            }
+        }
+        button.menu = UIMenu(children: [choose(nil, false, "None")]
+                             + ExitGoal.allCases.map { choose($0, false, $0.title) }
+                             + [choose(.other, true, "Other, no date")])
+        button.showsMenuAsPrimaryAction = true
+        button.sizeToFit()
+        return button
+    }
+
+    private func monthsBeforeButton() -> UIButton {
+        let button = UIButton(type: .system)
+        var configuration = UIButton.Configuration.gray()
+        configuration.cornerStyle = .capsule
+        configuration.title = "\(exitMonthsBefore) months"
+        button.configuration = configuration
+        button.menu = UIMenu(children: ExitPlan.monthsBeforeChoices.map { months in
+            UIAction(title: "\(months) months before", state: months == exitMonthsBefore ? .on : .off) { [weak self] _ in
+                self?.exitMonthsBefore = months
+                self?.reloadExitPlan()
+            }
+        })
+        button.showsMenuAsPrimaryAction = true
+        button.sizeToFit()
+        return button
+    }
+
+    ///A month is what counts; the picker's day is ignored.
+    private func monthPicker() -> UIDatePicker {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .compact
+        picker.minimumDate = Date()
+        picker.date = ExitPlan.date(ofMonth: exitTargetMonth) ?? Date()
+        picker.addAction(UIAction { [weak self] action in
+            guard let picker = action.sender as? UIDatePicker else { return }
+            self?.exitTargetMonth = ExitPlan.month(of: picker.date)
+            self?.tableView.reloadSections(IndexSet(integer: Section.exitPlan.rawValue), with: .none)
+        }, for: .valueChanged)
+        return picker
     }
 
     ///A pull-down for one price condition: off, or one of `drops`.
@@ -220,6 +307,7 @@ extension ThesisEditorController: UITableViewDataSource, UITableViewDelegate {
         case .reason: return ThesisReason.allCases.count
         case .note: return 1
         case .reconsider: return ReconsiderRow.allCases.count
+        case .exitPlan: return exitRows.count
         }
     }
 
@@ -228,10 +316,21 @@ extension ThesisEditorController: UITableViewDataSource, UITableViewDelegate {
         case .reason: return "Why are you watching \(Self.displaySymbol(ticker))?"
         case .note: return "In your own words (optional)"
         case .reconsider: return "What would make you look again?"
+        case .exitPlan: return "Exit plan (optional)"
         }
     }
 
     func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        if Section(rawValue: section) == .exitPlan {
+            guard let plan = exitPlan else {
+                return "If this money is for something, pick it and when. The app reminds you to sell gradually; it never sells anything."
+            }
+            switch plan.phase() {
+            case .noDate: return "No date, so no reminders."
+            case .before: return "\(plan.countdown). A reminder twice a year until then, then each month while you sell."
+            case .selling, .past: return "\(plan.countdown)."
+            }
+        }
         guard Section(rawValue: section) == .reconsider else { return nil }
         var lines: [String] = []
         if let thesis {
@@ -307,11 +406,43 @@ extension ThesisEditorController: UITableViewDataSource, UITableViewDelegate {
             }
             cell.contentConfiguration = content
             return cell
+
+        case .exitPlan:
+            let cell = tableView.dequeueReusableCell(withIdentifier: "row", for: indexPath)
+            var content = cell.defaultContentConfiguration()
+            cell.accessoryType = .none
+            cell.selectionStyle = .none
+            cell.accessoryView = nil
+            switch exitRows[indexPath.row] {
+            case .goal:
+                content.text = "Goal"
+                content.image = UIImage(systemName: exitGoal?.symbolName ?? "flag")
+                cell.accessoryView = goalButton()
+            case .targetMonth:
+                content.text = "Target month"
+                cell.accessoryView = monthPicker()
+            case .monthsBefore:
+                content.text = "Start selling gradually"
+                content.secondaryText = ExitPlan(goal: exitGoal ?? .other, targetMonth: exitTargetMonth,
+                                                 monthsBefore: exitMonthsBefore).startText.map { "From \($0)" }
+                cell.accessoryView = monthsBeforeButton()
+            case .why:
+                content.text = "Why sell gradually?"
+                content.textProperties.color = .tintColor
+                content.image = UIImage(systemName: "info.circle")
+                cell.selectionStyle = .default
+            }
+            cell.contentConfiguration = content
+            return cell
         }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        if Section(rawValue: indexPath.section) == .exitPlan, indexPath.row < exitRows.count, exitRows[indexPath.row] == .why {
+            present(GradualExitController().embedded(), animated: true)
+            return
+        }
         guard Section(rawValue: indexPath.section) == .reason,
               indexPath.row < ThesisReason.allCases.count else { return }
         reason = ThesisReason.allCases[indexPath.row]
