@@ -122,6 +122,13 @@ final class AccountDeletionManager: NSObject {
                                     return
                                 }
 
+                                //The server's log of trend alerts sent, also under users/{uid}. (BS-313)
+                                PushNotifications.shared.deleteTrendAlertLog(uid: uid) { alertLogError in
+                                if let alertLogError {
+                                    finish(.failure(alertLogError))
+                                    return
+                                }
+
                                 //Otherwise the server would go on emailing the address. (BS-298)
                                 EmailSubscriptionStore.shared.deleteSubscriptions(uid: uid) { emailError in
                                 if let emailError {
@@ -157,6 +164,7 @@ final class AccountDeletionManager: NSObject {
                                             finish(.success(()))
                                         }
                                     }
+                                }
                                 }
                                 }
                                 }

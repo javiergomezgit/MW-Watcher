@@ -172,6 +172,36 @@ final class PushNotifications: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
+    ///The server's trend-alert log, `users/{uid}/trendAlerts/{symbol}_{to}` (BS-313): which
+    ///stocks this person was alerted about, and when. Deleting `users/{uid}` leaves
+    ///subcollections behind, so account deletion removes it first. Read from the server so
+    ///none is missed. Calls back once, on the main queue.
+    func deleteTrendAlertLog(uid: String, completion: @escaping (Error?) -> Void) {
+        Firestore.firestore().collection("users").document(uid).collection("trendAlerts").getDocuments(source: .server) { snapshot, error in
+            if let error = error as NSError? {
+                print("Reading the trend alert log failed: \(error.localizedDescription)")
+                return DispatchQueue.main.async { completion(error) }
+            }
+            let documents = snapshot?.documents ?? []
+            let group = DispatchGroup()
+            var firstError: Error?
+            //A batch holds 500 writes.
+            for start in stride(from: 0, to: documents.count, by: 500) {
+                let batch = Firestore.firestore().batch()
+                documents[start..<min(start + 500, documents.count)].forEach { batch.deleteDocument($0.reference) }
+                group.enter()
+                batch.commit { error in
+                    if let error = error as NSError? {
+                        print("Deleting the trend alert log failed: \(error.localizedDescription)")
+                        firstError = firstError ?? error
+                    }
+                    group.leave()
+                }
+            }
+            group.notify(queue: .main) { completion(firstError) }
+        }
+    }
+
     private func devices(_ uid: String) -> CollectionReference {
         Firestore.firestore().collection("users").document(uid).collection("devices")
     }
