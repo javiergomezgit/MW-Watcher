@@ -10,7 +10,7 @@ running the day a reviewer opens it.
 
 ## 1. Decide the version
 
-- [ ] Pick the version: **MARKETING_VERSION** in the target's build settings (2.4.0 today).
+- [ ] Pick the version: **MARKETING_VERSION** in the target's build settings (2.5.0 today).
       Patch (2.4.1) for fixes only, minor (2.5.0) for new features.
 - [ ] Bump **CURRENT_PROJECT_VERSION** (the build number) for every upload, including a
       re-upload of the same version.

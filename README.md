@@ -3,14 +3,18 @@
 An iOS stock and crypto watchlist app. Track tickers across multiple watchlists, read
 market news, and view candlestick and line charts — built in UIKit for iPhone.
 
-Shipping as **Bullish Square** on the App Store (2.0.5). The repository, bundle id
+Shipping as **Bullish Square** on the App Store (2.5.0). The repository, bundle id
 (`com.jdev.MW-Watcher`) and Xcode target still carry the app's former name, MW Watcher.
 
 ## Features
 
 - **Watchlists** — several named lists, each with its own tickers, logos and live prices
 - **Markets** — Dow, S&P 500 and Nasdaq index charts, plus crypto quotes
-- **Charts** — candlestick and line charts with OHLC detail and selectable intervals
+- **Stock screen** — candlestick and line charts from 1D to 5Y, key stats, a Health card
+  (trend, distance from the high, risk, momentum) and the analysts' consensus
+- **Calm investing** — a trend badge per stock, "No change detected", a This Week summary with
+  the market's mood, optional trend alerts, and a written thesis per stock with check-ins and
+  an exit plan
 - **News** — a live feed, per-ticker news, and bookmarked articles saved on device
 - **Simulated portfolio** — a paper-trading view over the active watchlist
 - **Accounts** — email and Sign in with Apple, profile editing, in-app account deletion
@@ -19,10 +23,10 @@ Shipping as **Bullish Square** on the App Store (2.0.5). The repository, bundle 
 
 UIKit + Storyboards (one storyboard per tab), MVC, no dependency injection. Firebase for
 auth and the user document; Core Data for everything the device keeps. Charts are drawn
-with DGCharts. Market, news and crypto data come from the Bullish Square server (`MarketDataServer`,
+with Swift Charts. Market, news and crypto data come from the Bullish Square server (`MarketDataServer`,
 the separate `bullish-square-api` repo) over plain `URLSession`; the app holds no API keys.
 
-Deployment target iOS 15.6. Dependencies are split across CocoaPods and Swift Package
+Deployment target iOS 17.0. Dependencies are split across CocoaPods and Swift Package
 Manager — `Pods/` is committed, so a clone builds without running `pod install` first.
 
 ## Building
