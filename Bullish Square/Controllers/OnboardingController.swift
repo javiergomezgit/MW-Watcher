@@ -13,6 +13,10 @@ class OnboardingController: UIViewController {
     
     var swiftyOnboard: SwiftyOnboard!
     
+    ///Number of onboarding scenes, one image each: page1.jpg ... pageN.jpg in Support/.
+    private let pageCount = 5
+    private var lastPage: Int { pageCount - 1 }
+    
     @IBOutlet var logoImage: UIImageView!
     
     override func viewWillAppear(_ animated: Bool) {
@@ -42,7 +46,7 @@ class OnboardingController: UIViewController {
         let index = sender.tag
         swiftyOnboard?.goToPage(index: index + 1, animated: true)
         
-        if index == 2 {
+        if index == lastPage {
             goToLogin()
         }
     }
@@ -69,14 +73,14 @@ class OnboardingController: UIViewController {
     }
     
     @objc func handleSkip() {
-        swiftyOnboard?.goToPage(index: 2, animated: true)
+        swiftyOnboard?.goToPage(index: lastPage, animated: true)
     }
 }
 
 extension OnboardingController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {
     
     func swiftyOnboardNumberOfPages(_ swiftyOnboard: SwiftyOnboard) -> Int {
-        return 3
+        return pageCount
     }
     
     func swiftyOnboardPageForIndex(_ swiftyOnboard: SwiftyOnboard, index: Int) -> SwiftyOnboardPage? {
@@ -136,7 +140,7 @@ extension OnboardingController: SwiftyOnboardDataSource, SwiftyOnboardDelegate {
         print(Int(currentPage))
         overlay.continueButton.tag = Int(position)
         
-        if currentPage == 0.0 || currentPage == 1.0 {
+        if Int(currentPage) < lastPage {
             overlay.continueButton.setTitle("Continue", for: .normal)
             overlay.skipButton.setTitle("Skip", for: .normal)
             overlay.skipButton.isHidden = false
