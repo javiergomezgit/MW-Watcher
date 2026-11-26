@@ -72,7 +72,11 @@ struct ComparisonChartView: View {
 
     var body: some View {
         let points = model.points
-        let dotted = Set(model.series.filter(\.showsPoints).map(\.name))
+        //A line of one value draws nothing, so it gets a dot: on 1D, when the provider is
+        //busy, the server answers each symbol with just its latest quote.
+        let dotted = Set(model.series.filter { line in
+            line.showsPoints || line.values.filter(\.isFinite).count == 1
+        }.map(\.name))
         let widths = Dictionary(model.series.map { ($0.name, $0.lineWidth) }, uniquingKeysWith: { first, _ in first })
 
         return Chart {

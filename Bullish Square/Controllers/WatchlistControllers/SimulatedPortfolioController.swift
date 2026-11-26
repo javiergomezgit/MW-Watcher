@@ -29,7 +29,8 @@ class SimulatedPortfolioController: UIViewController {
     ///The storyboard's slot for the time picker. It held an HBSegmentedControl; the native
     ///control below is placed in it instead (BS-328).
     @IBOutlet weak var timesContainer: UIView!
-    private let timesSegmentedControl = UISegmentedControl(items: ["1 day", "1 month", "1 year", "5 years"])
+    ///Named like the stock chart's spans. The server allows these four ranges for this screen.
+    private let timesSegmentedControl = UISegmentedControl(items: ["1D", "1M", "1Y", "5Y"])
     
     var marketsPrices = [GeneralMarkets(indexTicker: "^DJI", indexName: "Dow Jones Industrial Average", indexPrice: 0.0, changePercentage: 0.0)]
     let savedTickers = SaveTickers()
@@ -160,7 +161,11 @@ class SimulatedPortfolioController: UIViewController {
                 self.startStopSpinner(start: false)
                 
                 guard let marketsValues = markets else {
-                    ShowAlerts.showSimpleAlert(title: "Error", message: "Connection Error", titleButton: "Ok", over: self)
+                    //Usually the price provider being busy for the longer spans, which the server
+                    //can't fill from quotes. The span picked stays selected; another try later works.
+                    ShowAlerts.showSimpleAlert(title: "Prices unavailable",
+                                               message: "Prices for this span couldn't be loaded right now. Try again in a few minutes.",
+                                               titleButton: "OK", over: self)
                     return
                 }
                 
@@ -195,176 +200,137 @@ class SimulatedPortfolioController: UIViewController {
         myPortfolioOverLabel.text = "empty"
     }
     
+    ///The three indexes, the VIX (fetched, not shown) and the watchlist's stocks, from one answer.
+    private static let indexTickers: Set<String> = ["^DJI", "^GSPC", "^IXIC", "^VIX"]
+
+    ///Every headline number is the last point of its line, so the words can't disagree with the
+    ///chart. Both come from the same baseline (`ChartAPI.loadPerformers`), and the portfolio is
+    ///the plain average of its stocks' changes, at the end and at every point of the line.
     func processPricesPerformance(marketsValues: [PerformersPrices]){
-        
-        var sumPortfolio = 0.0
-        var pricesAndTimes = [PerformersPrices]()
-        
-        for marketValue in marketsValues {
-            //print("\(marketValue.ticker): \(marketValue.tickerPerformer.map { $0.close })")
-            let ticker = marketValue.ticker
-            switch ticker {
-            case "^DJI":
-                //let marketInfo = GeneralMarkets(indexTicker: ticker, indexName: "DOW JONES", indexPrice: market., changePercentage: market.changePercentage)
-                let percentage = marketValue.changePercentage
-                self.dowTodayPrice = percentage
-                dowTodayLabel.text = String("\(percentage)%")
-                for lineValue in marketValue.tickerPerformer {
-                    let closePrice = lineValue.close
-                    self.linearValuesDJI.append(closePrice)
-                }
-                break
-            case "^GSPC":
-                //let marketInfo = GeneralMarkets(indexTicker: ticker, indexName: "S&P 500", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                let percentage = marketValue.changePercentage
-                self.sp500TodayPrice = percentage
-                sp500TodayLabel.text = String("\(percentage)%")
-                for lineValue in marketValue.tickerPerformer {
-                    let closePrice = lineValue.close
-                    self.linearValuesSP500.append(closePrice)
-                }
-                break
-            case "^IXIC":
-                //let marketInfo = GeneralMarkets(indexTicker: ticker, indexName: "NASDAQ", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                let percentage = marketValue.changePercentage
-                self.nasdaqTodayPrice = percentage
-                nasdaqTodayLabel.text = String("\(percentage)%")
-                for lineValue in marketValue.tickerPerformer {
-                    let closePrice = lineValue.close
-                    self.linearValuesIXIC.append(closePrice)
-                }
-                break
-            case "^VIX":
-                //let marketInfo = GeneralMarkets(indexTicker: ticker, indexName: "CBOE Volatility Index", indexPrice: market.indexPrice, changePercentage: market.changePercentage)
-                let percentage = marketValue.changePercentage
-                self.vixTodayPrice = percentage
-                break
-            default :
-                sumPortfolio += marketValue.changePercentage
-                pricesAndTimes.append(marketValue)
-            }
+        let byTicker = Dictionary(marketsValues.map { ($0.ticker, $0) }, uniquingKeysWith: { first, _ in first })
+        let portfolioStocks = marketsValues.filter { !Self.indexTickers.contains($0.ticker) }
+
+        //One clock for every line, so the portfolio and the indexes are compared at the same
+        //moments. Lines used to be matched by bar number, and a stock missing a bar shifted
+        //everything after it. The clock is the indexes' own bars, the market's session: a coin
+        //on the list trades all day and on weekends, and its extra bars would stretch the 1D
+        //axis over 24 hours and put flat weekend steps into every other line.
+        let indexClock = ["^GSPC", "^DJI", "^IXIC"].compactMap { byTicker[$0]?.tickerPerformer.map(\.timeStamp) }
+        let clockSource = indexClock.isEmpty ? marketsValues.map { $0.tickerPerformer.map(\.timeStamp) } : indexClock
+        let timeline = Array(Set(clockSource.flatMap { $0 })).sorted()
+        linearValuesDJI = Self.line(byTicker["^DJI"]?.tickerPerformer, on: timeline)
+        linearValuesSP500 = Self.line(byTicker["^GSPC"]?.tickerPerformer, on: timeline)
+        linearValuesIXIC = Self.line(byTicker["^IXIC"]?.tickerPerformer, on: timeline)
+        linearValuesPortfolio = Self.averageLine(portfolioStocks.map(\.tickerPerformer), on: timeline)
+
+        //A missing index shows a dash rather than keeping the previous span's number.
+        let dow = byTicker["^DJI"]?.changePercentage
+        let sp500 = byTicker["^GSPC"]?.changePercentage
+        let nasdaq = byTicker["^IXIC"]?.changePercentage
+        self.dowTodayPrice = dow ?? 0
+        self.sp500TodayPrice = sp500 ?? 0
+        self.nasdaqTodayPrice = nasdaq ?? 0
+        self.vixTodayPrice = byTicker["^VIX"]?.changePercentage ?? 0
+        dowTodayLabel.text = dow.map(Self.percentText) ?? "—"
+        sp500TodayLabel.text = sp500.map(Self.percentText) ?? "—"
+        nasdaqTodayLabel.text = nasdaq.map(Self.percentText) ?? "—"
+
+        //nil with no stocks: an empty portfolio is not a flat 0%.
+        let portfolio: Double? = portfolioStocks.isEmpty ? nil
+            : portfolioStocks.map(\.changePercentage).reduce(0, +) / Double(portfolioStocks.count)
+
+        showComparison(portfolio: portfolio, index: dow, comparing: dowComparingLabel, over: dowOverLabel)
+        showComparison(portfolio: portfolio, index: sp500, comparing: sp500ComparingLabel, over: sp500OverLabel)
+        showComparison(portfolio: portfolio, index: nasdaq, comparing: nasdaqComparingLabel, over: nasdaqOverLabel)
+
+        if let portfolio {
+            myPortfolioComparingLabel.text = Self.percentText(portfolio)
+            //"The Portfolio is <up/down>": its own move over the span, not a comparison.
+            myPortfolioOverLabel.text = portfolio < 0 ? "Underperforming" : "Overperforming"
+            myPortfolioOverLabel.textColor = portfolio < 0 ? UIColor(named: "downtrend") : UIColor(named: "uptrend")
+        } else {
+            myPortfolioComparingLabel.text = "—"
+            myPortfolioOverLabel.text = "empty"
         }
-        
-        populatePortfolioChartEntry(portfolioStocks: pricesAndTimes)
-        
-        //A watchlist holding only index symbols leaves nothing to average, and 0/0 put "nan%"
-        //into every label. Report no performance instead, and render a dash so an empty
-        //portfolio is not mistaken for a flat 0%.
-        let hasPortfolio = !pricesAndTimes.isEmpty
-        let portfolioPerformance = hasPortfolio ? sumPortfolio / Double(pricesAndTimes.count) : 0.0
-        
-        let dowCompareTo = portfolioPerformance - self.dowTodayPrice
-        let sp500CompareTo = portfolioPerformance - self.sp500TodayPrice
-        let nasdaqCompareTo = portfolioPerformance - self.nasdaqTodayPrice
-        
-        func percentText(_ value: Double) -> String {
-            guard hasPortfolio, value.isFinite else { return "—" }
-            return "\(Double(round(100*value)/100))%"
+        loadPerformerChart()
+    }
+
+    ///"<difference> <Over/Underperforming the> <index>". The difference is portfolio minus
+    ///index, both rounded the way they're shown, so the sign always matches the numbers on screen.
+    private func showComparison(portfolio: Double?, index: Double?, comparing: UILabel, over: UILabel) {
+        guard let portfolio, let index else {
+            comparing.text = "—"
+            over.text = ""
+            return
         }
-                
-        DispatchQueue.main.async {
-            if dowCompareTo < 0 {
-                self.dowComparingLabel.textColor = UIColor(named: "downtrend")
-                self.dowOverLabel.textColor = UIColor(named: "downtrend")
-                self.dowOverLabel.text = "Underperforming the"
+        let difference = Self.rounded(portfolio) - Self.rounded(index)
+        let roundedDifference = Self.rounded(difference)
+        let color: UIColor?
+        if roundedDifference > 0 {
+            over.text = "Overperforming the"
+            color = UIColor(named: "uptrend")
+        } else if roundedDifference < 0 {
+            over.text = "Underperforming the"
+            color = UIColor(named: "downtrend")
+        } else {
+            over.text = "Level with the"
+            color = .secondaryLabel
+        }
+        over.textColor = color
+        comparing.textColor = color
+        comparing.text = Self.percentText(roundedDifference)
+    }
 
-            } else {
-                self.dowComparingLabel.textColor = UIColor(named: "uptrend")
-                self.dowOverLabel.textColor = UIColor(named: "uptrend")
-                self.dowOverLabel.text = "Overperforming the"
+    private static func rounded(_ value: Double) -> Double {
+        (value * 100).rounded() / 100
+    }
 
+    ///"+0.45%", "-1.20%", "0.00%".
+    private static func percentText(_ value: Double) -> String {
+        let value = rounded(value)
+        return (value > 0 ? "+" : "") + String(format: "%.2f%%", value)
+    }
+
+    ///One line on the shared clock: its value at each moment it has a bar for or has already
+    ///started, carried forward across a missing bar, and nothing before its first bar or after
+    ///its last (NaN, which the chart leaves out).
+    private static func line(_ bars: [MarketsClosedPrices]?, on timeline: [Double]) -> [Double] {
+        guard let bars, let first = bars.first?.timeStamp, let last = bars.last?.timeStamp else { return [] }
+        var next = 0
+        var current = Double.nan
+        return timeline.map { time in
+            while next < bars.count, bars[next].timeStamp <= time {
+                current = bars[next].close
+                next += 1
             }
-            
-            if sp500CompareTo < 0 {
-                self.sp500ComparingLabel.textColor = UIColor(named: "downtrend")
-                self.sp500OverLabel.textColor = UIColor(named: "downtrend")
-                self.sp500OverLabel.text = "Underperforming the"
-
-            } else {
-                self.sp500ComparingLabel.textColor = UIColor(named: "uptrend")
-                self.sp500OverLabel.textColor = UIColor(named: "uptrend")
-                self.sp500OverLabel.text = "Overperforming the"
-
-            }
-            
-            if nasdaqCompareTo < 0 {
-                self.nasdaqComparingLabel.textColor = UIColor(named: "downtrend")
-                self.nasdaqOverLabel.textColor = UIColor(named: "downtrend")
-                self.nasdaqOverLabel.text = "Underperforming the"
-
-            } else {
-                self.nasdaqComparingLabel.textColor = UIColor(named: "uptrend")
-                self.nasdaqOverLabel.textColor = UIColor(named: "uptrend")
-                self.nasdaqOverLabel.text = "Overperforming the"
-
-            }
-            
-            if portfolioPerformance < 0 {
-//                self.myPortfolioComparingLabel.textColor = UIColor(named: "downtrend")
-                self.myPortfolioOverLabel.textColor = UIColor(named: "downtrend")
-                self.myPortfolioOverLabel.text = "Underperforming"
-            } else {
-//                self.myPortfolioComparingLabel.textColor = UIColor(named: "uptrend")
-                self.myPortfolioOverLabel.textColor = UIColor(named: "uptrend")
-                self.myPortfolioOverLabel.text = "Overperforming"
-            }
-            
-            if !hasPortfolio {
-                //Nothing to compare against yet; the over/under wording would otherwise claim
-                //the portfolio is outperforming on a value that does not exist.
-                self.dowOverLabel.text = ""
-                self.sp500OverLabel.text = ""
-                self.nasdaqOverLabel.text = ""
-                self.myPortfolioOverLabel.text = "empty"
-            }
-            
-            self.dowComparingLabel.text = percentText(dowCompareTo)
-            self.sp500ComparingLabel.text = percentText(sp500CompareTo)
-            self.nasdaqComparingLabel.text = percentText(nasdaqCompareTo)
-            self.myPortfolioComparingLabel.text = percentText(portfolioPerformance)
-            //self.refreshControl.endRefreshing()
-            //self.startStopSpinner(start: false)
-            self.loadPerformerChart()
+            return time < first || time > last ? .nan : current
         }
     }
-    
-    private func populatePortfolioChartEntry(portfolioStocks: [PerformersPrices]) {
-        
-        var sumPerSlot: [Int: Double] = [:]
-        var countPerSlot: [Int: Int] = [:]
-        
-        for stock in portfolioStocks {
-            for (i, closePrices) in stock.tickerPerformer.enumerated() {
-                let closePrice = closePrices.close
-                guard closePrice != 0 else { continue }
-                sumPerSlot[i, default: 0] += closePrice
-                countPerSlot[i, default: 0] += 1
-            }
-        }
-        
-        linearValuesPortfolio.removeAll()
-        
-        //Use max slot count instead of only slots with data
-        let maxSlot = portfolioStocks.map { $0.tickerPerformer.count }.max() ?? 0
-        
-        for i in 0..<maxSlot {
-            let sum = sumPerSlot[i] ?? 0
-            let count = countPerSlot[i] ?? 0
-            
-            guard count > 0 else {
-                //Fill gap with previous value — keeps chart line continuous
-                let previousY = linearValuesPortfolio.last ?? 0
-                print("Slot \(i): GAP FILLED with \(previousY)")
 
-                linearValuesPortfolio.append(previousY)
-                continue
+    ///The watchlist's average at each moment. A stock that has no bar at a moment counts with
+    ///its last value, so the average doesn't jump when one stock skips a bar; a stock that hasn't
+    ///started yet is left out of that moment. The last moment uses every stock's latest value,
+    ///even one whose bar came after the indexes' last (a coin, or a quote the server stood in
+    ///with), so the line ends exactly on the headline number.
+    private static func averageLine(_ stocks: [[MarketsClosedPrices]], on timeline: [Double]) -> [Double] {
+        guard !stocks.isEmpty else { return [] }
+        var nextIndex = Array(repeating: 0, count: stocks.count)
+        var latest: [Double?] = Array(repeating: nil, count: stocks.count)
+        let lastTime = timeline.last
+        return timeline.map { time in
+            if time == lastTime {
+                let finals = stocks.compactMap { $0.last?.close }
+                return finals.isEmpty ? .nan : finals.reduce(0, +) / Double(finals.count)
             }
-            
-            let avg = sum / Double(count)
-            print("Slot \(i): avg=\(avg) count=\(count)")
-            linearValuesPortfolio.append(avg)
+            for (stock, bars) in stocks.enumerated() {
+                while nextIndex[stock] < bars.count, bars[nextIndex[stock]].timeStamp <= time {
+                    latest[stock] = bars[nextIndex[stock]].close
+                    nextIndex[stock] += 1
+                }
+            }
+            let known = latest.compactMap { $0 }
+            return known.isEmpty ? .nan : known.reduce(0, +) / Double(known.count)
         }
-        print("populatePortfolioChartEntry running — maxSlot: \(portfolioStocks.map { $0.tickerPerformer.count }.max() ?? 0)")
     }
 }
 

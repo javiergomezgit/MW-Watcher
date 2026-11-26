@@ -218,35 +218,34 @@ final class ChartAPI {
                 var marketsValues = [PerformersPrices]()
                 for tickerJSON in arrayJSON {
                     guard let tickerDict = tickerJSON.value as? [String: Any],
-                          let previousClose = tickerDict["chartPreviousClose"] as? Double,
                           let rawPrices = tickerDict["close"] as? [Any],
                           let arrayTimeStamps = tickerDict["timestamp"] as? [Double] else { continue }
                     
-                    let arrayPrices: [Double] = rawPrices.compactMap { item in
-                        guard let price = item as? Double, price > 0 else { return nil }
-                        return price
+                    //Each price stays with its own timestamp. Null prices (a bar with no trade)
+                    //used to be dropped first and the rest paired with timestamps by position,
+                    //so after any gap every price carried the wrong time.
+                    var bars: [(time: Double, price: Double)] = []
+                    for (timestamp, rawPrice) in zip(arrayTimeStamps, rawPrices) {
+                        guard let price = rawPrice as? Double, price > 0 else { continue }
+                        bars.append((timestamp, price))
+                    }
+                    guard let firstBar = bars.first, let lastBar = bars.last else { continue }
+                    
+                    //The line and the headline percent are measured from the same price: the
+                    //close before the range (yesterday's close on 1 day, the range's start on the
+                    //others). The line used to start from the range's first bar instead, so a
+                    //watchlist that jumped at the open and then slid sat below every index on the
+                    //chart while the headline, counting the jump, said it was outperforming.
+                    //Without a previous close, both fall back to the first bar.
+                    let previousClose = tickerDict["chartPreviousClose"] as? Double ?? 0
+                    let basePrice = previousClose > 0 ? previousClose : firstBar.price
+                    func percent(_ price: Double) -> Double {
+                        Double(round(100 * ((price * 100) / basePrice - 100)) / 100)
                     }
                     
-                    guard !arrayPrices.isEmpty,
-                          let currentPrice = arrayPrices.last,
-                          let basePrice = arrayPrices.first else { continue }
-                    
-                    var pricesAndTimes = [MarketsClosedPrices]()
-                    for (index, closePrice) in arrayPrices.enumerated() {
-                        let changePercentage = ((closePrice * 100) / basePrice) - 100
-                        let percentageRounded = Double(round(100*changePercentage)/100)
-                        
-                        guard index < arrayTimeStamps.count else { break }
-                        let priceTime = MarketsClosedPrices(timeStamp: arrayTimeStamps[index], close: percentageRounded)
-                        pricesAndTimes.append(priceTime)
-                    }
-                    
-                    //A previousClose of 0 would make this infinite. basePrice above is safe,
-                    //the compactMap already drops any price that is not greater than zero.
-                    let changePercentage = previousClose > 0 ? ((currentPrice * 100) / previousClose) - 100 : 0.0
-                    let percentageRounded = Double(round(100*changePercentage)/100)
-
-                    let tickerValue = PerformersPrices(ticker: tickerJSON.key, changePercentage: percentageRounded, currentPrice: currentPrice, tickerPerformer: pricesAndTimes)
+                    let pricesAndTimes = bars.map { MarketsClosedPrices(timeStamp: $0.time, close: percent($0.price)) }
+                    let tickerValue = PerformersPrices(ticker: tickerJSON.key, changePercentage: percent(lastBar.price),
+                                                       currentPrice: lastBar.price, tickerPerformer: pricesAndTimes)
                     
                     marketsValues.append(tickerValue)
                 }
